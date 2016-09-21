@@ -1,0 +1,48 @@
+Monolayer BN - BGW/Epsilon
+==========================
+
+In this directory we calculate the RPA dielectric matrix using the
+Epsilon code from BerkeleyGW.
+
+
+Instructions
+------------
+
+  1. Look at the WFN file using the utility ``wfn_rho_vxc_info.x`` (you
+     will need to ``module load berkeleygw/1.2`` first). What is the
+     cell size? What do you think will happen to the number of bands
+     needed to converge the calculation if the vacuum is increased or
+     decreased?
+
+  2. Take a look at the q-points from ``epsilon.inp``. You should note that
+     these q-points match the k-points from the ``WFN`` file, according to
+     ``wfn_rho_vxc_info.x``. This is because our ``WFN`` file is Gamma-centered,
+     i.e., there is no shift. This way, each q-point, defined as q=k-k', will
+     be a k-point in the ``WFN`` file.
+  
+  3. Why is the first q-point different? Relate the shift of 0.001 to the 
+     k-points in the two WFN files. Hint: for q0 points:
+     q0 = k_{WFNq} - k_{WFN}
+
+  4. Make sure you understand the flags in ``epsilon.inp``. Since this is a 2D
+     system, you should include cell_slab_truncation to use a truncated
+     Coulomb interaction to prevent spurious interactions with periodic images.
+     Which parameters in ``epsilon.inp`` should be converged? Which convergence
+     parameters are coupled?
+
+  5. Run the epsilon calculation using ``./01-run_epsilon.qsub``. This will
+     take a few seconds.
+
+  6. Next, let's plot the head of the inverse dielectric matrix. Do this by
+     running ``./02-extract_epsinv00.sh``. This script greps for the lines
+     where the Head is printed in the output file. Find the block in epsilon.inp
+     starting with ' Q0 and |Q0|'. The last column is the norm of |q|, which
+     should be the x-axis of your plot.
+
+  7. Look at the file ``head.dat``. The values here are the y-values to use. Make
+     a plot. Does the q-grid we are using capture the dip in epsilon inverse?
+
+  8. Your q-grid should be fine enough to capture the variation in
+     epsilon^{-1}_00 for small q. What do you think will happen to the dip in
+     epsilon^{-1}_00 if the amount of vacuum increases? Will the q-grid need
+     to be finer or coarser to capture this behavior?

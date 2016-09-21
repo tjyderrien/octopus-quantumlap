@@ -1,0 +1,383 @@
+\section{Kinetic energy, scalar relativity, and spin-orbit coupling}
+\label{Sec:rel}
+
+For elements beyond approximately $Z$=30, relativistic effects near
+the nucleus cannot be neglected in an all-electron treatment---both
+for core, and for valence electrons. For the purposes of ``everyday'' matter,
+the full theory is given by Dirac's four-component Equation, but in the
+``practice'' of materials physics and chemistry, we still tend to think in
+terms of Schr\"odinger-like objects. A true four-component treatment is not
+implemented in FHI-aims, but the following standard levels of approximation
+are available: 
+\begin{itemize}
+  \item Non-relativistic kinetic energy (one or two collinear \keyword{spin}
+    components of the Kohn-Sham orbitals)
+  \item Scalar-relativistic kinetic energy expression (one or two collinear
+    spin components). 
+  \item Perturbative spin-orbit coupling, a single correction step to the
+    Kohn-Sham eigenvalues based on the Kohn-Sham orbitals from a
+    non-relativistic or scalar-relativistic s.c.f. cycle. \emph{Perturbative
+      spin-orbit coupling in FHI-aims is a new feature. Importantly,
+      changes to the total  
+      energy beyond the sum-of-eigenvalues are not included, and total energy 
+      gradients (forces) are also unavailable.}
+\end{itemize}
+
+\subsection*{Scalar relativity}
+
+While the non-relativistic level of theory is exactly
+defined and will be the same in any first-principles implementation (at a
+complete basis set, all-electron level anyway), there are many different
+versions of scalar-relativistic approximations which can yield
+considerably different \emph{total} energies for different systems. Their
+unifying feature is that any two scalar-relativistic methods should still
+yield the same energy \emph{differences} for properties that concern
+valence electrons: Binding energies, valence eigenvalues, etc. 
+
+As outlined in Ref. \cite{Blum08}, FHI-aims offers two reliable, effective
+one-component scalar relativistic treatments (by ``effective one-component'',
+we mean that no coupling exists between the two spin channels of a calculation
+with collinear spin): ``atomic ZORA'' and ``scaled ZORA''. (ZORA: ``zero-order
+regular approximation''.) The potential energy surfaces and valence
+eigenvalues obtained from either one are sound, with total energy
+\emph{differences} (e.g., between different structures) of atomic ZORA
+matching benchmark results obtained by other scalar-relativistic
+methods somewhat more closely in the ``Delta Project'',
+https://molmod.ugent.be/deltacodesdft .   
+
+By construction, scaled ZORA (absolute) \emph{total} energies and
+\emph{core} eigenvalues are closer to their counterparts from
+other scalar-relativistic methods than atomic ZORA. 
+
+However, in practical calculations, atomic ZORA appears to be
+preferable: 
+\begin{itemize}
+  \item The computational overhead for scaled ZORA is significant
+  \item Calculating energy gradients (forces) is much more
+    involved than for atomic ZORA, which is why gradients are only
+    implemented for atomic ZORA
+  \item It appears (see above) that atomic ZORA based energy
+    differences are slightly more reliable than scaled ZORA energy
+    differences. 
+\end{itemize}
+
+In practice, any valence electron related results from atomic ZORA,
+scaled ZORA, or other scalar relativistic methods in the literature
+should be expected to agree with one another up to benchmark accuracy
+level if all \emph{other} computational tasks are numerically well
+converged. Only the broad comparison of materials and codes in the
+``Delta Project'' (https://molmod.ugent.be/deltacodesdft) helped us
+distinguish what is otherwise a very subtle difference at best. 
+
+As illustrated in more detail in Sec. \ref{Sec:rel-example}, we
+presently recommend the following strategy for the correct handling
+of scalar relativity for arbitrary structures in FHI-aims:
+\begin{enumerate}
+  \item For energy differences, geometries, valence eigenvalues etc.,
+    simply rely on the \emph{atomic} zero-order regular approximation
+    approximation (ZORA). This has performed very well for us in a
+    broad array of benchmarks.
+  \item If you wish for a ``second opinion'' or, for some reason, need
+    a more credible (still not accurate!) handling of core
+    eigenvalues, perform single-point calculations using the ``scaled
+    ZORA'' \cite{Lenthe94} approximation. 
+\end{enumerate}
+Similarly, any other tasks involving forces should be performed using
+atomic ZORA, remembering that only energy \emph{differences} between
+different structures are meaningful in this case.
+
+\subsection*{Spin-Orbit Coupling}
+
+FHI-aims currently implements a treatment of the spin-orbit coupling
+operator which adds spin-orbit coupling (SOC) corrections to the Kohn-Sham
+eigenvalues, band structures, and densities of states in a
+single evaluation after a scalar-relativistic s.c.f. cycle without
+spin-orbit coupling is complete. In other words, this is a
+non-selfconsistent evaluation of spin-orbit coupling. The keyword 
+
+  \keyword{include\_spin\_orbit} \option{non\_self\_consistent}
+
+should be all that is needed for most production applications. This keyword
+should be \emph{added} to a standard \texttt{control.in} file.
+The level of scalar relativity should still be specified as usual, for
+example, 
+
+  \keyword{relativistic} \option{atomic\_zora} \option{scalar}
+
+to invoke the atomic ZORA kinetic energy operator.
+
+Applying the SOC operator in this perturbative
+(non-selfconsistent) way is quantitatively accurate (to a few 0.01 eV
+for valence band structures) for elements below Xe ($Z$=54) when
+combined with atomic ZORA.
+
+\emph{For heavy
+  elements (approximately Au and beyond) this level of theory is only
+  qualitatively accurate. It captures the majority of the SOC effect,
+  but quantitative deviations above 0.1 eV for band structures must be
+  expected. Similarly, the corrections for any core levels would
+  require one to go beyond non-selfconsistent SOC.}
+
+Since FHI-aims, by default, only treats a finite number of bands in a
+given calculation, increasing the number of bands using the keyword
+\keyword{empty\_states} may be necessary to capture correctly the
+behavior of high-lying conduction bands.
+
+\subsubsection{Some Background}
+
+Spin-orbit coupling is a simple consequence of transforming Dirac's
+equation to a (two-component) Schr\"odinger-like form. This leads to
+an approximate Hamiltonian of the form
+\begin{equation}
+  \hat{H} = \hat{t}_{SR} + \hat{v} + \hat{v}_{SOC} .
+\end{equation}
+$\hat{t}_{SR}$ is the usual scalar relativistic kinetic energy
+operator (e.g., atomic ZORA). $\hat{v}$ is the local or non-local
+potential, and $\hat{v}_{SOC}$ is the spin-orbit coupling operator,
+\begin{equation}
+  v_{SOC}=\frac{i}{4c^{2}}\bm{p} \tilde{v} \times \bm{p} \cdot
+  \bm{\sigma} .
+\end{equation}
+This operator also contains a potential $\tilde{v}$, and in principle, for
+Kohn-Sham theory (local potential), $\tilde{v}$ could be equal to
+$v(r)$. In practice, however, the combination of potential and
+gradients in $v_{SOC}$ means that SOC arises essentially only very
+near the nucleus, where the potential is deep and dominated by the
+nuclear potential. In FHI-aims, we therefore only consider the sum of
+the nuclear and the electrostatic potentials, but not the Kohn-Sham
+exchange-correlation potential, for $\tilde{v}$ when constructing $v_{SOC}$.
+
+We then treat spin-orbit coupling $\bolds\times\boldp$ perturbatively
+, i.e., as a single-shot postprocessing step after an otherwise
+converged scalar-relativistic self-consistent field cycle. 
+By default, we can simply include all Kohn-Sham states in the
+evaluation of $v_{SOC}$ above and invert the resulting Hamiltonian
+once to obtain its eigenvalues and eigenvectors. This amounts to
+standard first-order perturbation theory and is the level of theory
+that we have found to be sufficient for accurate results.
+
+It is possible to go beyond the first-order level by so-called
+quasi-degenerate (qd) perturbation theory in a second-variational
+approach. Some of this is implemented in FHI-aims and summarized below
+for completeness. However, we have not found any significant
+improvements compared to the first-order level. At present, it does
+not appear necessary to play with any of this except for development
+or research purposes. 
+
+\emph{Quasi-degenerate perturbation theory} is based on L\"owdin partitioning
+\cite{Loewdin51}. The spin-orbit interaction is seen as a perturbation to the 
+scalar-relativistic Kohn-Sham-Hamiltonian $\hat{h}^\text{sr}$:
+\begin{equation}
+\label{eqn:soc_ham}
+\hat{h}=\hat{h}^\text{sr}+\hat{h}^\text{soc} \, .
+\end{equation}
+The scalar-relativistic set of eigenstates $\left\{\psi^\text{sr}\right\}$ is
+then divided into several subsets $\left\{\psi^\text{sr}\right\}_k$ in the
+following way. Two scalar-relativistic states $i$ and $j$ belong to the same
+subset if   
+\begin{enumerate}
+ \item their eigenvalues are close OR
+ \item their matrix element $\left<\psi_i^\text{sr}\left|\hat{h}^\text{SOC}\right|\psi_j^\text{sr}\right>$ 
+	is  comparable to the eigenvalue difference
+\end{enumerate}
+which means that any two \emph{different} subsets are weakly interacting in
+terms of $h^\text{SOC}$ and separated in energy. For each subset the
+Hamiltonian \ref{eqn:soc_ham} is then 
+``block-diagonalized'' to a form $\tilde{h}$ such that all matrix elements 
+$\left<\psi_{\mathrm{in\;subset}}\left|\tilde{h}\right|\psi_{\mathrm{not\;in\;subset}}\right>$  
+vanish up to a specified order in $h_{\mathrm{SOC}}$. For details see reference
+\cite{Winkler:SOC}. 
+
+
+\newpage
+
+\subsection*{Tags for general section of \texttt{control.in}:}
+
+\keydefinition{include\_spin\_orbit}{control.in}
+{
+  \noindent
+  Usage: \keyword{include\_spin\_orbit} \option{method} \\[1.0ex]
+  Purpose: Calculates spin-orbit coupling corrected eigenvalues. \\[1.0ex] 
+  \option{method} The method for including spin-orbit coupling.  At present, only \option{type} 
+  \option{non\_self\_consistent} is suitable for production-level calculations. \\[1.0ex] 
+}
+
+\emph{Note: While FHI-aims also prints out a corrected total-energy
+  expression based on the SOC-corrected eigenvalues, please do not
+  trust this total energy expression for anything. It is experimental.} 
+
+Spin-orbit corrections can be added as a perturbative post-processed
+step after a non-relativistic, atomic ZORA or scaled ZORA
+scalar-relativistic calculation. Usually, just writing
+
+  \keyword{include\_spin\_orbit} \option{non\_self\_consistent}
+
+is sufficient to obtain corrected eigenvalues and (if requested) band
+structures, densities of states, etc., in first-order perturbation
+theory to a scalar-relativistic calculation.
+
+FHI-aims will write the results to standard output after the SCF cycle
+has converged and details to a separate output file
+\option{SOC\_result.out}.  
+
+Since perturbative spin-orbit coupling operates
+on the space spanned by the calculated scalar-relativistic
+eigenvectors, for accurate high-lying bands one must include
+sufficiently many unoccupied states. If needed, this may be done by
+increasing the keyword \keyword{empty\_states}. 
+
+\emph{For research purposes, FHI-aims also includes some level of theory
+beyond first-order perturbation theory. This is summarized below and
+gives rise to some additional keywords. However, we have not seen a
+large improvement from the approaches described below.}
+
+FHI-aims also enables the use of (quasi-)degenerate perturbation
+theory, for which there are three important parameters:
+\option{matrix\_tolerance} and \option{ev\_tolerance} which  
+determine the assignment of eigenvalues to degenerate subspaces, and \option{soc\_perturb\_order} which determines the 
+order of (quasi-)degenerate perturbation theory to perform. 
+ 
+\option{matrix\_tolerance} places eigenstates in the same subspace if \\ 
+    $\left|\left<\psi_i^\text{sr}\left|\hat{h}^\text{soc}\right|\psi_j^\text{sr}\right>\right|\times
+    \option{matrix\_tolerance}\ge \left|\epsilon_i-\epsilon_j\right|$ \\
+\option{ev\_tolerance} [in eV] places eigenstates in the same subspace if 
+    $\left|\epsilon_i-\epsilon_j\right| \le \option{ev\_tolerance}$
+
+Standard first-order perturbation theory is a special case of the
+quasi-degenerate perturbation formalism, achievable by considering
+only first-order effects and setting a large enough value of
+\option{ev\_tolerance} that all eigenstates are placed into a single
+subspace, and we have chosen to make this the default setting. 
+
+While we believe standard first-order perturbation theory gives
+reliable numbers as compared to to quasi-degenerate perturbation
+theory and highly recommend the user stay with it, nevertheless if the
+user wishes to change these settings, they may do so.  The default
+value for \option{matrix\_tolerance} is 0.1.  The default value for
+\option{ev\_tolerance} is 1000000000 eV.  To change these, use keyword
+\keyword{soc\_subspace}.  The default value for
+\option{soc\_perturb\_order} is 1.  To change this, use keyword
+\keyword{soc\_perturb\_order}. 
+
+
+\emph{If the user wishes to play around with quasi-degenerate
+  perturbation theory,   we have found in the past that
+  \option{soc\_perturb\_order} 2 and   \option{ev\_tolerance} 0.00001
+  eV are relatively safe starting values, and that
+  \option{matrix\_tolerance} is the parameter that should adjusted,
+  but we give the    user the ability to change all three.  The
+  characteristic signature of poorly    chosen values are ``wiggles''
+  in the plotted band structure.} 
+
+\keydefinition{soc\_subspace}{control.in}
+{
+  \noindent
+  Usage: \keyword{soc\_subspace} \option{parameter} \option{value} \\[1.0ex]
+  Purpose: Used to change the tolerance parameters associated with subspace assignment for perturbative SOC. \\[1.0ex]
+  \option{parameter} The parameter to change.  Options are \option{matrix\_tolerance} or \option{ev\_tolerance}. 
+     \\[1.0ex]
+  \option{value} The value assigned to the parameter chosen by \option{parameter}. \\[1.0ex]
+}
+Default:  \option{matrix\_tolerance} 0.1, \option{ev\_tolerance} 1000000000 eV.
+
+This is an optional keyword.  See \keyword{include\_spin\_orbit} for more information.
+
+\keydefinition{soc\_perturb\_order}{control.in}
+{
+  \noindent
+  Usage: \keyword{soc\_perturb\_order} \option{order} \\[1.0ex]
+  Purpose: Sets the order of quasi-degenerate perturbation theory to use for SOC calculations. \\[1.0ex] 
+  \option{order} The order of quasi-degenerate perturbation theory to use, an integer from 0 to 3. \\[1.0ex] 
+}
+Default: 1.
+
+This is an optional keyword.  See \keyword{include\_spin\_orbit} for more information.
+
+\keydefinition{compute\_kinetic}{control.in}  
+{
+  \noindent
+  Usage: \keyword{compute\_kinetic} \\[1.0ex]
+  Purpose: \emph{Experimental} - for test purposes, allows to compute the kinetic energy via
+    the product of the kinetic energy matrix and the density matrix
+    \\[1.0ex]
+}
+This flag is presently kept for test purposes only (the electronic
+kinetic energy is separately computed and printed for each scf
+iteration anyway) but may be useful for some future modifications.
+
+\keydefinition{override\_relativity}{control.in}
+{
+  \noindent
+  Usage: \keyword{override\_relativity} \option{flag} \\[1.0ex]
+  Purpose: If explicitly set, allows to override the stop enforced by
+  the code when physically questionable \keyword{relativistic}
+  settings are used.  \\[1.0ex]
+  \option{flag} is a logical expression, either \texttt{.true.} or
+    \texttt{.false.} Default: \texttt{.false.} \\
+}
+For example, this will allow you to run a physically incorrect
+calculation of heavy elements (think Au) with Schr\"odinger's
+expression for the kinetic energy, instead of a scalar relativistic
+treatment. The results will be wrong, so this flag should only be set
+for test purposes. When set, the code assumes that the user must know
+what they are doing.
+
+\keydefinition{relativistic}{control.in}
+{
+  \noindent
+  Usage: \keyword{relativistic} \option{r-type} \option{s-type}
+    [\option {threshold}] \\[1.0ex]
+  Purpose: Specifies the level of relativistic treatment in the
+    calculation. \\[1.0ex]
+  \option{r-type} is a string, specifying the basic approximation
+    made. \\
+  \option{s-type} is a string, specifying whether a scalar treatment
+    is desired (currently, only the \texttt{scalar} option is
+    supported). \\ 
+  \option{threshold} is a small positive real number, allowing to
+    reduce some integration effort. \\
+}
+Detailed expressions for the scalar relativistic treatments available
+here are given in Ref. \cite{Blum08}. We here only repeat the salient
+options and expressions. Possible options for \option{r-type} are:
+\begin{itemize}
+  \item \texttt{none} : Non-relativistic kinetic energy. In this case,
+        \option{s-type} and \option{threshold} need not be provided. 
+  \item \texttt{atomic\_zora} : Atomic ZORA approximation as described
+    in Ref. \cite{Blum08}. \option{threshold} need not be provided. 
+    This is the currently recommended option for energy differences and valence 
+    and unoccupied eigenvalues.
+  \item \texttt{zora} The ZORA approximation is used throughout the
+    s.c.f. cycle, followed by a ``scaled ZORA'' \cite{Lenthe94} post-processing step
+    (rescaling of all eigenvalues). \textbf{WARNING:} Do not rely on
+    intermediate, simple ZORA total energies, but only on the final,
+    rescaled total energies instead! ZORA (unscaled) is not the same as 
+    ``atomic ZORA'' and cannot be trusted.
+\end{itemize}
+Forces are only provided for \texttt{none} and \texttt{atomic\_zora}.
+
+\textbf{Remember to never take energy differences between calculations
+  performed with different ``relativistic'' settings.}
+
+In case of \texttt{zora}, the \option{threshold} option is required;
+it specifies the threshold value above which the difference between
+the sum-of-free-atoms ZORA expression and that for the actual
+potential during the s.c.f. cycle will be calculated. In areas of
+shallow potentials, where both expressions are substantially similar,
+this saves the extra integration effort associated with ZORA. For
+(very!) safe settings, \option{threshold} may be set to 10$^{-12}$; in
+our experience, also 10$^{-9}$ does not lead to any noticeable
+accuracy loss. 
+
+Default is \texttt{none} if all elements in the structure have $Z<$20
+(no heavier than Ca). For all heavier elements, an explicit
+\keyword{relativistic} setting is required. For 11$<Z<$20, the setting
+\texttt{none} will be accepted, but a
+warning will be issued. For $Z$>20, choosing \texttt{none} will cause
+the code to stop with an error message in order to avoid accidental
+calculations with incorrect relativity. If a non-relativistic
+calculation is still desired, for example for test purposes, this
+``stop'' can be disabled by setting the flag
+\keyword{override\_relativity}---but use this only if you know what
+you are doing.
+

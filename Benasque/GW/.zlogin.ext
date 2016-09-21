@@ -1,0 +1,16 @@
+# begin .zlogin.ext
+[ -e $HOME/.dbgdot ] && echo "entering .zlogin.ext" >&2
+
+
+# User additions to .zlogin go in this file
+
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .zlogin.ext" >&2
+# end .zlogin.ext

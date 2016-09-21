@@ -1,0 +1,15 @@
+# begin .profile.ext
+[ -e $HOME/.dbgdot ] && echo "entering .profile.ext" >&2
+ 
+# User additions to .profile go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .profile.ext" >&2
+# end .profile.ext

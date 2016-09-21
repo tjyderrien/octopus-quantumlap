@@ -1,0 +1,15 @@
+# begin .zprofile.ext
+[ -e $HOME/.dbgdot ] && echo "entering .zprofile.ext" >&2
+ 
+# User additions to .zprofile go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .zprofile.ext" >&2
+# end .zprofile.ext

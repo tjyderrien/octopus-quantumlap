@@ -1,0 +1,8 @@
+#!/bin/bash -l
+
+# This parallel script launches BGW to launch a dielectric matrix calculation.
+
+module load berkeleygw/1.2
+epsilon=/project/projectdirs/mp149/Benasque2016/BerkeleyGW-1.2.0/bin/epsilon.cplx.x
+
+srun -n 48 $epsilon &> epsilon.out

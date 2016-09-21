@@ -1,0 +1,38 @@
+CalculationMode = gs
+FromScratch = yes
+Units = eV_Angstrom
+ExperimentalFeatures = yes
+
+alat = 1.4457
+# 1.45 (exp't) Ref: X Blase et al., PRB 51, 6868 (1995)
+%Coordinates
+ 'B' | 0.0              | 0.0          |  0.0
+ 'N' | alat*sqrt(3)/2.0 | alat*1.0/2.0 |  0.0
+ 'B' | alat*sqrt(3)/2.0 | alat*3.0/2.0 |  0.0
+ 'N' | 0.0              | 2*alat       |  0.0
+%
+%Lsize
+alat*sqrt(3)/2.0 | alat*3.0/2.0 | 5
+%
+# interlayer = 3.34
+
+PseudopotentialSet = hgh_lda
+#%Species
+# 'B' | species_pseudo | file | 'B.psf' | lmax | 2 | lloc | 2
+# 'N' | species_pseudo | file | 'N.psf' | lmax | 2 | lloc | 2
+#%
+
+BoxShape = parallelepiped
+PeriodicDimensions = 2
+Spacing = 0.16
+
+Output = geometry
+OutputFormat = xcrysden
+
+%KPointsGrid
+5 | 3 | 1
+%
+KPointsUseSymmetries = yes
+
+# not needed for the SCF, only for BGW output
+#KPointsUseTimeReversal = no

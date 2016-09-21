@@ -1,0 +1,35 @@
+Hands-on Session: Monolayer Boron Nitride
+===================================
+:Author: Diana Y. Qiu, Felipe Jornada and David Strubbe
+:Date: 2016/09/15
+
+
+Overview
+--------
+
+In this session we will calculate the inverse dielectric matrix, quasiparticle band structure,
+optical spectrum, and exciton wave functions of a monolayer of BN using GW-BSE.
+
+
+Goals
+-----
+
+The basic goals are the following:
+
+  1. Run a basic GW-BSE calculation for a 2D semiconductor.
+  2. Understand the effect of Coulomb truncation on the inverse dielectric matrix.
+  3. Understand the meaning of the head of the dielectric matrix in 2D.
+  4. Demonstrate how to calculate absorption spectrum and excitonic wave functions for a 
+     2D semiconductor.
+
+
+Instruction
+-----------
+
+1. Go to the ``1-mf/`` directory, where we perform all the mean-field
+   calculations. Follow the steps in the README file to generate the various
+   wavefunctions.
+
+2. Go to the ``2-bgw/`` directory, where we perform GW/GW-BSE calculations.
+   Follow the instructions in the README file to perform the GW/GW-BSE
+   calculations.

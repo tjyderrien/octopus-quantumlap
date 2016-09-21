@@ -1,0 +1,16 @@
+# begin .bashrc.ext
+[ -e $HOME/.dbgdot ] && echo "entering .bashrc.ext" >&2
+ 
+# User additions to .bashrc go in this file
+
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .bashrc.ext" >&2
+# end .bashrc.ext
+alias ls="ls --color"

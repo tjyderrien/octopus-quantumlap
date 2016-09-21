@@ -1,0 +1,15 @@
+# begin .zshrc.ext
+[ -e $HOME/.dbgdot ] && echo "entering .zshrc.ext" >&2
+ 
+# User additions to .zshrc go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .zshrc.ext" >&2
+# end .zshrc.ext

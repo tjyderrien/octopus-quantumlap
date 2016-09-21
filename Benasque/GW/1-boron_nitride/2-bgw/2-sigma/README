@@ -1,0 +1,24 @@
+Monolayer BN - BGW/Sigma
+========================
+
+In this directory we calculate the GW quasiparticle energies for BN using the
+Sigma code from BerkeleyGW.
+
+
+Instructions
+------------
+
+  1. Notice which files need to be linked.
+
+  2. Take a look at ``sigma.inp``. You can calculate Sigma for any k-points in
+     ``WFN_inner``. Use the tool ``wfn_rho_vxc_info.x`` to see which points are
+     present in ``WFN_inner``, and make sure all k-points in ``sigma.inp`` are present
+     in ``WFN_co``.
+
+  3. Run the sigma calculation using ``./01-run_sigma.qsub``. This will
+     take less than a minute.
+
+  4. Take a look at your output file ``sigma.out``. Are there any warnings?
+
+  5. We will now plot the GW-corrected band structure for BN. Go to the folder
+     ``bandstructure/`` and follow the instructions.

@@ -1,0 +1,15 @@
+# begin .bash_profile.ext
+[ -e $HOME/.dbgdot ] && echo "entering .bash_profile.ext" >&2
+ 
+# User additions to .bash_profile go in this file
+ 
+# Un-comment and modify the following template for system-specific 
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "hopper" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .bash_profile.ext" >&2
+# end .bash_profile.ext

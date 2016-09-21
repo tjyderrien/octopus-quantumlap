@@ -1,0 +1,69 @@
+BN - BGW/Sigma/Band Structure
+=============================
+
+In this directory we calculate an interpolated quasiparticle bandstructure for
+BN using the Inteqp code from BerkeleyGW.
+
+Follow the following steps:
+
+  1. Study the input file ``inteqp.inp``. Why do we need to interpolate rather
+     than just directly run Sigma on these k-points? How is the number of
+     coarse points listed determined? Why do we want to use symmetries on the
+     coarse grid but not the fine one?
+
+  2. Run ``./01-link_eqp.sh``. What files are linked into this directory.
+     How are they used?
+
+  3. Use ``degeneracy_check.x`` (after you ``module load berkeleygw/1.2``)
+     to determine what numbers of conduction and valence bands are acceptable
+     with respect to degeneracy from ``WFN_co`` and ``WFN_fi``. Are the numbers listed
+     in ``inteqp.inp`` acceptable? How many bands are available in ``WFN_co`` and
+     ``WFN_fi``? How do the degeneracy numbers compare to those needed for Epsilon
+     or Sigma? Why?
+
+  4. Run the inteqp calculation using ``./02-run_inteqp.qsub``.
+
+  5. Take a brief look at ``inteqp.out``. At the end is a table showing how many
+     fine points were mapped to each coarse point for the interpolation. Can you
+     explain why so many are zero?
+
+  6. Plot the resulting bandstructure. First, load the python module with
+     ``module load python``, then run ``./03-plot_bandstructure.py``. This will
+     produce ``BN_bands.pdf``. Copy this file to your local machine and open it.
+
+  7. Using ``BN_bands.pdf`` and ``bandstructure.dat``, find the energy and location of the
+     the direct gap and indirect gap, for LDA and GW. What is the valence band-
+     width for LDA and GW? How do the band curvatures (effective masses) and
+     band topology compare between LDA and GW?
+
+
+Stretch goals (if time allows)
+------------------------------
+
+  1. Run ``qp_shifts.py ../sigma_hp.log`` (after you 
+     ``module load berkeleygw/1.2``) to produce ``cond`` and ``val`` files
+     containing a list of MF eigenvalues and quasiparticle corrections for
+     conduction and valence bands, suitable for plotting. Make a graph of
+     quasiparticle corrections as a function of initial energy. Over what range
+     of energies around the gap would a linear fit be appropriate? Why is the
+     relation different for conduction and valence? Why is it non-linear farther
+     away?
+
+  2. Use the files to determine the QP scissor shift parameters in the equation
+        e_cor = e_in + es + edel * (e_in - e0)
+     separately for conduction and valence, using an appropriate energy range.
+     ec0, ev0, ecs, and evs can simply be read off from the files as the lowest
+     conduction band energy, highest valence band energy, the shift of the lowest
+     conduction band, and the shift of the highest valence band (within your chosen
+     range). To determine ecdel and evdel (the slopes) you will need to fit a line
+     to the points with a program like gnuplot. e.g.:
+
+       gnuplot > f(x)=a*x+b;a=1;b=1;     # a,b initial guesses, doesn't matter 
+       gnuplot > fit f(x) 'cond' via a,b
+       gnuplot > [output giving you the fit parameters] 
+       gnuplot > plot f(x), 'cond'       # let you see the fitted line with data
+
+ 3. Apply these linear relations to bandstructure.dat and compare the results to
+    the more rigorous (but time-consuming) calculation from inteqp. You can also
+    add the inteqp bandstructure.dat values to ``cond`` and ``val`` and see how
+    the points there compare to the ones from Sigma on the regular grid.

@@ -1,0 +1,884 @@
+\begin{thebibliography}{100}
+
+\bibitem{Adamo99}
+C.~Adamo and V.~Barone.
+\newblock {\em J. Chem. Phys.}, 110:6158, 1999.
+
+\bibitem{Alsenoy88}
+C.~Van Alsenoy.
+\newblock {\em J. Comput. Chem.}, 9:620, 1988.
+
+\bibitem{Draxl06}
+C.~Ambrosch-Draxl and J.~O. Sofo.
+\newblock Linear optical properties of solids within the full-potential
+  linearized augmented planewave method.
+\newblock {\em Computer Physics Communications}, (175):1--14, 2006.
+
+\bibitem{Andersen80}
+H.C. Andersen.
+\newblock {\em J. Chem. Phys.}, 72:2384, 1980.
+
+\bibitem{Anisimov2000}
+V.~I. Anisimov, editor.
+\newblock {\em Strong Coulomb correlations in electronic structure
+  calculations}.
+\newblock Gordon and Breach, New York, 2000.
+
+\bibitem{AM05}
+R.~Armiento and Ann~E. Mattsson.
+\newblock {\em Phys. Rev. B}, \textbf{72}:085108, 2005.
+
+\bibitem{Arnold2007}
+A.\ Arnold, F.\ Weigend, and F.\ Evers.
+\newblock Quantum chemistry calculations for molecules coupled to reservoirs:
+  Formalism, implementation, and application to benzenedithiol.
+\newblock {\em J.\ Chem.\ Phys.}, 126:174101, 2007.
+
+\bibitem{aubert_alternative_2013}
+G.~Aubert.
+\newblock An alternative to {Wigner} d-matrices for rotating real spherical
+  harmonics.
+\newblock {\em AIP Adv.}, 3(6):062121, June 2013.
+
+\bibitem{Bagrets2013}
+A.\ Bagrets.
+\newblock Spin-polarized electron transport across metal-organic molecules: a
+  density functional theory approach.
+\newblock {\em J. Chem. Theory Comput.}, 9:2801, 2013.
+
+\bibitem{Baker94}
+J.~Baker, J.~Andzelm, A.~Scheiner, and B.~Delley.
+\newblock {\em J. Chem. Phys.}, 101:8894, 1994.
+
+\bibitem{wmtd}
+A.~Barducci, G.~Bussi, and M.~Parrinello.
+\newblock Well-tempered metadynamics: A smoothly converging and tunable
+  free-energy method.
+\newblock {\em Phys. Rev. Lett.}, 100:020603, 2008.
+
+\bibitem{Bayly1993}
+C.~I. Bayly, P.~Cieplak, W.~D. Cornell, and P.~A. Kollman.
+\newblock A well-behaved electrostatic potential based method using charge
+  restraints for deriving atomic charges: The resp model.
+\newblock {\em J. Phys. Chem.}, 97:10269--10280, 1993.
+
+\bibitem{Becke88b}
+A.D. Becke.
+\newblock {\em J. Chem. Phys.}, 88:1053, 1988.
+
+\bibitem{Behler05}
+J.~Behler, B.~Delley, S.~Lorenz, K.~Reuter, and M.~Scheffler.
+\newblock {\em Phys. Rev. Lett.}, \textbf{94}:036104, 2005.
+
+\bibitem{Behler07}
+J.~Behler, B.~Delley, K.~Reuter, and M.~Scheffler.
+\newblock {\em Phys. Rev. B}, \textbf{75}:115409, 2007.
+
+\bibitem{Besler1990}
+B.~H. Besler, K.~M. Merz, and P.~A. Kollman.
+\newblock Atomic charges derived from semiempirical methods.
+\newblock {\em J. Comput. Chem.}, 11:431--439, 1990.
+
+\bibitem{blanco_evaluation_1997}
+Miguel~A. Blanco, M.~Fl\'{o}rez, and M.~Bermejo.
+\newblock Evaluation of the rotation matrices in the basis of real spherical
+  harmonics.
+\newblock {\em Comp. Theor. Chem.}, 419(1--3):19--27, December 1997.
+
+\bibitem{Blum08}
+V.~Blum, R.~Gehrke, F.~Hanke, P.~Havu, V.~Havu, X.~Ren, K.~Reuter, and
+  M.~Scheffler.
+\newblock \emph{Ab initio} molecular simulations with numeric atom-centered
+  orbitals.
+\newblock {\em Comp. Phys. Comm.}, \textbf{180}:2175, 2009.
+
+\bibitem{bondjcompphys1999}
+S.D. Bond, B.J. Leimkuhler, and B.B. Laird.
+\newblock {The Nose-Poincare method for constant temperature molecular
+  dynamics}.
+\newblock {\em J. Comp. Phys.}, 151(1):114--134, 1999.
+
+\bibitem{Bondi1964}
+A.~Bondi.
+\newblock van der waals volumes and radii.
+\newblock {\em J. Phys. Chem.}, 68:441--451, 1964.
+
+\bibitem{Boys59}
+S.F. Boys and I.~Shavitt.
+\newblock {\em University of Wisconsin Rept.}, WIS-AF-13, 1959.
+
+\bibitem{Breneman1990}
+C.~M. Breneman and K.~B. Wiberg.
+\newblock Determining atom-centered monopoles from molecular electrostatic
+  potentials. the need for high sampling density in formamide conformational
+  analysis.
+\newblock {\em J. Comput. Chem.}, 11:361--373, 1990.
+
+\bibitem{Bultinck07}
+P.~Bultinck, C.~\mbox{Van~Alsenoy}, P.W. Ayers, and R.~Carbo-Dorca.
+\newblock Critical analysis and extension of the hirshfeld atoms in molecules.
+\newblock {\em J. Chem. Phys.}, \textbf{126}:144111, 2007.
+
+\bibitem{BDP}
+G.~Bussi, D.~Donadio, and M.~Parrinello.
+\newblock {Canonical sampling through velocity rescaling}.
+\newblock {\em J. Chem. Phys.}, 126:014101, 2007.
+
+\bibitem{Campana2009}
+C.~Campana, B.~Mussard, and T.~K. Woo.
+\newblock Electrostatic potential derived atomic charges for periodic systems
+  using a modified error functional.
+\newblock {\em J. Chem. Theory Comput.}, 5:2866--2878, 2009.
+
+\bibitem{casida96}
+Mark~E. Casida.
+\newblock Time-depenent density-functional response theory for molecules.
+\newblock {\em Theoretical and Computational Modeling of NLO and Electronic
+  Materials}, 1996.
+
+\bibitem{Cep80}
+D.~M. Ceperley and B.~J. Alder.
+\newblock Ground state of the electron gas by a stochastic method.
+\newblock {\em Phys. Rev. Lett.}, \textbf{45}:566--569, 1980.
+
+\bibitem{GLE1}
+Michele Ceriotti, Giovanni Bussi, and Michele Parrinello.
+\newblock Langevin equation with colored noise for constant-temperature
+  molecular dynamics simulations.
+\newblock {\em Phys. Rev. Lett.}, 102:020601, Jan 2009.
+
+\bibitem{GLE3}
+Michele Ceriotti, Giovanni Bussi, and Michele Parrinello.
+\newblock Colored-noise thermostats {\`a} la carte.
+\newblock {\em Journal of Chemical Theory and Computation}, 6(4):1170--1180,
+  2010.
+
+\bibitem{CeriottiMoreMano_2013}
+Michele Ceriotti, Joshua More, Michele, and David Manolopoulos.
+\newblock i-pi: A python interface for ab initio path integral molecular
+  dynamics simulations.
+\newblock {\em Comp. Phys. Comm.}, 185:1019--1026, 2014.
+
+\bibitem{GLE2}
+Michele Ceriotti, Michele Parrinello, Thomas~E. Markland, and David~E.
+  Manolopoulos.
+\newblock Efficient stochastic thermostatting of path integral molecular
+  dynamics.
+\newblock {\em The Journal of Chemical Physics}, 133(12):124104, 2010.
+
+\bibitem{Chadi73}
+D.J. Chadi and M.L. Cohen.
+\newblock {\em Phys. Rev. B}, \textbf{8}:5747, 1973.
+
+\bibitem{Chen2010}
+D.-J. Chen, A.~C. Stern, B.~Space, and J.~K. Johnson.
+\newblock Atomic charges derived from electrostatic potential for molecular and
+  periodic systems.
+\newblock {\em J. Phys. Chem. A}, 114:10225--10233, 2010.
+
+\bibitem{Chirlian1987}
+L.~E. Chirlian and M.~M. Francl.
+\newblock Atomic charges derived from electrostatic potentials: A detailed
+  study.
+\newblock {\em J. Comput. Chem.}, 8:894--905, 1987.
+
+\bibitem{Constantin2012}
+L.~A. Constantin, E.~Fabiano, and F.~\mbox{Della Sala}.
+\newblock {\em Phys. Rev. B}, 86:035130, 2012.
+
+\bibitem{Cox1981}
+S.~R. Cox and D.~E. Williams.
+\newblock Representation of the molecular electrostatic potential by a net
+  atomic charge model.
+\newblock {\em J. Comput. Chem.}, 2:304--323, 1981.
+
+\bibitem{smd2}
+G.~Crooks.
+\newblock Nonequilibrium measurements of free energy differences for
+  microscopically reversible markovian systems.
+\newblock {\em J. Stat. Phys.}, 90:1481, 1998.
+
+\bibitem{Delley90}
+B.~Delley.
+\newblock {\em J. Chem. Phys.}, 92:508, 1990.
+
+\bibitem{Delley95}
+B.~Delley.
+\newblock {\em J. Comp Chem.}, 17:1152, 1995.
+
+\bibitem{Dion04}
+M.~Dion, H.~Rydberg, E.~Schr{\"o}der, D.~C. Langreth, , and B.~I. Lundqvist.
+\newblock {\em Phys. Rev. Lett.}, 92:246401, 2004.
+
+\bibitem{Dreizler90}
+R.~M. Dreizler and E.~K.~U. Gross.
+\newblock {\em Density Functional Theory}.
+\newblock Springer, Berlin, 1990.
+
+\bibitem{Dunlap10-RIreview}
+Brett~I. Dunlap, Notker R{\"o}sch, and S.~B. Trickey.
+\newblock Variational fitting methods for electronic structure calculations.
+\newblock {\em Mol. Phys.}, 108(21):3167, 2010.
+
+\bibitem{Eckart35}
+C.~Eckart.
+\newblock {\em Phys. Rev.}, \textbf{47}:552, 1935.
+
+\bibitem{Eichkorn95}
+K.~Eichkorn, O.~Treutler, H.~{\"O}hm, M.~H{\"a}ser, and R.~Ahlrichs.
+\newblock {\em Chem. Phys. Lett.}, 240:283, 1995.
+
+\bibitem{Evers2006}
+F.\ Evers and A.\ Arnold.
+\newblock Molecular conductance from ab initio calculations: Self energies and
+  absorbing boundary conditions.
+\newblock {\em arXiv:cond-mat/0611401v1}, 2006.
+
+\bibitem{Fabiano10}
+E.~Fabiano, L~.~A. Constantin, and F.~Della Sala.
+\newblock Generalized gradient approximation bridging the rapidly and slowly
+  varying density regimes: A pbe-like functional for hybrid interfaces.
+\newblock {\em Phys. Rev. B}, \textbf{82}:113104, 2010.
+
+\bibitem{frenkelsmit}
+D.~Frenkel and B.~Smit.
+\newblock {\em {Understanding Molecular Simulation: From Algorithms to
+  Applications}}.
+\newblock Academic Press, second edition, 2002.
+
+\bibitem{fre09}
+Christoph Freysoldt, J{\"o}rg Neugebauer, and Chris G.~Van de~Walle.
+\newblock Fully ab initio {Finite-Size} corrections for {Charged-Defect}
+  supercell calculations.
+\newblock {\em Phys. Rev. Lett.}, 102:016402, 2009.
+
+\bibitem{Fu83}
+C.-L. Fu and K.-M. Ho.
+\newblock {\em Phys. Rev. B}, \textbf{28}:5480, 1983.
+
+\bibitem{FuchsFHI98PP}
+Martin Fuchs and Matthias Scheffler.
+\newblock Ab initio pseudopotentials for electronic structure calculations of
+  poly-atomic systems using density-functional theory.
+\newblock {\em Computer Physics Communications}, 119(1):67--98, 1999.
+
+\bibitem{Gillan89}
+M.J. Gillan.
+\newblock {\em J. Phys.:Condens. Matter}, 1:689, 1989.
+
+\bibitem{Grabowski09}
+B~Grabowski, L~Ismer, T~Hickel, and J~Neugebauer.
+\newblock {\em Phys. Rev. B}, 79:134106, 2009.
+
+\bibitem{Grimme03}
+S.~Grimme.
+\newblock {\em J. Chem. Phys.}, \textbf{20}:9095, 2003.
+
+\bibitem{Grueneis09}
+Andreas Gr{\"u}neis, Martijn Marsman, Judith Harl, Laurids Schimka, and Georg
+  Kresse.
+\newblock Making the random phase approximation to electronic correlation
+  accurate.
+\newblock {\em J. Chem. Phys.}, 131:154115, 2009.
+
+\bibitem{Gulans09}
+A.~Gulans, M.~Puska, and R.~Nieminen.
+\newblock Linear-scaling self-consistent implementation of the van der waals
+  density functional.
+\newblock {\em Phys. Rev. B}, 79:201105(R), 2009.
+
+\bibitem{NEBORI}
+G.~Mills K. W.~Jacobsen {H. Jonsson}.
+\newblock {\em Nudged Elastic Band Method for Finding Minimum Energy Paths of
+  Transitions}.
+\newblock World Scientific, 1998.
+
+\bibitem{Hamilton00-fftlog}
+A.~J.~S. Hamilton.
+\newblock Uncorrelated modes of the non-linear power spectrum.
+\newblock {\em Mon. Not. R. Astron. Soc.}, 312(2):257--284, 2000.
+
+\bibitem{Hamilton00-fftlog-www}
+Andrew J.~S. Hamilton.
+\newblock Fftlog, 2000.
+
+\bibitem{Hammer99}
+B.~Hammer, L.B. Hansen, and J.K. N{\o}rskov.
+\newblock {\em Phys. Rev. B}, 59:7413, 1999.
+
+\bibitem{Han06}
+Myung~Joon Han, Taisuke Ozaki, and Jaejun Yu.
+\newblock {O(N)} {LDA+U} electronic structure calculation method based on the
+  nonorthogonal pseudoatomic orbital basis.
+\newblock {\em Physical Review B}, 73(4):045110, January 2006.
+
+\bibitem{Havu08}
+V.~Havu, V.~Blum, P.~Havu, and M.~Scheffler.
+\newblock {\em J. Comput. Phys.}, \textbf{228}:8367, 2009.
+
+\bibitem{Hedin65}
+L.~Hedin.
+\newblock {\em Phys. Rev.}, 139:A796, 1965.
+
+\bibitem{HenkelmanJCP2000a}
+G.~Henkelman, B.~P. Uberuagga, and H.~Jonsson.
+\newblock A climbing image nudged elastic band method for finding saddle points
+  and minimum energy paths.
+\newblock {\em J. Chem. Phys.}, \textbf{113}:9901, 2000.
+
+\bibitem{NEBTAN}
+Graeme Henkelman and Hannes Jonsson.
+\newblock Improved tangent estimate in the nudged elastic band method for
+  finding minimum energy paths and saddle points.
+\newblock {\em Journal of Chemical Physics}, 113(22):9978--9985, 2000.
+
+\bibitem{Herbert-HG05-FMD}
+John~M. Herbert and Martin {Head-Gordon}.
+\newblock Accelerated, energy-conserving {Born-Oppenheimer} molecular dynamics
+  via fock matrix extrapolation.
+\newblock {\em Phys. Chem. Chem. Phys.}, 7:3269--3275, 2005.
+
+\bibitem{Heyd03}
+Jochen Heyd, Gustavo~E. Scuseria, and Matthias Ernzerhof.
+\newblock {\em J. Chem. Phys.}, 118:8207, 2003.
+
+\bibitem{Heyd06}
+Jochen Heyd, Gustavo~E. Scuseria, and Matthias Ernzerhof.
+\newblock {\em J. Chem. Phys.}, 124:219906, 2006.
+
+\bibitem{Hirshfeld77}
+F.L. Hirshfeld.
+\newblock {\em Theor. Chim. Acta (Berl.)}, 44:129, 1977.
+
+\bibitem{Hohenberg64}
+P.~Hohenberg and W.~Kohn.
+\newblock {\em Phys. Rev. B}, 136:864, 1964.
+
+\bibitem{Hu2007}
+H.~Hu, Z.~Lu, and W.~yang~yang {yang yang}.
+\newblock Fitting molecular electrostatic potentials from quantum mechanical
+  calculations.
+\newblock {\em J. Chem. Theory Comput.}, 3:1004--1013, 2007.
+
+\bibitem{Ihrig2015}
+Arvid~Conrad Ihrig, J\"urgen Wieferink, Igor~Ying Zhang, Matti Ropo, Xinguo
+  Ren, Patrick Rinke, Matthias Scheffler, and Volker Blum.
+\newblock Accurate localized resolution of identity approach for linear-scaling
+  hybrid density functionals and for many-body perturbation theory.
+\newblock {\em New Journal of Physics}, 17(9):093020, 2015.
+
+\bibitem{Ishida98}
+H.~Ishida, Y.~Nagai, and A.~Kidera.
+\newblock {\em Chem. Phys. Lett.}, 282(2):115, 1998.
+
+\bibitem{itoh1997scg}
+A.~Itoh and H.~Matsunami.
+\newblock Single crystal growth of sic and electronic devices.
+\newblock {\em Critical Reviews in Solid State and Materials Sciences},
+  22(2):111--197, 1997.
+
+\bibitem{smd1}
+C.~Jarzynski.
+\newblock Nonequilibrium equality for free energy differences.
+\newblock {\em Phys. Rev. Lett}, 78:2690, 1997.
+
+\bibitem{jmol}
+Jmol.
+\newblock An open-source java viewer for chemical structures in 3{D}.
+\newblock http://www.jmol.org/.
+
+\bibitem{Junquera01}
+J.~Junquera, O.~Paz, D.~Sanchez-Portal, and E.~Artacho.
+\newblock {\em Phys. Rev. B}, 64:235111, 2001.
+
+\bibitem{Kerker81}
+G.P. {Kerker}.
+\newblock {\em Phys. Rev. B}, \textbf{23}:3082, 1981.
+
+\bibitem{Klamt93}
+A.~Klamt and G.~Sch{\"u}{\"u}rmann.
+\newblock {COSMO:} a new approach to dielectric screening in solvents with
+  explicit expressions for the screening energy and its gradient.
+\newblock {\em J. Chem. Soc., Perkin Trans. 2}, (5):799--805, January 1993.
+
+\bibitem{KleinmanBylander}
+L.~Kleinman and D.~M. Bylander.
+\newblock Efficacious form for model pseudopotentials.
+\newblock {\em Phys. Rev. Lett.}, 48:1425--1428, May 1982.
+
+\bibitem{Knuth2015}
+Franz Knuth, Christian Carbogno, Viktor Atalla, Volker Blum, and Matthias
+  Scheffler.
+\newblock {All-electron formalism for total energy strain derivatives and
+  stress tensor components for numeric atom-centered orbitals}.
+\newblock {\em Computer Physics Communications}, 190:33--50, 2015.
+
+\bibitem{Kohn65}
+W.~Kohn and L.J. Sham.
+\newblock {\em Phys. Rev.}, 140:A1133, 1965.
+
+\bibitem{Kolafa96-HOTR}
+Ji\v{r}{\'i} Kolafa.
+\newblock Numerical integration of equations of motion with a {Self-Consistent}
+  field given by an implicit equation.
+\newblock {\em Mol. Simul.}, 18:193, 1996.
+
+\bibitem{Kre96}
+G.~Kresse and J.~Furthm{\"u}ller.
+\newblock Efficiency of ab-initio total energy calculations for metals and
+  semiconductors using a plane-wave basis set.
+\newblock {\em Comp. Mat. Sci.}, \textbf{6}:15--50, 1996.
+
+\bibitem{Krukau06}
+Aliaksandr~V. Krukau, Oleg~A. Vydrov, Artur~F. Izmaylov, and Gustavo~E.
+  Scuseria.
+\newblock {\em J. Chem. Phys.}, 125:224106, 2006.
+
+\bibitem{Kue07}
+Thomas~D. K{\"u}hne, Matthias Krack, Fawzi~R. Mohamed, and Michele Parrinello.
+\newblock Efficient and accurate {Car}-{Parrinello}-like approach to
+  {Born}-{Oppenheimer} molecular dynamics.
+\newblock {\em Phys. Rev. Lett.}, 98:066401, 2007.
+
+\bibitem{usa2}
+S.~Kumar, J.~M. Rosenberg, D.~Bouzida, R.~H. Swendsen, and P.~A. Kollman.
+\newblock Multidimensional free-energy calculations using the weighted
+  histogram analysis method.
+\newblock {\em J. Comput. Chem.}, 16:1339, 1995.
+
+\bibitem{mtd}
+A.~Laio and M.~Parrinello.
+\newblock Escaping free energy minima.
+\newblock {\em Proc. Natl. Acad. Sci.}, 20:12562, 2002.
+
+\bibitem{Lebedev75}
+V.I. Lebedev.
+\newblock {\em Zh. Vychisl. Mat. mat. Fiz.}, 15:48, 1975.
+
+\bibitem{Lebedev76}
+V.I. Lebedev.
+\newblock {\em Zh. Vychisl. Mat. mat. Fiz.}, 16:293, 1976.
+
+\bibitem{Lebedev99}
+V.I. Lebedev and D.N. Laikov.
+\newblock {\em Doklady Mathematics}, 59:477, 1999.
+
+\bibitem{Lee88}
+C.L. Lee, W.~Yang, and R.G. Parr.
+\newblock {\em Phys. Rev. B}, 37:785, 1988.
+
+\bibitem{lessig_efficient_2012}
+C.~Lessig, T.~de~Witt, and E.~Fiume.
+\newblock Efficient and accurate rotation of finite spherical harmonics
+  expansions.
+\newblock {\em J. Comput. Phys.}, 231(2):243--250, January 2012.
+
+\bibitem{Levchenko2015}
+Sergey~V. Levchenko, Xinguo Ren, J\"urgen Wieferink, Rainer Johanni, Patrick
+  Rinke, Volker Blum, and Matthias Scheffler.
+\newblock Hybrid functionals for large periodic systems in an all-electron,
+  numeric atom-centered basis framework.
+\newblock {\em Computer Physics Communications}, 192:60 -- 69, 2015.
+
+\bibitem{Lin95}
+R.~Lindh, A.~Bernhardsson, G.~Karlstr{\"o}m, and P.-{\AA}. Malmqvist.
+\newblock {\em Chem. Phys. Lett.}, 241:423, 1995.
+
+\bibitem{Loewdin51}
+P.O. Loewdin.
+\newblock {\em J. Chem. Phys.}, 19:{1936--1401}, 1951.
+
+\bibitem{Louie1982}
+Steven~G. Louie, Sverre Froyen, and Marvin~L. Cohen.
+\newblock Nonlinear ionic pseudopotentials in spin-density-functional
+  calculations.
+\newblock {\em Phys. Rev. B}, 26:1738--1742, Aug 1982.
+
+\bibitem{makov95}
+G.~Makov and M.~C. Payne.
+\newblock {\em Phys. Rev. B}, 51:4014, 1995.
+
+\bibitem{Manninen75}
+M.~Manninen, R.~Nieminen, and P.~Hautoj{\"a}rvi.
+\newblock {\em Phys. Rev. B}, 12:4012, 1975.
+
+\bibitem{Mantina2009}
+M.~Mantina, A.~C. Chamberlin, R.~Valero, C.~J. Cramer, and D.~G. Truhlar.
+\newblock Consistent van der waals radii for the whole main group.
+\newblock {\em J. Phys. Chem. A}, 113:5806--5812, 2009.
+
+\bibitem{libxcpaper12}
+Miguel A.~L. Marques, Micael J.~T. Oliveira, and Tobias Burnus.
+\newblock Libxc: a library of exchange and correlation functionals for density
+  functional theory.
+\newblock {\em Computer Physics Communications}, 183(10):2272--2281, 2012.
+
+\bibitem{Mennucci02}
+B.~Mennucci, J.~Tomasi, R.~Cammi, J.~R. Cheeseman, M.~J. Frisch, F.~J. Devlin,
+  S.~Gabriel, and P.~J. Stephens.
+\newblock Polarizable continuum model (pcm) calculations of solvent effects on
+  optical rotations of chiral molecules.
+\newblock {\em J. Phys. Chem. A}, 106(25):6102--6113, 2002.
+
+\bibitem{Mermin65}
+N.D. {Mermin}.
+\newblock {\em Phys. Rev.}, 137:A1441, 1965.
+
+\bibitem{Met89}
+M.~Methfessel and A.~T. Paxton.
+\newblock {\em Phys. Rev. B}, \textbf{40}:3616, 1989.
+
+\bibitem{Momany1978}
+F.~A. Momany.
+\newblock Determination of partial atomic charges from ab initio molecular
+  electrostatic potentials. application to formamide, methanol, and formic
+  acid.
+\newblock {\em J. Chem. Phys.}, 82:592--601, 1978.
+
+\bibitem{Monkhorst76}
+H.J. Monkhorst and J.D. Pack.
+\newblock {\em Phys. Rev. B}, \textbf{13}:5188, 1976.
+
+\bibitem{Mulliken55}
+R.S. Mulliken.
+\newblock {\em J. Chem. Phys.}, 23:1833, 1955.
+
+\bibitem{Nabok08}
+D.~Nabok, P.~Puschnig, and C.~Ambrosch-Draxl.
+\newblock {\em Phys. Rev. B}, 77:245316, 2008.
+
+\bibitem{Nieminen77}
+R.~Nieminen.
+\newblock {\em J. Phys. F}, 7:375, 1977.
+
+\bibitem{nik06}
+Anders M.~N. Niklasson, C.~J. Tymczak, and Matt Challacombe.
+\newblock {Time-Reversible} {Born-Oppenheimer} molecular dynamics.
+\newblock {\em Phys. Rev. Lett.}, 97:123001, 2006.
+
+\bibitem{Nocedal06-numopt}
+Jorge Nocedal and Stephen~J. Wright.
+\newblock {\em Numerical optimization}.
+\newblock Springer, 2. edition, 2006.
+
+\bibitem{Oberhofer2012}
+H.~Oberhofer and J.~Blumberger.
+\newblock Revisiting electronic couplings and incoherent hopping models for
+  electron transport in crystalline c60 at ambient temperatures.
+\newblock {\em Phys. Chem. Chem. Phys}, 14:13846--13852, 2012.
+
+\bibitem{Vydrov06}
+Jochen Heyd Aliaksandr V.~Krukau {Oleg A. Vydrov} and Gustavo~E. Scuseria.
+\newblock {\em J. Chem. Phys.}, 125:074106, 2006.
+
+\bibitem{Parlinski97}
+K.~Parlinski, Z.~Q. Li, and Y.~Kawazoe.
+\newblock First-principles determination of the soft mode in cubic zro$\_2$.
+\newblock {\em Phys. Rev. Lett.}, \textbf{78}:4063--4066, 1997.
+
+\bibitem{Per97}
+J.~P. Perdew, K.~Burke, and M.~Ernzerhof.
+\newblock Generalized gradient approximation made simple.
+\newblock {\em Phys. Rev. Lett.}, \textbf{77}:3865--3868, 1997.
+
+\bibitem{Perdew92}
+J.~P. Perdew, J.~A. Chevary, S.~H. Vosko, K.~A. Jackson, M.~R. Pederson, D.~J.
+  Singh, and C.~Fiolhais.
+\newblock Atoms, molecules, solids, and surfaces: Applications of the
+  generalized gradient approximation for exchange and correlation.
+\newblock {\em Phys. Rev. B}, \textbf{46}:6671--6687, 1992.
+
+\bibitem{Per92}
+J.~P. Perdew and Y.~Wang.
+\newblock Accurate and simple analytic representation of the electron-gas
+  correlation energy.
+\newblock {\em Phys. Rev. B}, \textbf{45}:13244--13249, 1992.
+
+\bibitem{Per81}
+J.~P. Perdew and A.~Zunger.
+\newblock Self-interaction correction to density-functional approximations for
+  many-electron systems.
+\newblock {\em Phys. Rev. B}, \textbf{23}:5048--5079, 1981.
+
+\bibitem{Perdew09_revTPSS}
+J.P. Perdew, A.~Ruzsinszky, G.I. Csonka, L.A. Constantin, and J.~Sun.
+\newblock Workhorse semilocal density functional for condensed matter physics
+  and quantum chemistry.
+\newblock {\em Phys. Rev. Lett.}, 103:026403, 2009.
+
+\bibitem{Perdew11_revTPSS}
+J.P. Perdew, A.~Ruzsinszky, G.I. Csonka, L.A. Constantin, and J.~Sun.
+\newblock Erratum: Workhorse semilocal density functional for condensed matter
+  physics and quantum chemistry.
+\newblock {\em Phys. Rev. Lett.}, 106:179902(E), 2011.
+
+\bibitem{Perdew08}
+J.P. Perdew, A.~Ruzsinszky, G.I. Csonka, O.A. Vydrov, G.E. Scuseria, L.A.
+  Constantin, X.~Zhou, and K.~Burke.
+\newblock {\em Phys. Rev. Lett.}, 100:136406, 2008.
+
+\bibitem{GSMoriginal}
+Baron Peters, Andreas Heyden, Alexis~T. Bell, and Arup Chakraborty.
+\newblock A growing string method for determining transition states: Comparison
+  to the nudged elastic band and string methods.
+\newblock {\em The Journal of Chemical Physics}, 120(17):7877--7886, 2004.
+
+\bibitem{Petukhov03}
+A.~G. Petukhov, I.~I. Mazin, L.~Chioncel, and A.~I. Lichtenstein.
+\newblock Correlated metals and the {LDA+U} method.
+\newblock {\em Physical Review B}, 67(15):153106, April 2003.
+
+\bibitem{PeveratiTruhlar11_M11}
+R.~Peverati and D.G. Truhlar.
+\newblock Improving the accuracy of hybrid meta-gga density functionals by
+  range separation.
+\newblock {\em J. Phys. Chem. Lett.}, 2(21):2810, 2011.
+
+\bibitem{PeveratiTruhlar11_M11-L}
+R.~Peverati and D.G. Truhlar.
+\newblock M11-l: A local density functional that provides improved accuracy for
+  electronic structure calculations in chemistry and physics.
+\newblock {\em J. Phys. Chem. Lett.}, 3:117, 2011.
+
+\bibitem{NumericalRecipes}
+William~K. Press, Saul~A. Teukolsky, William~T. Vetterlin, and Brian~T.
+  Flannery.
+\newblock {\em Numerical Recipes}.
+\newblock Cambridge University Press, 3 edition, 2007.
+
+\bibitem{Pulay80}
+P.~Pulay.
+\newblock Convergence acceleration of iterative sequences. the case of scf
+  iteration.
+\newblock {\em Chem. Phys. Lett.}, \textbf{73}:393--398, 1980.
+
+\bibitem{Pulay04-FMD}
+Peter Pulay and G{\'e}za Fogarasi.
+\newblock Fock matrix dynamics.
+\newblock {\em Chem. Phys. Lett.}, 386:272--278, 2004.
+
+\bibitem{Pyykko88}
+P.~Pyykk{\"o}.
+\newblock {\em Chem. Rev.}, 88:563, 1988.
+
+\bibitem{Ren12a}
+X.~Ren, P.~Rinke, V.~Blum, J.~Wieferink, A.~Tkatchenko, A.~Sanfilippo,
+  K.~Reuter, and M.~Scheffler.
+\newblock Resolution-of-identity approach to {Hartree-Fock}, hybrid density
+  functionals, {RPA}, {MP2} and {GW} with numeric atom-centered orbital basis
+  functions.
+\newblock {\em New J. Phys.}, \textbf{14}:053020, 2012.
+
+\bibitem{Ren12b}
+X.~Ren, P.~Rinke, G.~E. Scuseria, and M.~Scheffler.
+\newblock in preparation.
+
+\bibitem{Ren11}
+X.~Ren, A.~Tkatchenko, P.~Rinke, and M.~Scheffler.
+\newblock Beyond the random-phase approximation for the electron correlation
+  energy: The importance of single excitations.
+\newblock {\em Phys. Rev. Lett.}, \textbf{106}:153003, 2011.
+
+\bibitem{Richter2013}
+Norina~A. Richter, Sabrina Sicolo, Sergey~V. Levchenko, Joachim Sauer, and
+  Matthias Scheffler.
+\newblock Concentration of vacancies at metal-oxide surfaces: Case study of
+  mgo(100).
+\newblock {\em Physical Review Letters}, 111:045502, 2013.
+
+\bibitem{Rojas95}
+H.~N. Rojas, R.~W. Godby, and R.~J. Needs.
+\newblock {\em Phys. Rev. Lett.}, \textbf{74}:1827, 1995.
+
+\bibitem{usa3}
+B.~Roux.
+\newblock The calculation of the potential of mean force using
+  computer-simulations.
+\newblock {\em Comput. Phys. Comm.}, 91:275, 1995.
+
+\bibitem{Rowland1996}
+R.~S. Rowland and R.~Taylor.
+\newblock Intermolecular nonbonded contact distances in organic crystal
+  structures: Comparison with distances expected from van der waals radii.
+\newblock {\em J. Phys. Chem.}, 100:7384--7391, 1996.
+
+\bibitem{Sayvetz39}
+A.~Sayvetz.
+\newblock {\em J. Phys. Chem.}, \textbf{7}:383, 1939.
+
+\bibitem{Schober2015}
+C.~Schober, K.~Reuter, and H.~Oberhofer.
+\newblock A critical analysis of fragment orbital dft schemes for the
+  calculation of electronic coupling values.
+\newblock {\em J. Chem. Phys.}, 144:054103, 2016.
+
+\bibitem{Scuseria05}
+G.E. Scuseria and V.N. Staroverov.
+\newblock Progress in the development of exchange-correlation functionals.
+\newblock In C.E. Dykstra, G.~Frenking, K.S. Kim, and G.E. Scuseria, editors,
+  {\em Theory and Applications of Computational Chemistry: The First 40 Years},
+  chapter~24. Elsevier, Amsterdam, 2005.
+\newblock The parameters for "VWN"-LDA as implemented in the Gaussian code are
+  given in Table 1.
+
+\bibitem{Senthilkumar2003}
+K.~Senthilkumar, F.~C. Grozema, F.~M. Bickelhaupt, and L.~D.~A. Siebbeles.
+\newblock Charge transport in columnar stacked triphenylenes: Effects of
+  conformational fluctuations on charge transfer integrals and site energies.
+\newblock {\em J. Chem. Phys.}, 119(18):9809--9817, 2003.
+
+\bibitem{Sherwood03}
+P.~Sherwood, A.~H. de~Vries de~Vries de~Vries~de Vries, M.~F. Guest,
+  G.~Schreckenbach, R.~A. Catlow, S.~A. French, A.~A. Sokol, S.~T. Bromley,
+  W.~Thiel, A.~J. Turner, S.~Billeter, F.~Terstegen, S.~Thiel, J.~Kendrick,
+  S.~C. Rogers, J.~Casci, M.~Watson, F.~King, E.~Karlsen, M.~Sj{\o}voll,
+  A.~Fahmi, A.~Sch{\"a}fer, and C.~Lennartz.
+\newblock {\em J. Mol. Struct (Theochem)}, \textbf{632}:1, 2003.
+
+\bibitem{Sigfridsson1998}
+E.~Sigfridsson and U.~Ryde.
+\newblock Atomic charges from the electrostatic potential and moments.
+\newblock {\em J. Comput. Chem.}, 19(4), 1998.
+
+\bibitem{Singh1984}
+U.~C. Singh and P.~A. Kollman.
+\newblock An approach to computing electrostatic charges for molecules.
+\newblock {\em J. Comput. Chem.}, 5:129--145, 1984.
+
+\bibitem{Stratmann96}
+R.E. Stratmann, G.E. Scuseria, and M.J. Frisch.
+\newblock {\em Chem. Phys. Lett.}, 257:213, 1996.
+
+\bibitem{Sun2015}
+Jianwei Sun, Adrienn Ruzsinszky, and John P. Perdew.
+\newblock Strongly constrained and appropriately normed semilocal density
+  functional.
+\newblock {\em Phys. Rev. Lett.}, 115:036402, 2015.
+
+\bibitem{Talman03-MCI}
+James~D. Talman.
+\newblock Numerical methods for multicenter integrals for numerically defined
+  basis functions applied in molecular calculations.
+\newblock {\em Internat. J. Quant. Chem.}, 93(2):72--90, 2003.
+
+\bibitem{Talman09-numSBT}
+{J.D.} Talman.
+\newblock {NumSBT:} a subroutine for calculating spherical bessel transforms
+  numerically.
+\newblock {\em Comput. Phys. Comm.}, 180(2):332--338, February 2009.
+
+\bibitem{Tao03_TPSS}
+J.M. Tao, J.P. Perdew, V.N. Staroverov, and G.E. Scuseria.
+\newblock Climbing the density functional ladder: Nonempirical meta-generalized
+  gradient approximation designed for molecules and solids.
+\newblock {\em Phys. Rev. Lett.}, 91:146401, 2003.
+
+\bibitem{TS-vdw}
+A.~Tkatchenko and M.~Scheffler.
+\newblock {\em Phys. Rev. Lett.}, 102:073005, 2009.
+
+\bibitem{QHORPA}
+Alexandre Tkatchenko, Alberto Ambrosetti, and Robert~A {DiStasio Jr}.
+\newblock Interatomic methods for the dispersion energy derived from the
+  adiabatic connection fluctuation-dissipation theorem.
+\newblock {\em J. Chem. Phys.}, 138:074106, 2013.
+
+\bibitem{MBD}
+Alexandre Tkatchenko, Robert~A {DiStasio Jr}, Roberto Car, and Matthias
+  Scheffler.
+\newblock Accurate and efficient method for many-body van der waals
+  interactions.
+\newblock {\em Phys. Rev. Lett.}, 108(23):236402, 2012.
+
+\bibitem{usa1}
+G.~Torrie and J.~Valleau.
+\newblock Nonphysical sampling distributions in monte carlo free energy
+  estimation: Umbrella sampling.
+\newblock {\em J. Comput. Phys.}, 23:187, 1977.
+
+\bibitem{Vahtras93}
+O.~Vahtras, J.~Alml{\"o}f, and M.W. Feyereisen.
+\newblock {\em Chem. Phys. Lett.}, 213:514, 1993.
+
+\bibitem{Lenthe94}
+E.~van~Lenthe van~Lenthe van~Lenthe~van Lenthe, E.J. Baerends, and J.G.
+  Snijders.
+\newblock {\em J. Chem. Phys.}, 101:9783, 1994.
+
+\bibitem{Vosko80}
+S.H. Vosko, L.~Wilk, and M.~Nusair.
+\newblock {\em Can. J. Phys.}, 58:1200, 1980.
+
+\bibitem{Vocadlo02}
+L.~Vo\v{c}adlo and D.~Alf{\`e}.
+\newblock {\em Phys. Rev. B}, 65:214105, 2002.
+
+\bibitem{Wagner98}
+F.~Wagner, Th. Laloyaux, and M.~Scheffler.
+\newblock {\em Phys. Rev. B}, 57:2102, 1998.
+
+\bibitem{STRORI}
+E~Weinan, Weiqing Ren, and Eric Vanden-Eijnden.
+\newblock Simplified and improved string method for computing the minimum
+  energy paths in barrier-crossing events.
+\newblock {\em J. Chem. Phys.}, 126:164103, 2007.
+
+\bibitem{Wilhelm2013}
+J.\ Wilhelm, M.\ Walz, M.\ Stendel, A.\ Bagrets, and F.\ Evers.
+\newblock Ab initio simulations of scanning-tunneling-microscope images with
+  embedding techniques and application to c58-dimers on au(111).
+\newblock {\em Phys. Chem. Chem. Phys.}, 15:6684, 2013.
+
+\bibitem{Winkler:SOC}
+R.~Winkler.
+\newblock {\em Spin-Orbit Coupling Effects in Two-Dimensional Electron and Hole
+  Systems}.
+\newblock Springer, 2003.
+
+\bibitem{Zhang2013}
+Igor~Ying Zhang, Xinguo Ren, Patrick Rinke, Volker Blum, and Matthias
+  Scheffler.
+\newblock Numeric atom-centered-orbital basis sets with valence-correlation
+  consistency from h to ar.
+\newblock {\em New Journal of Physics}, 15:123033, 2013.
+
+\bibitem{Zhang2012}
+I.Y. Zhang, N.~Su, A.G. Bremond, C.~Adamo, and X.~Xu.
+\newblock Doubly hybrid density functional xdh-pbe0 from a parameter-free
+  global hybrid model pbe0.
+\newblock {\em J. Chem. Phys.}, 136:174103, 2012.
+
+\bibitem{Zhang98}
+Y.~Zhang and W.~Yang.
+\newblock {\em Phys. Rev. Lett.}, 80:890, 1998.
+
+\bibitem{ZhaoTruhlar06_M06-HF}
+Y.~Zhao and D.G. Truhlar.
+\newblock Density functional for spectroscopy: No long-range self-interaction
+  error, good performance for rydberg and charge-transfer states, and better
+  performance on average than b3lyp for ground states.
+\newblock {\em J. Phys. Chem. A}, 110:13126, 2006.
+
+\bibitem{ZhaoTruhlar06_M06_M06-2X}
+Y.~Zhao and D.G. Truhlar.
+\newblock The m06 suite of density functionals for main group thermochemistry,
+  thermochemical kinetics, noncovalent interactions, excited states, and
+  transition elements: Two new functionals and systematic testing of four
+  m06-class functionals and 12 other functionals.
+\newblock {\em Theor. Chem. Acc.}, 120:215, 2006.
+
+\bibitem{ZhaoTruhlar06_M06-L}
+Y.~Zhao and D.G. Truhlar.
+\newblock A new local density functional for main-group thermochemistry,
+  transition metal bonding, thermochemical kinetics, and noncovalent
+  interactions.
+\newblock {\em J. Chem. Phys.}, 125(19):194101, 2006.
+
+\bibitem{ZhaoTruhlar08_M08-HX_M08-SO}
+Y.~Zhao and D.G. Truhlar.
+\newblock Exploring the limit of accuracy of the global hybrid meta density
+  functional for the main-group thermochemistry, kinetics, and noncovalent
+  interactions.
+\newblock {\em J. Chem. Theor. Comp.}, 4(11):1849, 2008.
+
+\end{thebibliography}

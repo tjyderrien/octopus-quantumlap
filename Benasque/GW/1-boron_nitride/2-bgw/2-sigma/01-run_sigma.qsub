@@ -1,0 +1,6 @@
+#!/bin/bash -l
+
+# This parallel script launches BGW to perform a self-energy calculation.
+module load berkeleygw/1.2
+sigma=/project/projectdirs/mp149/Benasque2016/BerkeleyGW-1.2.0/bin/sigma.cplx.x
+srun -n 72 $sigma &> sigma.out

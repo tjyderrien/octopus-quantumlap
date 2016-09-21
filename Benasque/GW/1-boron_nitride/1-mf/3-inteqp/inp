@@ -1,0 +1,47 @@
+CalculationMode = unocc
+FromScratch = yes
+Units = eV_Angstrom
+ExperimentalFeatures = yes
+
+alat = 1.4457
+# 1.45 (exp't) Ref: X Blase et al., PRB 51, 6868 (1995)
+%Coordinates
+ 'B' | 0.0              | 0.0          |  0.0
+ 'N' | alat*sqrt(3)/2.0 | alat*1.0/2.0 |  0.0
+ 'B' | alat*sqrt(3)/2.0 | alat*3.0/2.0 |  0.0
+ 'N' | 0.0              | 2*alat       |  0.0
+%
+
+%Lsize
+alat*sqrt(3)/2.0 | alat*3.0/2.0 | 5
+%
+# interlayer = 3.34
+
+PseudopotentialSet = hgh_lda
+#%Species
+# 'B' | 10.811  | spec_ps_psf | 5 | 2 | 2
+# 'N' | 14.0067 | spec_ps_psf | 7 | 2 | 2
+#%
+
+BoxShape = parallelepiped
+PeriodicDimensions = 2
+Output = berkeleygw
+Spacing = 0.16
+
+%KPointsReduced
+1.0 | 0.5 | 0.1 | 0.0
+1.0 | 0.5 | 0.2 | 0.0
+1.0 | 0.5 | 0.3 | 0.0
+1.0 | 0.5 | 0.4 | 0.0
+1.0 | 0.5 | 0.5 | 0.0
+1.0 | 0.4 | 0.4 | 0.0
+1.0 | 0.3 | 0.3 | 0.0
+1.0 | 0.2 | 0.2 | 0.0
+1.0 | 0.1 | 0.1 | 0.0
+1.0 | 0.0 | 0.0 | 0.0
+%
+ExtraStates = 8
+
+MaximumIter = 10
+Preconditioner = no
+EigensolverMaxIter = 300

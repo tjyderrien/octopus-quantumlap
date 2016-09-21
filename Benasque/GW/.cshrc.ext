@@ -1,0 +1,18 @@
+# begin .cshrc.ext
+if (-e $HOME/.dbgdot) then
+  echo "entering .cshrc.ext"
+endif
+ 
+# User additions to .cshrc go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if ($NERSC_HOST == "edison") then
+#   setenv MY_ENV_VAR "my_val"
+# endif
+
+if (-e $HOME/.dbgdot) then
+  echo "exiting .cshrc.ext"
+endif
+# end .cshrc.ext

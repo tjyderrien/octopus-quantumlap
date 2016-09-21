@@ -1,0 +1,120 @@
+\contentsline {chapter}{How to use this manual}{7}{chapter*.1}
+\contentsline {chapter}{Introduction}{8}{chapter*.3}
+\contentsline {chapter}{\numberline {1}Getting started with FHI-aims}{10}{chapter.1}
+\contentsline {section}{\numberline {1.1}First step: Installation}{10}{section.1.1}
+\contentsline {section}{\numberline {1.2}Building the code}{11}{section.1.2}
+\contentsline {section}{\numberline {1.3}Running FHI-aims}{13}{section.1.3}
+\contentsline {section}{\numberline {1.4}Shortcut: make.sys}{16}{section.1.4}
+\contentsline {section}{\numberline {1.5}Cross-Compiling with a C Compiler}{17}{section.1.5}
+\contentsline {section}{\numberline {1.6}Compilation options beyond the standard Makefile}{17}{section.1.6}
+\contentsline {subsection}{\numberline {1.6.1}Alternative build process with the Waf build system}{19}{subsection.1.6.1}
+\contentsline {paragraph}{\texttt {wext} --- AIMS build extensions}{19}{section*.4}
+\contentsline {section}{\numberline {1.7}Compiling faster versions of FHI-aims on specific platforms}{21}{section.1.7}
+\contentsline {chapter}{\numberline {2}Input Files: Basic Handling}{22}{chapter.2}
+\contentsline {section}{\numberline {2.1}The mandatory input files: \texttt {control.in} and \texttt {geometry.in}}{23}{section.2.1}
+\contentsline {section}{\numberline {2.2}Defaults for chemical elements: species\_defaults}{26}{section.2.2}
+\contentsline {section}{\numberline {2.3}A very quick guide to ensuring numerical convergence with FHI-aims}{29}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Basis set}{29}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Hartree potential}{31}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}Integration grid}{32}{subsection.2.3.3}
+\contentsline {section}{\numberline {2.4}Why does my calculation take too long?}{35}{section.2.4}
+\contentsline {section}{\numberline {2.5}Stopping a run: Files \texttt {abort\_scf} and \texttt {abort\_opt}}{38}{section.2.5}
+\contentsline {chapter}{\numberline {3}The Full Monty: All Keywords and Capabilities}{39}{chapter.3}
+\contentsline {section}{\numberline {3.1}Usability (convenience)}{40}{section.3.1}
+\contentsline {section}{\numberline {3.2}Physical model: Geometry, charge, spin, etc.}{43}{section.3.2}
+\contentsline {section}{\numberline {3.3}Electronic structure: Exchange, correlation (incl. DFT+U), and excited states}{48}{section.3.3}
+\contentsline {section}{\numberline {3.4}Specifying the basis (functions, empty sites, k-points, ...)}{63}{section.3.4}
+\contentsline {section}{\numberline {3.5}Integration, grids, and partitioning}{76}{section.3.5}
+\contentsline {section}{\numberline {3.6}Electron density update}{87}{section.3.6}
+\contentsline {section}{\numberline {3.7}Electrostatic (Hartree) potential}{89}{section.3.7}
+\contentsline {subsection}{\numberline {3.7.1}Non-periodic Ewald method}{90}{subsection.3.7.1}
+\contentsline {section}{\numberline {3.8}Kinetic energy, scalar relativity, and spin-orbit coupling}{100}{section.3.8}
+\contentsline {subsubsection}{Some Background}{102}{section*.25}
+\contentsline {section}{\numberline {3.9}Eigenvalue solver and (fractional) occupation numbers}{108}{section.3.9}
+\contentsline {section}{\numberline {3.10}SCF Cycle: Initialization, density mixing, preconditioning, convergence}{117}{section.3.10}
+\contentsline {section}{\numberline {3.11}Energy derivatives (forces, stress) and geometry optimization}{135}{section.3.11}
+\contentsline {section}{\numberline {3.12}Molecular dynamics}{150}{section.3.12}
+\contentsline {section}{\numberline {3.13}Thermodynamic Integration}{160}{section.3.13}
+\contentsline {section}{\numberline {3.14}Electronic constraints}{164}{section.3.14}
+\contentsline {section}{\numberline {3.15}Embedding in external fields}{171}{section.3.15}
+\contentsline {section}{\numberline {3.16}QM/MM Embedding}{175}{section.3.16}
+\contentsline {section}{\numberline {3.17}$C_6$/$R^6$ corrections for long-range van der Waals interactions}{179}{section.3.17}
+\contentsline {section}{\numberline {3.18}Many-Body Dispersion (MBD) energy}{183}{section.3.18}
+\contentsline {section}{\numberline {3.19}Calculating nonlocal correlation energy within density functional approach}{187}{section.3.19}
+\contentsline {subsection}{\numberline {3.19.1}Monte Carlo integration based vdW-DF}{187}{subsection.3.19.1}
+\contentsline {subsection}{\numberline {3.19.2}Analytic integration scheme for non-selfconsistent and self-consistent vdW-DF}{192}{subsection.3.19.2}
+\contentsline {section}{\numberline {3.20}Hartree-Fock, hybrid functionals, $GW$, \emph {et al.}: All the details}{194}{section.3.20}
+\contentsline {section}{\numberline {3.21}Hartree-Fock and hybrid functionals, including periodic systems}{208}{section.3.21}
+\contentsline {section}{\numberline {3.22}TDDFT - linear response}{212}{section.3.22}
+\contentsline {section}{\numberline {3.23}MPE Implicit Solvent Model}{216}{section.3.23}
+\contentsline {section}{\numberline {3.24}Linear macroscopic dielectric function and Kubo-Greenwood transport}{218}{section.3.24}
+\contentsline {section}{\numberline {3.25}Electronic Transport}{224}{section.3.25}
+\contentsline {section}{\numberline {3.26}ESP charges}{228}{section.3.26}
+\contentsline {section}{\numberline {3.27}Large-scale, massively parallel: Memory use, sparsity, communication, etc.}{236}{section.3.27}
+\contentsline {section}{\numberline {3.28}Fragment molecular orbital DFT calculations}{243}{section.3.28}
+\contentsline {paragraph}{Example:}{245}{section*.80}
+\contentsline {section}{\numberline {3.29}Output options}{252}{section.3.29}
+\contentsline {section}{\numberline {3.30}Deprecated keywords}{276}{section.3.30}
+\contentsline {chapter}{\numberline {4}Running FHI-aims: Guides to specific tasks}{283}{chapter.4}
+\contentsline {section}{\numberline {4.1}Ground state DFT: Total energies and relaxation}{284}{section.4.1}
+\contentsline {section}{\numberline {4.2}Heavy elements ($Z\gtrsim $30): Modifications for scalar relativity}{290}{section.4.2}
+\contentsline {section}{\numberline {4.3}k-point sampling in the Brillouin zone for semiconductors}{293}{section.4.3}
+\contentsline {section}{\numberline {4.4}Plotting the band structure and density of states of a solid}{297}{section.4.4}
+\contentsline {section}{\numberline {4.5}Visualizing charge densities and orbitals}{300}{section.4.5}
+\contentsline {section}{\numberline {4.6}Calculation of vibrational and phonon frequencies}{303}{section.4.6}
+\contentsline {section}{\numberline {4.7}Restarting FHI-aims calculations}{315}{section.4.7}
+\contentsline {subsection}{\numberline {4.7.1}General restart procedure}{315}{subsection.4.7.1}
+\contentsline {paragraph}{Important --- Rotated systems:}{315}{section*.112}
+\contentsline {paragraph}{Kohn--Sham eigenvector (\emph {"wavefunction"}):}{315}{section*.113}
+\contentsline {paragraph}{Kohn--Sham density matrix (\emph {"density matrix"}):}{315}{section*.114}
+\contentsline {subsection}{\numberline {4.7.2}Mixing variants - the "force\_single\_restartfile" option}{316}{subsection.4.7.2}
+\contentsline {subsection}{\numberline {4.7.3}Rotating the FHI-aims wavefunction}{316}{subsection.4.7.3}
+\contentsline {paragraph}{Rotation of a single system:}{317}{section*.118}
+\contentsline {paragraph}{Rotation and combination of wavefunctions}{317}{section*.119}
+\contentsline {section}{\numberline {4.8}Finding Transition States: the aimsChain}{320}{section.4.8}
+\contentsline {subsection}{\numberline {4.8.1}Installation}{320}{subsection.4.8.1}
+\contentsline {subsection}{\numberline {4.8.2}A Quick Start}{321}{subsection.4.8.2}
+\contentsline {subsection}{\numberline {4.8.3}Configuration}{323}{subsection.4.8.3}
+\contentsline {subsection}{\numberline {4.8.4}Preparation before running}{333}{subsection.4.8.4}
+\contentsline {subsection}{\numberline {4.8.5}Running the script}{337}{subsection.4.8.5}
+\contentsline {subsection}{\numberline {4.8.6}Tips \& Guides On Running}{339}{subsection.4.8.6}
+\contentsline {section}{\numberline {4.9}Transition state search: Nudged Elastic Band method}{341}{section.4.9}
+\contentsline {subsection}{\numberline {4.9.1}Theory and methods}{341}{subsection.4.9.1}
+\contentsline {subsection}{\numberline {4.9.2}Usage}{341}{subsection.4.9.2}
+\contentsline {section}{\numberline {4.10}Plugin for free-energy calculations with molecular dynamics: \texttt {PLUMED}}{346}{section.4.10}
+\contentsline {subsection}{\numberline {4.10.1}Usage}{346}{subsection.4.10.1}
+\contentsline {section}{\numberline {4.11}Script based parallel tempering (a.k.a. replica exchange)}{348}{section.4.11}
+\contentsline {subsection}{\numberline {4.11.1}Usage}{348}{subsection.4.11.1}
+\contentsline {subsection}{\numberline {4.11.2}Output}{350}{subsection.4.11.2}
+\contentsline {section}{\numberline {4.12}Formation energies of charged defects}{352}{section.4.12}
+\contentsline {chapter}{\numberline {5}The AITRANSS package}{354}{chapter.5}
+\contentsline {section}{\numberline {5.1}Source code and supporting materials}{355}{section.5.1}
+\contentsline {section}{\numberline {5.2}Compiling the \textsc {aitranss} module}{355}{section.5.2}
+\contentsline {section}{\numberline {5.3}How to set-up and run transport calculations}{356}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}FHI-aims run: input and output}{356}{subsection.5.3.1}
+\contentsline {subsection}{\numberline {5.3.2}What to be aware of before running \textsc {aitranss} module}{356}{subsection.5.3.2}
+\contentsline {subsection}{\numberline {5.3.3}How to create a mandatory file \texttt {tcontrol}}{358}{subsection.5.3.3}
+\contentsline {subsection}{\numberline {5.3.4}How to submit a transport calculation and its output}{360}{subsection.5.3.4}
+\contentsline {subsection}{\numberline {5.3.5}Further option: local density of states}{361}{subsection.5.3.5}
+\contentsline {section}{\numberline {5.4}Keywords of file \texttt {tcontrol}}{361}{section.5.4}
+\contentsline {chapter}{\numberline {A}Trouble-shooting}{368}{appendix.A}
+\contentsline {section}{\numberline {A.1}Format flags required by some compilers}{368}{section.A.1}
+\contentsline {section}{\numberline {A.2}FHI-aims aborts with a segfault at the beginning of the first test run.}{369}{section.A.2}
+\contentsline {section}{\numberline {A.3}Use of FHI-aims with multithreaded BLAS (e.g., Intel's mkl)}{370}{section.A.3}
+\contentsline {section}{\numberline {A.4}Parallel runs across different file systems}{370}{section.A.4}
+\contentsline {section}{\numberline {A.5}I'm running a calculation with a large system, and it is abruptly exiting. What's going on?}{371}{section.A.5}
+\contentsline {section}{\numberline {A.6}What do I do if I run out of memory?}{371}{section.A.6}
+\contentsline {section}{\numberline {A.7}Nearly singular basis sets: Strange results from small-unit-cell periodic calculation with many k-points}{371}{section.A.7}
+\contentsline {section}{\numberline {A.8}No convergence of the s.c.f. cycle even after many iterations}{372}{section.A.8}
+\contentsline {chapter}{\numberline {B}Structure of the code}{375}{appendix.B}
+\contentsline {section}{\numberline {B.1}Flow of the program}{375}{section.B.1}
+\contentsline {section}{\numberline {B.2}Commenting and style requests}{379}{section.B.2}
+\contentsline {chapter}{\numberline {C}Memory Tracing}{380}{appendix.C}
+\contentsline {chapter}{\numberline {D}Debug Manager}{381}{appendix.D}
+\contentsline {chapter}{\numberline {E}XML output}{382}{appendix.E}
+\contentsline {chapter}{\numberline {F}Optional Libraries to be Linked into FHI-aims}{383}{appendix.F}
+\contentsline {section}{\numberline {F.1}Adding Optional Libraries into FHI-aims: Stubs}{383}{section.F.1}
+\contentsline {section}{\numberline {F.2}Spglib}{384}{section.F.2}
+\contentsline {chapter}{\numberline {G}Multiple Instances of Aims}{385}{appendix.G}
+\contentsline {chapter}{Bibliography}{396}{appendix*.133}
+\contentsline {chapter}{Index}{396}{section*.134}

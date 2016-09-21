@@ -1,0 +1,15 @@
+Monolayer BN - MF/Inteqp
+============================
+
+In this directory we perform a non-self-consistent (NSCF) mean-field
+calculation at a specified path in the Brillouin zone to produce a
+bandstructure plot.
+
+
+Instructions
+------------
+
+  1. Take a look at the input file ``inp``. What is the path in k-space?
+
+  2. Run ``./01-calculate_wfn.qsub`` to calculate the wavefunctions on the
+     specified path. This should take about 3 mins.

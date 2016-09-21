@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#######################################################
+#example SGE batch script for a plain MPI program using
+#512 cores (16 nodes x 32 cores per node) with 32 MPI 
+#tasks per node
+#executed under the intel runtime 
+#######################################################
+## run in /bin/bash
+#$ -S /bin/bash
+## do not join stdout and stderr
+#$ -j n
+## name of the job
+#$ -N silicon_aims
+## execute job from the current working directory
+#$ -cwd
+## send mail
+#$ -m abe
+## Email address
+#$ -M derrien@fzu.cz
+## request 16 nodes (x 32 cores), must be a multiple of 32  
+#$ -pe impi_hydra 512
+## run for 30 minutes
+#$ -l h_rt=08:00:00
+
+module purge
+module load intel impi
+
+set -e
+
+# Just loading variables for FHI-aims
+cd ../Tutorial2/reference/
+source tut2.env
+cd -
+
+python_calc () {
+    python -c "print ($@)"
+}
+
+# 1. CREATE THE MULTIPLE SAMPLES
+# 2. Check k-point convergence for each of them
+SampleZ=4
+# SampleX=2
+for SampleX in `seq 1 1 8`; do #NumberOfAtoms in X direction
+# for SampleZ in `seq 1 1 16 `; do #NumberOfAtoms in Z direction
+	# create new directory
+	dirsample="Si-${SampleZ}x${SampleX}x${SampleX}-L50"
+	mkdir -p ${dirsample}
+	cd ${dirsample}
+	# build the sample
+	../../../Samples/Si100/write-geom.py ${SampleZ} ${SampleX} > geometry.in
+	# get the controls from parent directory
+#	cp ../control-*.in .
+	# generation of k-points
+	for dir in 8 6 4 2 1; do
+		dirname="k-1x"$dir"x"$dir
+		mkdir -p $dirname
+		cd $dirname
+		# Prepare control.in
+		cp ../geometry.in .
+		cp ../../control-I.in control.in
+		echo >>control.in
+		echo >>control.in "# k-point grid"
+		echo >>control.in
+		echo >>control.in "  k_grid 1 $dir $dir"
+		echo >>control.in
+		cat >> control.in ../../control-II.in
+		cat >> control.in ../../control-III.in
+#                echo >>control.in " # output DOS "
+#		echo >>control.in " output dos -18. 0. 200 0.05 "
+#		echo >>control.in "dos_kgrid_factors 8 8 8"
+	      	# Main loop over different lattice constants
+		# start the job!!
+		mpiexec -n $NSLOTS $AIMSBIN < /dev/null > aims.out
+		cd - >/dev/null
+	done
+	cd ..
+done

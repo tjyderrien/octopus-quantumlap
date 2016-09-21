@@ -1,0 +1,18 @@
+# begin .tcshrc.ext
+if (-e $HOME/.dbgdot) then
+  echo "entering .tcshrc.ext"
+endif
+ 
+# User additions to .tcshrc go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if ($NERSC_HOST == "edison") then
+#   setenv MY_ENV_VAR "my_val"
+# endif
+
+if (-e $HOME/.dbgdot) then
+  echo "exiting .tcshrc.ext"
+endif
+# end .tcshrc.ext

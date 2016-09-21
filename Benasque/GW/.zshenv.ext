@@ -1,0 +1,15 @@
+# begin .zshenv.ext
+[ -e $HOME/.dbgdot ] && echo "entering .zshenv.ext" >&2
+ 
+# User additions to .zshenv go in this file
+ 
+# Un-comment and modify the following template for system-specific
+# personal settings.
+#
+# if [ "$NERSC_HOST" == "edison" ]
+# then
+#   export MY_ENV_VAR="my_val"
+# fi
+
+[ -e $HOME/.dbgdot ] && echo "exiting .zshenv.ext" >&2
+# end .zshenv.ext

@@ -1,0 +1,25 @@
+Monolayer BN - MF/Epsilon_q
+===========================
+
+In this directory we perform a non-self-consistent (NSCF) mean-field
+calculation to generate the occupied Bloch states with a small q-shift needed
+to construct the dielectric matrix at a small q-vector. The resulting
+wavefunction file will be read as WFNq by the Epsilon code.
+
+
+Instructions
+------------
+
+  1. Take a look at the input file ``kgrid.inp`` for ``k-grid.x``. Note the small
+     q-shift.
+
+  2. Run ``./01-get_kgrid.sh`` to generate the k-grid. Take a look at the
+     output ``kgrid.out`` and the log ``kgrid.log``. How many points does the reduced
+     shifted grid have? How does that compare with the number of points on
+     the original uniform grid?
+
+  3. Verify that the k-points in the Octopus input file ``inp`` are the same as
+     those in ``kgrid.out``.
+
+  4. Run ``./02-calculate_wfn.qsub`` to calculate the wavefunctions using
+     Octopus. This should take about 2 mins.

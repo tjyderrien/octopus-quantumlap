@@ -1,0 +1,12 @@
+Monolayer Boron Nitride - MF/scf
+================================
+
+In this directory we perform a standard SCF calculation and obtain a charge
+density which will be used to generate all the other WFNs. We don't have to
+worry about k-grids at this point, we just use a k-grid that converges the
+total SCF energy.
+
+To perform the calculation, just launch ``./01-calculate_scf.qsub``. This
+calculation should run in 4 mins. Take a look at the input and output, and
+try to understand what happened. Visualize the structure written to
+``static/geometry.xsf`` with VESTA or XCrySDen. What is the primitive unit cell?

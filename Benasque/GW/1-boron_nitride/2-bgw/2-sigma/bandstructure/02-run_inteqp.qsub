@@ -1,0 +1,6 @@
+#!/bin/bash -l
+
+module load berkeleygw/1.2
+# This parallel script launches BGW to interpolate QP corrections.
+inteqp=/project/projectdirs/mp149/Benasque2016/BerkeleyGW-1.2.0/bin/inteqp.cplx.x
+srun -n 48 $inteqp &> inteqp.out

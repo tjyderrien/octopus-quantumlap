@@ -1,0 +1,1 @@
+/global/homes/skel/read-only/.login

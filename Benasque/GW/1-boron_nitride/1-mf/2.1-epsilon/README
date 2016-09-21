@@ -1,0 +1,19 @@
+Monolayer BN - MF/Epsilon
+=========================
+
+In this directory we perform a non-self-consistent (NSCF) mean-field
+calculation to generate all of the Bloch states needed for the subsequent
+GW/GW-BSE calculations. The resulting wavefunction file will then be read
+as WFN by the Epsilon code.
+
+
+Instructions
+------------
+
+  1. Run ``./01-calculate_wfn.qsub`` to start the calculation of wave
+     functions, charge density matrix and exchange-correllation matrix
+     elements. This step should take 3 mins.
+
+  2. Look at the Octopus input file ``inp``. What changed with respect to the
+     input file for the scf calculation? How many empty states are we
+     generating?

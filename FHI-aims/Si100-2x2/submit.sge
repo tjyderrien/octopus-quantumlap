@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#######################################################
+#example SGE batch script for a plain MPI program using
+#512 cores (16 nodes x 32 cores per node) with 32 MPI 
+#tasks per node
+#executed under the intel runtime 
+#######################################################
+## run in /bin/bash
+#$ -S /bin/bash
+## do not join stdout and stderr
+#$ -j n
+## name of the job
+#$ -N silicon_aims
+## execute job from the current working directory
+#$ -cwd
+## send mail
+#$ -m abe
+## Email address
+#$ -M derrien@fzu.cz
+## request 16 nodes (x 32 cores), must be a multiple of 32  
+#$ -pe impi_hydra 32 
+## run for 30 minutes
+#$ -l h_rt=00:10:00
+
+module purge
+module load intel impi
+
+set -e
+
+# Just loading variables for FHI-aims
+cd ../Tutorial2/reference/
+source tut2.env
+cd -
+
+python_calc () {
+    python -c "print ($@)"
+}
+
+for dir in 1 2 4 8 16; do
+    dirname="k-1x"$dir"x"$dir
+    mkdir -p $dirname
+    cd $dirname
+#      case $dir in
+#          (bcc) LATCONST=3.1;;
+#          (fcc) LATCONST=3.8;;
+#          (diamond) LATCONST=5.4;;
+#          (*)   echo "Unknown lattice $dir"; exit -2
+#      esac
+      # Prepare control.in
+      cp ../geometry.in .
+      cp ../control-I.in control.in
+      echo >>control.in
+      echo >>control.in "# k-point grid"
+      echo >>control.in
+      echo >>control.in "  k_grid 1 $dir $dir"
+      echo >>control.in
+      
+#      cat  >>control.in $AIMSFILES/species_defaults/light/14_Si_default
+       cat >> control.in ../control-II.in
+      # Main loop over different lattice constants
+#      for delta in -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3; do
+#          A=$(python_calc "${LATCONST[$dir]} + ($delta)")
+#          A2=$(python_calc "$A/2.")
+#          A4=$(python_calc "$A/4.")
+#          # Actually ...
+#          run_aims.sh -n $NP  $AIMSBIN  $A \
+#              --sed-geometry "s/@A@/$A/g; s/@A2@/$A2/g; s/@A4@/$A4/g;"
+#      done
+
+# start the job!!
+    mpiexec -n $NSLOTS $AIMSBIN < /dev/null > aims.out
+    cd - >/dev/null
+done

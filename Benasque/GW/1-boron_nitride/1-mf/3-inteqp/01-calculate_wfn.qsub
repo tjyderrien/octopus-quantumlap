@@ -1,0 +1,4 @@
+#!/bin/bash -l
+
+module load octopus/6.0
+srun -n 48 octopus &> output
