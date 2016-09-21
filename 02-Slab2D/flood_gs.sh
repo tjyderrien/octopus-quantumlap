@@ -20,8 +20,8 @@ MeshSizeZ="0.18" #Convergence study showed that 0.18 is enough to compute the cu
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
-SampleLayers="20" #"6"
-SampleXY="20" #"4"
+SampleLayers="6"
+SampleXY="4"
 # SampleXY="8 10 12 14 16 18 20"
 
 for iSampleLayers in ${SampleLayers}

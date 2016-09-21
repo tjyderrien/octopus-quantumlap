@@ -26,3 +26,4 @@ td.general/
 00-SelfMadeFiles/01-BulkSi/00-FixingMesh/
 *.pyc
 *.old
+02-Slab2D/Si-*
