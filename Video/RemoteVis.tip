@@ -1,0 +1,19 @@
+#!/bin/bash
+#09:29 < legostein> moin
+#09:46 < legostein> I just learned from the people at the RZ in Garching:
+#09:46 < legostein> Tip of the day:
+#09:46 < legostein> Btw. the module category 'visualization' is hidden by default on
+#09:46 < legostein> Hydra's interactive/login nodes. To list these modules without having
+#09:46 < legostein> to start a visualization session you can just say:
+#09:46 < legostein> module load remotevis
+#09:47 < legostein> module avail
+#09:47 < legostein> .
+#09:47 < legostein> .
+#09:47 < legostein> .
+#09:47 < legostein> -------------------- /u/system/SLES11/soft/remotevis/modulefiles/visualization ---------------------
+#09:47 < legostein> anaconda/viz             paraview/4.4             visit/2.8
+#09:47 < legostein> blender/2.77(default)    paraview/4.4_bin         visit/2.9
+#09:47 < legostein> ffmpeg/2.7(default)      paraview/5.0(default)    vmd/1.9(default)
+#09:47 < legostein> imagemagick/6.9(default) paraview/5.0_bin         vtk/5.10(default)
+#09:47 < legostein> mayavi2/4.4(default)     pymol/1.7(default)
+#09:47 < legostein> paraview/4.3_bin         visit/2.10(default)

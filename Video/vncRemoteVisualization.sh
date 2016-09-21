@@ -1,0 +1,51 @@
+#!/bin/bash
+# echo "Usage: ./script.py <server|client> <Remote Port Number>"
+Commuter=$1
+GraphPortNumber=$2
+
+if [ -z $1 ]; then
+	echo "Usage: ./script.py <server|client> <Remote Port Number>"
+	exit
+fi
+
+source ../02-Slab2D/machines.env
+CheckComputerName
+
+#Defining clients and servers
+echo "Computer name: $ComputerName"
+# if [ ${ComputerName} == ${EOS}* ]; then
+#Commuter=client
+#fi
+#if [ ${ComputerName} == ${AsusThibs} ]; then
+#	Commuter=client
+#	echo "Client."
+#fi
+
+#GraphPortNumber=$1
+ServerAddress=eos01.bc.rzg.mpg.de
+LoginName=tjyderri
+GateWayAddress=gate.rzg.mpg.de
+
+if [ ${Commuter} == "client" ]; then
+	echo "Local computer is client."
+	vncviewer -via ${LoginName}@${GateWayAddress} ${ServerAddress}:${GraphPortNumber}
+fi
+
+if [ ${Commuter} == "server" ]; then
+	echo "Local computer is server."
+	echo "Loading modules..."
+	source loadModules.sh
+	ModuleForEOS
+	echo "Start the VNC server."
+	vncserver
+fi
+
+# echo "This script is just a documentation."
+# echo "On the REMOTE machine:"
+# echo "Load the modules given in VisualizationWorkshop/loadModules.sh"
+# echo "vncserver"
+# echo "New 'X' desktop is eos01:1"
+
+# echo "On the LOCAL machine:"
+# echo "sudo apt-get install vncviewer"
+# echo "vncviewer -via tjyderri@gate.rzg.mpg.de eos01.bc.rzg.mpg.de:1"
