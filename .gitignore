@@ -1,6 +1,8 @@
+00-Self*/
 silicon_tddft*
-# *.err
-# *.ou
+*.err
+*.ou
+FHI-aims/
 restart/
 exec/
 static/
@@ -14,9 +16,13 @@ WrongLsize/
 *.png
 *.mpg
 *.vtk
+*.eps.pdf
+*.pdf
 output_iter/
 td.general/
 *.tar
 *.bz2
 *.log
 00-SelfMadeFiles/01-BulkSi/00-FixingMesh/
+*.pyc
+*.old
