@@ -1,0 +1,207 @@
+    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                                ___
+                             .-'   `'.
+                            /         \
+                            |         ;
+                            |         |           ___.--,
+                   _.._     |0) ~ (0) |    _.---'`__.-( (_.
+            __.--'`_.. '.__.\    '--. \_.-' ,.--'`     `""`
+           ( ,.--'`   ',__ /./;   ;, '.__.'`    __
+           _`) )  .---.__.' / |   |\   \__..--""  """--.,_
+          `---' .'.''-._.-'`_./  /\ '.  \ _.-~~~````~~~-._`-.__.'
+                | |  .' _.-' |  |  \  \  '.               `~---`
+                 \ \/ .'     \  \   '. '-._)
+                  \/ /        \  \    `=.__`~-.
+             jgs  / /\         `) )    / / `"".`\
+            , _.-'.'\ \        / /    ( (     / /
+             `--~`   ) )    .-'.'      '.'.  | (
+                    (/`    ( (`          ) )  '-;
+                     `      '-;         (-'
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2, or (at your option)
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+
+    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+                           Running octopus
+
+Version                : 5.0.0
+Revision               : 14643
+Build time             : Fri Oct 23 08:28:24 CEST 2015
+Configuration options  : max-dim=3 openmp mpi sse2 avx
+Optional libraries     : metis mpi2 netcdf newuoa pfft scalapack
+Architecture           : x86_64
+C compiler             : mpiicc (icc)
+C compiler flags       :  -O3 -xCORE-AVX2 -fma -ip -openmp -fzero-initialized-in-bss -init=arrays -init=zero
+Fortran compiler       : mpiifort (ifort)
+Fortran compiler flags : -O3 -xCORE-AVX2 -fma -ip -openmp -fzero-initialized-in-bss -init=arrays -init=zero -openmp
+
+              The octopus is swimming in eos003 (Linux)
+
+
+            Calculation started on 2016/01/22 at 16:40:14
+
+
+************************** Calculation Mode **************************
+Input: [CalculationMode = gs]
+**********************************************************************
+
+Info: Initializing Multi-threaded FFTW
+Reading Coordinates from Si.xyz
+
+****************************** Species *******************************
+Reading pseudopotential from file:
+      '/u/system/SLES11/soft/octopus/5.0.0/intel-15.0/impi-5.1.1/share/octopus/PP/PSF/Si.psf'
+      Calculating atomic pseudo-eigenfunctions for species Si....
+Info: l =  0 component used as local potential.
+Info: l =  2 is maximum angular momentum considered.
+Number of orbitals: total =     16, bound =      4
+**********************************************************************
+
+
+***************************** Symmetries *****************************
+Space group No.  227
+International: Fd-3m
+Schoenflies: Oh^7
+Identity has a fractional translation     0.000000    0.500000    0.500000
+Identity has a fractional translation     0.500000    0.000000    0.500000
+Identity has a fractional translation     0.500000    0.500000    0.000000
+Disabling fractional translations. System appears to be a supercell.
+  Index                Rotation matrix                      Fractional translations
+    1 :     1   0   0     0   1   0     0   0   1      0.000000    0.000000    0.000000
+    2 :    -1   0   0     0   1   0     0   0  -1      0.000000    0.000000    0.000000
+    3 :    -1   0   0     0  -1   0     0   0   1      0.000000    0.000000    0.000000
+    4 :     1   0   0     0  -1   0     0   0  -1      0.000000    0.000000    0.000000
+    5 :     0   0  -1    -1   0   0     0   1   0      0.000000    0.000000    0.000000
+    6 :     0   0   1     1   0   0     0   1   0      0.000000    0.000000    0.000000
+    7 :     0   0  -1     1   0   0     0  -1   0      0.000000    0.000000    0.000000
+    8 :     0   0   1    -1   0   0     0  -1   0      0.000000    0.000000    0.000000
+    9 :     0  -1   0     0   0   1    -1   0   0      0.000000    0.000000    0.000000
+   10 :     0  -1   0     0   0  -1     1   0   0      0.000000    0.000000    0.000000
+   11 :     0   1   0     0   0   1     1   0   0      0.000000    0.000000    0.000000
+   12 :     0   1   0     0   0  -1    -1   0   0      0.000000    0.000000    0.000000
+   13 :     0   0   1     0  -1   0    -1   0   0      0.000000    0.000000    0.000000
+   14 :     0   0  -1     0  -1   0     1   0   0      0.000000    0.000000    0.000000
+   15 :     0   0  -1     0   1   0    -1   0   0      0.000000    0.000000    0.000000
+   16 :     0   0   1     0   1   0     1   0   0      0.000000    0.000000    0.000000
+   17 :     1   0   0     0   0  -1     0  -1   0      0.000000    0.000000    0.000000
+   18 :    -1   0   0     0   0   1     0  -1   0      0.000000    0.000000    0.000000
+   19 :     1   0   0     0   0   1     0   1   0      0.000000    0.000000    0.000000
+   20 :    -1   0   0     0   0  -1     0   1   0      0.000000    0.000000    0.000000
+   21 :     0   1   0    -1   0   0     0   0  -1      0.000000    0.000000    0.000000
+   22 :     0   1   0     1   0   0     0   0   1      0.000000    0.000000    0.000000
+   23 :     0  -1   0    -1   0   0     0   0   1      0.000000    0.000000    0.000000
+   24 :     0  -1   0     1   0   0     0   0  -1      0.000000    0.000000    0.000000
+Info: The system has    24 symmetries that can be used.
+**********************************************************************
+
+
+   1 k-points generated from parameters :
+ ---------------------------------------------------
+    n =    2    2    2      s =  0.50  0.50  0.50
+
+ index |    weight    |             coordinates              |
+     1 |     1.000000 |    0.250000    0.250000    0.250000  |
+
+Input: [SpinComponents = unpolarized]
+Input: [SmearingFunction = semiconducting]
+Input: [SymmetrizeDensity = no]
+
+******************************* States *******************************
+Total electronic charge  =       32.000
+Number of states         =       17
+States block-size        =       17
+**********************************************************************
+
+Input: [CurvMethod = curv_uniform]
+Input: [DerivativesStencil = stencil_star]
+
+************************** Parallelization ***************************
+Octopus will run in *parallel*
+Info: Number of threads  32
+**********************************************************************
+
+Info: Generating weights for finite-difference discretization of x-gradient
+Info: Generating weights for finite-difference discretization of y-gradient
+Info: Generating weights for finite-difference discretization of z-gradient
+Info: Generating weights for finite-difference discretization of Laplacian
+
+******************************** Grid ********************************
+Simulation Box:
+  Type = parallelepiped
+  Lengths [A] = (   2.715,   2.715,   2.715)
+  Octopus will run in 3 dimension(s).
+  Octopus will treat the system as periodic in 3 dimension(s).
+
+  Lattice Vectors [A]
+    5.430000    0.000000    0.000000
+    0.000000    5.430000    0.000000
+    0.000000    0.000000    5.430000
+  Cell volume =           160.1030 [A^3]
+  Reciprocal-Lattice Vectors [A^-1]
+    1.157124    0.000000    0.000000
+    0.000000    1.157124    0.000000
+    0.000000    0.000000    1.157124
+Main mesh:
+  Spacing [A] = ( 0.302, 0.302, 0.302)    volume/point [A^3] =      0.02745
+  # inner mesh =       5832
+  # total mesh =      14536
+  Grid Cutoff [eV] =   413.207306    Grid Cutoff [Ry] =    30.370179
+**********************************************************************
+
+Info: states-block size = 1.9 MiB
+Input: [StatesOrthogonalization = gram_schmidt]
+
+****************************** Hartree *******************************
+The chosen Poisson solver is 'fast Fourier transform'
+Input: [PoissonFFTKernel = fft_nocut]
+**********************************************************************
+
+Input: [FFTLibrary = fftw]
+Info: FFT grid dimensions       = 18 x 18 x 18
+      Total grid size           = 5832 (   0.0 MiB )
+
+**************************** Theory Level ****************************
+Input: [TheoryLevel = dft]
+
+Exchange-correlation:
+  Exchange
+    Slater exchange (LDA)
+    [1] PAM Dirac, Proceedings of the Cambridge Philosophical Society 26, 376 (1930)
+    [2] F Bloch, Zeitschrift fuer Physik 57, 545 (1929)
+  Correlation
+    Perdew & Zunger (Modified) (LDA)
+    [1] Perdew and Zunger, Phys. Rev. B 23, 5048 (1981)
+    [2] Modified to improve the matching between the low- and high-rs parts
+
+Input: [SICCorrection = sic_none]
+**********************************************************************
+
+Input: [FilterPotentials = filter_none]
+Info: Pseudopotential for Si
+  Radii for localized parts:
+    local part     =  1.2 A
+    non-local part =  1.0 A
+    orbitals       =  5.7 A
+
+
+**************************** FATAL ERROR *****************************
+*** Fatal Error (description follows)
+*--------------------------------------------------------------------
+* From node =    0
+*--------------------------------------------------------------------
+* Kick cannot be applied in a periodic direction. Use GaugeVectorField instead.
+**********************************************************************
+
+application called MPI_Abort(MPI_COMM_WORLD, 999) - process 0

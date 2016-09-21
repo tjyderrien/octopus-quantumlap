@@ -1,0 +1,46 @@
+FromScratch = yes
+
+CalculationMode = gs
+Units = eV_Angstrom
+PeriodicDimensions = 3
+
+# Mesh
+Spacing = 0.3174
+
+# Si Brillouin cell
+a = 5.43
+
+BoxShape = parallelepiped
+Lsize = a/2
+
+# Using external file
+XYZCoordinates = "Si.xyz"
+
+# ======== COORDINATES ============
+# %Coordinates
+#  "Si" |   0.0       | 0.0       | 0.0 
+#  "Si" |   a/2       | a/2       | 0.0
+#  "Si" |   a/2       | 0.0       | a/2
+#  "Si" |   0.0       | a/2       | a/2 
+#  "Si" |   a/4       | a/4       | a/4 
+#  "Si" |   a/4 + a/2 | a/4 + a/2 | a/4
+#  "Si" |   a/4 + a/2 | a/4       | a/4 + a/2
+#  "Si" |   a/4       | a/4 + a/2 | a/4 + a/2 
+#%
+
+%KPointsGrid
+  2   | 2   | 2
+  1/2 | 1/2 | 1/2
+%
+KPointsUseSymmetries = yes
+
+ExtraStates = 1
+
+#=== OUTPUT Density of state ===
+#Output = dos
+#OutputHow = xyz
+
+#=== PLOT THE SI LATTICE ===
+Output = wfs + density + elf + potential
+OutputHow = cube #VisIt
+#OutputHow = dx #OpenDX, UCSF Chimera

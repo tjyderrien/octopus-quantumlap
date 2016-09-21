@@ -1,0 +1,700 @@
+    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                                ___
+                             .-'   `'.
+                            /         \
+                            |         ;
+                            |         |           ___.--,
+                   _.._     |0) ~ (0) |    _.---'`__.-( (_.
+            __.--'`_.. '.__.\    '--. \_.-' ,.--'`     `""`
+           ( ,.--'`   ',__ /./;   ;, '.__.'`    __
+           _`) )  .---.__.' / |   |\   \__..--""  """--.,_
+          `---' .'.''-._.-'`_./  /\ '.  \ _.-~~~````~~~-._`-.__.'
+                | |  .' _.-' |  |  \  \  '.               `~---`
+                 \ \/ .'     \  \   '. '-._)
+                  \/ /        \  \    `=.__`~-.
+             jgs  / /\         `) )    / / `"".`\
+            , _.-'.'\ \        / /    ( (     / /
+             `--~`   ) )    .-'.'      '.'.  | (
+                    (/`    ( (`          ) )  '-;
+                     `      '-;         (-'
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2, or (at your option)
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+
+    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+                           Running octopus
+
+Version                : 5.0.0
+Revision               : 14643
+Build time             : Fri Oct 23 08:28:24 CEST 2015
+Configuration options  : max-dim=3 openmp mpi sse2 avx
+Optional libraries     : metis mpi2 netcdf newuoa pfft scalapack
+Architecture           : x86_64
+C compiler             : mpiicc (icc)
+C compiler flags       :  -O3 -xCORE-AVX2 -fma -ip -openmp -fzero-initialized-in-bss -init=arrays -init=zero
+Fortran compiler       : mpiifort (ifort)
+Fortran compiler flags : -O3 -xCORE-AVX2 -fma -ip -openmp -fzero-initialized-in-bss -init=arrays -init=zero -openmp
+
+              The octopus is swimming in eos125 (Linux)
+
+
+            Calculation started on 2016/01/22 at 18:04:43
+
+
+************************** Calculation Mode **************************
+Input: [CalculationMode = gs]
+**********************************************************************
+
+Info: Initializing Multi-threaded FFTW
+Reading Coordinates from Si.xyz
+
+****************************** Species *******************************
+Reading pseudopotential from file:
+      '/u/system/SLES11/soft/octopus/5.0.0/intel-15.0/impi-5.1.1/share/octopus/PP/PSF/Si.psf'
+      Calculating atomic pseudo-eigenfunctions for species Si....
+Info: l =  0 component used as local potential.
+Info: l =  2 is maximum angular momentum considered.
+Number of orbitals: total =     16, bound =      4
+**********************************************************************
+
+
+***************************** Symmetries *****************************
+Refinement of some symmetry elements was terminated before convergence was reached.
+Some symmetry elements may remain unidentified.
+Symmetry elements : (C3) 3*(sigma)
+Symmetry group    : C3v
+**********************************************************************
+
+Input: [SpinComponents = unpolarized]
+Input: [SmearingFunction = semiconducting]
+Input: [SymmetrizeDensity = no]
+
+******************************* States *******************************
+Total electronic charge  =       32.000
+Number of states         =       17
+States block-size        =       17
+**********************************************************************
+
+Input: [CurvMethod = curv_uniform]
+Input: [DerivativesStencil = stencil_star]
+
+************************** Parallelization ***************************
+Octopus will run in *parallel*
+Info: Number of threads  32
+**********************************************************************
+
+Info: Generating weights for finite-difference discretization of x-gradient
+Info: Generating weights for finite-difference discretization of y-gradient
+Info: Generating weights for finite-difference discretization of z-gradient
+Info: Generating weights for finite-difference discretization of Laplacian
+
+******************************** Grid ********************************
+Simulation Box:
+  Type = parallelepiped
+  Lengths [A] = (  10.860,  10.860,  10.860)
+  Octopus will run in 3 dimension(s).
+  Octopus will treat the system as periodic in 0 dimension(s).
+
+  Lattice Vectors [A]
+   21.720000    0.000000    0.000000
+    0.000000   21.720000    0.000000
+    0.000000    0.000000   21.720000
+  Cell volume =         10246.5924 [A^3]
+  Reciprocal-Lattice Vectors [A^-1]
+    0.289281    0.000000    0.000000
+    0.000000    0.289281    0.000000
+    0.000000    0.000000    0.289281
+Main mesh:
+  Spacing [A] = ( 0.275, 0.275, 0.275)    volume/point [A^3] =      0.02080
+  # inner mesh =     493039
+  # total mesh =     646679
+  Grid Cutoff [eV] =   497.229919    Grid Cutoff [Ry] =    36.545728
+**********************************************************************
+
+Info: states-block size = 83.9 MiB
+Input: [StatesOrthogonalization = gram_schmidt]
+
+****************************** Hartree *******************************
+The chosen Poisson solver is 'interpolating scaling functions'
+**********************************************************************
+
+
+**************************** Theory Level ****************************
+Input: [TheoryLevel = dft]
+
+Exchange-correlation:
+  Exchange
+    Slater exchange (LDA)
+    [1] PAM Dirac, Proceedings of the Cambridge Philosophical Society 26, 376 (1930)
+    [2] F Bloch, Zeitschrift fuer Physik 57, 545 (1929)
+  Correlation
+    Perdew & Zunger (Modified) (LDA)
+    [1] Perdew and Zunger, Phys. Rev. B 23, 5048 (1981)
+    [2] Modified to improve the matching between the low- and high-rs parts
+
+Input: [SICCorrection = sic_none]
+**********************************************************************
+
+Input: [FilterPotentials = filter_none]
+Info: Pseudopotential for Si
+  Radii for localized parts:
+    local part     =  1.2 A
+    non-local part =  1.0 A
+    orbitals       =  5.7 A
+
+Input: [RelativisticCorrection = non_relativistic]
+Input: [AbsorbingBoundaries = not_absorbing]
+
+****************** Approximate memory requirements *******************
+Mesh
+  global  :       9.9 MiB
+  local   :      14.8 MiB
+  total   :      24.7 MiB
+
+States
+  real    :      83.9 MiB (par_kpoints + par_states + par_domains)
+  complex :     167.7 MiB (par_kpoints + par_states + par_domains)
+
+**********************************************************************
+
+Info: Generating external potential
+      done.
+Info: Octopus initialization completed.
+Info: Starting calculation mode.
+Info: Allocating ground state wave-functions
+Info: Blocks of states
+      Block       1 contains      17 states:       1 -      17
+Info: Ground-state allocation done.
+Input: [MixField = density] (what to mix during SCF cycles)
+Input: [TypeOfMixing = broyden]
+
+**************************** Eigensolver *****************************
+Input: [Eigensolver = cg]
+Input: [Preconditioner = pre_filter]
+Input: [SubspaceDiagonalization = standard]
+**********************************************************************
+
+Input: [LCAOStart = lcao_full]
+Input: [LCAOScaleFactor = 1.000]
+Input: [LCAOMaximumOrbitalRadius = 10.58 A]
+Info: Single-precision storage for    15 extra orbitals will be allocated.
+Info: Unnormalized total charge =     31.999562
+Info: Renormalized total charge =     32.000000
+Info: Setting up Hamiltonian.
+Info: Performing initial LCAO calculation with     32 orbitals.
+Info: Getting Hamiltonian matrix elements.
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation
+   1   --   -16.025764       2.000000
+   2   --   -13.858040       2.000000
+   3   --   -13.858040       2.000000
+   4   --   -13.351575       2.000000
+   5   --   -11.579723       2.000000
+   6   --   -10.775382       2.000000
+   7   --   -10.775382       2.000000
+   8   --    -9.130014       2.000000
+   9   --    -7.629148       2.000000
+  10   --    -7.629148       2.000000
+  11   --    -7.490666       2.000000
+  12   --    -6.245181       2.000000
+  13   --    -6.245181       2.000000
+  14   --    -5.938787       2.000000
+  15   --    -5.650642       2.000000
+  16   --    -5.650642       2.000000
+  17   --    -5.378277       0.000000
+Info: Ground-state restart information will be written to 'restart/gs'.
+Info: SCF using real wavefunctions.
+Info: Starting SCF iteration.
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    1 ************************
+ etot = -8.61203176E+02 abs_ev   =  1.26E+01 rel_ev   =  3.98E-02
+                        abs_dens =  1.51E+01 rel_dens =  4.70E-01
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -17.028681       2.000000      (2.1E-04)
+   2   --   -14.436669       2.000000      (1.6E-04)
+   3   --   -13.519371       2.000000      (2.7E-04)
+   4   --   -13.519371       2.000000      (2.7E-04)
+   5   --   -12.866975       2.000000      (3.9E-04)
+   6   --   -10.224413       2.000000      (3.2E-03)
+   7   --   -10.224413       2.000000      (3.2E-03)
+   8   --   -10.024556       2.000000      (2.0E-03)
+   9   --    -8.664633       2.000000      (8.1E-03)
+  10   --    -8.664633       2.000000      (8.1E-03)
+  11   --    -8.162030       2.000000      (2.3E-03)
+  12   --    -6.880422       2.000000      (4.4E-02)
+  13   --    -6.880422       2.000000      (4.4E-02)
+  14   --    -6.612714       2.000000      (3.4E-03)
+  15   --    -5.206075       2.000000      (1.9E-02)
+  16   --    -5.206075       2.000000      (1.9E-02)
+  17   --    -5.010010       0.000000      (5.4E-04)
+
+Elapsed time for SCF step     1:          7.48
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    2 ************************
+ etot = -8.50486462E+02 abs_ev   =  1.82E+00 rel_ev   =  5.78E-03
+                        abs_dens =  7.04E+00 rel_dens =  2.20E-01
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -16.584170       2.000000      (6.9E-05)
+   2   --   -14.611802       2.000000      (4.1E-04)
+   3   --   -14.611802       2.000000      (4.1E-04)
+   4   --   -13.378987       2.000000      (2.9E-04)
+   5   --   -11.331656       2.000000      (2.1E-04)
+   6   --   -11.331656       2.000000      (2.1E-04)
+   7   --   -10.468718       2.000000      (2.5E-03)
+   8   --    -9.531750       2.000000      (4.5E-04)
+   9   --    -8.243397       2.000000      (7.1E-03)
+  10   --    -8.243397       2.000000      (7.1E-03)
+  11   --    -7.125261       2.000000      (1.6E-03)
+  12   --    -6.715025       2.000000      (6.6E-02)
+  13   --    -6.715025       2.000000      (6.6E-02)
+  14   --    -6.128409       2.000000      (1.1E-01)
+  15   --    -6.128409       2.000000      (1.1E-01)
+  16   --    -6.063115       2.000000      (3.2E-03)
+  17   --    -4.974399       0.000000      (9.5E-04)
+
+Elapsed time for SCF step     2:          7.70
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    3 ************************
+ etot = -8.45101917E+02 abs_ev   =  2.73E+01 rel_ev   =  9.49E-02
+                        abs_dens =  4.18E+00 rel_dens =  1.31E-01
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -15.333288       2.000000      (4.4E-05)
+   2   --   -12.955747       2.000000      (1.6E-04)
+   3   --   -12.947315       2.000000      (8.6E-05)
+   4   --   -12.947315       2.000000      (8.6E-05)
+   5   --   -11.299404       2.000000      (1.1E-04)
+   6   --   -10.163686       2.000000      (1.8E-04)
+   7   --   -10.163686       2.000000      (1.8E-04)
+   8   --    -8.607951       2.000000      (1.6E-03)
+   9   --    -7.351539       2.000000      (1.1E-03)
+  10   --    -7.107179       2.000000      (2.6E-03)
+  11   --    -7.107179       2.000000      (2.6E-03)
+  12   --    -5.870476       2.000000      (1.3E-02)
+  13   --    -5.870476       2.000000      (1.3E-02)
+  14   --    -5.661607       2.000000      (2.1E-03)
+  15   --    -5.099216       2.000000      (2.6E-02)
+  16   --    -5.099216       2.000000      (2.6E-02)
+  17   --    -4.780165       0.000000      (2.0E-04)
+
+Elapsed time for SCF step     3:          7.62
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    4 ************************
+ etot = -8.45062782E+02 abs_ev   =  5.68E+00 rel_ev   =  2.02E-02
+                        abs_dens =  4.40E+00 rel_dens =  1.37E-01
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.452110       2.000000      (1.0E-05)
+   2   --   -13.023367       2.000000      (1.3E-05)
+   3   --   -13.023367       2.000000      (1.3E-05)
+   4   --   -12.623985       2.000000      (4.5E-05)
+   5   --   -10.780636       2.000000      (5.6E-05)
+   6   --   -10.091876       2.000000      (8.4E-05)
+   7   --   -10.091876       2.000000      (8.4E-05)
+   8   --    -8.473067       2.000000      (1.7E-04)
+   9   --    -6.928854       2.000000      (1.4E-03)
+  10   --    -6.928853       2.000000      (1.4E-03)
+  11   --    -6.730868       2.000000      (2.4E-04)
+  12   --    -5.939412       2.000000      (3.4E-03)
+  13   --    -5.939412       2.000000      (3.4E-03)
+  14   --    -5.522083       2.000000      (1.1E-03)
+  15   --    -5.146269       2.000000      (7.6E-05)
+  16   --    -5.048850       2.000000      (6.5E-03)
+  17   --    -5.048850       0.000000      (6.5E-03)
+
+Elapsed time for SCF step     4:          7.67
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    5 ************************
+ etot = -8.44329510E+02 abs_ev   =  2.12E+00 rel_ev   =  7.58E-03
+                        abs_dens =  3.14E+00 rel_dens =  9.83E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.532760       2.000000      (8.2E-06)
+   2   --   -12.940787       2.000000      (6.4E-06)
+   3   --   -12.755922       2.000000      (6.1E-06)
+   4   --   -12.550661       2.000000      (3.8E-06)
+   5   --   -10.957892       2.000000      (3.1E-05)
+   6   --   -10.057673       2.000000      (2.2E-05)
+   7   --    -9.905050       2.000000      (1.4E-05)
+   8   --    -8.422718       2.000000      (6.6E-05)
+   9   --    -6.894470       2.000000      (6.1E-04)
+  10   --    -6.831725       2.000000      (3.1E-03)
+  11   --    -6.789543       2.000000      (6.0E-04)
+  12   --    -5.797770       2.000000      (1.3E-03)
+  13   --    -5.774322       2.000000      (1.7E-03)
+  14   --    -5.488427       2.000000      (1.2E-03)
+  15   --    -5.007023       2.000000      (6.7E-03)
+  16   --    -4.979642       2.000000      (1.6E-03)
+  17   --    -4.879243       0.000000      (5.5E-03)
+
+Elapsed time for SCF step     5:          7.63
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    6 ************************
+ etot = -8.44091348E+02 abs_ev   =  1.58E+00 rel_ev   =  5.67E-03
+                        abs_dens =  2.47E+00 rel_dens =  7.71E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.500067       2.000000      (6.5E-06)
+   2   --   -12.853387       2.000000      (8.3E-06)
+   3   --   -12.666113       2.000000      (8.7E-06)
+   4   --   -12.549016       2.000000      (4.6E-06)
+   5   --   -10.977941       2.000000      (2.3E-05)
+   6   --    -9.974930       2.000000      (9.3E-06)
+   7   --    -9.847936       2.000000      (1.3E-05)
+   8   --    -8.384186       2.000000      (2.9E-05)
+   9   --    -6.841018       2.000000      (1.4E-04)
+  10   --    -6.808715       2.000000      (1.3E-04)
+  11   --    -6.774920       2.000000      (2.7E-04)
+  12   --    -5.733566       2.000000      (9.7E-04)
+  13   --    -5.716750       2.000000      (7.2E-04)
+  14   --    -5.450091       2.000000      (1.3E-03)
+  15   --    -4.920610       2.000000      (2.0E-03)
+  16   --    -4.899497       2.000000      (1.8E-03)
+  17   --    -4.872380       0.000000      (6.8E-03)
+
+Elapsed time for SCF step     6:          7.67
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    7 ************************
+ etot = -8.44094392E+02 abs_ev   =  5.89E-01 rel_ev   =  2.13E-03
+                        abs_dens =  2.05E+00 rel_dens =  6.42E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.519910       2.000000      (5.2E-06)
+   2   --   -12.820557       2.000000      (4.5E-06)
+   3   --   -12.629191       2.000000      (7.1E-06)
+   4   --   -12.529672       2.000000      (2.9E-06)
+   5   --   -10.987760       2.000000      (2.7E-05)
+   6   --    -9.942079       2.000000      (7.4E-06)
+   7   --    -9.804219       2.000000      (8.9E-06)
+   8   --    -8.369049       2.000000      (2.5E-05)
+   9   --    -6.855124       2.000000      (1.3E-04)
+  10   --    -6.800844       2.000000      (2.4E-04)
+  11   --    -6.753374       2.000000      (2.3E-04)
+  12   --    -5.705530       2.000000      (1.5E-03)
+  13   --    -5.689729       2.000000      (8.1E-04)
+  14   --    -5.424976       2.000000      (1.1E-03)
+  15   --    -4.928131       2.000000      (2.5E-03)
+  16   --    -4.843881       2.000000      (6.2E-03)
+  17   --    -4.821395       0.000000      (5.8E-03)
+
+Elapsed time for SCF step     7:          7.68
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    8 ************************
+ etot = -8.44007268E+02 abs_ev   =  7.14E-01 rel_ev   =  2.58E-03
+                        abs_dens =  1.92E+00 rel_dens =  5.99E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.506271       2.000000      (3.7E-06)
+   2   --   -12.659487       2.000000      (7.5E-06)
+   3   --   -12.632828       2.000000      (9.4E-07)
+   4   --   -12.573108       2.000000      (4.0E-06)
+   5   --   -11.015527       2.000000      (1.3E-05)
+   6   --    -9.862170       2.000000      (5.9E-05)
+   7   --    -9.837951       2.000000      (5.9E-06)
+   8   --    -8.346943       2.000000      (1.8E-05)
+   9   --    -6.853214       2.000000      (6.3E-05)
+  10   --    -6.766172       2.000000      (1.4E-04)
+  11   --    -6.754491       2.000000      (1.1E-04)
+  12   --    -5.663125       2.000000      (4.3E-04)
+  13   --    -5.659007       2.000000      (4.8E-04)
+  14   --    -5.410303       2.000000      (6.9E-04)
+  15   --    -4.867971       2.000000      (6.8E-03)
+  16   --    -4.838466       2.000000      (4.4E-03)
+  17   --    -4.816957       0.000000      (7.0E-03)
+
+Elapsed time for SCF step     8:          7.67
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #    9 ************************
+ etot = -8.44064026E+02 abs_ev   =  5.32E-01 rel_ev   =  1.92E-03
+                        abs_dens =  1.81E+00 rel_dens =  5.67E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.537568       2.000000      (2.3E-06)
+   2   --   -12.760551       2.000000      (2.5E-06)
+   3   --   -12.612066       2.000000      (1.2E-05)
+   4   --   -12.526868       2.000000      (2.1E-06)
+   5   --   -11.011704       2.000000      (6.0E-06)
+   6   --    -9.928074       2.000000      (1.6E-05)
+   7   --    -9.820975       2.000000      (5.3E-06)
+   8   --    -8.363354       2.000000      (1.3E-05)
+   9   --    -6.858508       2.000000      (6.6E-05)
+  10   --    -6.805854       2.000000      (8.5E-05)
+  11   --    -6.754349       2.000000      (8.3E-05)
+  12   --    -5.687433       2.000000      (4.7E-04)
+  13   --    -5.673040       2.000000      (4.3E-04)
+  14   --    -5.419083       2.000000      (6.0E-04)
+  15   --    -4.884995       2.000000      (1.2E-03)
+  16   --    -4.868505       2.000000      (4.0E-03)
+  17   --    -4.824197       0.000000      (3.5E-03)
+
+Elapsed time for SCF step     9:          7.63
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   10 ************************
+ etot = -8.43981063E+02 abs_ev   =  1.68E-01 rel_ev   =  6.06E-04
+                        abs_dens =  2.05E+00 rel_dens =  6.41E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.477220       2.000000      (1.7E-06)
+   2   --   -12.708853       2.000000      (2.2E-06)
+   3   --   -12.692938       2.000000      (3.7E-06)
+   4   --   -12.517926       2.000000      (1.7E-06)
+   5   --   -10.950940       2.000000      (5.8E-06)
+   6   --    -9.902728       2.000000      (6.1E-06)
+   7   --    -9.887662       2.000000      (6.1E-06)
+   8   --    -8.364279       2.000000      (2.3E-05)
+   9   --    -6.790084       2.000000      (1.3E-04)
+  10   --    -6.781287       2.000000      (1.6E-04)
+  11   --    -6.775750       2.000000      (1.3E-04)
+  12   --    -5.694567       2.000000      (6.1E-04)
+  13   --    -5.691300       2.000000      (5.5E-04)
+  14   --    -5.420025       2.000000      (7.0E-04)
+  15   --    -4.892282       2.000000      (4.9E-03)
+  16   --    -4.881239       2.000000      (3.5E-03)
+  17   --    -4.870394       0.000000      (4.6E-03)
+
+Elapsed time for SCF step    10:          7.67
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   11 ************************
+ etot = -8.44241488E+02 abs_ev   =  3.40E-02 rel_ev   =  1.23E-04
+                        abs_dens =  2.67E+00 rel_dens =  8.33E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.460410       2.000000      (1.7E-06)
+   2   --   -12.863189       2.000000      (7.5E-06)
+   3   --   -12.585606       2.000000      (9.8E-06)
+   4   --   -12.451523       2.000000      (1.8E-06)
+   5   --   -10.939643       2.000000      (1.4E-05)
+   6   --    -9.988612       2.000000      (1.3E-05)
+   7   --    -9.796030       2.000000      (6.1E-06)
+   8   --    -8.364284       2.000000      (2.3E-05)
+   9   --    -6.828943       2.000000      (1.7E-04)
+  10   --    -6.769439       2.000000      (1.5E-04)
+  11   --    -6.725927       2.000000      (2.0E-04)
+  12   --    -5.726481       2.000000      (1.0E-03)
+  13   --    -5.705153       2.000000      (7.7E-04)
+  14   --    -5.403249       2.000000      (1.2E-03)
+  15   --    -4.935100       2.000000      (4.4E-03)
+  16   --    -4.902464       2.000000      (2.6E-03)
+  17   --    -4.826646       0.000000      (6.6E-03)
+
+Elapsed time for SCF step    11:          7.63
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   12 ************************
+ etot = -8.44028348E+02 abs_ev   =  5.54E-02 rel_ev   =  2.00E-04
+                        abs_dens =  1.86E+00 rel_dens =  5.80E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.512962       2.000000      (2.4E-06)
+   2   --   -12.756267       2.000000      (4.0E-06)
+   3   --   -12.652710       2.000000      (3.9E-06)
+   4   --   -12.497832       2.000000      (9.9E-07)
+   5   --   -10.954810       2.000000      (2.4E-05)
+   6   --    -9.931642       2.000000      (4.0E-05)
+   7   --    -9.844721       2.000000      (7.1E-06)
+   8   --    -8.368614       2.000000      (2.4E-05)
+   9   --    -6.809413       2.000000      (1.3E-04)
+  10   --    -6.804018       2.000000      (2.8E-04)
+  11   --    -6.763359       2.000000      (2.1E-04)
+  12   --    -5.695313       2.000000      (1.2E-03)
+  13   --    -5.684518       2.000000      (8.9E-04)
+  14   --    -5.415315       2.000000      (1.2E-03)
+  15   --    -4.915505       2.000000      (1.9E-03)
+  16   --    -4.866758       2.000000      (5.1E-03)
+  17   --    -4.842087       0.000000      (2.1E-03)
+
+Elapsed time for SCF step    12:          7.70
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   13 ************************
+ etot = -8.44083469E+02 abs_ev   =  5.34E-01 rel_ev   =  1.93E-03
+                        abs_dens =  2.14E+00 rel_dens =  6.68E-02
+Matrix vector products:    459
+Converged eigenvectors:      0
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.537595       2.000000      (1.6E-06)
+   2   --   -12.635953       2.000000      (3.1E-06)
+   3   --   -12.595858       2.000000      (3.9E-06)
+   4   --   -12.570112       2.000000      (7.5E-06)
+   5   --   -11.026874       2.000000      (1.5E-05)
+   6   --    -9.863237       2.000000      (1.8E-05)
+   7   --    -9.823924       2.000000      (1.4E-05)
+   8   --    -8.346183       2.000000      (1.9E-05)
+   9   --    -6.875430       2.000000      (8.7E-05)
+  10   --    -6.767542       2.000000      (2.3E-04)
+  11   --    -6.751912       2.000000      (2.2E-04)
+  12   --    -5.654414       2.000000      (7.8E-04)
+  13   --    -5.646356       2.000000      (7.7E-04)
+  14   --    -5.402900       2.000000      (6.5E-04)
+  15   --    -4.863814       2.000000      (8.7E-03)
+  16   --    -4.844429       2.000000      (8.0E-03)
+  17   --    -4.794116       0.000000      (1.1E-02)
+
+Elapsed time for SCF step    13:          7.62
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   14 ************************
+ etot = -8.44013460E+02 abs_ev   =  1.04E-01 rel_ev   =  3.78E-04
+                        abs_dens =  1.77E+00 rel_dens =  5.52E-02
+Matrix vector products:    457
+Converged eigenvectors:      1
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.502094       2.000000      (9.4E-07)
+   2   --   -12.704950       2.000000      (1.2E-06)
+   3   --   -12.634296       2.000000      (7.5E-06)
+   4   --   -12.504886       2.000000      (2.8E-06)
+   5   --   -10.987276       2.000000      (5.0E-06)
+   6   --    -9.906820       2.000000      (3.8E-06)
+   7   --    -9.824343       2.000000      (9.3E-06)
+   8   --    -8.352968       2.000000      (1.9E-05)
+   9   --    -6.825614       2.000000      (4.4E-05)
+  10   --    -6.787448       2.000000      (1.3E-04)
+  11   --    -6.745569       2.000000      (9.0E-05)
+  12   --    -5.676845       2.000000      (3.8E-04)
+  13   --    -5.664304       2.000000      (5.7E-04)
+  14   --    -5.405414       2.000000      (2.9E-04)
+  15   --    -4.870476       2.000000      (3.5E-03)
+  16   --    -4.865449       2.000000      (3.5E-03)
+  17   --    -4.829066       0.000000      (1.7E-03)
+
+Elapsed time for SCF step    14:          7.65
+**********************************************************************
+
+ETA: .......1......2.......3......4......5.......6......7.......8......9......0
+
+
+*********************** SCF CYCLE ITER #   15 ************************
+ etot = -8.44115650E+02 abs_ev   =  1.39E-02 rel_ev   =  5.02E-05
+                        abs_dens =  2.33E+00 rel_dens =  7.27E-02
+Matrix vector products:    458
+Converged eigenvectors:      1
+Eigenvalues [eV]
+ #st  Spin   Eigenvalue      Occupation     Error
+   1   --   -14.440005       2.000000      (9.5E-07)
+   2   --   -12.736400       2.000000      (3.3E-06)
+   3   --   -12.633919       2.000000      (2.6E-06)
+   4   --   -12.492970       2.000000      (1.4E-06)
+   5   --   -10.938159       2.000000      (3.9E-06)
+   6   --    -9.926564       2.000000      (5.0E-06)
+   7   --    -9.844563       2.000000      (6.8E-06)
+   8   --    -8.353194       2.000000      (2.5E-05)
+   9   --    -6.788696       2.000000      (2.5E-04)
+  10   --    -6.763873       2.000000      (1.7E-04)
+  11   --    -6.738559       2.000000      (1.4E-04)
+  12   --    -5.694905       2.000000      (5.5E-04)
+  13   --    -5.685745       2.000000      (8.8E-04)
+  14   --    -5.404084       2.000000      (7.3E-04)
+  15   --    -4.918095       2.000000      (3.1E-03)
+  16   --    -4.892079       2.000000      (4.7E-03)
+  17   --    -4.827722       0.000000      (4.3E-03)
+
+Elapsed time for SCF step    15:          7.62
+**********************************************************************
+
+ETA: .forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+octopus_mpi        00000000013E5441  Unknown               Unknown  Unknown
+octopus_mpi        00000000013E3B97  Unknown               Unknown  Unknown
+octopus_mpi        000000000138FA34  Unknown               Unknown  Unknown
+octopus_mpi        000000000138F846  Unknown               Unknown  Unknown
+octopus_mpi        0000000001329A49  Unknown               Unknown  Unknown
+octopus_mpi        000000000133076B  Unknown               Unknown  Unknown
+libpthread.so.0    00002B9F0F3E2850  Unknown               Unknown  Unknown
+octopus_mpi        00000000008F17C9  Unknown               Unknown  Unknown
+octopus_mpi        00000000007EF93D  Unknown               Unknown  Unknown
+octopus_mpi        0000000000774B91  Unknown               Unknown  Unknown
+
+Stack trace terminated abnormally.

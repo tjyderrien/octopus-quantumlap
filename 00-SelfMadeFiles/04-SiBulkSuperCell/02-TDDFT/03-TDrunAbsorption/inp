@@ -1,0 +1,45 @@
+FromScratch = yes
+
+CalculationMode = gs
+Units = eV_Angstrom
+PeriodicDimensions = 3
+
+# Mesh
+Spacing = 0.275
+
+# Si Brillouin cell
+a = 5.43
+
+BoxShape = parallelepiped
+Lsize = a/2
+
+# Using external file
+XYZCoordinates = "Si.xyz"
+
+%KPointsGrid
+  2   | 2   | 2
+  1/2 | 1/2 | 1/2
+%
+KPointsUseSymmetries = yes
+
+ExtraStates = 1
+
+#=== OUTPUT Density of state ===
+#Output = dos
+#OutputHow = xyz
+
+#=== PLOT THE SI LATTICE ===
+# Output = wfs + density + elf + potential
+# OutputHow = cube #VisIt
+#OutputHow = dx #OpenDX, UCSF Chimera
+
+#===== TD-DFT PART ======
+T=10
+dt=0.002
+TDPropagator = aetrs
+TDMaximumIter = T/dt
+TDTimeStep = dt
+
+#===== OPTICAL ABSORPTION =======
+TDDeltaStrength = 0.01
+TDPolarizationDirection = 1

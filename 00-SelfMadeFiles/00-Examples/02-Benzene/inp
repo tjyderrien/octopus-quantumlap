@@ -1,0 +1,10 @@
+CalculationMode = gs
+Units = eV_Angstrom
+
+Radius = 5
+Spacing = 0.15
+
+Output = wfs + density + elf + potential
+OutputHow = dx
+
+XYZCoordinates = "benzene.xyz"

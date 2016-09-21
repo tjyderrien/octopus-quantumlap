@@ -1,0 +1,16 @@
+silicon_tddft*
+# *.err
+# *.ou
+restart/
+exec/
+static/
+Tutorial*/
+silicon_aims.*
+*encode.lnk*
+output_iter/*
+01-MadeByMPSD/01-RunningMPSDexamples/*
+WrongLsize/
+*.eps
+*.png
+*.mpg
+*.vtk
