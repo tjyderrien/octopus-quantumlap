@@ -1,0 +1,28 @@
+\contentsline {title}{Non-linear absorption of intense bi-color laser light by indirect band gap materials resolved by time-dependent density functional theory}{1}{section*.2}
+\contentsline {abstract}{Abstract}{1}{section*.1}
+\tocdepth@munge 
+\contentsline {section}{\numberline {}Contents}{1}{section*.3}
+\tocdepth@restore 
+\contentsline {section}{\numberline {I}Introduction}{1}{section*.4}
+\contentsline {section}{\numberline {II}Calculation method}{1}{section*.5}
+\contentsline {subsection}{\numberline {A}Preparation of the laser pulses}{2}{section*.6}
+\contentsline {subsubsection}{\numberline {1}Lasers in quantum simulations}{2}{section*.7}
+\contentsline {subsubsection}{\numberline {2}Temporal evolution of bi-color pulses}{2}{section*.8}
+\contentsline {paragraph}{\numberline {}Experimental techniques}{2}{section*.9}
+\contentsline {paragraph}{\numberline {}Effect of the second wavelength}{2}{section*.10}
+\contentsline {paragraph}{\numberline {}Effect of the pulse phase (CEP)}{2}{section*.12}
+\contentsline {paragraph}{\numberline {}Effect of the pulse delay $\Delta t$}{2}{section*.14}
+\contentsline {paragraph}{\numberline {}Chirped pulses? }{2}{section*.16}
+\contentsline {subsection}{\numberline {B}Preparation of the sample}{2}{section*.17}
+\contentsline {paragraph}{\numberline {}Which orientation to choose ?}{2}{section*.18}
+\contentsline {paragraph}{\numberline {}2d-periodic Si slab}{2}{section*.19}
+\contentsline {subsubsection}{\numberline {1}Procedure for building a minimal slab (SLAB 1)}{3}{section*.21}
+\contentsline {subsubsection}{\numberline {2}Building a large SLAB 2}{4}{section*.23}
+\contentsline {section}{\numberline {III}Simulation results}{4}{section*.24}
+\contentsline {subsection}{\numberline {A}Band structure of Si slab}{4}{section*.25}
+\contentsline {subsection}{\numberline {B}Excitation of free-carriers to conduction band with single-color laser irradiation}{5}{section*.26}
+\contentsline {subsection}{\numberline {C}Transition probability of electrons to conduction band upon bi-color laser irradiation}{5}{section*.27}
+\contentsline {subsection}{\numberline {D}Quantum description of the band gap collapse with increasing laser fluence}{5}{section*.28}
+\contentsline {section}{\numberline {IV}Conclusion}{5}{section*.29}
+\contentsline {section}{\numberline {}Acknowledgements}{5}{section*.30}
+\contentsline {section}{\numberline {}References}{5}{section*.31}

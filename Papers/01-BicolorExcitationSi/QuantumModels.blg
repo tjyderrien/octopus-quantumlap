@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2013/Debian)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: QuantumModels.aux
+The style file: /media/thibault/PHD/Travail/Berlin/Publications/DoublePulseSi/osajnl.bst
+Database file #1: QuantumModelsNotes.bib
+Database file #2: /media/thibault/PHD/Travail/Bibliography/bibliographie_lue.bib
+Warning--empty journal in Museur
+Warning--empty year in Museur
+You've used 32 entries,
+            2587 wiz_defined-function locations,
+            804 strings with 11687 characters,
+and the built_in function-call counts, 11297 in all, are:
+= -- 745
+> -- 474
+< -- 0
++ -- 169
+- -- 137
+* -- 797
+:= -- 1399
+add.period$ -- 64
+call.type$ -- 32
+change.case$ -- 32
+chr.to.int$ -- 0
+cite$ -- 34
+duplicate$ -- 1162
+empty$ -- 1063
+format.name$ -- 168
+if$ -- 2458
+int.to.chr$ -- 0
+int.to.str$ -- 32
+missing$ -- 316
+newline$ -- 100
+num.names$ -- 32
+pop$ -- 368
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 132
+stack$ -- 0
+substring$ -- 438
+swap$ -- 764
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 57
+width$ -- 34
+write$ -- 287
+(There were 2 warnings)

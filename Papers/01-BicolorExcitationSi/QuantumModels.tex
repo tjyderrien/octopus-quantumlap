@@ -1,0 +1,517 @@
+%% LyX 2.0.8.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english,aip, reprint]{revtex4-1}
+\usepackage{charter}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\setcounter{secnumdepth}{3}
+\usepackage{color}
+\usepackage{babel}
+\usepackage{amsbsy}
+\usepackage{graphicx}
+\usepackage{esint}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},backref=false,colorlinks=true]
+ {hyperref}
+\hypersetup{
+ citecolor=blue, urlcolor=blue, linkcolor=blue}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% A simple dot to overcome graphicx limitations
+\newcommand{\lyxdot}{.}
+
+
+\@ifundefined{showcaptionsetup}{}{%
+ \PassOptionsToPackage{caption=false}{subfig}}
+\usepackage{subfig}
+\makeatother
+
+\begin{document}
+
+\title{Non-linear absorption of intense bi-color laser light by indirect
+band gap materials resolved by time-dependent density functional theory}
+
+
+\author{Thibault J.-Y. Derrien}
+
+
+\affiliation{Max Planck Institute for Structure and Dynamics of Matter (MPSD),
+Hamburg, Germany}
+
+
+\affiliation{HiLASE Centre, Institute of Physics, Academy of Science of the Czech
+Republic, Za Radnicí 828/5, 25241 Dolní B\v{r}e¸any, Czech Republic}
+
+
+\author{Heiko Appel}
+
+
+\affiliation{Max Planck Institute for Structure and Dynamics of Matter (MPSD),
+Hamburg, Germany}
+
+
+\author{Nicolas Tancogne-Dejean}
+
+
+\affiliation{Max Planck Institute for Structure and Dynamics of Matter (MPSD),
+Hamburg, Germany}
+
+
+\author{Angel Rubio}
+
+
+\affiliation{Max Planck Institute for Structure and Dynamics of Matter (MPSD),
+Hamburg, Germany}
+
+
+\author{Nadezhda M. Bulgakova}
+
+
+\affiliation{HiLASE Centre, Institute of Physics, Academy of Science of the Czech
+Republic, Za Radnicí 828/5, 25241 Dolní B\v{r}e¸any, Czech Republic}
+\begin{abstract}
+Time-Dependent Density Functional Theory (TD-DFT) is used to generate
+the transition probability of electrons from valence band (VB) to
+conduction band (CB) in indirect band-gap semiconductor Si. Two orientations
+of crystalline lattice are compared. Typical pulses used in laser
+applications are built using a space of 7 tuning parameters, including
+wavelength, pulse duration, phases inside the envelope, and the polarization
+of laser fields. Purpose of this document is for now to analyze and
+keep a trace of first quantum simulations. This is aimed to prepare
+a paper on the non-linear absorption of light by Si atoms exposed
+to single-color and bi-color laser excitations. 
+\end{abstract}
+\maketitle
+\tableofcontents{}
+
+
+\section{Introduction}
+
+It was experimentally demonstrated that a dense electron-hole plasma
+is generated upon femtosecond laser irradiation \cite{Sokolowski-Tinten2000}.
+ Such transient excitation leads to the change of refractive index
+as a function of time and laser energy and can lead to excitation
+of several processes such as triggering chemical reaction, non-thermal
+phase transitions, and surface plasmon polariton excitation \cite{Derrien2013,Sato2014a}.
+Making use of multi-photonic absorption also enabled outstanding applications
+such as 2-photon polymerization {[}REF{]}, and multiphoton microscopy
+{[}REF{]}. 
+
+First theoretical description of non-linear absorption in matter was
+successful but are nowadays not sufficient to address the needs for
+describing laser-induced band gap energy levels, non-parabolic band
+structure, or the wide spectrum of ultrashort laser pulses. Nowadays,
+strong hypothesis such as monochromaticity of waves, parabolic band
+gap approximation, and direct interband transitions \cite{Keldysh1965,Garcia2006}
+could not be easily removed. Therefore, calculating the non-linear
+excitation transition rates in matter remain a puzzling problem. 
+
+In addition, making use of several laser pulses together lead to give
+more control over laser ablation , nanostructure formation \cite{Derrien2013a,Hoehm2013a,Hoehm2015,Hoehm2015b},
+high harmonic generation and {[}see results from Les Houches workshop{]}. 
+
+In view of bridging large scale simulations \cite{Bulgakova2013,Bulgakova2014,Buschlinger2014}
+with first principle calculations \cite{Flick2015a,Ruggenthaler2014},
+this paper propose a quantum simulation of the non-linear absorption
+in indirect band gap material with the example of silicon, based on
+the method of TD-DFT. 
+
+
+\section{Calculation method}
+
+In the quantum modeling world, the linear absorption in bulk is typically
+resolved using the meta-Generalized Gradient Approximation (MGGA)
+qualitatively well reproducing the experimentally measured absorption
+spectrum for Si and Ge \cite{Nazarov2011}. A full picture of the
+photo-emission from atoms and molecules also came to be available
+\cite{DeGiovannini2012}. 
+
+Hence, it appears that linear absorption can be calculated using methods
+like MGGA, or Kohn-Sham approach with exchange-correlation derivated
+from Bethe-Salpeter equation. 
+
+Difficulty appears to be linked with the description of excitons bounded
+on large computational cell, and with non-linear excitation (intense
+fields). So far, the case of gas phase ionization was well studied
+(so called ``above threshold ionization'') {[}\cite{Keldysh1965},
+\cite{Chin1988} \cite{Ruggenthaler2008,Popruzhenko2008a}{]}. 
+
+Today the difficulty remains to calculate excitation rates in correlated
+matter upon intense laser light. Such calculation started for small
+metallic systems \cite{Otobe2004,Shiratori2005,Otobe2008,Otobe2009,Tong2015}.
+In addition, the effect of intense constant field got recently studied
+\cite{Otobe2016}. 
+
+In this paper, we will show results of quantum simulations made on
+Si, from the most basic case to the most advanced. This will support
+the development of my work in MPSD. We will select the interesting
+ones before publication. 
+
+
+\subsection{Preparation of the laser pulses}
+
+
+\subsubsection{Lasers in quantum simulations}
+
+As the scale of the sample is of few atomic layers, the local electric
+field of the laser can be approximated by its simple temporal variation.
+Simulations are resolved in a space-time-dependent approach, hence
+the dispersion of the laser pulse is natively taken into account.
+For short pulse durations, the spectrum of the pulses becomes wider. 
+
+If using QED-DFT \cite{Flick2015a}, some modulations of the electric
+field response may be observed. 
+
+
+\subsubsection{Temporal evolution of bi-color pulses}
+
+
+\paragraph{Experimental techniques}
+
+In the experiments, two configurations are possible. 
+\begin{description}
+\item [{(i)}] We can make use of one laser source, and place a BBO crystal
+in the optical path, then focusing both pulses using the same lens,
+in the most ideal case. In this case, the two pulses will have blocked
+relative phase $CEP_{2}-CEP_{1}$. 
+\item [{(ii)}] Second possibility is to use two different lasers, which
+may then have two different phases $CEP_{1}$ and $CEP_{2}$, even
+maybe time-varying relative phases. 
+\end{description}
+We now draw a general model which takes into account all possible
+configurations. At the atomic scale, the spatial variation of the
+pulse envelope can be neglected. Hence, the temporal envelope of the
+pulse can be defined by the general bi-color pulse expression
+\[
+\boldsymbol{E}(t)=\boldsymbol{E}_{\lambda_{1}}(t)+\boldsymbol{E}_{\lambda_{2}}(t,\Delta t).
+\]
+Each pulse can be developed in
+\[
+\boldsymbol{E}_{\lambda_{1}}=\boldsymbol{E}_{0}^{(1)}\sin\left(\omega_{1}t+CEP_{1}\right)\cdot\exp\left[-\frac{1}{2}\left(\frac{t}{\sigma\left(\tau_{1}\right)}\right)^{2}\right]
+\]
+\[
+\boldsymbol{E}_{\lambda_{2}}=\boldsymbol{E}_{0}^{(2)}\sin\left(\omega_{2}t+CEP_{2}\right)\cdot\exp\left[-\frac{1}{2}\left(\frac{t-\Delta t}{\sigma\left(\tau_{2}\right)}\right)^{2}\right]
+\]
+These two pulses defines a space with 8 dimensions to be investigated:
+$E_{0}^{(1)}$,  $E_{0}^{(2)}$, $\omega_{1}$, $\omega_{2}$, $CEP_{1}$,
+$CEP_{2}$ and $\Delta t$, but also the orientation $P_{1}$ and
+$P_{2}$ of the electric field in real space (polarization) parallel
+to surface ($s$ or $p$) state for each pulse. 
+
+
+\paragraph{Effect of the second wavelength}
+
+In particular, it is predicted that effect of the relative $CEP$
+for the interfered beams will strongly influence the bicolor transition
+probability. 
+\begin{figure}
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{\lyxdot \lyxdot /05-QuantumLaP-BicolorprocessingModel/BicolorIrradiation1}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/media/thibault/PHD/Travail/Prague/Reports/05-QuantumLaP-BicolorprocessingModel/BicolorProcessing-02}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\caption{\label{fig:BicolorField}Electric field of the bicolor irradiation.
+(a) Source beams. (b) Mixed beams (800 nm and 400 nm). }
+\end{figure}
+Fig. \ref{fig:BicolorField} shows how two beams of first and second
+harmonic are mixing. It is rather clear that a non-periodic modulation
+of the electric field will have dramatic consequences on the electron
+dynamics, hence changing the absorption probability, in particular
+the nonlinear absorption described by Keldysh \cite{Keldysh1965}. 
+
+
+\paragraph{Effect of the pulse phase (CEP)}
+
+We can also consider two supplementary parameters with adding the
+pulse durations $\tau_{1}$ and $\tau_{2}$. These later parameters
+are expected to average or increase the importance of $CEP$ parameters.
+Fig. \ref{fig:BicolorFieldPhase} shows the effect of changing the
+phase of the second pulse. 
+\begin{figure}
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}\subfloat[ ]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase36\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase72\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase108\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase144\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase180\lyxdot 0-Delay0\lyxdot 0ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\caption{\label{fig:BicolorFieldPhase}Electric field of the bicolor irradiation.
+Mixed beams (800 nm and 400 nm) of various respective phases}
+\end{figure}
+ Pulse becomes asymmetric in respect of field envelope, which then
+could be considered as harmonic in the non-linear regime, i.e., absorption
+probability is expected to be also phase depedent. 
+
+
+\paragraph{Effect of the pulse delay $\Delta t$}
+
+Finally, chirped pulses should be considered, but then may require
+another formulation. 
+\begin{figure}
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay-0\lyxdot 02ps}
+\par\end{centering}
+
+}\subfloat[ ]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay-0\lyxdot 012ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay-0\lyxdot 004ps}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay0\lyxdot 004ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay0\lyxdot 012ps}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[width=4cm]{/home/thibault/Documents/octopus/Pulses/800\lyxdot 0nm-Phase0\lyxdot 0+400\lyxdot 0nm-Phase0\lyxdot 0-Delay0\lyxdot 02ps}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\caption{\label{fig:BicolorFieldDelay}Electric field of the bicolor irradiation.
+Mixed beams (800 nm and 400 nm) of various respective phases}
+\end{figure}
+ Fig. \ref{fig:BicolorFieldDelay} shows the effect of the delay between
+pulses. 
+
+
+\paragraph{Chirped pulses? }
+
+
+\subsection{Preparation of the sample}
+
+We generate a silicon slab with using periodic boundary conditions
+along the surface, and absorbing boundary conditions in the direction
+normal to the surface. 
+
+
+\paragraph{Which orientation to choose ?}
+
+In the context of nanostructure formation, the effects of crystal
+orientation were only slightly investigated. \cite{Crawford2010,Museur,Sedao2014}
+It was shown that crystal orientation should not play a role in the
+periodic nanostructures of electrodynamic origin. However, it may
+play a role in the formation thermodynamically formed periodic structures.
+As Si has a diamond-cubic crystalline structure, we choose $\mbox{Si}(100)$,
+and Si$(111)$. 
+
+
+\paragraph{2d-periodic Si slab}
+
+In view of studying the effect of the surface, we build a 2D-periodic
+Si lattice with periodic boundary conditions in directions X and Y.
+\begin{figure}
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[clip,width=4cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-Tier2-Multi/Si-2x1x1-L30/geometry}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[clip,width=4cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-Tier2-Multi/Si-4x1x1-L30/geometry}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[clip,width=4cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-H-Tier1-Multi/Si-7x2x2-L50/geometry}
+\par\end{centering}
+
+}\subfloat[]{\begin{centering}
+\includegraphics[clip,width=4cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-H-Tier1-Multi/Si-7x5x5-L50/geometry}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\caption{\label{fig:AtomicStructure} Atomic representation of the modeled
+slab samples. (a) 2 layers with 2 atoms of Si each. (b) 4 layers composed
+of 2 Si atoms each. The number of atomic layers is increased until
+convergence of the total energy per atom. (c) Di-hydridized Si(100)
+noted $Si(100):H_{2}$. (d) Same as (c) with more atoms. }
+\end{figure}
+ Fig. \ref{fig:AtomicStructure} shows a primary cell of the Si slab.
+To avoid inducing metallic behavior at the interface, H terminations
+were added at the surface. The natural oxidation of Si is here neglected.
+As samples are considered at ambient temperature, the most probable
+surface reconstruction is the dihydridic $1\times1$ occupying the
+pending bonds of Si \cite{Mendoza2006}. Fig. 1(c-d) show the Si sample
+with such H terminations. 
+
+As we would like to observe the evolution of the wavefunction density
+$\left|\psi\right|^{2}$ in the sample, we generate two types of samples.
+Slab 1 is the smallest sample where a large grid of k-points allows
+for a good convergence of electronic level calculation. Slab 2 is
+a second slab describing the same material, where the number of atoms
+is increased in view of maximizing the spatially resolved information.
+Such procedure does not affect the integrity of calculation, as the
+whole physical information is contained into the Kohn-Sham wavefunction
+densities $\left|\psi\right|^{2}$. The size of Slab 2 was increased
+until exhibiting the same energy per atom as Slab 1. As soon as the
+sample was thick enough, overlapping between surface induced energy
+levels and bulk energy levels was suppressed, leading to convergence
+of the sample to the same total energy. 
+
+
+\subsubsection{Procedure for building a minimal slab (SLAB 1)}
+\begin{description}
+\item [{1.}] Calculate the energy per atom, via making a bulk calculation.
+$E_{at}=\frac{E_{tot}}{N_{at}}$
+\item [{2.}] Increase slab depth until convergence of surface energy (see
+Eq. (2) in paper Beschtedt ). Means that both surface are not interacting
+(wavefunctions are not overlapping any longer). 
+\item [{3.}] Once this slab (minimal number of atoms in the plane) is built,
+we start calculating the k-points to calculate band structure. Find
+the required number of k points so that electronic total energy per
+atom does not change. 
+\item [{4.}] Once it is obtained, we found the $N_{e}$ of the ground state
+($T=0$ K). The whole observables are available from this knowledge
+(DFT).
+\end{description}
+Fig. \ref{fig:Convergence1} presents the result of convergence for
+a vacuum size $L=3$ nm. 
+\begin{figure}
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[clip,width=8cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-Tier2-Multi/Convergence-Global}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\begin{centering}
+\subfloat[]{\begin{centering}
+\includegraphics[clip,width=8cm]{/home/thibault/Documents/octopus/FHI-aims/Si100-Tier2-Multi/NumberOfLayers}
+\par\end{centering}
+
+}
+\par\end{centering}
+
+\caption{\label{fig:Convergence1} (a) Convergence of total energy as function
+of Si layers and number of k-points. Each layer contains equivalent
+of 2 atoms. The number of atomic layers is increased until convergence
+of the total energy per atom. }
+\end{figure}
+ It appears that a k-grid $1\times8\times8$ is sufficient to reach
+convergence of the total energy per atom. However, it is unclear if
+the number of layers is sufficient. ``Tier1'' and ``Tier2'' are
+increasing levels of precision of the function basis of the Si orbitals.
+As we would like to improve performances to the maximum, we shall
+reduce the precision to get the biggest box possible. 
+
+
+\subsubsection{Building a large SLAB 2}
+\begin{description}
+\item [{1.}] From SLAB1 > Step 2, we have a column which should be repeated
+in X and Y, using only 1 k-point. 
+\item [{2.}] We add atoms in X and Y directions (same number in both directions)
+until total energy is converged, and equal to SLAB 1 > Step 4 energy. 
+\item [{3.}] Then we know that we have built the proper ground state for
+the supercell of Si. 
+\end{description}
+
+\section{Simulation results}
+
+We are basically interested in accessing to the temporal density evolution
+of electrons \emph{in the state $\boldsymbol{k}$} 
+\[
+\frac{\partial N_{\boldsymbol{k}}}{\partial t}
+\]
+promoted from the valence bands to the conduction band of Si as described
+by 
+\[
+N_{\boldsymbol{k}}(t)=\int\psi_{k}^{\dagger}(\boldsymbol{r},t)\,\psi_{k}(\boldsymbol{r},t)\, d\boldsymbol{r}.
+\]
+As shown recently {[}REF quantum simulation of linear excitation{]},
+the linear processes are exciting electrons towards many wave-vectors
+of the conduction band. The difficulty is to restrict the number of
+carriers to the conduction band of Si, which may also evolve in time.
+In particular, at high laser intensity, ps-melting \cite{Siwick2003}
+and non-thermal melting \cite{Rousse2001,Sundaram2002} can occur,
+where the band gap undergoes a collapsing effect. 
+
+HOW TO SOLVE THIS ? 
+
+
+\subsection{Band structure of Si slab}
+
+Show the change of band structure as function of number of layers. 
+
+
+\subsection{Excitation of free-carriers to conduction band with single-color
+laser irradiation}
+
+
+\subsection{Transition probability of electrons to conduction band upon bi-color
+laser irradiation}
+
+
+\subsection{Quantum description of the band gap collapse with increasing laser
+fluence}
+
+
+\section{Conclusion}
+
+
+\section*{Acknowledgements}
+
+\bibliographystyle{/media/thibault/PHD/Travail/Berlin/Publications/DoublePulseSi/osajnl}
+\bibliography{/media/thibault/PHD/Travail/Bibliography/bibliographie_lue}
+
+\end{document}

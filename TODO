@@ -1,0 +1,13 @@
+# To do to save this repository. 
+
+Done: Save this repository again in a new folder, to not loose changes. 
+
+1. Revert the Bitbucket by one commit to come back (< 2 GB).
+
+1. Run BFG to remove all EPS PNG MPG band*.out files [brought down the repository to 1.6 GB]. 
+
+1. When ready, run: git reflog expire --expire=now --all && git gc --prune=now --aggressive .
+
+1. git push -f. Pushing may take 3 hours. 
+
+1. Get back the changes from the save. Commit them. Push them. 
