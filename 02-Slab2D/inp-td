@@ -34,9 +34,13 @@ BoxShape = parallelepiped
         MeshSizeX | MeshSizeX | MeshSizeZ #to be replaced by script
 %
 
+TotalZsize = (n*a + Lvac)*0.5 #careful, there is 1/2 ratio on the lengths for boxsize!
+BoundaryThickness = 5
+
 %Lsize
-  0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) | (n*a + Lvac)*0.5
+  0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) | TotalZsize
 %
+
 
 %KPointsGrid
   kPointsValue | kPointsValue   | 1
@@ -182,4 +186,10 @@ OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + cube + netcdf #OpenDX, UCS
 OutputInterval = 10
 RestartWriteInterval = 50
 TDOutputComputeInterval = 10
+
+# Absorbing boundary
+AbsorbingBoundaries = mask
+%ABShape
+ TotalZsize - BoundaryThickness  | TotalZsize #absorbing between zmax and zmax-BoundaryThickness. 
+%
 
