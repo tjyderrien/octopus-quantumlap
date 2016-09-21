@@ -1,0 +1,9 @@
+#octopus								
+#Summary of TD simulations								
+#Number of atoms per layer	4							
+#Computer	K-points	SizeXY	SizeLayersZ	Number of cores	Success	MoveIons	octopusVersion	Error
+EOS	8	1	4	128	yes	no	15246	-
+EOS	8	1	4	1024	no	no	15246	run.F90.run > td.F90.td_run > td.F90.td_run.init_wfs
+EOS	1	4	6	1024	no	no	15246	run.F90.run > system.F90.system_init > grid.F90.grid_init_stage_2 > mesh_init.F90.mesh_init_stage_3 > mesh_init.F90.mesh_init_stage_3.do_partition > par_vec.F90.vec_init > partition.F90.partition_get_partition_number
+EOS	1	4	6	1024	no	yes	15246	run.F90.run > system.F90.system_init > grid.F90.grid_init_stage_2 > mesh_init.F90.mesh_init_stage_3 > mesh_init.F90.mesh_init_stage_3.do_partition > par_vec.F90.vec_init > partition.F90.partition_get_partition_number
+Hydra								
