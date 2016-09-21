@@ -1,0 +1,27 @@
+# Photoemission case to reproduce paper from Umbierto
+
+CalculationMode = gs
+
+%Species
+"Na_2D" | species_user_defined | potential_formula | "-1/sqrt(7.45+(r)^2)" | valence | 1
+%
+
+%ReducedCoordinates
+ 'Na_2D' | 0. | 0. | 0.
+%
+
+Dimensions = 2 
+Units = atomic
+# AbsorbingBoundaries =  
+FromScratch = yes
+
+TheoryLevel = independent_particles
+
+
+# Simulation box
+BoxShape = sphere
+Radius = SphereRadius
+Spacing = 1.3 #MeshSize
+
+
+

@@ -1,0 +1,19 @@
+CalculationMode = casida # unocc # gs
+CasidaSpectrumBroadening = 0.5
+Units = eV_angstrom
+
+Radius = 4
+Spacing = 0.175
+
+CH = 1.087
+%Coordinates
+  "C" |           0 |          0 |           0 
+  "H" |  CH/sqrt(3) | CH/sqrt(3) |  CH/sqrt(3)
+  "H" | -CH/sqrt(3) |-CH/sqrt(3) |  CH/sqrt(3)
+  "H" |  CH/sqrt(3) |-CH/sqrt(3) | -CH/sqrt(3)
+  "H" | -CH/sqrt(3) | CH/sqrt(3) | -CH/sqrt(3)
+%
+
+ExtraStates = 10
+
+

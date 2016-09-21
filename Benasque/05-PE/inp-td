@@ -1,0 +1,49 @@
+# Photoemission case to reproduce paper from Umbierto
+
+CalculationMode = td
+
+%Species
+"Na_2D" | species_user_defined | potential_formula | "-1/sqrt(7.45+(r)^2)" | valence | 1
+%
+
+%ReducedCoordinates
+ 'Na_2D' | 0. | 0. | 0.
+%
+
+Dimensions = 2 
+Units = atomic
+# AbsorbingBoundaries =  
+FromScratch = yes
+
+TheoryLevel = independent_particles
+
+
+# Simulation box
+BoxShape = sphere
+Radius = 15 #SphereRadius
+Spacing = 1.3 #MeshSize
+
+# Laser pulse
+th = 0
+px1 = cos(th)
+py1 = sin(th)
+px2 = cos(th)
+py2 = sin(th)
+
+pi=acos(-1.)
+omega = 2.214088 #a.u
+tau = 2.*pi/omega
+t0 = 10. * tau #center of the pulse
+tau0 = t0 #duration of the pulse
+
+amplitudeA = 0.5
+CEPA = 0. #Phase of the pulse CEP
+
+%TDExternalFields
+	vector_potential | px1 | py1 | 0 | omega | "FieldColorA" | "phaseA"
+%
+
+%TDFunctions
+	"FieldColorA" | tdf_from_expr | "amplitudeA*cos(pi/2.*(t-t0 - 2.*tau0) / tau0 )"
+	"phaseA" | tdf_cw | CEPA
+%

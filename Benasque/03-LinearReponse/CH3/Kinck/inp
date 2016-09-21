@@ -1,0 +1,24 @@
+CalculationMode = td
+Units = eV_angstrom
+
+FromScratch = yes
+AbsorbingBoundaries = mask
+
+Radius = 4
+Spacing = 0.18
+
+CH = 1.087
+%Coordinates
+  "C" |           0 |          0 |           0
+  "H" |  CH/sqrt(3) | CH/sqrt(3) |  CH/sqrt(3)
+  "H" | -CH/sqrt(3) |-CH/sqrt(3) |  CH/sqrt(3)
+  "H" |  CH/sqrt(3) |-CH/sqrt(3) | -CH/sqrt(3)
+  "H" | -CH/sqrt(3) | CH/sqrt(3) | -CH/sqrt(3)
+%
+
+TDDeltaStrength = 0.01
+TDPolarizationDirection = 1
+
+TDPropagator = aetrs
+TDTimeStep = 0.0023
+TDMaxSteps = 6000 # 4350  # ~ 10.0/TDTimeStep
