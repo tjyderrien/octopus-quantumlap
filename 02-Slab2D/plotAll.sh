@@ -27,10 +27,11 @@ do
 	cd - > /dev/null
 done
 
-#git commit -m 'Added new time-dependent plots.'
-echo "plots have been added to Git. Just commit and push them."
+# git commit -m 'Added new time-dependent plots.'
+# echo "plots have been added to Git. Just commit and push them."
+echo "Don't use Git for transfering binary data!"
 
-# echo "building a TAR archive also..."
+echo "building a TAR archive with results..."
 tar -cvf LastEPSfiles.tar $( find | grep 'eps' )
 echo "Transfer:"
 echo "rsync -avzhe ssh --progress LastEPSfiles.tar thibault@134.76.2.54:/home/thibault/Documents/octopus/02-Slab2D/"
