@@ -27,3 +27,5 @@ td.general/
 *.pyc
 *.old
 02-Slab2D/Si-*
+Benasque/05-PE/ConvergeSpacing/Mesh*
+Benasque/05-PE/ConvergeSphereRadius/Sphere*

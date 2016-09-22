@@ -1,4 +1,4 @@
-CalculationMode = casida # unocc # gs
+CalculationMode = casida #:3; unocc #:2; gs #:1
 CasidaSpectrumBroadening = 0.5
 Units = eV_angstrom
 
