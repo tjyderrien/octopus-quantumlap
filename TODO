@@ -1,14 +1,6 @@
 # To do to save this repository. 
 
-1. tjyderri@eos01:/scratch/tjyderri/octopus.EOS/FHI-aims/Si100-2x2/
-diff -d -r ./ ../../../octopus/FHI-aims/Si100-2x2/
+1. /ptmp/tjyderri/octopus.draco/02-Slab2D
+diff -d -r ./ ../../octopus/02-Slab2D
 
-2. Git clone octopus-slabs on Draco. Recover data from Draco to the new repository. 
-
-
-
-
-
-
-
-
+2. Which solution for binary files? "Unisson" ?
