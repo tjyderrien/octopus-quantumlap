@@ -47,18 +47,18 @@ NonChirpedPulse = np.vectorize(NonChirpedPulse)
 
 def PlotPulse(t, Pulse, FigName, Title): #{{
   # Prepare some figures of required pulse durations
-  
+  maxy=3.0; miny = -maxy
   #Pulse = Pulse1+Pulse2
   Pulse = Pulse.real
   
   plt.figure()
   plt.xlabel('t $(fs)$')
-  plt.ylabel('$E$ ($V.m^{-1}$)')
-  plt.ylim(-2,2)
-  plt.plot(1e15*t, Pulse, label='Total')
+  plt.ylabel('$E$ (V$/$nm)')
+  plt.ylim(miny,maxy)
+  plt.plot(1e15*t, Pulse*1E-9, label=Title)
   #plt.plot(t, Pulse1, label='Pulse 1')
   #plt.plot(t, Pulse2, label='Pulse 2')
-  plt.title(Title)
+  #plt.title(Title)
   plt.legend(loc=2)
   plt.savefig(str(FigName)+'.eps')
   #plt.show()
