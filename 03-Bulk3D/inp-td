@@ -1,0 +1,195 @@
+# used with octopus svn revision 15009
+# used with 1188/2376 cpu cores (2376 cpu cores = 18*6 kpoints * 22 states) 
+
+CalculationMode = td
+ExperimentalFeatures = yes
+# FromScratch = yes
+Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
+UnitsXYZFiles = Angstrom
+# Debug = trace
+
+ParStates = auto
+ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
+
+# ParKpoints = auto
+# ParStates  = auto
+
+PeriodicDimensions = 2 #How to specify which direection is not periodic ? 
+
+m = SizeOfTheBox #X blocks: to be replaced by script
+n = NumberOfBlocks #Z blocks: to be replaced by script 
+Lvac = SizeOfVacuum #(in Bohr radius) to be replace by script
+
+%RestartOptions
+  restart_gs | "../../restart/"
+  restart_proj | "../../restart/"
+%
+
+aAngstrom = 5.431 #Angstrom (experimental value)
+AngstromPerBohr = 0.52917721067 #AngstromPerBohr
+a = aAngstrom / AngstromPerBohr #Bohr
+
+BoxShape = parallelepiped
+%Spacing
+        MeshSizeX | MeshSizeX | MeshSizeZ #to be replaced by script
+%
+
+TotalZsize = (n*a + Lvac)*0.5 #careful, there is 1/2 ratio on the lengths for boxsize!
+BoundaryThickness = 5
+
+%Lsize
+  0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) | TotalZsize
+%
+
+
+%KPointsGrid
+  kPointsValue | kPointsValue   | 1
+%
+
+# Using external file
+XYZCoordinates = "Si.xyz" #input is in Angstroms
+
+ConvRelDens = 1e-9
+KPointsUseSymmetries = no
+ExtraStates = 32 #0: if observable (Ne, Je), more in not-observable
+# smearing = 0.0002
+# SmearingFunction=fermi_dirac
+
+MaximumIter=1000
+Mixing = 0.05 #looks important to reach convergence on large systems
+
+################
+# LASER PULSES #
+################
+
+# TODO: transfer the interface to the Python code, directly, so that we can plot figures in atomic units. 
+# For now, interface Hartree <-> SI is managed here.
+
+# Some manual commands
+RelaxationTimeSI = 100e-15 #[s]
+
+# Some constants
+cSI = 299792458e0
+eVperHartree = 27.21138505e0 #Wikipedia [Hartree]
+BohrRadius = 5.2917721067e-11 #m, Wikipedia [Bohr radius]
+HartreePerBohr = eVperHartree / BohrRadius
+hSI = 6.626070040e-34
+heVs = 4.135667662e-15
+ecSI = 1.6021766208e-19
+hbarSI = 1.054571800e-34
+TimeAUtoSI = hbarSI / eVperHartree / ecSI
+lightvelocity = 137.035999139 #light velocity = 1e0/fine structure constant [https://en.wikipedia.org/wiki/Fine-structure_constant]
+
+# To be replaced by script
+## Pulse wavelengths ##
+lambdaA = lambda1Value #SI: s-1, to be replaced by script
+lambdaB = lambda2Value #SI: s-1, to be replaced by script
+## Field amplitude
+EfieldAsi = Efield1amplitude #V/m, to be replaced by script
+EfieldBsi = Efield2amplitude #V/m, to be replaced by script
+## Pulse duration 
+tauAsi = tau1ToReplace #This is FWHM of the Gaussian pulse
+tauBsi = tau2ToReplace #This is FWHM of the Gaussian pulse
+## Double pulse delay
+pulseDelaySI = pulseDelayToReplace
+## Envelope phase CEP
+CEPA = CEP1replaceMe + pi/2.
+CEPB = CEP2replaceMe + pi/2.
+## Computational time
+ComputingTimeValueSI = ComputingTimeValueToReplace
+
+# Conversion to a.u.
+## Pulse wavelengths ##
+# omegaAsi = 2.*pi*cSI / lambdaA
+# omegaBsi = 2.*pi*cSI / lambdaB
+# omegaA = omegaAsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree 
+# omegaB = omegaBsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree
+omegaA = heVs * cSI / lambdaA / eVperHartree
+omegaB = heVs * cSI / lambdaB / eVperHartree
+## Field amplitude
+EfieldA = EfieldAsi / HartreePerBohr
+EfieldB = EfieldBsi / HartreePerBohr
+## Pulse duration 
+tauA = tauAsi / TimeAUtoSI
+tauB = tauBsi / TimeAUtoSI
+t0 = 2.*max(tauA, tauB)
+GaussianRatio = 2.*sqrt(2. * ln(2.))
+sigmaTauA = tauA / GaussianRatio
+sigmaTauB = tauB / GaussianRatio
+
+## Double pulse delay
+pulseDelay = pulseDelaySI / TimeAUtoSI
+## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
+RelaxationTime = RelaxationTimeSI / TimeAUtoSI
+
+## Vector field amplitude
+
+# /!\ Assumption is made on the temporal integration of Efield
+amplitudeA = EfieldA * lightvelocity / omegaA
+amplitudeB = EfieldB * lightvelocity / omegaB
+
+## Simulation time management
+ComputingTime = ComputingTimeValueSI / TimeAUtoSI
+#4.*sigmaTau1 + pulseDelay + RelaxationTime #time of computation
+
+#TODO: script the change of polarization
+th = 0
+px1 = cos(th)
+py1 = sin(th)
+px2 = cos(th)
+py2 = sin(th)
+
+# Building up pulses
+%TDExternalFields
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+%
+
+%TDFunctions
+  "FieldColorA" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)"
+  "FieldColorB" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-pulseDelay-t0)/sigmaTauB)^2)"
+  "phaseA" | tdf_cw | CEPA
+  "phaseB" | tdf_cw | CEPB
+%
+
+TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDPropagationTime = ComputingTime
+TDPropagator = aetrs
+TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+###########
+#CurrentDensity = 1 #Default is 2. 1: Takes into account exchange correlation
+
+############
+# PES
+############
+# dLz = a/sqrt(2)/2
+# Lmin = 11*dLz + 20
+# LL = n*a/sqrt(2)/2
+
+# PhotoElectronSpectrum = pes_mask
+# %PESMaskSize
+# Lmin | LL | "abs(z)"
+# %
+# PESMaskMode = mask_mode
+# PESMaskPlaneWaveProjection = nfft_map
+# EM = omega + 5./27.211 # the maximum energy we want in the spectrum = 5eV above
+# omega
+# PESMask2PEnlargeFactor = pi/Spacing/sqrt(2*EM)
+
+TDOutput = energy + laser + total_current + multipoles + n_excited_el
+Output = density + potential + geometry #+ elf
+#OutputFormat = cube #VisIt
+OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + cube + netcdf #OpenDX, UCSF Chimera
+
+OutputInterval = 10
+RestartWriteInterval = 50
+TDOutputComputeInterval = 10
+
+# Absorbing boundary
+AbsorbingBoundaries = mask
+%ABShape
+ TotalZsize - BoundaryThickness  | TotalZsize #absorbing between zmax and zmax-BoundaryThickness. 
+%
+

@@ -1,6 +1,20 @@
-# To do to save this repository. 
+# Git cleaning
 
 1. /ptmp/tjyderri/octopus.draco/02-Slab2D
 diff -d -r ./ ../../octopus/02-Slab2D
 
 2. Which solution for binary files? "Unisson" ?
+
+# Slab runs
+
+# Bulk runs
+
+Performing Keldysh bicolor with 3D bulk may be largely faster than simulating surfaces.
+
+1. Check the bulk structure. Interface the scripting with octopus. 
+2. Build the ground state. Converge the energy as function of k-points.
+3. Adapt the TD input: remove absorbing boundaries, make 3D periodic. 
+4. Check that n_excited works for bulks [Nicolas has avoided to publish the paralellization for bulk: ask him LOCALLY!]. 
+5. Program the script for catching the final density, and time where it is reached.
+6. Compute series of parameters. 
+7. Publish faster than Elena Silavea.   
