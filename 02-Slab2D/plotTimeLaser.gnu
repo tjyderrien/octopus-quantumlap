@@ -7,8 +7,8 @@ set format "%g"
 
 #set xrange [:25]
 
-set xlabel 'Time [fs]'
-set ylabel 'Energy [a.u]'
+set xlabel 'Time t [fs]'
+set ylabel 'Vector field amplitude A(t) [a.u]'
 
 xscale=2.74e-17*1E15
 
