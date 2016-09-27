@@ -592,7 +592,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=0.005):#{{{
+def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -647,7 +647,7 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
   View3DAtts.imagePan = (0, 0)
-  View3DAtts.imageZoom = 1
+  View3DAtts.imageZoom = zoomPicture
   View3DAtts.perspective = 0
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
@@ -663,8 +663,8 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
   
-  #View3DAtts.imagePan = (0.0211978, -0.240702)
-  #View3DAtts.imageZoom = 1 #9.13208
+  View3DAtts.imagePan = (0.0211978, -0.240702)
+  View3DAtts.imageZoom = 9.13208
   View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   DrawPlots()
@@ -721,14 +721,14 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(axis="X", extreme=MaxValue)
+    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=9)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(axis="Y", extreme=MaxValue)
+    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=9)
     
     #### Window 3 ####
     #CloneWindow()
