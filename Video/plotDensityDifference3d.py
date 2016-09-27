@@ -592,6 +592,8 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   #}}}
   
 def plot3Ddifference(axis="X", extreme=0.005):#{{{
+  ReOpenDatabase(inxyz)
+  AddPlot("Molecule", "element", 1, 1)
   ReOpenDatabase(indensityvtk)
   AddPlot("Contour", "Difference", 1, 1)
   SetActivePlots((0, 1))
@@ -673,23 +675,23 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(axis="X", extreme=0.005)
+    plot3Ddifference(axis="X", extreme=MaxValue)
     
     #### Window 2 ####
     #CloneWindow()
-    SetActivePlots(0)
+    #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(axis="Y", extreme=0.005)
+    plot3Ddifference(axis="Y", extreme=MaxValue)
     
     #### Window 3 ####
     #CloneWindow()
-    SetActivePlots(0)
-    SetActiveWindow(3)
-    plot2Ddifference(axis="Z", extreme=MaxValue, caption=0)
+    #SetActivePlots(0)
+    #SetActiveWindow(3)
+    #plot2Ddifference(axis="Z", extreme=MaxValue, caption=0)
     
     #### Window 4 ####
-    SetActiveWindow(4)
+    #SetActiveWindow(4)
     
     # Adding the plot of the laser pulse
     
