@@ -427,8 +427,8 @@ def winatt1():
   #DrawPlots()
   ##}}}
 
-from visit_utils import *
-from visit_utils.qplot import *
+#from visit_utils import *
+#from visit_utils.qplot import *
 
 def AddTracerObject(filepath, time): #{{{
   # Plots a line on a plot to mark the current time
