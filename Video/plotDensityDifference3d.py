@@ -592,11 +592,41 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   #}}}
   
 def plot3Ddifference(axis="X", extreme=0.005):#{{{
+  SetViewExtentsType(1)
+  ## Adding molecules
+  #SetActiveWindow(1)
+  #SetActivePlots((0,1))
   ReOpenDatabase(inxyz)
-  AddPlot("Molecule", "element", 1, 1)
+  AddPlot("Molecule", molvar, 1, 1)
+  mol1 = MoleculeAttributes()
+  mol1.drawAtomsAs = mol1.SphereAtoms  # NoAtoms, SphereAtoms, ImposterAtoms
+  mol1.colorBonds = mol1.ColorByAtom  # ColorByAtom, SingleColor
+  mol1.bondSingleColor = (128, 128, 128, 255)
+  mol1.scaleRadiusBy = mol1.Fixed # Fixed, Covalent, Atomic, Variable
+  mol1.radiusFixed = 0.3 #0.3 ?
+  mol1.radiusVariable = "default"
+  mol1.radiusScaleFactor = 1.0
+  mol1.drawBondsAs = mol1.CylinderBonds
+  mol1.bondRadius = 0.12
+  mol1.bondLineWidth = 0
+  mol1.legendFlag = caption
+  mol1.elementColorTable = "cpk_jmol"
+  mol1.residueTypeColorTable = "amino_shapely"
+  mol1.atomSphereQuality = mol1.Super
+  mol1.bondLineStyle = mol1.SOLID
+  mol1.residueSequenceColorTable = "Default"
+  mol1.continuousColorTable = "Default"
+  mol1.bondCylinderQuality = mol1.Super
+  #MoleculeAtts.legendFlag = 1
+  #MoleculeAtts.minFlag = 0
+  #MoleculeAtts.scalarMin = 0
+  #MoleculeAtts.maxFlag = 0
+  #MoleculeAtts.scalarMax = 1
+  SetPlotOptions(mol1)
+  
   ReOpenDatabase(indensityvtk)
   AddPlot("Contour", "Difference", 1, 1)
-  SetActivePlots((0, 1))
+  #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
   ContourAtts.contourNLevels = 3
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
@@ -618,7 +648,7 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
     View3DAtts.viewNormal = (-1, 0, 0)
   
   View3DAtts.imagePan = (0.0211978, -0.240702)
-  View3DAtts.imageZoom = 9.13208
+  View3DAtts.imageZoom = 1 #9.13208
   View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   DrawPlots()
