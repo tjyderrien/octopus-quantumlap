@@ -609,7 +609,6 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   mol1.drawBondsAs = mol1.CylinderBonds
   mol1.bondRadius = 0.12
   mol1.bondLineWidth = 0
-  mol1.legendFlag = caption
   mol1.elementColorTable = "cpk_jmol"
   mol1.residueTypeColorTable = "amino_shapely"
   mol1.atomSphereQuality = mol1.Super
