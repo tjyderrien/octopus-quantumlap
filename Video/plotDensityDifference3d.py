@@ -654,10 +654,14 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
   View3DAtts.axis3DScaleFlag = 0
   View3DAtts.axis3DScales = (1, 1, 1)
-  if(axis=="X"):
+  
+  if (axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
+    View3DAtts.viewUp = (0, 0, 1)
+    
   elif (axis=="Y"):
-    View3DAtts.viewNormal = (-1, 0, 0)
+    View3DAtts.viewNormal = (1, 0, 0)
+    View3DAtts.viewUp = (0, 0, 1)
   
   #View3DAtts.imagePan = (0.0211978, -0.240702)
   #View3DAtts.imageZoom = 1 #9.13208
