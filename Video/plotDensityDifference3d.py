@@ -667,6 +667,12 @@ def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1):#{{{
   View3DAtts.imageZoom = 9.13208
   View3DAtts.perspective = 0
   SetView3D(View3DAtts)
+  
+  #Adding a label for the time step    
+  #l1s = GetAnnotationObject("Text2D")
+  l1s.text = "step # "+step
+  l1s.position = (0.05, 0.05)
+  
   DrawPlots()
   #}}}
 
