@@ -691,16 +691,16 @@ for i in range(0,len(indata)):
     #plot2Ddifference(axis="Z", extreme=MaxValue, caption=0)
     
     #### Window 4 ####
-    #SetActiveWindow(4)
+    ##SetActiveWindow(4)
     
     # Adding the plot of the laser pulse
     
     # NOTE: filtering for the td.general files is done by ./Video/buildFileList.sh, 
-    plot1D(filepath="../td.general/laser.txt", varX="var01", varY="var02", colorcode=(255, 0, 0, 255))
-    AddTracerObject(filepath="../td.general/laser.txt", time=step)
+    #plot1D(filepath="../td.general/laser.txt", varX="var01", varY="var02", colorcode=(255, 0, 0, 255))
+    #AddTracerObject(filepath="../td.general/laser.txt", time=step)
     #TODO: put to the scale
-    plot1D(filepath="../td.general/laser2.txt", varX="var01", varY="var02", colorcode=(0, 0, 255, 255))
-    plot1D(filepath="../td.general/current.txt", varX="var01", varY="var02", colorcode=(0, 0, 0, 255))
+    #plot1D(filepath="../td.general/laser2.txt", varX="var01", varY="var02", colorcode=(0, 0, 255, 255))
+    #plot1D(filepath="../td.general/current.txt", varX="var01", varY="var02", colorcode=(0, 0, 0, 255))
     #plotVerticalBar(varX=step, colorcode=(0, 0, 0, 255)) #black vertical line
     
     #TODO: add a vertical bar for the current time step
