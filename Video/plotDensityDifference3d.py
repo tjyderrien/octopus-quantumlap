@@ -592,7 +592,8 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   #}}}
   
 def plot3Ddifference(axis="X", extreme=0.005):#{{{
-  AddPlot("Contour", "difference", 1, 1)
+  ReOpenDatabase(indensityvtk)
+  AddPlot("Contour", "Difference", 1, 1)
   SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
   ContourAtts.contourNLevels = 3
@@ -608,6 +609,7 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   # Magnification on one atomic site below the surface
   #SetWindowMode("zoom")
   
+  View3DAtts = View3DAttributes()
   if(axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
   elif (axis=="Y"):
@@ -615,7 +617,6 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   
   View3DAtts.imagePan = (0.0211978, -0.240702)
   View3DAtts.imageZoom = 9.13208
-  View3DAtts = View3DAttributes()
   View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   DrawPlots()
