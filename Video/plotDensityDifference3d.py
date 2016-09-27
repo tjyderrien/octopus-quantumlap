@@ -88,6 +88,7 @@ OriginZ=0.6788749999999979/BohrRadius
 
 MaxValue=0.005
 
+EnablePerspective=1
 
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
@@ -592,7 +593,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1):#{{{
+def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -648,7 +649,7 @@ def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1):#{{{
   View3DAtts.farPlane = 114.316
   View3DAtts.imagePan = (0, 0)
   View3DAtts.imageZoom = zoomPicture
-  View3DAtts.perspective = 0
+  View3DAtts.perspective = EnablePerspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
   View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
