@@ -86,7 +86,7 @@ OriginX=0.
 OriginY=0.
 OriginZ=0.6788749999999979/BohrRadius
 
-MaxValue=0.02
+MaxValue=0.005
 
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
