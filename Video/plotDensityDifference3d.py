@@ -88,6 +88,7 @@ OriginZ=0.6788749999999979/BohrRadius
 
 MaxValue=0.005
 
+
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
 # print BohrRadius
@@ -641,13 +642,25 @@ def plot3Ddifference(axis="X", extreme=0.005):#{{{
   #SetWindowMode("zoom")
   
   View3DAtts = View3DAttributes()
+  View3DAtts.viewAngle = 30
+  View3DAtts.parallelScale = 57.1578
+  View3DAtts.nearPlane = -114.316
+  View3DAtts.farPlane = 114.316
+  View3DAtts.imagePan = (0, 0)
+  View3DAtts.imageZoom = 1
+  View3DAtts.perspective = 0
+  View3DAtts.eyeAngle = 2
+  View3DAtts.centerOfRotationSet = 0
+  View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
+  View3DAtts.axis3DScaleFlag = 0
+  View3DAtts.axis3DScales = (1, 1, 1)
   if(axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
   elif (axis=="Y"):
     View3DAtts.viewNormal = (-1, 0, 0)
   
-  View3DAtts.imagePan = (0.0211978, -0.240702)
-  View3DAtts.imageZoom = 1 #9.13208
+  #View3DAtts.imagePan = (0.0211978, -0.240702)
+  #View3DAtts.imageZoom = 1 #9.13208
   View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   DrawPlots()
