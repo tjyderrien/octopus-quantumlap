@@ -57,4 +57,4 @@ OutputFormat = xyz
 
 Output = density + potential + geometry
 #OutputFormat = cube #VisIt
-OutputFormat = vtk #OpenDX, UCSF Chimera
+OutputFormat = vtk + netcdf #OpenDX, UCSF Chimera
