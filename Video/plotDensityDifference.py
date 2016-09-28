@@ -66,12 +66,8 @@
 # Set the variable below as DEFAULT values
 # First row of <inputdata> should be equal to the ground state data. 
 # All other time steps will be normalized to this one. 
-
-<<<<<<< HEAD
 # import scipy.constants as phys
 
-=======
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
 inputdata = 'listoffiles.txt'
 outdir    = './'
 
@@ -84,7 +80,6 @@ geometry  = 'geometry.vtk'
 
 bonds     = False
 
-<<<<<<< HEAD
 BohrRadius=5.2917721067e-1 #Angstroms
 
 OriginX=0.
@@ -96,8 +91,6 @@ MaxValue=0.02
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
 # print BohrRadius
-=======
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -434,8 +427,6 @@ def winatt1():
   #DrawPlots()
   ##}}}
 
-<<<<<<< HEAD
-=======
 from visit_utils import *
 from visit_utils.qplot import *
 
@@ -466,7 +457,6 @@ def AddTracerObject(filepath, time): #{{{
   scene = CurveScene(p)
 #}}}
 
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
 def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   OpenDatabase(filepath)
   AddPlot("Scatter", varY, 1, 1)
@@ -573,11 +563,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   if(axis == "SiBond"): #Aligned with Si chemical bonds :)
     SliceAtts.normal = (0.5, 0, 0.5)
     SliceAtts.originType = SliceAtts.Point  # Point, Intercept, Percent, Zone, Node
-<<<<<<< HEAD
     SliceAtts.originPoint = (OriginX, OriginY, OriginZ)
-=======
-    SliceAtts.originPoint = (0, 0, 0)
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
     SliceAtts.axisType = SliceAtts.Arbitrary  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
     SliceAtts.upAxis = (0, 0, 1)
     SliceAtts.flip = 0
@@ -678,21 +664,15 @@ for i in range(0,len(indata)):
     
     # NOTE: filtering for the td.general files is done by ./Video/buildFileList.sh, 
     plot1D(filepath="../td.general/laser.txt", varX="var01", varY="var02", colorcode=(255, 0, 0, 255))
-<<<<<<< HEAD
-=======
     AddTracerObject(filepath="../td.general/laser.txt", time=step)
     #TODO: put to the scale
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
     plot1D(filepath="../td.general/laser2.txt", varX="var01", varY="var02", colorcode=(0, 0, 255, 255))
     plot1D(filepath="../td.general/current.txt", varX="var01", varY="var02", colorcode=(0, 0, 0, 255))
     #plotVerticalBar(varX=step, colorcode=(0, 0, 0, 255)) #black vertical line
     
-<<<<<<< HEAD
     #TODO: add a vertical bar for the current time step
     # the same index than <step> variable should be found in the laser file
     
-=======
->>>>>>> 37c8b3b9c5e25f5bb5b61d6e953b0a986a99de78
     #### All Windows ####
     if (i==0):
         zoomtstr = 0.
