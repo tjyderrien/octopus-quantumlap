@@ -5,7 +5,7 @@
 set -e
 
 # ENABLE DRY RUN ? 
-DryRun=0
+DryRun=1
 kPoints=16
 
 source machines.env
@@ -13,7 +13,7 @@ source machines.env
 # Renaming inputs
 SampleLayers=$1
 SampleXY=$2
-VacuumSizeInput=$3
+# VacuumSizeInput=$3
 MeshSizeXInput=$4
 MeshSizeZInput=$5
 
@@ -31,15 +31,15 @@ ProcessArguments () { # Conversion factors
   # Renaming inputs
   SampleLayers=$1
   SampleXY=$2
-  SizeOfVacuumAng=${VacuumSizeInput} #10. #Angstrom
-  SizeOfVacuum=$( python_calc "${SizeOfVacuumAng} / ${Bohr2Angstrom}" ) #Bohr
-  SizeOfVacuumName=$( python_calc "int(round( ${SizeOfVacuumAng} ))" )
+  # SizeOfVacuumAng=${VacuumSizeInput} #10. #Angstrom
+  # SizeOfVacuum=$( python_calc "${SizeOfVacuumAng} / ${Bohr2Angstrom}" ) #Bohr
+  # SizeOfVacuumName=$( python_calc "int(round( ${SizeOfVacuumAng} ))" )
   MeshSizeXAng=${MeshSizeXInput} #0.23 #Angstrom
   MeshSizeZAng=${MeshSizeZInput} #should be smaller, as we have a surface
   export MeshSizeX=$( python_calc "${MeshSizeXAng} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ=$( python_calc "${MeshSizeZAng} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName}-Mesh${MeshSizeX}-Mesh${MeshSizeZ}"
+  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX}-Mesh${MeshSizeZ}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -71,10 +71,12 @@ BuildSample () {
   if [ -e ${localPath}/Si.xyz ]; then
     rm ${localPath}/Si.xyz
   fi
-  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > ${localPath}/Si.xyz
+  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in
+  # $AbsPath/Samples/fhi2octopus.sh geometry.in 
+  $AbsPath/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz
 
   # Add the number of lines at the beginning of the file
-  numLines=$( wc -l ${localPath}/Si.xyz | awk '{ print $1 }' )
+  numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
 
   echo $numLines >> ${localPath}/Si.tmp
   echo "# This line is a comment." >> ${localPath}/Si.tmp

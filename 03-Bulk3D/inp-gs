@@ -36,6 +36,8 @@ BoxShape = parallelepiped
 # Using external file
 XYZCoordinates = "Si.xyz"
 
+
+
 %KPointsGrid
   kPointsValue | kPointsValue | kPointsValue
 %
