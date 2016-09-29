@@ -180,12 +180,11 @@ TDExpOrder = 16
 
 TDOutput = energy + laser + total_current + multipoles + n_excited_el
 Output = density + potential + geometry + elf + current + kinetic_energy_density
-#OutputFormat = cube #VisIt
-OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + cube + netcdf #OpenDX, UCSF Chimera
+OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + netcdf 
 
-OutputInterval = 10
+OutputInterval = 5 #Output interval for maps (videos). 10 is a bit too high.
 RestartWriteInterval = 50
-TDOutputComputeInterval = 10
+TDOutputComputeInterval = 10 #Essentially used for n_excited_el.
 
 # Absorbing boundary
 AbsorbingBoundaries = mask

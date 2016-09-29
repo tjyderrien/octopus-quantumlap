@@ -19,7 +19,7 @@ n = NumberOfBlocks #Z blocks: to be replaced by script
 Lvac = SizeOfVacuum #(Angstrum) to be replace by script
 
 # Optimization
-PoissonFFTKernel = planar
+# PoissonFFTKernel = planar
 # ParStates = auto
 # ParDomains = no #crashes if made per state only
 
@@ -30,7 +30,7 @@ BoxShape = parallelepiped
 %
 
 %Lsize #! Lsize is half of the box...
-	0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) #(n*a + Lvac)*0.5
+	0.5*m*a | 0.5*m*a | 0.5*m*a #(n*a + Lvac)*0.5
 %
 
 # Using external file
@@ -58,5 +58,4 @@ Output = dos
 OutputFormat = xyz
 
 Output = density + potential + geometry
-#OutputFormat = cube #VisIt
 OutputFormat = vtk #OpenDX, UCSF Chimera

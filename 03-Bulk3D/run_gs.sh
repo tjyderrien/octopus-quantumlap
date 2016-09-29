@@ -5,7 +5,7 @@
 set -e
 
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 kPoints=16
 
 source machines.env
