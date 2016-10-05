@@ -13,7 +13,7 @@ DryRun=""
 DracoPrev=/ptmp
 EOSPrev=/scratch
 
-CommonPath=tjyderri/octopus/02-Slab2D/Si-4x4x6-k-1x1x1-L24-Mesh0.434637008855-Mesh0.340150702582/lambda800e-9-tau10e-15-field9E9-CEP0.0/lambda400e-9-tau10e-15-field9E9-CEP0.0-delay0.0/ #Dont forget the slash. 
+CommonPath=tjyderri/octopus/02-Slab2D/Si-6x6x6-k-1x1x1-L24-Mesh0.434637008855-Mesh0.340150702582/ #Dont forget the slash. 
 
 #tjyderri/octopus/02-Slab2D/Si-4x4x6-k-1x1x1-L12-Save/
 

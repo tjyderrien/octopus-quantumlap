@@ -20,7 +20,7 @@ MeshSizeZ="0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After c
 
 # Sample
 SampleLayers=6
-SampleXY=4
+SampleXY=6
 
 # Laser parameters
 lambda1="800e-9"
