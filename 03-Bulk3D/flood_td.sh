@@ -19,8 +19,8 @@ MeshSizeX="0.23"
 MeshSizeZ="0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current: use 0.18 in Z.
 
 # Sample
-SampleLayers=6
-SampleXY=4
+SampleLayers=1
+SampleXY=1
 
 # Laser parameters
 lambda1="800e-9"
