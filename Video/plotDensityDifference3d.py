@@ -84,11 +84,11 @@ BohrRadius=5.2917721067e-1 #Angstroms
 
 OriginX=0.
 OriginY=0.
-OriginZ=0.6788749999999979/BohrRadius
+OriginZ=0. #0.6788749999999979/BohrRadius
 
-MaxValue=0.005
-
-EnablePerspective=1
+MaxValue=0.01
+ZoomValue=1
+EnablePerspective=0
 
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
@@ -593,7 +593,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=0.01, zoomPicture=1, EnablePerspective=0):#{{{
+def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePerspective=0):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -735,14 +735,14 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=9)
+    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=9)
+    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 3 ####
     #CloneWindow()
