@@ -87,7 +87,7 @@ OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=0.01
-ZoomValue=1.0
+ZoomValue=3
 EnablePerspective=0
 
 # BohrRadius = phys.physical_constants['Bohr radius']
@@ -629,7 +629,7 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   AddPlot("Contour", "Difference", 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
-  ContourAtts.contourNLevels = 5
+  ContourAtts.contourNLevels = 6
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
@@ -640,11 +640,18 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
   #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
   # 5 color map (depletion: blue, overdensity: red)
+  #ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+  #ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+  #ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
+  #ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
+  #ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+  # 6 color map
   ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
   ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-  ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
-  ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
-  ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+  ContourAtts.SetMultiColor(2, (204, 255, 255, 10))
+  ContourAtts.SetMultiColor(3, (255, 204, 0, 5))
+  ContourAtts.SetMultiColor(4, (255, 153, 0, 58))
+  ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
   #SetWindowMode("zoom")
@@ -671,7 +678,8 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
   
-#  View3DAtts.imagePan = (0.0211978, -0.240702)
+#  if(zoomPicture != 1.0):
+#    View3DAtts.imagePan = (0.0211978, -0.240702)
 #  View3DAtts.imageZoom = 9.13208
 #  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
