@@ -10,18 +10,18 @@ do
 	echo "Found folder $folder"
 	cd $folder
 	if [ -e laser ]; then
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeLaser.gnu"
+		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeLaser.gnu" &
 	fi
 	if [ -e energy ]; then
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeEnergy.gnu"
+		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeEnergy.gnu" &
 	fi
 	if [ -e total_current ]; then
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeCurrent.gnu"
+		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeCurrent.gnu" &
 	fi
 	if [ -e n_ex ]; then
 #		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeDensity.gnu"
 #		echo "Plotting density..."
-                ${QuantumLaP}/02-Slab2D/plotTimeDensityField.py
+                ${QuantumLaP}/02-Slab2D/plotTimeDensityField.py &
 	fi
 	# git add *.eps *.png
 	cd - > /dev/null
@@ -32,7 +32,7 @@ done
 echo "Don't use Git for transfering binary data!"
 
 echo "building a TAR archive with results..."
-tar -cvf LastEPSfiles.tar $( find | grep 'eps' )
+echo "tar -cvf LastEPSfiles.tar $( find | grep 'eps' )"
 echo "Transfer:"
 echo "rsync -avzhe ssh --progress LastEPSfiles.tar thibault@134.76.2.54:/home/thibault/Documents/octopus/02-Slab2D/"
 

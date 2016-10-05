@@ -1,0 +1,610 @@
+256,257c255,256
+<     !% Output the number of excited electrons, based on the projections
+<     !% of the time evolved wave-functions on the ground-state wave-functions.
+---
+>     !% Output the number of excited electrons, based on the projections 
+>     !% of the time evolved wave-functions on the ground-state wave-functions. 
+330,332c329,330
+<       if (writ%out(OUT_N_EX)%write.and.st%d%kpt%parallel .and.
+<           (writ%out(OUT_PROJ)%write .or. writ%out(OUT_POPULATIONS)%write)) then
+<         message(1) = "Options TDOutput = td_occup is not implemented for parallel in k-points."
+---
+>       if (writ%out(OUT_N_EX)%write.and. st%d%kpt%parallel) then
+>         message(1) = "Options TDOutput = n_excited_el is not implemented for parallel in states."
+335,336c333,334
+< 
+< if(.not.writ%out(OUT_KP_PROJ)%write.and..not.writ%out(OUT_N_EX)%write) then
+---
+>       
+>       if(.not.writ%out(OUT_KP_PROJ)%write.and..not.writ%out(OUT_N_EX)%write) then
+348c346
+< if(.not.writ%out(OUT_KP_PROJ)%write.and..not.writ%out(OUT_N_EX)%write) then
+---
+>       if(.not.writ%out(OUT_KP_PROJ)%write.and..not.writ%out(OUT_N_EX)%write) then
+356c354
+< 
+---
+>  
+376c374
+< 
+---
+>        
+381c379
+< 
+---
+>         
+384c382
+< 
+---
+>         
+390c388
+< 
+---
+>         
+393c391
+< 
+---
+>  
+396,397c394
+<       if(ierr /= 0 .and. ierr /= (writ%gs_st%st_end-writ%gs_st%st_start+1) &
+< *(writ%gs_st%d%kpt%end-writ%gs_st%d%kpt%start+1)*writ%gs_st%d%dim) then
+---
+>       if(ierr /= 0 .and. ierr /= (writ%gs_st%st_end-writ%gs_st%st_start+1)*writ%gs_st%d%nik*writ%gs_st%d%dim) then
+403c400
+< 
+---
+>  
+414c411
+<       !% time <i>t</i>, and |Phi_I> is the excited state of interest) can be approximated -- it is not clear
+---
+>       !% time <i>t</i>, and |Phi_I> is the excited state of interest) can be approximated -- it is not clear 
+430c427
+<       !%
+---
+>       !% 
+435c432
+<       !%
+---
+>       !% 
+448c445
+<           call excited_states_init(writ%excited_st(ist), writ%gs_st, trim(filename))
+---
+>           call excited_states_init(writ%excited_st(ist), writ%gs_st, trim(filename)) 
+463c460
+<     !% Must be >= 0. If it is 0, then no output is written.
+---
+>     !% Must be >= 0. If it is 0, then no output is written. 
+499c496
+<       end if
+---
+>       end if  
+528c525
+< 
+---
+>           
+564c561
+< 
+---
+>         
+586c583
+< 
+---
+>       
+588c585
+< 
+---
+>     
+597c594
+< 
+---
+>       
+646c643
+<     type(v_ks_t),        intent(in)    :: ks
+---
+>     type(v_ks_t),        intent(in)    :: ks  
+653c650,651
+<     if(writ%out(OUT_MULTIPOLES)%write) &
+---
+>     if(writ%out(OUT_MULTIPOLES)%write  .and. mod(iter, writ%compute_interval) == 0 ) then
+>       if (mpi_grp_is_root(mpi_world)) call write_iter_set(writ%out(OUT_MULTIPOLES)%handle, iter)
+654a653
+>     end if
+698c697,698
+<     if(writ%out(OUT_ENERGY)%write) &
+---
+>     if(writ%out(OUT_ENERGY)%write   .and. mod(iter, writ%compute_interval) == 0 ) then
+>       if (mpi_grp_is_root(mpi_world))  call write_iter_set(writ%out(OUT_ENERGY)%handle, iter)
+699a700
+>     end if
+710c711,712
+<     if(writ%out(OUT_TOTAL_CURRENT)%write) &
+---
+>     if(writ%out(OUT_TOTAL_CURRENT)%write  .and. mod(iter, writ%compute_interval) == 0) then
+>       if (mpi_grp_is_root(mpi_world))  call write_iter_set(writ%out(OUT_TOTAL_CURRENT)%handle, iter)
+711a714
+>     end if
+767c770
+< 
+---
+>     
+786c789
+< 
+---
+>  
+1014c1017
+<           if(cmplxscl) call write_iter_header(out_multip, ' ')
+---
+>           if(cmplxscl) call write_iter_header(out_multip, ' ')   
+1016c1019
+<           if(cmplxscl) call write_iter_header(out_multip, ' ')
+---
+>           if(cmplxscl) call write_iter_header(out_multip, ' ')   
+1018c1021
+<           if(cmplxscl) call write_iter_header(out_multip, ' ')
+---
+>           if(cmplxscl) call write_iter_header(out_multip, ' ')   
+1041c1044
+<               if(cmplxscl) call write_iter_header(out_multip, ' ')
+---
+>               if(cmplxscl) call write_iter_header(out_multip, ' ')   
+1045c1048
+<               if(cmplxscl) call write_iter_header(out_multip, ' ')
+---
+>               if(cmplxscl) call write_iter_header(out_multip, ' ')   
+1065c1068
+<                 call write_iter_header(out_multip, 'Im')
+---
+>                 call write_iter_header(out_multip, 'Im')   
+1068c1071
+<                 call write_iter_header(out_multip, 'Im')
+---
+>                 call write_iter_header(out_multip, 'Im')   
+1076c1079
+< 
+---
+>       
+1095,1096c1098,1099
+<         multipole (:,is) = real(zmultipole(:,is)) ! it should be real anyways
+<       end if
+---
+>         multipole (:,is) = real(zmultipole(:,is)) ! it should be real anyways 
+>       end if 
+1098,1099c1101,1102
+<     ! FIXME: with cmplxscl we need to think how to treat
+<     ! the ions dipole moment
+---
+>     ! FIXME: with cmplxscl we need to think how to treat 
+>     ! the ions dipole moment 
+1283c1286
+<         'Positions in '   // trim(units_abbrev(units_out%length)) //   &
+---
+>         'Positions in '   // trim(units_abbrev(units_out%length))   //   &
+1356c1359
+< 
+---
+>  
+1361c1364
+<     CMPLX, allocatable :: dotprodmatrix(:, :,
+---
+>     CMPLX, allocatable :: dotprodmatrix(:, :, :)
+1476c1479
+< 
+---
+>   
+1578c1581
+<       ! (force, force, and energy, respectively). The reason is that the units of E, B or A
+---
+>       ! (force, force, and energy, respectively). The reason is that the units of E, B or A 
+1634c1637
+<     integer :: n_columns
+---
+>     integer :: n_columns         
+1644c1647
+<     n_columns = 9
+---
+>     n_columns = 9          
+1653c1656
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1659c1662
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1661c1664
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1663c1666
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1665c1668
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1667c1670
+<       if(cmplxscl) call write_iter_header(out_energy, ' ')
+---
+>       if(cmplxscl) call write_iter_header(out_energy, ' ')      
+1669c1672
+<       if (hm%pcm%run_pcm) then
+---
+>       if (hm%pcm%run_pcm) then 
+1671,1672c1674,1675
+<           n_columns = n_columns + 1
+<       end if
+---
+>           n_columns = n_columns + 1    
+>       end if   
+1678c1681
+<         call write_iter_header(out_energy, ' ')
+---
+>         call write_iter_header(out_energy, ' ')      
+1681,1682c1684,1685
+<         call write_iter_header(out_energy, ' ')
+<         call write_iter_header(out_energy, ' ')
+---
+>         call write_iter_header(out_energy, ' ')      
+>         call write_iter_header(out_energy, ' ')      
+1708c1711
+<         do ii = 1, n_columns_cmplxscl
+---
+>         do ii = 1, n_columns_cmplxscl 
+1710c1713
+<         end do
+---
+>         end do        
+1713,1714c1716,1717
+< 
+< 
+---
+>       
+>       
+1728c1731
+<     if(cmplxscl) call write_iter_double(out_energy, units_from_atomic(units_out%energy, hm%energy%Imhartree), 1)
+---
+>     if(cmplxscl) call write_iter_double(out_energy, units_from_atomic(units_out%energy, hm%energy%Imhartree), 1)    
+1735c1738
+< 
+---
+>     
+1739c1742
+< hm%energy%int_nn_pcm + hm%energy%int_ne_pcm), 1)
+---
+>                                                                  hm%energy%int_nn_pcm + hm%energy%int_ne_pcm), 1)
+1755c1758
+< #if defined(HAVE_MPI)
+---
+> #if defined(HAVE_MPI) 
+1761,1762c1764,1765
+<     SAFE_ALLOCATE(eigs(1:st%nst,1:st%d%kpt%nglobal))
+< 
+---
+>     SAFE_ALLOCATE(eigs(1:st%nst,1:st%d%kpt%nglobal)) 
+>            
+1766c1769
+< #if defined(HAVE_MPI)
+---
+> #if defined(HAVE_MPI) 
+1774,1775c1777,1778
+< 
+<     if(.not.mpi_grp_is_root(mpi_world)) then
+---
+>   
+>     if(.not.mpi_grp_is_root(mpi_world)) then 
+1778c1781
+<       return ! only first node outputs
+---
+>       return ! only first node outputs        
+1839c1842
+< #if defined(HAVE_MPI)
+---
+> #if defined(HAVE_MPI) 
+1843a1847
+>     
+1845,1847c1849,1850
+< 
+<     Nch =  st%nst * st%d%kpt%nglobal * st%d%dim
+<     SAFE_ALLOCATE(ch(0: Nch))
+---
+>     Nch =  st%nst * st%d%kpt%nglobal * st%d%dim 
+>     SAFE_ALLOCATE(ch(0: Nch)) 
+1854c1857
+<         do idim = 1, st%d%dim
+---
+>         do idim = 1, st%d%dim        
+1863,1865c1866,1868
+< 
+< 
+< #if defined(HAVE_MPI)
+---
+>       
+>       
+> #if defined(HAVE_MPI) 
+1867c1870
+<       SAFE_ALLOCATE(occbuf(0: Nch))
+---
+>       SAFE_ALLOCATE(occbuf(0: Nch)) 
+1871c1874
+<       SAFE_DEALLOCATE_A(occbuf)
+---
+>       SAFE_DEALLOCATE_A(occbuf) 
+1873,1874c1876,1877
+< #endif
+< 
+---
+> #endif      
+>     
+1877,1879c1880,1882
+< 
+< 
+<     if(.not.mpi_grp_is_root(mpi_world)) then
+---
+>   
+>   
+>     if(.not.mpi_grp_is_root(mpi_world)) then 
+1882c1885
+<       return ! only first node outputs
+---
+>       return ! only first node outputs        
+1888c1891
+< 
+---
+>       
+1891c1894
+< 
+---
+>       
+1933c1936
+< 
+---
+>     
+1937c1940
+< 
+---
+>     
+1941c1944
+< 
+---
+>     
+1997c2000
+< 
+---
+>     
+2028c2031
+< 
+---
+>  
+2076c2079
+<                 call write_iter_double(out_proj, real(projections(ist, uist, ik)), 1)
+---
+>                 call write_iter_double(out_proj,  real(projections(ist, uist, ik)), 1)
+2082c2085
+< 
+---
+>           
+2124,2125c2127,2128
+<       CMPLX, allocatable :: psi(:, , gspsi(:,
+< 
+---
+>       CMPLX, allocatable :: psi(:, :), gspsi(:, :)
+>       
+2127c2130
+< 
+---
+>  
+2130c2133
+< 
+---
+>       
+2135c2138
+< 
+---
+>       
+2150c2153
+< 
+---
+>       
+2167c2170
+< 
+---
+>  
+2178a2182
+>     
+2221c2225
+< 
+---
+>      
+2228,2230c2232,2234
+<     end if
+< 
+<     Nex = M_ZERO
+---
+>     end if 
+>  
+>     Nex = M_ZERO 
+2234c2238
+<         weight = st%d%kweights(ik) * occ(ist, ik)/ st%smear%el_per_state
+---
+>         weight = st%d%kweights(ik) * occ(ist, ik)/ st%smear%el_per_state 
+2241c2245
+< #if defined(HAVE_MPI)
+---
+> #if defined(HAVE_MPI)        
+2245c2249
+< #endif
+---
+> #endif  
+2247c2251
+<   Nex = Nex + st%qtot
+---
+>   Nex = Nex + st%qtot 
+2254c2258
+< 
+---
+>   
+2268,2269c2272,2273
+<      implicit none
+< 
+---
+>      implicit none 
+>     
+2275c2279
+< 
+---
+>  
+2277c2281
+<      CMPLX, allocatable :: psi(:, , gspsi(:,
+---
+>      CMPLX, allocatable :: psi(:, :), gspsi(:, :)
+2279c2283
+< 
+---
+>     
+2282c2286
+< 
+---
+>      
+2301c2305
+< 
+---
+>       
+2313c2317
+< 
+---
+>       
+2355c2359
+< 
+---
+>     
+2360c2364
+< 
+---
+>     
+2362c2366
+<     ! Why? It is unlikely that one is interested in the projections
+---
+>     ! Why? It is unlikely that one is interested in the projections 
+2393c2397
+< 
+---
+>        
+2410c2414
+<       ! write to file
+---
+>       ! write to file 
+2420c2424
+<   end do! ik
+---
+>   end do! ik            
+2426c2430
+< 
+---
+>      
+2438c2442
+<     integer,           intent(in)      :: iter
+---
+>     integer,           intent(in)      :: iter 
+2454c2458
+<     ! this does not depend on propagation, so we do it only once
+---
+>     ! this does not depend on propagation, so we do it only once 
+2473c2477
+<     !%Description
+---
+>     !%Description 
+2476c2480
+<     !%
+---
+>     !% 
+2492c2496
+<     !%Description
+---
+>     !%Description 
+2495c2499
+<     !%End
+---
+>     !%End 
+2531c2535
+<     !     (H_{-n,-m} ...  H_{-n,0} ...  H_{-n,m})
+---
+>     !     (H_{-n,-m} ...  H_{-n,0} ...  H_{-n,m}) 
+2535c2539
+<     !     (H_{n,-m}  ...  H_{n,0}  ...  H_{n,m} )
+---
+>     !     (H_{n,-m}  ...  H_{n,0}  ...  H_{n,m} )    
+2622c2626
+< matmul(HFloquet(ik,n1+1:n1+nst,m0+1:m0+nst), HFloquet(ik,1:nst,m0+1:m0+nst)))
+---
+>                             matmul(HFloquet(ik,n1+1:n1+nst,m0+1:m0+nst), HFloquet(ik,1:nst,m0+1:m0+nst)))
+2629c2633
+<       ! the full Floquet
+---
+>       ! the full Floquet 
+2661c2665
+< 
+---
+>     
+2675c2679
+< 
+---
+>     
+2688c2692
+< 
+---
+>   
+2723c2727
+< 
+---
+>       
+2733c2737
+< 
+---
+>       
+2738c2742
+< 
+---
+>     
+2763c2767
+< 
+---
+>       
+2786c2790
+< 
+---
+>         
+2790c2794
+< 
+---
+>         
+2792c2796
+< 
+---
+>         
+2795c2799
+< 
+---
+>         
+2800c2804
+< 
+---
+>         
+2802c2806
+< 
+---
+>         
+2805c2809
+< 
+---
+>       
+2807c2811
+< 
+---
+>       
+2809c2813
+< 
+---
+>       
+2853d2856
+< 

@@ -6,7 +6,7 @@
 source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 MoveIons=0
 kPoints=1
 

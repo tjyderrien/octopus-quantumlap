@@ -14,14 +14,14 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX="0.23" #Bohr, octopus-recommended value
+MeshSizeX="0.18" #Bohr, octopus-recommended value
 MeshSizeZ="0.18" #Convergence study showed that 0.18 is enough to compute the current.
 #MeshSizeZ="0.10"
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
-SampleLayers="6"
-SampleXY="4"
+SampleLayers="1"
+SampleXY="1"
 # SampleXY="8 10 12 14 16 18 20"
 
 for iSampleLayers in ${SampleLayers}

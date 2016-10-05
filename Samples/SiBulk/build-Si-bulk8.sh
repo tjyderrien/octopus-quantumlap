@@ -15,7 +15,6 @@ A34=$( python -c "print ( 3. * $A ) / 4. ")
 
 # Write geometry . in
 cat << EOF > geometry.in
-# diamond structure with lattice constant $A
 atom 0.0  0.0  0.0 Si
 atom $A14 $A14 $A14 Si
 atom $A34 $A34 $A14 Si
@@ -32,4 +31,4 @@ lattice_vector 0.0 0.0 $A
 EOF
 # Write control . in
 
-echo "Visualize the structure with >$ jmol geometry.in &"
+# echo "Visualize the structure with >$ jmol geometry.in &"

@@ -1,0 +1,9 @@
+# Todo with NetCDF to calculate n_excited_el faster.
+
+<tnico> tu peux calculer int [N_tot-N_GS] d^3r _>0  
+<tnico> tu fait la diff des deux densités
+<tnico> tu prends la partie positive
+<tnico> et tu intégre sur l'espace
+<tnico> si c'est correct, tu dois retrouver la meme courbe que n_excited_el
+<tnico> si ça marche, c'est gagné
+
