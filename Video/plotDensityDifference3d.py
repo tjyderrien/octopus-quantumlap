@@ -87,7 +87,7 @@ OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=0.01
-ZoomValue=1
+ZoomValue=1.0
 EnablePerspective=0
 
 # BohrRadius = phys.physical_constants['Bohr radius']
@@ -642,7 +642,7 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   # 5 color map (depletion: blue, overdensity: red)
   ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
   ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-  ContourAtts.SetMultiColor(2, (255, 255, 255, 11))
+  ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
   ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
   ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
   SetPlotOptions(ContourAtts)
@@ -671,9 +671,9 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
   
-  View3DAtts.imagePan = (0.0211978, -0.240702)
-  View3DAtts.imageZoom = 9.13208
-  View3DAtts.perspective = 0
+#  View3DAtts.imagePan = (0.0211978, -0.240702)
+#  View3DAtts.imageZoom = 9.13208
+#  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   
   #Adding a label for the time step    
