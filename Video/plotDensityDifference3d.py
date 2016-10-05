@@ -84,11 +84,11 @@ BohrRadius=5.2917721067e-1 #Angstroms
 
 OriginX=0.
 OriginY=0.
-OriginZ=0.6788749999999979/BohrRadius
+OriginZ=0. #0.6788749999999979/BohrRadius
 
-MaxValue=0.005
-
-EnablePerspective=1
+MaxValue=0.01
+ZoomValue=1.0
+EnablePerspective=0
 
 # BohrRadius = phys.physical_constants['Bohr radius']
 # print "Bohr radius"
@@ -593,7 +593,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1):#{{{
+def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePerspective=0):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -629,15 +629,22 @@ def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1
   AddPlot("Contour", "Difference", 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
-  ContourAtts.contourNLevels = 3
+  ContourAtts.contourNLevels = 5
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
   ContourAtts.min = -extreme
   ContourAtts.max = extreme
-  ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
-  ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
-  ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+  # 3 color map (depletion: blue, overdensity: red)
+  #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
+  #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
+  #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+  # 5 color map (depletion: blue, overdensity: red)
+  ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+  ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+  ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
+  ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
+  ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
   #SetWindowMode("zoom")
@@ -664,9 +671,9 @@ def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
   
-  View3DAtts.imagePan = (0.0211978, -0.240702)
-  View3DAtts.imageZoom = 9.13208
-  View3DAtts.perspective = 0
+#  View3DAtts.imagePan = (0.0211978, -0.240702)
+#  View3DAtts.imageZoom = 9.13208
+#  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   
   #Adding a label for the time step    
@@ -728,14 +735,14 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=9)
+    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=9)
+    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 3 ####
     #CloneWindow()
