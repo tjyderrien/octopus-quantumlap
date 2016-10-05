@@ -593,7 +593,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1):#{{{
+def plot3Ddifference(axis="X", extreme=0.01, zoomPicture=1, EnablePerspective=0):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -629,15 +629,22 @@ def plot3Ddifference(axis="X", extreme=0.005, zoomPicture=1, EnablePerspective=1
   AddPlot("Contour", "Difference", 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
-  ContourAtts.contourNLevels = 3
+  ContourAtts.contourNLevels = 5
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
   ContourAtts.min = -extreme
   ContourAtts.max = extreme
-  ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
-  ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
-  ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+  # 3 color map (depletion: blue, overdensity: red)
+  #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
+  #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
+  #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+  # 5 color map (depletion: blue, overdensity: red)
+  ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+  ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+  ContourAtts.SetMultiColor(2, (255, 255, 255, 11))
+  ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
+  ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
   #SetWindowMode("zoom")
