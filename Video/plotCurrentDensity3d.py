@@ -880,7 +880,7 @@ for i in range(0,len(indata)):
         RemoveAllOperators()
    
     CloseDatabase(indensityvtk)
-    CloseDatabase(indensityGsVtk)
+    #CloseDatabase(indensityGsVtk)
     CloseDatabase(inxyz)
 
     # Estimating remaining time
