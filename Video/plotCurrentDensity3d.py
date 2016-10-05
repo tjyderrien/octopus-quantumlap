@@ -717,7 +717,7 @@ def plot3Dcurrent(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePersp
   SetPlotOptions(mol1)
   
   ReOpenDatabase(indensityvtk)
-  AddPlot("Contour", "Difference", 1, 1)
+  AddPlot("Contour", "current_magnitude", 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
   ContourAtts.contourNLevels = 6
