@@ -654,14 +654,16 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
-  #SetWindowMode("zoom")
-  
+  SetWindowMode("zoom")
   View3DAtts = View3DAttributes()
+  View3DAtts.viewAngle = 30
+  View3DAtts.focus = (0.108315, 0.108315, 0.)
+  View3DAtts.viewUp = (0., 0., 1.)
   View3DAtts.viewAngle = 30
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imagePan = (0, 0)
+  View3DAtts.imagePan = (0.000474834, -0.223849)
   View3DAtts.imageZoom = zoomPicture
   View3DAtts.perspective = EnablePerspective
   View3DAtts.eyeAngle = 2
@@ -669,6 +671,8 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
   View3DAtts.axis3DScaleFlag = 0
   View3DAtts.axis3DScales = (1, 1, 1)
+  View3DAtts.shear = (0, 0, 1)
+  View3DAtts.windowValid = 1
   
   if (axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
