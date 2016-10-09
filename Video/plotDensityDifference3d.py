@@ -87,7 +87,7 @@ OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=0.01
-ZoomValue=1.0
+ZoomValue=3
 EnablePerspective=0
 
 # BohrRadius = phys.physical_constants['Bohr radius']
@@ -629,7 +629,7 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   AddPlot("Contour", "Difference", 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
-  ContourAtts.contourNLevels = 5
+  ContourAtts.contourNLevels = 6
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
@@ -640,21 +640,30 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
   #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
   # 5 color map (depletion: blue, overdensity: red)
+  #ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+  #ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+  #ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
+  #ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
+  #ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+  # 6 color map
   ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
   ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-  ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
-  ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
-  ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+  ContourAtts.SetMultiColor(2, (204, 255, 255, 10))
+  ContourAtts.SetMultiColor(3, (255, 204, 0, 5))
+  ContourAtts.SetMultiColor(4, (255, 153, 0, 58))
+  ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
-  #SetWindowMode("zoom")
-  
+  SetWindowMode("zoom")
   View3DAtts = View3DAttributes()
+  View3DAtts.viewAngle = 30
+  View3DAtts.focus = (0.108315, 0.108315, 0.)
+  View3DAtts.viewUp = (0., 0., 1.)
   View3DAtts.viewAngle = 30
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imagePan = (0, 0)
+  View3DAtts.imagePan = (0.000474834, -0.223849)
   View3DAtts.imageZoom = zoomPicture
   View3DAtts.perspective = EnablePerspective
   View3DAtts.eyeAngle = 2
@@ -662,6 +671,8 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
   View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
   View3DAtts.axis3DScaleFlag = 0
   View3DAtts.axis3DScales = (1, 1, 1)
+  View3DAtts.shear = (0, 0, 1)
+  View3DAtts.windowValid = 1
   
   if (axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
@@ -671,7 +682,8 @@ def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePe
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
   
-#  View3DAtts.imagePan = (0.0211978, -0.240702)
+#  if(zoomPicture != 1.0):
+#    View3DAtts.imagePan = (0.0211978, -0.240702)
 #  View3DAtts.imageZoom = 9.13208
 #  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
