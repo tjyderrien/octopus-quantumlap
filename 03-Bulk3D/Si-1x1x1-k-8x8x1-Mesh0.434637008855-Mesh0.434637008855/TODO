@@ -1,0 +1,3 @@
+October 9th, 2016
+* GS is now converged. Start the TD runs. 
+* Modify the run_td.sh and flood_td.sh to start this bulk case easily. 
