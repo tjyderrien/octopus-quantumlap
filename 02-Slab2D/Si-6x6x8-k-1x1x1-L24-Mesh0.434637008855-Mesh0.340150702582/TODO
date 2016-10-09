@@ -1,0 +1,7 @@
+
+October 9th, 2016
+* Start this job on Hydra. 
+- Electronic states: 2408. 
+- Number of cores: 32. 
+- Number of 32 core machines: 75.25. 
+- 24 extra states are necessary to fill 76 complete nodes. 
