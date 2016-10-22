@@ -22,28 +22,29 @@ mp.rcParams['legend.numpoints'] = 1
 
 from scipy.io import netcdf
 
-print "Info: getting the GS density."
+# print "Info: getting the GS density."
 NeGSdata = netcdf.netcdf_file('../td.0000000/density.ncdf', 'r')
 NeGS = NeGSdata.variables['rdata'][:,:,:]
 
-print "Info: getting the TD data."
+# print "Info: getting the TD data."
 NeTDdata = netcdf.netcdf_file('density.ncdf', 'r')
 NeTD = NeTDdata.variables['rdata'][:,:,:]
 
-print "Info: Building the excess of density..."
+# print "Info: Building the excess of density..."
 NeTDvar = NeTD-NeGS
 condlist = [NeTDvar>0.]
 choicelist = [NeTDvar]
 NeTDpos = np.select(condlist, choicelist)
 
-print "Info: Building the depletion of density..."
+# print "Info: Building the depletion of density..."
 condlist = [NeTDvar<0.]
 choicelist = [NeTDvar]
 NeTDneg = np.select(condlist, choicelist)
 
-print "Calculate the quantity of excess electrons..."
+# print "Calculate the quantity of excess electrons..."
 TotalNeTDpos = np.sum(NeTDpos)
-print "Post-calculated N_excited:"+str(TotalNeTDpos)
+# print "Post-calculated N_excited:"+str(TotalNeTDpos)
+print TotalNeTDpos
 
 exit()
 
