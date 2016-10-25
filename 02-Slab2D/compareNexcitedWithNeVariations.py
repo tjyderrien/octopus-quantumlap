@@ -43,9 +43,8 @@ NeTDneg = np.select(condlist, choicelist)
 
 # print "Calculate the quantity of excess electrons..."
 TotalNeTDpos = np.sum(NeTDpos)
+TotalNeTDneg = np.sum(NeTDneg)
 # print "Post-calculated N_excited:"+str(TotalNeTDpos)
-print TotalNeTDpos
+print TotalNeTDpos, TotalNeTDneg
 
 exit()
-
-print "Comparing with the number of excited electrons."

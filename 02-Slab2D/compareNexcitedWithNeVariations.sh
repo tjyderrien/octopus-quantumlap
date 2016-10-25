@@ -29,10 +29,14 @@ do
 	timestepnumber=$( echo $name | tr "./" " " | awk '{ print $2*1. }'  ) 
         instantAU=$( python_calc " $timestepnumber * $dt " )
 	instantSI=$( python_calc " $instantAU * $AUtoSI_time " )
-	density=$( cat $i/densities.tmp ); 
-	echo "$timestepnumber $instantAU $instantSI $density" >> postCalculationNexcited.tmp 
+	ElectronDensity=$( cat $i/densities.tmp | awk '{ print $1 }' ); 
+	HoleDensity=$( cat $i/densities.tmp | awk '{ print $2 }' );
+	echo "$timestepnumber $instantAU $instantSI $ElectronDensity $HoleDensity" >> postCalculationNexcited.tmp 
 done
 
 echo "Sorting the final file postCalculationNexcited.log."
-echo "# TimeStep \t t (au) \t t (s) \t Ne (au)"
+echo "# TimeStep \t t (au) \t t (s) \t Ne (au)" > postCalculationNexcited.log
 sort -n postCalculationNexcited.tmp >> postCalculationNexcited.log
+
+echo "Plotting the comparison with excited density..."
+gnuplot $QuantumLaP/02-Slab2D/compareNexcitedWithNeVariations.gnu
