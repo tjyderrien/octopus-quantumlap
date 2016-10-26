@@ -36,9 +36,9 @@ time = np.asfarray(laser[:,1]) #column 2
 A1x = np.asfarray(laser[:,2]) #column number 3
 A2x = np.asfarray(laser[:,5]) #column number 6 
 timeNe = np.asfarray(Ne[:,1])
-density = np.asfarray(Ne[:,2])
+density = np.asfarray(Ne[:,2]) #number of particles, not density! 
 volume = Sample.VolumeXYZ(geometry)
-densitySI = density / BohrRadius**3 / volume
+densitySI = density / BohrRadius**3 / volume #Now its a density... TODO: VALIDATE VOLUME CALC.
 # Convert vector potential to field
 EtotX = -(np.diff(A1x)/np.diff(time) + np.diff(A2x)/np.diff(time)) / c #E=d_t (A1+A2) / c
 
