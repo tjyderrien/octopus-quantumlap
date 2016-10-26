@@ -52,7 +52,7 @@ XYZCoordinates = "Si.xyz" #input is in Angstroms
 
 ConvRelDens = 1e-9
 KPointsUseSymmetries = no
-ExtraStates = 32 #0: if observable (Ne, Je), more in not-observable
+ExtraStates = 0 #0: if observable (Ne, Je), more in not-observable
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
 
@@ -67,7 +67,7 @@ Mixing = 0.05 #looks important to reach convergence on large systems
 # For now, interface Hartree <-> SI is managed here.
 
 # Some manual commands
-RelaxationTimeSI = 100e-15 #[s]
+# RelaxationTimeSI = 100e-15 #[s]
 
 # Some constants
 cSI = 299792458e0
@@ -121,7 +121,7 @@ sigmaTauB = tauB / GaussianRatio
 ## Double pulse delay
 pulseDelay = pulseDelaySI / TimeAUtoSI
 ## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
-RelaxationTime = RelaxationTimeSI / TimeAUtoSI
+# RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
 
 ## Vector field amplitude
 
