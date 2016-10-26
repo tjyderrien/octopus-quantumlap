@@ -4,7 +4,7 @@ set -e
 # Stop on error
 # for A in 5.4; do
 
-A=5.43
+A=5.431
 echo "Size of Si lattice: $A Angstrums"
 
 # Use this construct for simple calculations . As values
