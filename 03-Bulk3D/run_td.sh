@@ -8,7 +8,7 @@ source functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0
-kPoints=16
+kPoints=8
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -45,11 +45,11 @@ ProcessArguments () { # Conversion factors for sample
 
 DefineParameters () {
   # Input laser parameters
-  RelaxationTime=$( python_calc "0e0"  )
+  RelaxationTime=$( python_calc "100e-15"  )
 
 # echo "Generating pulses..."
 
-  echo "TODO: for now, the Python laser generator only makes nice pictures."
+#  echo "TODO: for now, the Python laser generator only makes nice pictures."
 #  ../Pulses/BuildPulseDatabase.py > Pulse.dat
 #  lambda1=$( cat 'Pulse.dat' | grep 'Wavelength' | awk '{ print $2 }' ) 
 #  lambda2=$( cat 'Pulse.dat' | grep 'Wavelength' | awk '{ print $5 }' ) 
@@ -66,7 +66,7 @@ DefineParameters () {
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
-  echo "Pulses generated."
+  echo "[Run_TD] Pulses generated."
 
   MoveIonsChain=""
   if [ ${MoveIons} == 1 ]; then
@@ -74,7 +74,7 @@ DefineParameters () {
   else
         MoveIonsChain=""
   fi
-  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName}-Mesh${MeshSizeX}-Mesh${MeshSizeZ}
+  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX}-Mesh${MeshSizeZ}
   export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -87,8 +87,10 @@ print_usage () {
     echo "./run.sh <Number of Z blocks> <Number of XY atoms> <Vacuum Size (Angstrom), Mesh size XY (Angstrom), Mesh size Z (Ang.)> <lambda1, lambda2 (m)>, <Efield1, Efield2 (V/m)>, <tau1, tau2 (s)>, <CEP1 (rad), CEP2 (rad)>, <delay (s)>"
     exit
   else
-    echo "** Sample size: Z=${SampleLayers} layers. XY=${SampleXY} atoms.**"
-    echo "** Mesh size: Z=${MeshSizeZInput}. X=${MeshSizeXInput}. **"
+    echo ""
+    echo "[Info] ** Sample size: Z=${SampleLayers} layers. XY=${SampleXY} atoms.**"
+    echo "[Info] ** Mesh size: Z=${MeshSizeZInput}. X=${MeshSizeXInput}. **"
+    echo ""
   fi
 }
 
@@ -97,12 +99,12 @@ ReplaceInputFile () {
   # We would like to start the td-calculation
   # INP file is modified in root, then copied to the ${localPath} folder  
   if [ -e inp ]; then
-	  echo "Input file INP was renamed to .BAK..."
+	  echo ""; echo "Input file INP was renamed to .BAK..."
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to TIME-DEPENDENT RUN"
   cp inp-td inp
-  echo "REPLACING MATERIAL PARAMETERS..."
+  echo ""; echo "REPLACING MATERIAL PARAMETERS..."
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
   sed -i.bak s/SizeOfVacuum/${SizeOfVacuum}/g inp
@@ -132,15 +134,20 @@ BuildSample() {
   # Build the sample
   if [ -e Si.xyz ]; then
     rm Si.xyz
+    echo "[Info] Removed the previous sample file."
   fi
-  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > Si.xyz
+  echo "[Info] Building the geometry input..."; echo ""
+  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
+  echo "[Info] Conversion to octopus format" 
+  $AbsPath/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
 
   # Add the number of lines at the beginning of the file
-  numLines=$( wc -l Si.xyz | awk '{ print $1 }' )
+  numLines=$( wc -l Si.xyz | awk '{ print $1 - 2 }' )
 
   echo $numLines >> Si.tmp
   echo "# This line is a comment." >> Si.tmp
   cat Si.xyz >> Si.tmp
+  echo ""; echo "** Content of the Si.xyz file."
   cat Si.tmp
   mv Si.tmp Si.xyz
 }
@@ -150,12 +157,16 @@ SubmitTheJob () {
   #If ground state exists, we shall copy the ground state in the target folder!
   #else: don't run the ground, just stop the program and tell it. 
   if [ -e ${groundStatePath}-Save ]; then
+          echo "[Copy] Source: ${groundStatePath}-Save"
+          echo "[Copy] Target: ${groundStatePath}${MoveIonsChain}"
           ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}${MoveIonsChain}/
   else
-    echo "GROUND STATE DOES NOT EXIST. Run it manually using run_gs.sh ${SampleLayers} ${SampleXY}."
+    echo "GROUND STATE DOES NOT EXIST."
+    echo "Expected path: ${groundStatePath}-Save"
+    echo "Run it manually using run_gs.sh ${SampleLayers} ${SampleXY}."
     exit
   fi 
-
+  echo ""
   echo "== Copying the file in the submission folder... =="
   echo "Source: ${basePath}."
   echo "Target: ${localPath}."
