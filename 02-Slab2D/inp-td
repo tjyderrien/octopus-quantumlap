@@ -189,6 +189,8 @@ TDOutputComputeInterval = 10 #Essentially used for n_excited_el.
 # Absorbing boundary
 AbsorbingBoundaries = mask
 %ABShape
- TotalZsize - BoundaryThickness  | TotalZsize #absorbing between zmax and zmax-BoundaryThickness. 
+ TotalZsize - BoundaryThickness  | TotalZsize | "abs(z)" #two absorbing boundaries on both sides of the box 
 %
+
+
 
