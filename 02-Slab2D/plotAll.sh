@@ -27,6 +27,15 @@ do
 	cd - > /dev/null
 done
 
+for folder in $( du | grep 'output_iter' | awk '{ print $2 }' )
+do
+	echo "Found folder $folder"
+        cd $folder
+	${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh &
+	${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py &
+	cd - > /dev/null
+done
+
 # git commit -m 'Added new time-dependent plots.'
 # echo "plots have been added to Git. Just commit and push them."
 echo "Don't use Git for transfering binary data!"
