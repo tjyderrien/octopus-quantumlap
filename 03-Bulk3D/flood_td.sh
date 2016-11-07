@@ -15,8 +15,8 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.18"
-MeshSizeZ="0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current: use 0.18 in Z.
+MeshSizeX="0.23"
+MeshSizeZ="0.23" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Sample
 SampleLayers=1
@@ -27,9 +27,9 @@ lambda1="800e-9"
 lambda2="400e-9"
 # Field amplitude
 # Efield1="1E8 5E8 1E9 5E9 9E9 1E10"
-Efield1="9E9" #9E9 is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+# Efield1="9E9" #9E9 is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 Efield2="0E9"
-# Efield2="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
+Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
 # Pulse duration
 # tau1="10e-15 20e-15 30e-15"
 tau1="10e-15"
