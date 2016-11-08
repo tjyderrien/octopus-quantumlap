@@ -22,9 +22,9 @@ echo "Computer name: $ComputerName"
 #fi
 
 #GraphPortNumber=$1
-ServerAddress=eos01.bc.rzg.mpg.de
-LoginName=tjyderri
-GateWayAddress=gate.rzg.mpg.de
+# ServerAddress=eos01.bc.rzg.mpg.de #included in machines.env
+# LoginName=tjyderri #also managed by machines.env
+# GateWayAddress=gate.rzg.mpg.de #managed by machines.env
 
 if [ ${Commuter} == "client" ]; then
 	echo "Local computer is client."
@@ -34,8 +34,8 @@ fi
 if [ ${Commuter} == "server" ]; then
 	echo "Local computer is server."
 	echo "Loading modules..."
-	source loadModules.sh
-	ModuleForEOS
+#	source loadModules.sh
+#	ModuleForEOS
 	echo "Start the VNC server."
 	vncserver
 fi
