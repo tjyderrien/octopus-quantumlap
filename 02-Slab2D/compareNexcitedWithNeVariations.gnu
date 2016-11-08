@@ -12,7 +12,7 @@ set output outputname
 set terminal postscript eps enhanced color font 'Helvetica, 24'
 # set terminal dumb
 
-# set xrange [:5e-15*unitx]
+set xrange [:40e-15*unitx]
 set key out bottom center
 unset log y
 
