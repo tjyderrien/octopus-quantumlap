@@ -143,7 +143,7 @@ plt.subplot(212)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((0,ymax))
-plt.plot(timeNe, Density_AU_to_SI(Nproj_AU), 'k-', label=r'$N_e^{proj}(t)$')  #TODO: change to SI units, and maybe divide by the cell volume
+plt.plot(timeNe, Density_AU_to_SI(density_proj_AU), 'k-', label=r'$N_e^{proj}(t)$')
 # plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle='--')
