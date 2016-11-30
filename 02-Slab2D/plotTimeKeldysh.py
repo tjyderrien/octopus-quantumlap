@@ -15,12 +15,12 @@ from libPlottingSettings import *
 # TODO: choose AU or SI from beginning, and centralize their calculation
 # TODO: separate plotting and density post-calculation into libs
 
-UnitSystem="AU" #Defines the system unit for the observables. Time will remain in SI. 
-QuantityOfInterest = "number" #Would you prefer to work densities, or particle number? 
+UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
+QuantityOfInterest = "density" #Would you prefer to work densities, or particle number? 
 
 # Load the n_el and laser files (atomic units)
 geometry = "../Si.xyz"
-Ne=loadtxt("../td.general/n_ex", dtype='str', skiprows=9) #number of particles, not a density!
+Ne=loadtxt("../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
 #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
 laser=np.genfromtxt("../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
 PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
@@ -42,7 +42,7 @@ print np.max(abs(Efield))
  
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
-Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
+Nproj_AU = np.asfarray(Ne[:,2]) #number of particles (if multiplied by cell volume), not a density!
 
 ### TOTAL_CURRENT file #Just for futur investigations with current
 ShrinkBy=3
