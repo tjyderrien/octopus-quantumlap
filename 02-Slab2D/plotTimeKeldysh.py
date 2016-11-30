@@ -42,7 +42,7 @@ print np.max(abs(Efield))
  
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
-Nproj_AU = np.asfarray(Ne[:,2]) #number of particles (if multiplied by cell volume), not a density!
+Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
 
 ### TOTAL_CURRENT file #Just for futur investigations with current
 ShrinkBy=3
@@ -143,7 +143,7 @@ plt.subplot(212)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((0,ymax))
-plt.plot(timeNe, Density_AU_to_SI(density_proj_AU), 'k-', label=r'$N_e^{proj}(t)$')
+plt.plot(timeNe, density_proj_AU, 'k-', label=r'$N_e^{proj}(t)$')
 # plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle='--')
