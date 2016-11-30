@@ -46,7 +46,7 @@ do
 	prevFolder=$( pwd )
         cd $folder
 	echo "** Building files for post-processed density..."
-#	${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
+	${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
 	${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
 	echo ""
