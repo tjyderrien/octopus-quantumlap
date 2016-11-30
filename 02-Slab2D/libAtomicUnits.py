@@ -29,7 +29,7 @@ def length_SI_to_AU(length_SI): #{{{
   return length_SI/BohrRadius
 #}}}
 
-Density_AU_to_SI = np.vectorize(Density_AU_to_SI)
-Volume_AU_to_SI  = np.vectorize(Volume_AU_to_SI)
-Time_AU_to_SI    = np.vectorize(Time_AU_to_SI)
-length_SI_to_AU  = np.vectorize(length_SI_to_AU)
+Density_AU_to_SI = vectorize(Density_AU_to_SI)
+Volume_AU_to_SI  = vectorize(Volume_AU_to_SI)
+Time_AU_to_SI    = vectorize(Time_AU_to_SI)
+length_SI_to_AU  = vectorize(length_SI_to_AU)
