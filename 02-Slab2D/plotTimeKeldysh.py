@@ -4,30 +4,17 @@
 # IMPORT LIBRARIES
 import numpy as np
 from numpy import genfromtxt, loadtxt, chararray
-import matplotlib as mp
-import matplotlib.pyplot as plt
-
-from matplotlib import rc
 # from pylab import *
 from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h
-from matplotlib.legend_handler import HandlerLine2D
 import sys
 
 import calculateVolume as Sample
 import libKeldysh as Keldysh
-
-# Settings for matplotlib
-# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'16'})
-## for Palatino and other serif fonts use:
-# rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'18'})
-rc('text', usetex=False)
-mp.rcParams['legend.numpoints'] = 1
+from libAtomicUnits import *
+from libPlottingSettings import *
 
 # TODO: choose AU or SI from beginning, and centralize their calculation
 # TODO: separate plotting and density post-calculation into libs
-
-# Some constants
-BohrRadius=5.2917721067e-11 #m
 
 # Load the n_el and laser files
 geometry = "../Si.xyz"
@@ -70,10 +57,12 @@ NePost = np.asfarray(PostTreatedDensity[:,3]) #4: N_e
 NePostSquaredInside = np.asfarray(PostTreatedDensity[:,6]) #7: N_e squared inside
 NePostSquaredOutside = NePost**2 #N_e squared outside the integral
 
-### Supercell Volume calculation
+### Supercell Volume calculation (atomic units)
 CellVolume_AU = Sample.VolumeLog("../") #0.06385 #0.07820 #Bohr**3
 print "Cell volume = "+str(CellVolume_AU)+" Bohr**3"
+print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 
+exit()
 # Integration in space
 Nproj_AU = density #* CellVolume_AU
 Npost_AU = NePost * CellVolume_AU
