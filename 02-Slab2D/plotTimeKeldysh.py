@@ -62,9 +62,12 @@ CellVolume_AU = Sample.VolumeLog("../") #0.06385 #0.07820 #Bohr**3
 print "Cell volume = "+str(CellVolume_AU)+" Bohr**3"
 print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 
-exit()
-# Integration in space
-Nproj_AU = density #* CellVolume_AU
+### Integration in space
+
+# Calculation using quantum projections < phi_gs | phi(t) >
+Nproj_AU = density #* CellVolume_AU 
+
+# Calculation using charge density (octopus.output.density)
 Npost_AU = NePost * CellVolume_AU
 Npost_2in_AU = NePostSquaredInside * CellVolume_AU
 Npost_2out_AU= NePostSquaredOutside * CellVolume_AU
@@ -80,17 +83,19 @@ CurrentXShrinked=A1x[0:indexmax]
 NnewDerivDt=np.multiply(CurrentXShrinked,A1xShrinked) #still to multiply by dt and sum.
 Nnew = np.cumsum(NnewDerivDt)
 
-# # Convert time from AU to SI
+### Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
-TimeAUtoSI = 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0
+TimeAUtoSI = Time_AU_to_SI(1.)
 time = UnitTime * time * TimeAUtoSI
 timeNe = UnitTime * timeNe * TimeAUtoSI
+
 timeCurrentdt = timeCurrent #* TimeAUtoSI
 timeCurrent=UnitTime * timeCurrent * TimeAUtoSI
-dtCurrent = timeCurrentdt[1]-timeCurrentdt[0] 
+dtCurrent = timeCurrentdt[1]-timeCurrentdt[0]
+
 print "TimeStep = "+str(dtCurrent)
 
-# Defining plotting boundaries
+### Defining plotting boundaries
 xmin=0.; xmax=40.; unitx=1E15
 ymax=1E-6; ymax2=1E0
 
