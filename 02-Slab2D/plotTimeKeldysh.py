@@ -65,7 +65,7 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 ### Integration in space
 
 # Calculation using quantum projections < phi_gs | phi(t) >
-Nproj_AU = density #* CellVolume_AU 
+#Nproj_AU = density #* CellVolume_AU 
 density_proj_AU = Nproj_AU / CellVolume_AU
 # Calculation of particle number from charge density (octopus.output.density)
 Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
@@ -103,7 +103,8 @@ else:
   print "** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py."
   exit()
 ### Convert density from AU to SI
-Density_AU_to_SI()
+#Density_AU_to_SI()
+# It is actually done on the plot, directly. 
 
 
 ### Convert fields from AU to SI
