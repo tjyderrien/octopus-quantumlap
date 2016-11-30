@@ -13,17 +13,10 @@ from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h
 from matplotlib.legend_handler import HandlerLine2D
 import sys
 
+from libAtomicUnits import *
+from libPlottingSettings import *
+
 # import calculateVolume as Sample
-
-# Settings for matplotlib
-#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'16'})
-## for Palatino and other serif fonts use:
-#rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'18'})
-#rc('text', usetex=True)
-mp.rcParams['legend.numpoints'] = 1
-
-# Some constants
-BohrRadius=5.2917721067e-11 #m
 
 # Load the n_el and laser files
 geometry = "../Si.xyz"
@@ -45,7 +38,7 @@ EtotX = -(np.diff(A1x)/np.diff(time) + np.diff(A2x)/np.diff(time)) / c #E=d_t (A
 
 # # Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
-TimeAUtoSI = 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0
+TimeAUtoSI = Time_AU_to_SI(1.) #1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0
 time = UnitTime * time * TimeAUtoSI
 timeNe = UnitTime * timeNe * TimeAUtoSI
 tmax=40e-15*UnitTime
