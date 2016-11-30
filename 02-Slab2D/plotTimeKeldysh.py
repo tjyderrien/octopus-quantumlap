@@ -157,7 +157,7 @@ plt.ylabel('Density (a.u.)')
 plt.legend(bbox_to_anchor=(0, -0.6, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')
 plt.savefig('KeldyshAnalysis.png', bbox_inches='tight')
-# plt.show()
+plt.show()
 
 print "** Info: Script ended sucessfully."
 print "** Goodbye."
