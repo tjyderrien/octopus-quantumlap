@@ -33,13 +33,29 @@ time = np.asfarray(laser[:,1]) #column 2
 A1x = np.asfarray(laser[:,2]) #column number 3
 A2x = np.asfarray(laser[:,5]) #column number 6 
 
+c_AU = 137.
+
 timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
 A_squared = A1x**2
 A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
-Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c
-print np.max(abs(Efield))
+Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
+print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
  
+### N_Keldysh and N_Gruzdev
+
+PulseDuration_SI = 10E-15
+Egap_SI = 2.58*e
+meff = 1.0 #0.18
+wavelength = 800e-9
+ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
+dtPrecision = 1E-17
+order=50
+ShowPlot=False
+
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI, dtPrecision, order, ShowPlot)  
+
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
 Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
@@ -57,20 +73,37 @@ NePost = np.asfarray(PostTreatedDensity[:,3]) #4: N_e number of electrons to mul
 NePostSquaredInside = np.asfarray(PostTreatedDensity[:,6]) #7: N_e squared inside
 NePostSquaredOutside = NePost**2 #N_e squared outside the integral
 
-### Supercell Volume calculation (atomic units)
-CellVolume_AU = Sample.VolumeLog("../") #0.06385 #0.07820 #Bohr**3
-print "Cell volume = "+str(CellVolume_AU)+" Bohr**3"
+### SingleCell and Supercell Volume calculation (atomic units)
+SuperCellVolume_AU = Sample.VolumeOfSupercell_Log("../")
+SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
+SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum("../") #Volume of the sample (without vacuum region) 
+# SampleCellVolume_AU = Sample.VolumeXYZ("../") ##Also wrong apparently...
+SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
+CellVolume_AU = Sample.VolumePerPoint_Log("../") #0.06385 #0.07820 #Bohr**3
+CellVolume_SI = Volume_AU_to_SI(CellVolume_AU)
+
+print ""
+print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
+print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
+print ""
+print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
+print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
+print ""
+print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
 print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 
 ### Integration in space
 
 # Calculation using quantum projections < phi_gs | phi(t) >
 #Nproj_AU = density #* CellVolume_AU 
-density_proj_AU = Nproj_AU * CellVolume_AU
+# Nproj_AU = Nproj_AU * CellVolume_AU #Should we really multiply by volume ?
+density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
 # Calculation of particle number from charge density (octopus.output.density)
 Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
 Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
 Npost_2out_AU= NePostSquaredOutside * CellVolume_AU #Same
+
+density_post_AU = Npost_AU / SuperCellVolume_AU
 
 # print CurrentX.size, A1x.size
 # Shrink A1x to size of CurrentX
@@ -97,8 +130,13 @@ dtCurrent = timeCurrentdt[1]-timeCurrentdt[0]
 # Avoid ill-defined units
 if(UnitSystem == "SI"):
   print "** Info: SI system chosed."
+  observable_proj = Density_AU_to_SI(density_proj_AU)
+  observable_post = Density_AU_to_SI(density_post_AU)
 elif(UnitSystem == "AU"):
   print "** Info: AU system chosed."
+  observable_proj = density_proj_AU
+  observable_post = density_post_AU
+
 else: 
   print "** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py."
   exit()
@@ -143,8 +181,22 @@ plt.subplot(212)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((0,ymax))
-plt.plot(timeNe, density_proj_AU, 'k-', label=r'$N_e^{proj}(t)$')
-# plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+
+if(QuantityOfInterest == "density"):
+  if(UnitSystem=="AU"):
+    plt.ylabel('Density exc. el. (a.u.)')
+  elif(UnitSystem=="SI"):
+    plt.ylabel('Density exc. el. (m^{-3})')
+  plt.plot(timeNe, observable_proj, 'k-', label=r'TD-DFT: $n_e^{proj}(t)$')
+  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r--', label=r'[Keldysh (1964)]')
+  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b--', label=r'[Gruzdev (2004)]')
+elif (QuantityOfInterest == "number"):
+  plt.ylabel('Number of exc. electrons')
+  plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
+  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+#  plt.legend()
+
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle='--')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
@@ -152,7 +204,7 @@ for xc in xposition:
 #print timeCurrent.shape, Nnew.shape
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
-plt.ylabel('Density (a.u.)')
+# plt.ylabel('Density (a.u.)')
 # plt.legend(loc=2)
 plt.legend(bbox_to_anchor=(0, -0.6, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')

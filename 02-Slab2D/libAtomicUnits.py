@@ -8,6 +8,7 @@ from numpy import vectorize
 from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h, hbar
 
 BohrRadius=5.2917721067e-11 #m
+Hartree_Energy = 27.21138602 #eV
 
 ## Converts a charge density from AU to SI (m^-3).
 def Density_AU_to_SI(density_AU):#{{{
@@ -29,6 +30,10 @@ def length_SI_to_AU(length_SI): #{{{
   return length_SI/BohrRadius
 #}}}
 
+## Converts Electric field (Hartree / Bohr) to SI (V/m).
+def Field_AU_to_SI(Field_SI):#{{{
+  return Hartree_Energy / BohrRadius * Field_SI
+#}}}
 Density_AU_to_SI = vectorize(Density_AU_to_SI)
 Volume_AU_to_SI  = vectorize(Volume_AU_to_SI)
 Time_AU_to_SI    = vectorize(Time_AU_to_SI)
