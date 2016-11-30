@@ -66,7 +66,7 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 
 # Calculation using quantum projections < phi_gs | phi(t) >
 #Nproj_AU = density #* CellVolume_AU 
-density_proj_AU = Nproj_AU / CellVolume_AU
+density_proj_AU = Nproj_AU * CellVolume_AU
 # Calculation of particle number from charge density (octopus.output.density)
 Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
 Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
