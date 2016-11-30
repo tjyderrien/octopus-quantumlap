@@ -47,14 +47,15 @@ print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/
 
 PulseDuration_SI = 10E-15
 Egap_SI = 2.58*e
-meff = 1.0 #0.18
+meff = 0.43
 wavelength = 800e-9
 ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
 dtPrecision = 1E-17
 order=50
+CentralTime = 20E-15
 ShowPlot=False
 
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI, dtPrecision, order, ShowPlot)  
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI, dtPrecision, order, ShowPlot, CentralTime)  
 
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
@@ -188,9 +189,9 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel('Density exc. el. (m^{-3})')
   plt.plot(timeNe, observable_proj, 'k-', label=r'TD-DFT: $n_e^{proj}(t)$')
-  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r--', label=r'[Keldysh (1964)]')
-  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b--', label=r'[Gruzdev (2004)]')
+#  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
+  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b-', label=r'[Gruzdev (2004)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
