@@ -4,8 +4,8 @@
 CalculationMode = gs
 ExperimentalFeatures=yes
 FromScratch = yes
-Units = atomic #eV_Angstrom is a false unit system! ;)
-UnitsXYZFiles = Angstrom
+Units = atomic
+# UnitsXYZFiles = Angstrom #NOTE: this command must be avoided now. 
 PeriodicDimensions = 2
 
 # Conversion factors
@@ -16,7 +16,7 @@ a = aAngstrom / AngstromPerBohr #Bohr
 # Simulation box size
 m = SizeOfTheBox #X blocks: to be replaced by script
 n = NumberOfBlocks #Z blocks: to be replaced by script 
-Lvac = SizeOfVacuum #(Angstrum) to be replace by script
+Lvac = SizeOfVacuum #Bohr, to be replace by script
 
 # Optimization
 PoissonFFTKernel = planar
