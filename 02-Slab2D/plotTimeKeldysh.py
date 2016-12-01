@@ -47,7 +47,7 @@ print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/
 ### N_Keldysh and N_Gruzdev
 # Capturing data from input file
 wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
-wavelength = float(wavelength_inp[10:17])
+wavelength_SI = float(wavelength_inp[10:17])
 PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
 PulseDuration_SI = float(PulseDuration_inp[8:15])
 
@@ -55,7 +55,7 @@ PulseDuration_SI = float(PulseDuration_inp[8:15])
 # PulseDuration_SI = 10E-15
 Egap_SI = 2.58*e
 meff = 0.43
-# wavelength = 800e-9
+# wavelength_SI = 800e-9
 ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
 dtPrecision = 1E-17
 order=50
@@ -64,7 +64,7 @@ ShowPlot=False
 
 PeakFluence_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI
 
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime)  
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime)  
 
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
@@ -176,7 +176,7 @@ plt.plot(time, (A1x), 'b-', label='A(t)')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
 plt.plot(time[1:], Efield, 'k-', label="|E(t)|")
-wavelength_SI = 800e-9 #TODO: make automatic!
+# wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
 #Let's add a grid to compare the extrema
