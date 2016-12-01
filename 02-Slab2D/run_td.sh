@@ -45,7 +45,7 @@ ProcessArguments () { # Conversion factors for sample
 
 DefineParameters () {
   # Input laser parameters
-  RelaxationTime=$( python_calc "0e0"  )
+  RelaxationTime=$( python_calc "50e0"  )
 
 # echo "Generating pulses..."
 
@@ -133,7 +133,7 @@ BuildSample() {
   if [ -e Si.xyz ]; then
     rm Si.xyz
   fi
-  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > Si.xyz
+  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > Si.xyz #TODO: unity must be moved to a.u. now. 
 
   # Add the number of lines at the beginning of the file
   numLines=$( wc -l Si.xyz | awk '{ print $1 }' )

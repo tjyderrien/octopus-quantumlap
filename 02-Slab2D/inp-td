@@ -5,7 +5,7 @@ CalculationMode = td
 ExperimentalFeatures = yes
 # FromScratch = yes
 Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
-UnitsXYZFiles = Angstrom
+# UnitsXYZFiles = Angstrom
 # Debug = trace
 
 ParStates = auto
