@@ -11,6 +11,7 @@ import calculateVolume as Sample
 import libKeldysh as Keldysh
 from libAtomicUnits import *
 from libPlottingSettings import *
+from libString import *
 
 # TODO: choose AU or SI from beginning, and centralize their calculation
 # TODO: separate plotting and density post-calculation into libs
@@ -44,15 +45,21 @@ Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
 print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
  
 ### N_Keldysh and N_Gruzdev
+# Capturing data from input file
+wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
+wavelength = float(wavelength_inp[10:17])
+PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
+PulseDuration_SI = float(PulseDuration_inp[8:15])
 
-PulseDuration_SI = 10E-15
+# Explicit data
+# PulseDuration_SI = 10E-15
 Egap_SI = 2.58*e
 meff = 0.43
-wavelength = 800e-9
+# wavelength = 800e-9
 ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
 dtPrecision = 1E-17
 order=50
-CentralTime = 20E-15
+CentralTime = 2.*PulseDuration_SI #20E-15
 ShowPlot=False
 
 PeakFluence_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI
