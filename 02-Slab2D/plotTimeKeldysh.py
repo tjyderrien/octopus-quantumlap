@@ -62,7 +62,9 @@ order=50
 CentralTime = 2.*PulseDuration_SI #20E-15
 ShowPlot=False
 
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI, dtPrecision, order, ShowPlot, CentralTime)  
+PeakFluence_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI
+
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime)  
 
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
