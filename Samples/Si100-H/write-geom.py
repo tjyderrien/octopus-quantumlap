@@ -4,7 +4,7 @@ import sys
 from math import sqrt
 
 A = 5.431 #5.431: exp @ 300 K, 5.430: exp @ 0K, 5.416: LDA-value ?
-L_vac = 50.
+L_vac = 50. #This is in Anstroms, as converted via fhi2octopus.sh in Bohrs
 D = A/sqrt(2.)
 if len(sys.argv) > 1:
     n = int(sys.argv[1]);
@@ -20,7 +20,7 @@ print "lattice_vector  %.16f  %.16f  %.16f" % (0, m*D, 0.)  #y
 print "lattice_vector  %.16f  %.16f  %.16f" % (0, 0., n*A+L_vac)  #z
 
 C = A / (2.*sqrt(2.))
-Bohr = 0.52918 #Angstrums
+Bohr = 0.52917721067 #Angstrums
 
 # Shift to center the sample
 ShiftX=0.5*(m*D)

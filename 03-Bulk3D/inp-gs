@@ -1,5 +1,6 @@
-# used with octopus svn revision 15009
-# used with 1188/2376 cpu cores (2376 cpu cores = 18*6 kpoints * 22 states) 
+# T.J.-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# QuantumLaP project
+# <derrien@fzu.cz>
 
 CalculationMode = gs
 ExperimentalFeatures=yes
@@ -16,7 +17,6 @@ a = aAngstrom / AngstromPerBohr #Bohr
 # Simulation box size
 m = SizeOfTheBox #X blocks: to be replaced by script
 n = NumberOfBlocks #Z blocks: to be replaced by script 
-Lvac = SizeOfVacuum #(Angstrum) to be replace by script
 
 # Optimization
 # PoissonFFTKernel = planar
@@ -26,7 +26,7 @@ Lvac = SizeOfVacuum #(Angstrum) to be replace by script
 # Mesh parameters
 BoxShape = parallelepiped
 %Spacing
-	MeshSizeX | MeshSizeX | MeshSizeZ #to be replaced by script
+	MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU #to be replaced by script
 %
 
 %Lsize #! Lsize is half of the box...

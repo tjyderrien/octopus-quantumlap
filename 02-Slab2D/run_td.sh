@@ -13,9 +13,9 @@ kPoints=1
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
 SampleXY=$2
-VacuumSizeInput=$3
-MeshSizeXInput=$4
-MeshSizeZInput=$5
+VacuumSizeInput_SI=$3
+MeshSizeXInput_SI=$4
+MeshSizeZInput_SI=$5
 lambda1=$6
 lambda2=$7
 Efield1=$8
@@ -32,20 +32,20 @@ ProcessArguments () { # Conversion factors for sample
   # Renaming inputs
   SampleLayers=$1
   SampleXY=$2
-  SizeOfVacuumAng=${VacuumSizeInput} #Angstrom
-  SizeOfVacuum=$( python_calc "${SizeOfVacuumAng} / ${Bohr2Angstrom}" ) #Bohr
-  SizeOfVacuumName=$( python_calc "int(round( ${SizeOfVacuumAng} ))" )
+  SizeOfVacuum_SI=${VacuumSizeInput_SI} #Angstrom
+  SizeOfVacuum_AU=$( python_calc "${SizeOfVacuum_SI} / ${Bohr2Angstrom}" ) #Bohr
+  SizeOfVacuumName_SI=$( python_calc "int(round( ${SizeOfVacuum_SI} ))" )
   #MeshSizeAng=0.23 #Angstrom
-  MeshSizeXAng=${MeshSizeXInput} #0.23 #Angstrom
-  MeshSizeZAng=${MeshSizeZInput} #should be smaller, as we have a surface
-  MeshSizeX=$( python_calc "${MeshSizeXAng} / ${Bohr2Angstrom}"  ) #Bohr
-  MeshSizeZ=$( python_calc "${MeshSizeZAng} / ${Bohr2Angstrom}"  ) #Bohr
+  MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
+  MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
+  MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 #  MeshSize=$( python_calc "${MeshSizeAng} / ${Bohr2Angstrom}"  ) #Bohr
 }
 
 DefineParameters () {
   # Input laser parameters
-  RelaxationTime=$( python_calc "50e0"  )
+  RelaxationTime=$( python_calc "50e0"  ) # TODO: Unit ?
 
 # echo "Generating pulses..."
 
@@ -74,7 +74,7 @@ DefineParameters () {
   else
         MoveIonsChain=""
   fi
-  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName}-Mesh${MeshSizeX}-Mesh${MeshSizeZ}
+  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName_SI}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}
   export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -88,7 +88,7 @@ print_usage () {
     exit
   else
     echo "** Sample size: Z=${SampleLayers} layers. XY=${SampleXY} atoms.**"
-    echo "** Mesh size: Z=${MeshSizeZInput}. X=${MeshSizeXInput}. **"
+    echo "** Mesh size: Z=${MeshSizeZInput_SI}. X=${MeshSizeXInput_SI}. **"
   fi
 }
 
@@ -105,9 +105,9 @@ ReplaceInputFile () {
   echo "REPLACING MATERIAL PARAMETERS..."
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
-  sed -i.bak s/SizeOfVacuum/${SizeOfVacuum}/g inp
-  sed -i.bak s/MeshSizeX/${MeshSizeX}/g inp
-  sed -i.bak s/MeshSizeZ/${MeshSizeZ}/g inp
+  sed -i.bak s/SizeOfVacuum_AU/${SizeOfVacuum_AU}/g inp
+  sed -i.bak s/MeshSizeX_AU/${MeshSizeX_AU}/g inp
+  sed -i.bak s/MeshSizeZ_AU/${MeshSizeZ_AU}/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
   echo "REPLACING LASER PULSE PARAMETERS..."
   sed -i.bak s/lambda1Value/${lambda1}/g inp
@@ -133,7 +133,7 @@ BuildSample() {
   if [ -e Si.xyz ]; then
     rm Si.xyz
   fi
-  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > Si.xyz #TODO: unity must be moved to a.u. now. 
+  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > Si.xyz #units are converted from SI (angstroms) to AU (Bohrs) 
 
   # Add the number of lines at the beginning of the file
   numLines=$( wc -l Si.xyz | awk '{ print $1 }' )

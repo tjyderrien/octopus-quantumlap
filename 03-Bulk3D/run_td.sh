@@ -13,18 +13,17 @@ kPoints=16
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
 SampleXY=$2
-VacuumSizeInput=$3
-MeshSizeXInput=$4
-MeshSizeZInput=$5
-lambda1=$6
-lambda2=$7
-Efield1=$8
-Efield2=$9
-tau1=${10}
-tau2=${11}
-CEP1=${12}
-CEP2=${13}
-delay=${14}
+MeshSizeXInput_SI=$3
+MeshSizeZInput_SI=$4
+lambda1=$5
+lambda2=$6
+Efield1=$7
+Efield2=$8
+tau1=$9
+tau2=${10}
+CEP1=${11}
+CEP2=${12}
+delay=${13}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -32,14 +31,14 @@ ProcessArguments () { # Conversion factors for sample
   # Renaming inputs
   SampleLayers=$1
   SampleXY=$2
-  SizeOfVacuumAng=${VacuumSizeInput} #Angstrom
-  SizeOfVacuum=$( python_calc "${SizeOfVacuumAng} / ${Bohr2Angstrom}" ) #Bohr
-  SizeOfVacuumName=$( python_calc "int(round( ${SizeOfVacuumAng} ))" )
+#   SizeOfVacuum_SI=${VacuumSizeInput} #Angstrom
+#   SizeOfVacuum_AU=$( python_calc "${SizeOfVacuum_SI} / ${Bohr2Angstrom}" ) #Bohr
+#   SizeOfVacuumName_SI=$( python_calc "int(round( ${SizeOfVacuum_SI} ))" )
   #MeshSizeAng=0.23 #Angstrom
-  MeshSizeXAng=${MeshSizeXInput} #0.23 #Angstrom
-  MeshSizeZAng=${MeshSizeZInput} #should be smaller, as we have a surface
-  MeshSizeX=$( python_calc "${MeshSizeXAng} / ${Bohr2Angstrom}"  ) #Bohr
-  MeshSizeZ=$( python_calc "${MeshSizeZAng} / ${Bohr2Angstrom}"  ) #Bohr
+  MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
+  MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
+  MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 #  MeshSize=$( python_calc "${MeshSizeAng} / ${Bohr2Angstrom}"  ) #Bohr
 }
 
@@ -74,7 +73,7 @@ DefineParameters () {
   else
         MoveIonsChain=""
   fi
-  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX}-Mesh${MeshSizeZ}
+  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}
   export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -84,12 +83,12 @@ DefineParameters () {
 print_usage () {
   if [ -e ${SampleXY} ]; then
     echo "Usage: "
-    echo "./run.sh <Number of Z blocks> <Number of XY atoms> <Vacuum Size (Angstrom), Mesh size XY (Angstrom), Mesh size Z (Ang.)> <lambda1, lambda2 (m)>, <Efield1, Efield2 (V/m)>, <tau1, tau2 (s)>, <CEP1 (rad), CEP2 (rad)>, <delay (s)>"
+    echo "./run.sh <Number of Z blocks> <Number of XY atoms> <Mesh size XY (Angstrom), Mesh size Z (Ang.)> <lambda1, lambda2 (m)>, <Efield1, Efield2 (V/m)>, <tau1, tau2 (s)>, <CEP1 (rad), CEP2 (rad)>, <delay (s)>"
     exit
   else
     echo ""
     echo "[Info] ** Sample size: Z=${SampleLayers} layers. XY=${SampleXY} atoms.**"
-    echo "[Info] ** Mesh size: Z=${MeshSizeZInput}. X=${MeshSizeXInput}. **"
+    echo "[Info] ** Mesh size: Z=${MeshSizeZInput_SI}. X=${MeshSizeXInput_SI}. **"
     echo ""
   fi
 }
@@ -107,9 +106,9 @@ ReplaceInputFile () {
   echo ""; echo "REPLACING MATERIAL PARAMETERS..."
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
-  sed -i.bak s/SizeOfVacuum/${SizeOfVacuum}/g inp
-  sed -i.bak s/MeshSizeX/${MeshSizeX}/g inp
-  sed -i.bak s/MeshSizeZ/${MeshSizeZ}/g inp
+#   sed -i.bak s/SizeOfVacuum_AU/${SizeOfVacuum_AU}/g inp
+  sed -i.bak s/MeshSizeX_AU/${MeshSizeX_AU}/g inp
+  sed -i.bak s/MeshSizeZ_AU/${MeshSizeZ_AU}/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
   echo "REPLACING LASER PULSE PARAMETERS..."
   sed -i.bak s/lambda1Value/${lambda1}/g inp

@@ -12,10 +12,10 @@ echo "In this file, you can define all numerical features of the run you may lik
 
 # Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
 #VacuumSize="12."
-VacuumSize="24."
+# VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX="0.10 0.12 0.14 0.16" #0.23 Bohr, octopus-recommended value
-#MeshSizeZ=${MeshSizeX} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
+MeshSizeX_SI="0.10 0.12 0.14 0.16" #0.23 Bohr, octopus-recommended value
+#MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
 # Sample
@@ -28,9 +28,9 @@ for iSampleLayers in ${SampleLayers}
 do
  for iSampleXY in ${SampleXY}
  do
-  for iVacuumSize in ${VacuumSize}
-  do
-   for iMeshSizeX in ${MeshSizeX}
+#   for iVacuumSize in ${VacuumSize}
+#   do
+   for iMeshSizeX in ${MeshSizeX_SI}
    do
     iMeshSizeZ=$iMeshSizeX
 #    for iMeshSizeZ in ${MeshSizeZ}
@@ -40,9 +40,9 @@ do
      # Prepare the ground state
      # Propagate the pulse in time!
      echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ}
+     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ}
 #    done
    done
-  done
+#   done
  done
 done

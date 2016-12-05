@@ -16,7 +16,7 @@ a = aAngstrom / AngstromPerBohr #Bohr
 # Simulation box size
 m = SizeOfTheBox #X blocks: to be replaced by script
 n = NumberOfBlocks #Z blocks: to be replaced by script 
-Lvac = SizeOfVacuum #Bohr, to be replace by script
+Lvac = SizeOfVacuum_AU #Bohr, to be replace by script
 
 # Optimization
 PoissonFFTKernel = planar
@@ -26,7 +26,7 @@ PoissonFFTKernel = planar
 # Mesh parameters
 BoxShape = parallelepiped
 %Spacing
-	MeshSizeX | MeshSizeX | MeshSizeZ #to be replaced by script
+	MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU #to be replaced by script
 %
 
 %Lsize #! Lsize is half of the box...
