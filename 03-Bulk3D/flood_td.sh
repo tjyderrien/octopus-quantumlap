@@ -23,13 +23,14 @@ SampleLayers=1
 SampleXY=1
 
 # Laser parameters
-lambda1="800e-9"
+lambda1="200e-9 300e-9 400e-9 500e-9 600e-9 700e-9 900e-9 1000e-9 1100e-9 1200e-9"
 lambda2="400e-9"
 # Field amplitude
 # Efield1="1E8 5E8 1E9 5E9 9E9 1E10"
 # Efield1="9E9" #9E9 is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 Efield2="0E9"
-Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
+# Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
+Efield1="9E9"
 # Pulse duration
 # tau1="10e-15 20e-15 30e-15"
 tau1="10e-15"
