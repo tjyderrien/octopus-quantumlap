@@ -8,7 +8,7 @@ source functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0
-kPoints=8
+kPoints=16
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -142,7 +142,7 @@ BuildSample() {
   $AbsPath/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
 
   # Add the number of lines at the beginning of the file
-  numLines=$( wc -l Si.xyz | awk '{ print $1 - 2 }' )
+  numLines=$( wc -l Si.xyz | awk '{ print $1 }' )
 
   echo $numLines >> Si.tmp
   echo "# This line is a comment." >> Si.tmp

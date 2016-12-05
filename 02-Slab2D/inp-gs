@@ -4,7 +4,7 @@
 CalculationMode = gs
 ExperimentalFeatures=yes
 FromScratch = yes
-Units = atomic
+# Units = atomic
 # UnitsXYZFiles = Angstrom #NOTE: this command must be avoided now. 
 PeriodicDimensions = 2
 
