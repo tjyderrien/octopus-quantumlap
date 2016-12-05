@@ -13,9 +13,8 @@ source machines.env
 # Renaming inputs
 SampleLayers=$1
 SampleXY=$2
-# VacuumSizeInput=$3
-MeshSizeXInput=$4
-MeshSizeZInput=$5
+MeshSizeXInput_SI=$3
+MeshSizeZInput_SI=$4
 
 python_calc () {
     python -c "print ($@)"
@@ -31,15 +30,12 @@ ProcessArguments () { # Conversion factors
   # Renaming inputs
   SampleLayers=$1
   SampleXY=$2
-  # SizeOfVacuumAng=${VacuumSizeInput} #10. #Angstrom
-  # SizeOfVacuum=$( python_calc "${SizeOfVacuumAng} / ${Bohr2Angstrom}" ) #Bohr
-  # SizeOfVacuumName=$( python_calc "int(round( ${SizeOfVacuumAng} ))" )
-  MeshSizeXAng=${MeshSizeXInput} #0.23 #Angstrom
-  MeshSizeZAng=${MeshSizeZInput} #should be smaller, as we have a surface
-  export MeshSizeX=$( python_calc "${MeshSizeXAng} / ${Bohr2Angstrom}"  ) #Bohr
-  export MeshSizeZ=$( python_calc "${MeshSizeZAng} / ${Bohr2Angstrom}"  ) #Bohr
+  MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
+  MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
+  export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX}-Mesh${MeshSizeZ}"
+  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -48,11 +44,11 @@ ProcessArguments () { # Conversion factors
 print_usage () {
   if [ -e ${SampleXY} ]; then
 	  echo "Usage: "
-	  echo "./run.sh <Number of Z blocks> <Number of XY atoms> <Vacuum Size> <MeshXY size, MeshZ size>"
+	  echo "./run.sh <Number of Z blocks> <Number of XY atoms> <MeshXY size, MeshZ size>"
 	  exit
   else
 	  echo "** Sample size: Z=$SampleLayers layers. XY=${SampleXY} atoms.**"
-          echo "** Mesh size: Z=${MeshSizeZInput}. X=${MeshSizeXInput}. **"
+          echo "** Mesh size: Z=${MeshSizeZInput_SI}. X=${MeshSizeXInput_SI}. **"
   fi
 }
 
@@ -71,9 +67,9 @@ BuildSample () {
   if [ -e ${localPath}/Si.xyz ]; then
     rm ${localPath}/Si.xyz
   fi
-  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in
+  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
   # $AbsPath/Samples/fhi2octopus.sh geometry.in 
-  $AbsPath/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz
+  $AbsPath/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz #this is now in Bohr!
 
   # Add the number of lines at the beginning of the file
   numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
@@ -87,9 +83,9 @@ BuildSample () {
   # Define the missing parameters
   sed -i.bak s/SizeOfTheBox/$SampleXY/g ${localPath}/inp
   sed -i.bak s/NumberOfBlocks/$SampleLayers/g ${localPath}/inp
-  sed -i.bak s/SizeOfVacuum/$SizeOfVacuum/g ${localPath}/inp
-  sed -i.bak s/MeshSizeX/$MeshSizeX/g ${localPath}/inp
-  sed -i.bak s/MeshSizeZ/$MeshSizeZ/g ${localPath}/inp
+#   sed -i.bak s/SizeOfVacuum/$SizeOfVacuum/g ${localPath}/inp
+  sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g ${localPath}/inp
+  sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g ${localPath}/inp
   sed -i.bak s/kPointsValue/${kPoints}/g ${localPath}/inp
 }
 

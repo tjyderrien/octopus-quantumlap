@@ -13,7 +13,7 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 
 # Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
-VacuumSize="24." #Hopefully sufficient for TD runs
+# VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
 MeshSizeX="0.23"
 MeshSizeZ="0.23" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
@@ -57,8 +57,8 @@ do
        do
         for iDelay in ${delay}
         do
-         for iVacuumSize in ${VacuumSize}
-         do
+#          for iVacuumSize in ${VacuumSize}
+#          do
           for iMeshSizeX in ${MeshSizeX}
           do
            for iMeshSizeZ in ${MeshSizeZ}
@@ -67,10 +67,10 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time! 
-            ./run_td.sh ${SampleLayers} ${SampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay}
+            ./run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay}
            done
-	  done
-         done
+          done
+#          done
         done
        done
       done
