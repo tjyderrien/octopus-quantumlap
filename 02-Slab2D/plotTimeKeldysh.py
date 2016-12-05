@@ -54,7 +54,7 @@ PulseDuration_SI = float(PulseDuration_inp[8:15])
 # Explicit data
 # PulseDuration_SI = 10E-15
 Egap_SI = 2.58*e
-meff = 0.43
+meff = 0.18
 # wavelength = 800e-9
 ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
 dtPrecision = 1E-17
@@ -164,7 +164,7 @@ xmin=0.; xmax=40.; unitx=1E15
 ymax=1E-6; ymax2=1E0
 
 # Plotting electric field
-plt.figure()
+plt.figure(figsize=(10,10))
 plt.subplot(211)
 #plt.xlabel('Time (fs)')
 plt.ylabel('A field (a.u.)')
@@ -216,7 +216,7 @@ for xc in xposition:
 plt.xlabel('Time (fs)')
 # plt.ylabel('Density (a.u.)')
 # plt.legend(loc=2)
-plt.legend(bbox_to_anchor=(0, -0.6, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
+plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')
 plt.savefig('KeldyshAnalysis.png', bbox_inches='tight')
 # plt.show()
