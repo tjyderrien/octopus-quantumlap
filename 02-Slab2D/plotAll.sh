@@ -30,8 +30,8 @@ do
 #		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
 		${QuantumLaP}/fixOutputFile.sh laser
-		echo "Plotting density..."
-                ${QuantumLaP}/02-Slab2D/plotTimeDensityField.py
+#		echo "Plotting density..."
+#               ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
 	fi
 	echo ""
 	echo "** NEXT FOLDER PLEASE :)"
@@ -46,6 +46,7 @@ do
 	prevFolder=$( pwd )
         cd $folder
 	echo "** Building files for post-processed density..."
+        echo "** ENABLE ONLY IF NECESSARY. Very long.. (1h)"
 	${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
 	${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
