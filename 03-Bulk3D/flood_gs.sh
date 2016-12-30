@@ -14,7 +14,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.10 0.12 0.14 0.16" #0.23 Bohr, octopus-recommended value
+MeshSizeX_SI="0.18 0.20 0.22" #0.23 Bohr, octopus-recommended value
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
@@ -22,27 +22,30 @@ MeshSizeX_SI="0.10 0.12 0.14 0.16" #0.23 Bohr, octopus-recommended value
 # SampleLayers="6 8 10 12 14 16 18 20"
 SampleLayers="1"
 SampleXY="1"
+kPoints="8 16" 
 # SampleXY="8 10 12 14 16 18 20"
-
-for iSampleLayers in ${SampleLayers}
+for ikPoints in ${kPoints}
 do
- for iSampleXY in ${SampleXY}
+ for iSampleLayers in ${SampleLayers}
  do
-#   for iVacuumSize in ${VacuumSize}
-#   do
-   for iMeshSizeX in ${MeshSizeX_SI}
-   do
-    iMeshSizeZ=$iMeshSizeX
-#    for iMeshSizeZ in ${MeshSizeZ}
-#    do
-     # Create the working folder
-     ## run_td.sh usually does that. 
-     # Prepare the ground state
-     # Propagate the pulse in time!
-     echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ}
-#    done
-   done
-#   done
+  for iSampleXY in ${SampleXY}
+  do
+ #   for iVacuumSize in ${VacuumSize}
+ #   do
+    for iMeshSizeX in ${MeshSizeX_SI}
+    do
+     iMeshSizeZ=$iMeshSizeX
+ #    for iMeshSizeZ in ${MeshSizeZ}
+ #    do
+      # Create the working folder
+      ## run_td.sh usually does that. 
+      # Prepare the ground state
+      # Propagate the pulse in time!
+      echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
+      ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints}
+ #    done
+    done
+ #   done
+  done
  done
 done

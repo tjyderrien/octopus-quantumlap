@@ -6,7 +6,7 @@ set -e
 
 # ENABLE DRY RUN ? 
 DryRun=0
-kPoints=16
+# kPoints=16
 
 source machines.env
 
@@ -15,6 +15,7 @@ SampleLayers=$1
 SampleXY=$2
 MeshSizeXInput_SI=$3
 MeshSizeZInput_SI=$4
+kPoints=$5
 
 python_calc () {
     python -c "print ($@)"
