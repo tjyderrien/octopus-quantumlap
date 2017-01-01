@@ -4,7 +4,7 @@ Commuter=$1
 GraphPortNumber=$2
 
 if [ -z $1 ]; then
-	echo "Usage: ./script.py <server|client> <Remote Port Number>"
+	echo "Usage: ./script.py <server|client> <Remote Port Number> [<Remote machine name>]"
 	exit
 fi
 
@@ -28,7 +28,14 @@ echo "Computer name: $ComputerName"
 
 if [ ${Commuter} == "client" ]; then
 	echo "Local computer is client."
-	vncviewer -via ${LoginName}@${GateWayAddress} ${ServerAddress}:${GraphPortNumber}
+	if [ -z $3 ]; then
+		echo "Please indicate name of the machine on 3rd argument."
+		echo "Possibilities: $Drako, $Hydra, $EOS"
+		exit -1
+	else
+        	echo "Remote server is: $3"
+		vncviewer -via ${LoginName}@${GateWayAddress} ${ServerAddress}:${GraphPortNumber}
+	fi
 fi
 
 if [ ${Commuter} == "server" ]; then
