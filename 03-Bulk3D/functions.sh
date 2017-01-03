@@ -1,6 +1,1 @@
-#!/bin/bash
-
-python_calc () {
-    python -c "print ($@)"
-}
-
+../02-Slab2D/functions.sh
