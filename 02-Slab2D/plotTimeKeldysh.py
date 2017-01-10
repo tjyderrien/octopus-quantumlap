@@ -6,6 +6,7 @@ import numpy as np
 from numpy import genfromtxt, loadtxt, chararray
 # from pylab import *
 import sys
+import decimal
 
 import calculateVolume as Sample
 import libKeldysh as Keldysh
@@ -17,14 +18,15 @@ from libString import *
 # TODO: separate plotting and density post-calculation into libs
 
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
-QuantityOfInterest = "density" #Would you prefer to work densities, or particle number? 
+QuantityOfInterest = "density" #Would you prefer to work densities, or particle number?
+EnableLogScale = 1 
 
 # Load the n_el and laser files (atomic units)
 geometry = "../Si.xyz"
 Ne=loadtxt("../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
 #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
 laser=np.genfromtxt("../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
-PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
+# PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
 TotalCurrent=loadtxt("../td.general/total_current", dtype='str', skiprows=4)
 
 # get the vector potential from laser file
@@ -34,7 +36,7 @@ time = np.asfarray(laser[:,1]) #column 2
 A1x = np.asfarray(laser[:,2]) #column number 3
 A2x = np.asfarray(laser[:,5]) #column number 6 
 
-c_AU = 137.
+c_AU = 137.035999139
 
 timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
@@ -45,7 +47,7 @@ Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
 print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
  
 ### N_Keldysh and N_Gruzdev
-# Capturing data from input file
+print "Getting input from octopus..."
 wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
 wavelength_SI = float(wavelength_inp[10:17])
 PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
@@ -58,15 +60,18 @@ Egap_SI = 2.58*e
 meff = 0.18
 # meff = 0.43
 # wavelength_SI = 800e-9
-ValenceBandMax = 5E28 #TODO: HOW TO INTRODUCE THIS in Keldysh?
+ValenceBandMax = 5E28 
 dtPrecision = 1E-17
 order=50
 CentralTime = 2.*PulseDuration_SI #20E-15
 ShowPlot=False
-
-PeakFluence_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI) * PulseDuration_SI
-
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime)  
+PeakIntensity_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI)
+PeakFluence_SI = PeakIntensity_SI * PulseDuration_SI
+PeakFluenceText=round(PeakFluence_SI*1E-4*1E3)
+PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
+print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
+print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
 
 ### N_EX octopus FILE
 timeNe = np.asfarray(Ne[:,1])
@@ -80,10 +85,10 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 CurrentX=CurrentX[:CurrentX.size-ShrinkBy]
 
 ### POST-PROCESSED FILE #Some attemps with charge density
-timePost = np.asfarray(PostTreatedDensity[:,2]) #3: time SI
-NePost = np.asfarray(PostTreatedDensity[:,3]) #4: N_e number of electrons to multiply by cell volume (AU)
-NePostSquaredInside = np.asfarray(PostTreatedDensity[:,6]) #7: N_e squared inside
-NePostSquaredOutside = NePost**2 #N_e squared outside the integral
+# timePost = np.asfarray(PostTreatedDensity[:,2]) #3: time SI
+# NePost = np.asfarray(PostTreatedDensity[:,3]) #4: N_e number of electrons to multiply by cell volume (AU)
+# NePostSquaredInside = np.asfarray(PostTreatedDensity[:,6]) #7: N_e squared inside
+##  NePostSquaredOutside = NePost**2 #N_e squared outside the integral
 
 ### SingleCell and Supercell Volume calculation (atomic units)
 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log("../")
@@ -111,11 +116,11 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 # Nproj_AU = Nproj_AU * CellVolume_AU #Should we really multiply by volume ?
 density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
 # Calculation of particle number from charge density (octopus.output.density)
-Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
-Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
-Npost_2out_AU= NePostSquaredOutside * CellVolume_AU #Same
+# Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
+# Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
+# Npost_2out_AU= NePostSquaredOutside * CellVolume_AU #Same
 
-density_post_AU = Npost_AU / SuperCellVolume_AU
+# density_post_AU = Npost_AU / SuperCellVolume_AU
 
 # print CurrentX.size, A1x.size
 # Shrink A1x to size of CurrentX
@@ -143,11 +148,11 @@ dtCurrent = timeCurrentdt[1]-timeCurrentdt[0]
 if(UnitSystem == "SI"):
   print "** Info: SI system chosed."
   observable_proj = Density_AU_to_SI(density_proj_AU)
-  observable_post = Density_AU_to_SI(density_post_AU)
+#  observable_post = Density_AU_to_SI(density_post_AU)
 elif(UnitSystem == "AU"):
   print "** Info: AU system chosed."
   observable_proj = density_proj_AU
-  observable_post = density_post_AU
+#  observable_post = density_post_AU
 
 else: 
   print "** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py."
@@ -163,11 +168,13 @@ print "TimeStep = "+str(dtCurrent)
 
 ### Defining plotting boundaries
 xmin=0.; xmax=40.; unitx=1E15
-ymax=1E-6; ymax2=1E0
+ymax=1E28; #max for density plot
+ymax2=1E0; #max for field plot
 
 # Plotting electric field
 plt.figure(figsize=(10,10))
-plt.subplot(211)
+ax1 = plt.subplot(211)
+plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$")
 #plt.xlabel('Time (fs)')
 plt.ylabel('A field (a.u.)')
 # plt.xlim((0, time.max()))
@@ -189,7 +196,7 @@ for xc in xposition:
 plt.legend(loc=2)
 
 ### Plotting density evolution
-plt.subplot(212)
+ax2 = plt.subplot(212)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((0,ymax))
@@ -206,7 +213,7 @@ if(QuantityOfInterest == "density"):
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
-  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+#  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.legend()
 
 for xc in xposition:
@@ -219,9 +226,13 @@ plt.xlabel('Time (fs)')
 # plt.ylabel('Density (a.u.)')
 # plt.legend(loc=2)
 plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
+
+if(EnableLogScale == 1):
+  ax2.set_yscale("log", nonposy='clip')
+
 plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')
 plt.savefig('KeldyshAnalysis.png', bbox_inches='tight')
-# plt.show()
+plt.show()
 
 print "** Info: Script ended sucessfully."
 print "** Goodbye."
