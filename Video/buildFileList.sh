@@ -8,7 +8,7 @@ echo "   How to use: Use the output listoffiles.txt for the input of plotDensity
 
 LocalPath=$( pwd )
 
-du | awk '{ print $2 }' | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp
+du | awk '{ print $2 }' | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp #TODO: THIS IS TOTALLY INEFFICIENT. 
 sort -g listoffiles.tmp > listoffiles.tmp2
 # cat listoffiles.tmp2 > listoffiles.tmp3
 awk --assign localpath="${LocalPath}" '{ print localpath"/"$1 }' listoffiles.tmp2 > listoffiles.tmp3
