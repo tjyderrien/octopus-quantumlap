@@ -68,12 +68,21 @@ outdir    = './'
 
 #densityvtk= 'density.vtk'
 densityvtk= 'elf_rs.vtk'
+DensityGsVtk= '/../td.0000000/elf_rs.vtk' #This should work for any run in our frame. 
 
 #elfvtk    = 'elf_rs.vtk'
-#geometry  = 'geometry.xyz'
+geometry  = 'geometry.xyz'
 
+ShowCaption = 1 
 bonds     = False
 
+OriginX=0.
+OriginY=0.
+OriginZ=0. #0.6788749999999979/BohrRadius
+
+MaxValue=0.01
+ZoomValue=0.8 #1:Bulk #3:Slabs
+EnablePerspective=0
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -114,6 +123,7 @@ import math, time
 import glob, os, shutil
 import subprocess
 from visit_utils import *
+from libPlotVideo import *
 
 start_script = time.time()
 
@@ -131,100 +141,101 @@ print "2- Specify the location of the file containing the list of input"
 print "3- Specify single inputs"
 answer = raw_input("\n")
 
-if (answer=="1"):
-    fileex = os.path.exists(inputdata)
-    if (fileex==False):
-        print "File do not exists!"
-        quit()
-    with open(inputdata, 'r') as infile:
-        indata = infile.read().split('\n')
-    outex = os.path.exists(outdir)
-    if (outex==False):
-        print "Directory does not exists!"
-        quit()
-    molzoom = 1.
-    savename  = 'density'
-    moviename = "density.mpg"
-    moviespeed = '50'
-    subprocess.call(["clear", ""])
-elif (answer=="2"):
-    print "Enter full path to the file containing the list of input:"
-    inputdata = raw_input("(e.g: /home/user/inputdata.txt)\n")
-    fileex = os.path.exists(inputdata)
-    if (fileex==False):
-        print "File does not exists!"
-        quit()
-    with open(inputdata, 'r') as infile:
-        indata = infile.read().split('\n')
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
-    if (len(outdir)==0):
-        outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
-    elif (outdir[len(outdir)-1]!="/"):
-        outdir=outdir+"/"
-    outex = os.path.exists(outdir)
-    if (outex==False):
-        print "Directory does not exists!"
-        quit()
-    molzoom = raw_input("Zoom for the molecule (default is 1):\n")
-    if (len(molzoom)==0):
-        molzoom = 1.
-    else:
-        molzoom = float(molzoom)
-    savename = raw_input("Enter name for output images:\n")
-    if (len(savename)==0):
-        savename = 'density'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
-    if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
-    subprocess.call(["clear", ""])
-elif (answer=="3"):
-    inputdir = raw_input("Enter full path to the directory containing the input timesteps:\n")
-    if (inputdir[len(inputdir)-1]!="/"):
-        inputdir=inputdir+"/"
-    inputstart = raw_input("Enter the name of the first input (e.g. td.0000000/):\n")
-    if (inputstart[len(inputstart)-1]!="/"):
-        inputstart=inputstart+"/"
-    inputend = raw_input("Enter the name of the last input (e.g. td.0030000/):\n")
-    if (inputend[len(inputend)-1]!="/"):
-        inputend=inputend+"/"
-    print "Note that we assume that each input directory contains"
-    print "a elf_rs.vtk, a geometry.xyz and a maxwell_e_field-[x,y,z].vtk file"
-    inputstride = raw_input("Enter the timestep distance between inputs (e.g. 15):\n")
-    if (int(inputstride)==0):
-        totinput=1
-    else:
-        totinput=(int( inputend[len(inputend)-8:len(inputend)-1] )-int( inputstart[len(inputstart)-8:len(inputstart)-1] ))/int(inputstride) +1
-    indata = [None]*(totinput)
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
-    if (len(outdir)==0):
-        outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
-    elif (outdir[len(outdir)-1]!="/"):
-        outdir=outdir+"/"
-    outex = os.path.exists(outdir)
-    if (outex==False):
-        print "Directory does not exists!"
-        quit()
-    molzoom = raw_input("Zoom for the molecule (default is 1):\n")
-    if (len(molzoom)==0):
-        molzoom = 1.
-    else:
-        molzoom = float(molzoom)
-    savename = raw_input("Enter name for output images:\n")
-    if (len(savename)==0):
-        savename = 'azul'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    print "Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
-    if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
-    subprocess.call(["clear", ""])
-    for i in range(0,totinput):
-        step=int( inputstart[len(inputstart)-8:len(inputstart)-1] )+int(inputstride)*i
-        indata[i]=inputdir + inputstart[0:len(inputend)-8] +"{0:07d}".format(step)+"/"
-else:
-    print "Value not recognized."
+#if (answer=="1"):
+fileex = os.path.exists(inputdata)
+if (fileex==False):
+    print "File do not exists!"
     quit()
+with open(inputdata, 'r') as infile:
+    indata = infile.read().split('\n')
+outex = os.path.exists(outdir)
+if (outex==False):
+    print "Directory does not exists!"
+    quit()
+molzoom = 1.
+savename  = 'density'
+moviename = "density.mpg"
+moviespeed = '50'
+subprocess.call(["clear", ""])
+
+#elif (answer=="2"):
+    #print "Enter full path to the file containing the list of input:"
+    #inputdata = raw_input("(e.g: /home/user/inputdata.txt)\n")
+    #fileex = os.path.exists(inputdata)
+    #if (fileex==False):
+        #print "File does not exists!"
+        #quit()
+    #with open(inputdata, 'r') as infile:
+        #indata = infile.read().split('\n')
+    #outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    #if (len(outdir)==0):
+        #outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
+    #elif (outdir[len(outdir)-1]!="/"):
+        #outdir=outdir+"/"
+    #outex = os.path.exists(outdir)
+    #if (outex==False):
+        #print "Directory does not exists!"
+        #quit()
+    #molzoom = raw_input("Zoom for the molecule (default is 1):\n")
+    #if (len(molzoom)==0):
+        #molzoom = 1.
+    #else:
+        #molzoom = float(molzoom)
+    #savename = raw_input("Enter name for output images:\n")
+    #if (len(savename)==0):
+        #savename = 'density'
+    #print "Enter name for output movie with extension: (press Enter to skip movie creation)"
+    #moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    #if (len(moviename)!=0):
+        #moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+    #subprocess.call(["clear", ""])
+#elif (answer=="3"):
+    #inputdir = raw_input("Enter full path to the directory containing the input timesteps:\n")
+    #if (inputdir[len(inputdir)-1]!="/"):
+        #inputdir=inputdir+"/"
+    #inputstart = raw_input("Enter the name of the first input (e.g. td.0000000/):\n")
+    #if (inputstart[len(inputstart)-1]!="/"):
+        #inputstart=inputstart+"/"
+    #inputend = raw_input("Enter the name of the last input (e.g. td.0030000/):\n")
+    #if (inputend[len(inputend)-1]!="/"):
+        #inputend=inputend+"/"
+    #print "Note that we assume that each input directory contains"
+    #print "a elf_rs.vtk, a geometry.xyz and a maxwell_e_field-[x,y,z].vtk file"
+    #inputstride = raw_input("Enter the timestep distance between inputs (e.g. 15):\n")
+    #if (int(inputstride)==0):
+        #totinput=1
+    #else:
+        #totinput=(int( inputend[len(inputend)-8:len(inputend)-1] )-int( inputstart[len(inputstart)-8:len(inputstart)-1] ))/int(inputstride) +1
+    #indata = [None]*(totinput)
+    #outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    #if (len(outdir)==0):
+        #outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
+    #elif (outdir[len(outdir)-1]!="/"):
+        #outdir=outdir+"/"
+    #outex = os.path.exists(outdir)
+    #if (outex==False):
+        #print "Directory does not exists!"
+        #quit()
+    #molzoom = raw_input("Zoom for the molecule (default is 1):\n")
+    #if (len(molzoom)==0):
+        #molzoom = 1.
+    #else:
+        #molzoom = float(molzoom)
+    #savename = raw_input("Enter name for output images:\n")
+    #if (len(savename)==0):
+        #savename = 'azul'
+    #print "Enter name for output movie with extension: (press Enter to skip movie creation)"
+    #print "Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie"
+    #moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    #if (len(moviename)!=0):
+        #moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+    #subprocess.call(["clear", ""])
+    #for i in range(0,totinput):
+        #step=int( inputstart[len(inputstart)-8:len(inputstart)-1] )+int(inputstride)*i
+        #indata[i]=inputdir + inputstart[0:len(inputend)-8] +"{0:07d}".format(step)+"/"
+#else:
+    #print "Value not recognized."
+    #quit()
 
 # Checking if current directory coincides with output directory
 changedir=False
@@ -289,40 +300,36 @@ if (changedir==True):
    s.outputDirectory = outdir
 else:
    s.outputToCurrentDirectory = 1
+s.advancedMultiWindowSave = 1
 
+# Window structure
+# #====#====#====#
+# #    #    # 3  #
+# # 1  # 2  #====#
+# #    #    # 4  #
+# #====#====#====#
+
+s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/1.)
+s.subWindowAtts.win1.position = (0,0)
+s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/1.)
+s.subWindowAtts.win2.position = (int(s.width/2.), 0)
+#s.subWindowAtts.win3.size = ( int(s.width/3.), int(s.height)/2.)
+#s.subWindowAtts.win3.position = ( int(2.*s.width/3.), int(s.height)/2. )
+#s.subWindowAtts.win4.size = ( int(s.width/3.), int(s.height)/2.)
+#s.subWindowAtts.win4.position = ( int(2.*s.width/3.), 0. )
 SetSaveWindowAttributes(s)
 
-# We define some functions usefull for all windows
-def extension(dataset, var):     # this function creates a temporary window, calculates the extensions of a dataset and destroys the window
-    AddWindow()
-    ReOpenDatabase(dataset)
-    AddPlot("Pseudocolor", var)
-    DrawPlots()
-    Query("SpatialExtents")
-    ext = GetQueryOutputValue()
-    DeleteWindow()
-    return ext
+# Window 1 is available by default
+AddWindow() # Create window 2
+#AddWindow() # Create window 3
+#AddWindow() # Create window 4
 
-def rescmol(reszoom):
-    AddOperator("Transform" , 0)
-    res = TransformAttributes()
-    res.doScale = 1
-    res.scaleOrigin = (0, 0, 0)
-    res.scaleX = reszoom
-    res.scaleY = reszoom
-    res.scaleZ = reszoom
-    SetOperatorOptions(res)
 
-def createbonds():
-    AddOperator("CreateBonds", 0)
-    bonds = CreateBondsAttributes()
-    bonds.minDist = (0.4, 0.4)
-    bonds.maxDist = (3, 4)
-    SetOperatorOptions(bonds)
 
 
 #### Window 1 ####
 SetActiveWindow(1)
+#SetActivePlots(1)
 SetViewExtentsType(1)
 
 #=================================================
@@ -332,42 +339,13 @@ SetViewExtentsType(1)
 #InvertBackgroundColor()
 
 #Creating a label for the time step
-l1s = CreateAnnotationObject("Text2D")
-l1s.text = "Time step"
-l1s.position = (0.05, 0.05)
+#l1s = CreateAnnotationObject("Text2D")
+#l1s.text = "Time step"
+#l1s.position = (0.05, 0.05)
 #l1s.height = 0.025
 #l1s.fontBold = 1
 #l1s.textColor = (255, 255, 255, 255)
-l1s.useForegroundForTextColor = 1
-
-# Defining an arrow if we are going to zoom on the molecule
-if (molzoom>1):
-    ar1 = CreateAnnotationObject("Line2D")
-    ar1.visible = 1
-    ar1.position  = (0.543, 0.52)
-    ar1.position2 = (0.80, 0.88)
-    ar1.width = 2
-    ar1.beginArrow = 2
-    ar1.useForegroundForLineColor = 0
-    ar1.color = (160, 160, 160, 255)
-
-def winatt1():
-    w1 = View3DAttributes()
-    w1.viewNormal = (-0.56, 0.36, -0.75)
-    w1.viewUp = (0.26, 0.93, 0.25)
-    w1.viewAngle = 30
-    w1.imageZoom = 1.1
-    # The following lines should work for all molzoom, fixing the view to the scale of the electric field
-    w1.focus = (0, 0, (ext1[2]+ext1[4])/10.)
-    w1.parallelScale = ext1[5]
-    w1.nearPlane = 2.*ext1[4]
-    w1.farPlane = 2.*ext1[5]
-    # The following lines work if you choose a molzoom that is consistent with the scale of the electric field
-    #w1.focus = (0, 0, -20*molzoom)
-    #w1.parallelScale = 170.*molzoom
-    #w1.nearPlane = -340.*molzoom
-    #w1.farPlane = 340.*molzoom
-    SetView3D(w1)
+#l1s.useForegroundForTextColor = 1
 
 ##############################
 # Cycling on all input files #
@@ -378,9 +356,10 @@ for i in range(0,len(indata)):
     activepath = indata[i]
     if (activepath[len(activepath)-1]!="/"):
         activepath = activepath+"/"
+    indensityGsVtk = activepath+DensityGsVtk #TJYD: we will plot the difference with ground state
     indensityvtk = activepath+densityvtk
     #invtk = activepath+elfvtk
-    #inxyz = activepath+geometry
+    inxyz = activepath+geometry
     #inefx = activepath+maxe_x
     #inefy = activepath+maxe_y
     #inefz = activepath+maxe_z
@@ -388,11 +367,17 @@ for i in range(0,len(indata)):
 
     # We open all databases for the plots
     OpenDatabase(indensityvtk)
-    elfvar="Re"
+    elfvar="elf_rs" #Old simulations: Re. "Re"
+    DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
+    OpenDatabase(indensityvtk)
+    DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
+    # DefineScalarExpression("Difference", "Re") #-GroundStateData") #DEBUG
+    DefineScalarExpression("Difference", "ExcitedStateData - GroundStateData") #Re: TD-data, GroundStateData: td_value - GS. This is the performed operation on the scalar data. 
+    
     #OpenDatabase(invtk)
     #elfvar="Re"
-    #OpenDatabase(inxyz)
-    #molvar="element"
+    OpenDatabase(inxyz)
+    molvar="element"
     #OpenDatabase(inefx)
     #fldx="Re"
     # We specify the variables of the y and z components of the E field, but it is not necessary to open these databases
@@ -411,51 +396,40 @@ for i in range(0,len(indata)):
     #ext = extension(inefx, fldx)
     
     #### Window 1 ####
+    
     SetActiveWindow(1)
-    SetViewExtentsType(1)
-    ## TJYD: Adding pseudo-color plot on slices
-    ReOpenDatabase(indensityvtk)
-    AddPlot("Pseudocolor", "Re", 1, 1)
-    AddOperator("Slice", 1)
-    SliceAtts = SliceAttributes()
-    SliceAtts.normal = (0, -1, 0)
-    SliceAtts.axisType = SliceAtts.YAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
-    SliceAtts.upAxis = (0, 0, 1)
-    SliceAtts.project2d = 1
-    SliceAtts.interactive = 1
-    SetOperatorOptions(SliceAtts, 1)
+    #SetActivePlots(0)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
     
-    #Defining the color scale
-    PseudocolorAtts = PseudocolorAttributes()
-    PseudocolorAtts.colorTableName = "PuBu"
-    SetPlotOptions(PseudocolorAtts)
+    #### Window 2 ####
+    #CloneWindow()
+    #SetActivePlots(1)
+    SetActiveWindow(2)
+    #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="SiBond", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
     
-    SetActivePlots(0)
+    #### Window 3 ####
+    #CloneWindow()
+    #SetActivePlots(0)
+    #SetActiveWindow(3)
+    #plot2Ddifference(inxyz, indensityvtk, axis="Z", extreme=MaxValue, caption=0)
     
+    #### Window 4 ####
+    ##SetActiveWindow(4)
     
-    # Setting box size
-    AddOperator("Box", 1)
-    BoxAtts = BoxAttributes()
-    BoxAtts.amount = BoxAtts.Some  # Some, All
-    BoxAtts.minx = -10
-    BoxAtts.maxx = 50
-    BoxAtts.miny = -40
-    BoxAtts.maxy = 40
-    BoxAtts.minz = -10
-    BoxAtts.maxz = 50
-    BoxAtts.inverse = 0
-    SetOperatorOptions(BoxAtts, 1)
-
-    # Trying to restrict viewing to the box
-    SetViewExtentsType(1)
+    # Adding the plot of the laser pulse
     
-    # Drawing plot to run query
-    DrawPlots()
-
-    #Adding a label for the time step    
-    #l1s = GetAnnotationObject("Text2D")
-    l1s.text = "step # "+step
-    l1s.position = (0.05, 0.05)
+    # NOTE: filtering for the td.general files is done by ./Video/buildFileList.sh, 
+    #plot1D(filepath="../td.general/laser.txt", varX="var01", varY="var02", colorcode=(255, 0, 0, 255))
+    #AddTracerObject(filepath="../td.general/laser.txt", time=step)
+    #TODO: put to the scale
+    #plot1D(filepath="../td.general/laser2.txt", varX="var01", varY="var02", colorcode=(0, 0, 255, 255))
+    #plot1D(filepath="../td.general/current.txt", varX="var01", varY="var02", colorcode=(0, 0, 0, 255))
+    #plotVerticalBar(varX=step, colorcode=(0, 0, 0, 255)) #black vertical line
+    
+    #TODO: add a vertical bar for the current time step
+    # the same index than <step> variable should be found in the laser file
+    
     
     
     #### All Windows ####
@@ -473,6 +447,8 @@ for i in range(0,len(indata)):
         DeleteAllPlots()
         RemoveAllOperators()
    
+    CloseDatabase(indensityvtk)
+    CloseDatabase(indensityGsVtk)
     CloseDatabase(indensityvtk)
 
     # Estimating remaining time

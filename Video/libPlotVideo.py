@@ -69,6 +69,12 @@
 """ ============ FUNCTIONS ORIGINALLY DEFINED BY MPSD / MPG =================
 """
 
+BohrRadius=5.2917721067e-1 #Angstroms
+# TODO: replace with link to the Python library maybe.
+# BohrRadius = phys.physical_constants['Bohr radius']
+# print "Bohr radius"
+# print BohrRadius
+
 def extension(dataset, var):     # this function creates a temporary window, calculates the extensions of a dataset and destroys the window
     AddWindow()
     ReOpenDatabase(dataset)

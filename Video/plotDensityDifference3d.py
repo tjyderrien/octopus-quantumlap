@@ -80,7 +80,7 @@ geometry    = 'geometry.vtk'
 ShowCaption = 1 
 bonds       = False
 
-BohrRadius=5.2917721067e-1 #Angstroms
+#BohrRadius=5.2917721067e-1 #Angstroms
 
 OriginX=0.
 OriginY=0.
@@ -89,10 +89,6 @@ OriginZ=0. #0.6788749999999979/BohrRadius
 MaxValue=0.01
 ZoomValue=0.8 #1:Bulk #3:Slabs
 EnablePerspective=0
-
-# BohrRadius = phys.physical_constants['Bohr radius']
-# print "Bohr radius"
-# print BohrRadius
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -133,7 +129,6 @@ import math, time
 import glob, os, shutil
 import subprocess
 from visit_utils import *
-# import plottingVideo
 from libPlotVideo import *
 
 start_script = time.time()
