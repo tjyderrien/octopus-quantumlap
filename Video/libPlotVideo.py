@@ -146,8 +146,8 @@ def winatt1():
   #SetPlotOptions(ScatterAtts)
   #DrawPlots()
   ##}}}
-
-#from visit_utils import *
+from visit import *
+from visit_utils import *
 #from visit_utils.qplot import *
 
 
@@ -196,7 +196,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   DrawPlots()
   #}}}
 
-def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
+def plot2Ddifference(inxyz, axis="X", extreme=0.03, caption=1):#{{{
   SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", "Difference", 1, 1)
@@ -312,7 +312,7 @@ def plot2Ddifference(axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue, EnablePerspective=0):#{{{
+def plot3Ddifference(inxyz, axis="X", extreme=0.01, zoomPicture=1.0, EnablePerspective=0):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)

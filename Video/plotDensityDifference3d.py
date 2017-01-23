@@ -408,20 +408,20 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(axis="X", extreme=MaxValue, zoomPicture=ZoomValue)
+    plot3Ddifference(inxyz, axis="X", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(axis="Y", extreme=MaxValue, zoomPicture=ZoomValue)
+    #plot2Ddifference(inxyz, axis="SiBond", extreme=MaxValue, caption=0)
+    plot3Ddifference(inxyz, axis="Y", extreme=MaxValue, zoomPicture=ZoomValue)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     #SetActiveWindow(3)
-    #plot2Ddifference(axis="Z", extreme=MaxValue, caption=0)
+    #plot2Ddifference(inxyz, axis="Z", extreme=MaxValue, caption=0)
     
     #### Window 4 ####
     ##SetActiveWindow(4)
