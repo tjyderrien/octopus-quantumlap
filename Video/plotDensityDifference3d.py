@@ -80,8 +80,6 @@ geometry    = 'geometry.vtk'
 ShowCaption = 1 
 bonds       = False
 
-#BohrRadius=5.2917721067e-1 #Angstroms
-
 OriginX=0.
 OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius

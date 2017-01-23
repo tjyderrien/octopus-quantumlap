@@ -71,26 +71,22 @@ inputdata = 'listoffiles.txt'
 outdir    = './'
 
 densityvtk = 'current.vtk'
-#DensityGsVtk= '/../td.0000000/density.vtk' #This should work for any run in our frame. 
+DensityGsVtk= '/../td.0000000/current.vtk' #This should work for any run in our frame. 
 
 #elfvtk    = 'elf_rs.vtk'
 geometry  = 'geometry.vtk'
 
+ShowCaption = 1 
 bonds     = False
 
-BohrRadius=5.2917721067e-1 #Angstroms
 
 OriginX=0.
 OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=1E-4
-ZoomValue=1.0
+ZoomValue=0.8
 EnablePerspective=0
-
-# BohrRadius = phys.physical_constants['Bohr radius']
-# print "Bohr radius"
-# print BohrRadius
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -131,7 +127,7 @@ import math, time
 import glob, os, shutil
 import subprocess
 from visit_utils import *
-import plottingVideo
+from libPlotVideo import *
 
 start_script = time.time()
 
@@ -345,13 +341,13 @@ SetViewExtentsType(1)
 #InvertBackgroundColor()
 
 #Creating a label for the time step
-l1s = CreateAnnotationObject("Text2D")
-l1s.text = "Time step"
-l1s.position = (0.05, 0.05)
+#l1s = CreateAnnotationObject("Text2D")
+#l1s.text = "Time step"
+#l1s.position = (0.05, 0.05)
 #l1s.height = 0.025
 #l1s.fontBold = 1
 #l1s.textColor = (255, 255, 255, 255)
-l1s.useForegroundForTextColor = 1
+#l1s.useForegroundForTextColor = 1
 
 
 ##############################
@@ -363,7 +359,7 @@ for i in range(0,len(indata)):
     activepath = indata[i]
     if (activepath[len(activepath)-1]!="/"):
         activepath = activepath+"/"
-    #indensityGsVtk = activepath+DensityGsVtk #TJYD: we will plot the difference with ground state
+    indensityGsVtk = activepath+DensityGsVtk #TJYD: we will plot the difference with ground state
     indensityvtk = activepath+densityvtk
     #invtk = activepath+elfvtk
     inxyz = activepath+geometry
@@ -374,12 +370,12 @@ for i in range(0,len(indata)):
 
     # We open all databases for the plots
     #OpenDatabase(indensityGsVtk)
-    elfvar="Re"
-    #DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":Re>, <mesh>)") #TODO: script the definition of this mesh
+    elfvar="current_magnitude"
+    DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
     OpenDatabase(indensityvtk)
-    #DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":Re>, <mesh>)")
+    DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
     # DefineScalarExpression("Difference", "Re") #-GroundStateData") #DEBUG
-    #DefineScalarExpression("Difference", "ExcitedStateData - GroundStateData") #Re: TD-data, GroundStateData: GS-density. This is the performed operation on the scalar data. 
+    DefineScalarExpression("Difference", "ExcitedStateData - GroundStateData") #Re: TD-data, GroundStateData: GS-density. This is the performed operation on the scalar data. 
     
     #OpenDatabase(invtk)
     #elfvar="Re"
@@ -405,14 +401,14 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Dcurrent(axis="X", extreme=MaxValue, zoomPicture=ZoomValue)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Dcurrent(axis="Y", extreme=MaxValue, zoomPicture=ZoomValue)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 3 ####
     #CloneWindow()
