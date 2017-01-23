@@ -126,8 +126,8 @@ RelaxationTime = RelaxationTimeSI / TimeAUtoSI
 ## Vector field amplitude
 
 # /!\ Assumption is made on the temporal integration of Efield
-amplitudeA = EfieldA * lightvelocity / omegaA
-amplitudeB = EfieldB * lightvelocity / omegaB
+amplitudeA = EfieldA * lightvelocity / omegaA # normalization for intensity, * sqrt(4E0*log(2e0)/pi) 
+amplitudeB = EfieldB * lightvelocity / omegaB # normalization for intensity, * sqrt(4E0*log(2e0)/pi)
 
 ## Simulation time management
 ComputingTime = ComputingTimeValueSI / TimeAUtoSI
@@ -139,6 +139,9 @@ px1 = cos(th)
 py1 = sin(th)
 px2 = cos(th)
 py2 = sin(th)
+
+# Induced fields, analysis may be more complicated. 
+# GaugeFieldPropagate  = no
 
 # Building up pulses
 %TDExternalFields
