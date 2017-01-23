@@ -1,3 +1,3 @@
 #!/bin/bash
-source $QuantumLaP/02-Slabs/machines.env
+source $QuantumLaP/02-Slab2D/machines.env
 
