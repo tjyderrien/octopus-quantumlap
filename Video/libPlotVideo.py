@@ -196,7 +196,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   DrawPlots()
   #}}}
 
-def plot2Ddifference(inxyz, axis="X", extreme=0.03, caption=1):#{{{
+def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="elements"):#{{{
   SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", "Difference", 1, 1)
@@ -304,7 +304,7 @@ def plot2Ddifference(inxyz, axis="X", extreme=0.03, caption=1):#{{{
   SetOperatorOptions(SliceAtts, 1)
 
   #Adding a label for the time step    
-  #l1s = GetAnnotationObject("Text2D")
+  l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
   
@@ -312,7 +312,7 @@ def plot2Ddifference(inxyz, axis="X", extreme=0.03, caption=1):#{{{
   DrawPlots()
   #}}}
   
-def plot3Ddifference(inxyz, axis="X", extreme=0.01, zoomPicture=1.0, EnablePerspective=0):#{{{
+def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, zoomPicture=1.0, Enable_Perspective=0, molvar="elements"):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -384,7 +384,7 @@ def plot3Ddifference(inxyz, axis="X", extreme=0.01, zoomPicture=1.0, EnablePersp
   View3DAtts.farPlane = 114.316
   View3DAtts.imagePan = (0.000474834, -0.223849)
   View3DAtts.imageZoom = zoomPicture
-  View3DAtts.perspective = EnablePerspective
+  View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
   View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
@@ -408,7 +408,7 @@ def plot3Ddifference(inxyz, axis="X", extreme=0.01, zoomPicture=1.0, EnablePersp
   SetView3D(View3DAtts)
   
   #Adding a label for the time step    
-  #l1s = GetAnnotationObject("Text2D")
+  l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
   
