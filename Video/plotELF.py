@@ -71,7 +71,7 @@ densityvtk= 'elf_rs.vtk'
 DensityGsVtk= '/../td.0000000/elf_rs.vtk' #This should work for any run in our frame. 
 
 #elfvtk    = 'elf_rs.vtk'
-geometry  = 'geometry.xyz'
+geometry  = 'geometry.vtk' #'geometry.xyz'
 
 ShowCaption = 1 
 bonds     = False
@@ -80,8 +80,8 @@ OriginX=0.
 OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
-MaxValue=0.01
-ZoomValue=0.8 #1:Bulk #3:Slabs
+MaxValue=0.5
+ZoomValue=0.7 #1:Bulk #3:Slabs
 EnablePerspective=0
 
 ###############################################
