@@ -264,9 +264,9 @@ if (len(indata)==0):
     print "Please check the paths and the name of the inputs"
     print ""
     print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
-    if (press=='q'):
-        quit()
+#    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+#    if (press=='q'):
+#        quit()
 
 # Summary of setup variables
 print "Summary of the setup variables:\n"
@@ -284,9 +284,9 @@ else:
     print "-Movie file "+moviename+" will be created"
     print "-Movie speed: ", moviespeed
 print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
-if (press=='q'):
-    quit()
+# press = raw_input("Press enter to continue or type \"q\" to quit\n")
+# if (press=='q'):
+#    quit()
 subprocess.call(["clear", ""])
 
 #########################
