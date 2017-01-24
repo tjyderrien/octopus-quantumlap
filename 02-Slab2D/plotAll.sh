@@ -42,16 +42,25 @@ done
 
 for folder in $( list_folders | grep 'output_iter' | grep -v 'td.' )
 do
+	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
+ 	# then, processes may work on a different run, and hence produce all results at the same time
+ 	# without interfering.
 	echo "Found folder $folder"
 	prevFolder=$( pwd )
         cd $folder
 	echo "** Building files for post-processed density..."
         echo "** ENABLE ONLY IF NECESSARY. Very long.. (1h)"
-	${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
+	# screen -d -m ${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
-	${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
+	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
 	echo ""
 	
+	echo "** Generating list of TD-visual outputs..."
+ 	# TODO : $QuantumLaP/Video/buildFileList.sh #generated listoffiles.txt
+        echo "td.0000000/" > listoffiles.txt
+ 	echo "td.0007360/" >> listoffiles.txt
+        screen -d -m $QuantumLaP/Video/plotELF.sh
+
 	cd $prevFolder > /dev/null
 done
 
