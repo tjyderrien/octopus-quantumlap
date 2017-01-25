@@ -36,7 +36,7 @@ BoxShape = parallelepiped
 %
 
 TotalZsize = (n*a + Lvac)*0.5 #careful, there is 1/2 ratio on the lengths for boxsize!
-BoundaryThickness = 5
+BoundaryThickness = 5 #TODO: set this value to 3.17 U_kin, with adding the corresponding vacuum. Absorbing boundary should be 15 a0 then.  
 
 %Lsize
   0.5*m*a/sqrt(2.) | 0.5*m*a/sqrt(2.) | TotalZsize
