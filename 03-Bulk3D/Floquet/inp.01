@@ -39,11 +39,11 @@ XYZCoordinates = "Si.xyz"
 
 
 %KPointsGrid
-  16 | 16 | 16
+  8 | 8 | 8
 %
 
 ##### CONVERGENCE OPTIMIZATION
-ConvRelDens = 1e-9 is the right value. Just playing for non-unicity of solutions.
+ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
 KPointsUseSymmetries = no
 ExtraStates = 10 #With Floquet: add more extra states. Otherwise 1 is okay'.  
 
