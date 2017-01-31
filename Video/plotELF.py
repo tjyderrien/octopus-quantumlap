@@ -303,27 +303,43 @@ else:
    s.outputToCurrentDirectory = 1
 s.advancedMultiWindowSave = 1
 
-# Window structure
-# #====#====#====#
-# #    #    # 3  #
-# # 1  # 2  #====#
-# #    #    # 4  #
-# #====#====#====#
+## Window structure
+## #====#====#====#
+## #    #    # 3  #
+## # 1  # 2  #====#
+## #    #    # 4  #
+## #====#====#====#
 
-s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/1.)
-s.subWindowAtts.win1.position = (0,0)
-s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/1.)
-s.subWindowAtts.win2.position = (int(s.width/2.), 0)
-#s.subWindowAtts.win3.size = ( int(s.width/3.), int(s.height)/2.)
-#s.subWindowAtts.win3.position = ( int(2.*s.width/3.), int(s.height)/2. )
-#s.subWindowAtts.win4.size = ( int(s.width/3.), int(s.height)/2.)
-#s.subWindowAtts.win4.position = ( int(2.*s.width/3.), 0. )
+#s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/1.)
+#s.subWindowAtts.win1.position = (0,0)
+#s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/1.)
+#s.subWindowAtts.win2.position = (int(s.width/2.), 0)
+##s.subWindowAtts.win3.size = ( int(s.width/3.), int(s.height)/2.)
+##s.subWindowAtts.win3.position = ( int(2.*s.width/3.), int(s.height)/2. )
+##s.subWindowAtts.win4.size = ( int(s.width/3.), int(s.height)/2.)
+##s.subWindowAtts.win4.position = ( int(2.*s.width/3.), 0. )
+
+# #====#====#     
+# # 1  # 2  #     
+# #====#====#      
+# # 3  # 4  #     
+# #====#====#     
+
+s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/2.)
+s.subWindowAtts.win1.position = (0,int(s.height)/2.)
+s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/2.)
+s.subWindowAtts.win2.position = (int(s.width/2.), int(s.height)/2.)
+s.subWindowAtts.win3.size = ( int(s.width/2.), int(s.height)/2.)
+s.subWindowAtts.win3.position = ( 0, int(s.height)/2. )
+s.subWindowAtts.win4.size = ( int(s.width/2.), int(s.height)/2.)
+s.subWindowAtts.win4.position = ( 0, 0 )
+
 SetSaveWindowAttributes(s)
 
 # Window 1 is available by default
 AddWindow() # Create window 2
-#AddWindow() # Create window 3
-#AddWindow() # Create window 4
+AddWindow() # Create window 3
+AddWindow() # Create window 4
 
 
 
@@ -400,23 +416,25 @@ for i in range(0,len(indata)):
     
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="SiBond", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    #plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
-    #SetActiveWindow(3)
-    #plot2Ddifference(inxyz, indensityvtk, axis="Z", extreme=MaxValue, caption=0)
+    SetActiveWindow(3)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 4 ####
-    ##SetActiveWindow(4)
+    #SetActiveWindow(4)
+    #plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     # Adding the plot of the laser pulse
     

@@ -288,7 +288,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.phi = 0
     
   if(axis == "SiBond"): #Aligned with Si chemical bonds :)
-    SliceAtts.normal = (0.5, 0, 0.5)
+    SliceAtts.normal = (1, 1, 1)
     SliceAtts.originType = SliceAtts.Point  # Point, Intercept, Percent, Zone, Node
     SliceAtts.originPoint = (OriginX, OriginY, OriginZ)
     SliceAtts.axisType = SliceAtts.Arbitrary  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
