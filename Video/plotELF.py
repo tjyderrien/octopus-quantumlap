@@ -84,6 +84,8 @@ OriginZ=0.
 # 0.6788749999999979 #/BohrRadius
 
 MaxValue=1.
+MinValue=0. #-MaxValue
+
 ZoomValue=1. #1:Bulk #3:Slabs
 EnablePerspective=0
 
@@ -418,25 +420,25 @@ for i in range(0,len(indata)):
     
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, molvar)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     SetActiveWindow(3)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MinValue, MaxValue, molvar)
     
     #### Window 4 ####
     SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
     
     SetActiveWindow(1)
     

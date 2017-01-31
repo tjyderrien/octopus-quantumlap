@@ -202,7 +202,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   DrawPlots()
   #}}}
 
-def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="element"):#{{{
+def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=-0.03, extreme=0.03, molvar="element"):#{{{
   SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", WhatToPlot, 1, 1)
@@ -213,7 +213,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   PseudocolorAtts.minFlag = 1
   PseudocolorAtts.maxFlag = 1
   PseudocolorAtts.legendFlag = caption
-  PseudocolorAtts.min = -extreme
+  PseudocolorAtts.min = minValue
   PseudocolorAtts.max = extreme
   SetPlotOptions(PseudocolorAtts)
   #DrawPlots()
