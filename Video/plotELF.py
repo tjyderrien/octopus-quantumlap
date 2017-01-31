@@ -84,8 +84,8 @@ OriginY=0.
 OriginZ=0. 
 # 0.6788749999999979 #/BohrRadius
 
-MaxValue=1.
-MinValue=0. #-MaxValue
+MaxValue=1.; MinValue=0. #-MaxValue
+MaxValue2=1E-5; MinValue2=MinValue;
 
 ZoomValue=1. #1:Bulk #3:Slabs
 EnablePerspective=0
@@ -434,12 +434,12 @@ for i in range(0,len(indata)):
     #CloneWindow()
     #SetActivePlots(0)
     SetActiveWindow(3)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue2, MaxValue2, molvar)
     
     #### Window 4 ####
     SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     SetActiveWindow(1)
     
