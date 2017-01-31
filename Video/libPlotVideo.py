@@ -278,6 +278,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.flip = 1
     SliceAtts.theta = 90
     SliceAtts.phi = 0
+    SliceAtts.project2d = 1
   
   if(axis == "Y"): #Not aligned with Si chemical bonds :-(
     SliceAtts.normal = (0, -1, 0)
@@ -286,6 +287,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.flip = 0
     SliceAtts.theta = 180
     SliceAtts.phi = 0
+    SliceAtts.project2d = 1
     
   if(axis == "SiBond"): #Aligned with Si chemical bonds :)
     SliceAtts.normal = (1, 1, 1)
@@ -296,6 +298,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.flip = 0
     SliceAtts.theta = 0
     SliceAtts.phi = 0
+    SliceAtts.project2d = 0
     
   if(axis == "Z"):
     SliceAtts.normal = (0, 0, -1)
@@ -304,8 +307,8 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.flip = 1
     SliceAtts.theta = 0
     SliceAtts.phi = -90
+    SliceAtts.project2d = 1
   
-  SliceAtts.project2d = 1
   SliceAtts.interactive = 1
   SetOperatorOptions(SliceAtts, 1)
 
