@@ -298,7 +298,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
     SliceAtts.flip = 0
     SliceAtts.theta = 0
     SliceAtts.phi = 0
-    SliceAtts.project2d = 0
+    SliceAtts.project2d = 1
     
   if(axis == "Z"):
     SliceAtts.normal = (0, 0, -1)
