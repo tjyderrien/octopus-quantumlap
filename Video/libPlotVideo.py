@@ -202,10 +202,10 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   DrawPlots()
   #}}}
 
-def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="element"):#{{{
+def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="element"):#{{{
   SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
-  AddPlot("Pseudocolor", "Difference", 1, 1)
+  AddPlot("Pseudocolor", WhatToPlot, 1, 1)
       
   #Defining the color scale
   PseudocolorAtts = PseudocolorAttributes()
@@ -321,7 +321,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
   DrawPlots()
   #}}}
   
-def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
+def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -354,7 +354,7 @@ def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
   SetPlotOptions(mol1)
   
   ReOpenDatabase(indensityvtk)
-  AddPlot("Contour", "Difference", 1, 1)
+  AddPlot("Contour", WhatToPlot, 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
   ContourAtts.contourNLevels = 6
