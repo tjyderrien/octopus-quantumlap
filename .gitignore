@@ -34,3 +34,5 @@ Benasque/03-LinearReponse/CH3/Casida/casida/
 02-Slab2D/ConvergeMesh/Si-*
 02-Slab2D/ConvergeVacuum/Si-*
 isualizationWorkshop/instructions/C2H4_2D/data/
+*.gui
+*.session
