@@ -9,8 +9,8 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=8
-#SBATCH --ntasks-per-node=32
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
 #
 # Request 120 GB of main Memory per node in Units of MB:
 #SBATCH --mem=122000
@@ -19,7 +19,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 #module load intel/16.0 mkl/11.3 impi/5.1.3 gsl/2.1 fftw/3.3.4
@@ -35,8 +35,15 @@ module list
 
 #module load octopus/nightly
 
-# Run the program:
+
+# Computes the unoccupied states.
+cp inp.02 inp
 #srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
+
+# Computes the td with floquet tool.
+cp inp.03 inp
+srun  /ptmp/tjyderri/octopus-custom.git/bin/oct-floquet &> floquet.$SLURM_JOB_ID.log
+
 sleep 5
 sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job

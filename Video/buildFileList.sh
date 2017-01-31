@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source $QuantumLaP/02-Slab2D/functions.sh
 set -e
 
 echo ""
@@ -8,7 +8,8 @@ echo "   How to use: Use the output listoffiles.txt for the input of plotDensity
 
 LocalPath=$( pwd )
 
-du | awk '{ print $2 }' | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp
+list_folders | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp 
+# du | awk '{ print $2 }' | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp #TODO: THIS IS TOTALLY INEFFICIENT. 
 sort -g listoffiles.tmp > listoffiles.tmp2
 # cat listoffiles.tmp2 > listoffiles.tmp3
 awk --assign localpath="${LocalPath}" '{ print localpath"/"$1 }' listoffiles.tmp2 > listoffiles.tmp3
@@ -26,7 +27,7 @@ tail -n+7 laser.tmp > laser.txt
 echo ""
 
 echo "   Building laser 2 profile..."
-awk '{ print $1, $2, $6 }' laser > laser.tmp
+awk '{ print $1, $2, $6 }' laser > laser2.tmp
 tail -n+7 laser2.tmp > laser2.txt
 echo ""
 

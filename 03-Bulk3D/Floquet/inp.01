@@ -39,11 +39,11 @@ XYZCoordinates = "Si.xyz"
 
 
 %KPointsGrid
-  16 | 16 | 16
+  8 | 8 | 8
 %
 
 ##### CONVERGENCE OPTIMIZATION
-ConvRelDens = 1e-9 is the right value. Just playing for non-unicity of solutions.
+ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
 KPointsUseSymmetries = no
 ExtraStates = 10 #With Floquet: add more extra states. Otherwise 1 is okay'.  
 
@@ -54,8 +54,5 @@ MaximumIter=1000
 Mixing = 0.05
 
 ### OUTPUTS
-Output = dos
-OutputFormat = xyz
-
-Output = density + potential + geometry
-OutputFormat = vtk #OpenDX, UCSF Chimera
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera

@@ -1,0 +1,118 @@
+# T.J.-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# QuantumLaP project
+# <derrien@fzu.cz>
+
+CalculationMode = td #unocc
+ExperimentalFeatures=yes
+# FromScratch = yes
+# Units = atomic #eV_Angstrom is a false unit system! ;)
+# UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
+PeriodicDimensions = 3
+
+# Conversion factors
+aAngstrom = 5.431 #Angstrom (experimental value)
+AngstromPerBohr = 0.52917721067 #AngstromPerBohr
+a = aAngstrom / AngstromPerBohr #Bohr
+
+# Simulation box size
+m = 1 #X blocks: to be replaced by script
+n = 1 #Z blocks: to be replaced by script 
+
+# Optimization
+# PoissonFFTKernel = planar
+ParStates = auto
+ParDomains = no #crashes if made per state only
+
+# Mesh parameters
+BoxShape = parallelepiped
+%Spacing
+	0.434637008855 | 0.434637008855 | 0.434637008855 #to be replaced by script
+%
+
+%Lsize #! Lsize is half of the box...
+	0.5*m*a | 0.5*m*a | 0.5*m*a #(n*a + Lvac)*0.5
+%
+
+# Using external file
+XYZCoordinates = "Si.xyz"
+
+
+
+%KPointsGrid
+  8 | 8 | 8
+%
+
+##### CONVERGENCE OPTIMIZATION
+ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
+KPointsUseSymmetries = no
+ExtraStates = 10 #With Floquet: add more extra states. Otherwise 1 is okay'.  
+
+%kPointsPath
+  10 | 10 | 10 | 10
+   0.5  | 0.5  | 0.5 #L
+   0    | 0     | 0 	#Gamma
+   0    | 0     | 1        #X
+   0.25 | -0.25 | 1 #U
+   0    | 0     | 0        # Gamma
+%
+
+################
+# LASER PULSES #
+################
+
+# Some constants
+cSI = 299792458e0
+eVperHartree = 27.21138505e0 #Wikipedia [Hartree]
+BohrRadius = 5.2917721067e-11 #m, Wikipedia [Bohr radius]
+HartreePerBohr = eVperHartree / BohrRadius
+hSI = 6.626070040e-34
+heVs = 4.135667662e-15
+ecSI = 1.6021766208e-19
+hbarSI = 1.054571800e-34
+TimeAUtoSI = hbarSI / eVperHartree / ecSI
+lightvelocity = 137.035999139 #light velocity = 1e0/fine structure constant [https://en.wikipedia.org/wiki/Fine-structure_constant]
+
+lambdaA = 800e-9 #SI: s-1, to be replaced by script
+EfieldAsi = 5E8 #V/m, to be replaced by script
+tauAsi = 10e-15 #This is FWHM of the Gaussian pulse
+pulseDelaySI = 0.0
+CEPA = 0.0 + pi/2.
+ComputingTimeValueSI = 1.33972872012e-13
+omegaA = heVs * cSI / lambdaA / eVperHartree
+EfieldA = EfieldAsi / HartreePerBohr
+tauA = tauAsi / TimeAUtoSI
+t0 = 2.*tauA
+GaussianRatio = 2.*sqrt(2. * ln(2.))
+sigmaTauA = tauA / GaussianRatio
+amplitudeA = EfieldA * lightvelocity / omegaA
+ComputingTime = ComputingTimeValueSI / TimeAUtoSI
+th = 0
+px1 = cos(th)
+py1 = sin(th)
+px2 = cos(th)
+py2 = sin(th)
+%TDExternalFields
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+%
+
+%TDFunctions
+  "FieldColorA" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)"
+  "phaseA" | tdf_cw | CEPA
+%
+
+
+# smearing = 0.0002
+# SmearingFunction=fermi_dirac
+
+MaximumIter=1000
+Mixing = 0.05
+
+### OUTPUTS
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+
+# Floquet states
+TDOutput=td_floquet 
+TDFloquetSample = 10 # number of time-steps sampled within one driving cycle
+TDFloquetFrequency = omegaA # driving frequency 
+TDFloquetDimension = 3 # number of floquet replicas (multi-photon dimension)

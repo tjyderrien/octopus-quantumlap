@@ -1,1 +1,1 @@
-/ptmp/tjyderri/octopus/02-Slab2D/plotAll.sh
+../02-Slab2D/plotAll.sh

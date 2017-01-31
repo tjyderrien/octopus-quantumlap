@@ -78,10 +78,11 @@ bonds     = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=0. #0.6788749999999979/BohrRadius
+OriginZ=0. 
+# 0.6788749999999979 #/BohrRadius
 
-MaxValue=0.5
-ZoomValue=0.7 #1:Bulk #3:Slabs
+MaxValue=1E-5
+ZoomValue=5. #1:Bulk #3:Slabs
 EnablePerspective=0
 
 ###############################################
@@ -130,16 +131,16 @@ start_script = time.time()
 # Setting initial variables or using default input
 subprocess.call(["clear", ""])
 
-print " *** Welcome to Azulene3D.py, a visualization script for VisIt ***"
-print ""
-print "Description: This script creates a set of 3D plots of a laser"
-print "             pulse propagating towards Azulene C10H8."
-print ""
-print "Enter your choice:"
-print "1- Use default value for the setup variables"
-print "2- Specify the location of the file containing the list of input"
-print "3- Specify single inputs"
-answer = raw_input("\n")
+# print " *** Welcome to Azulene3D.py, a visualization script for VisIt ***"
+# print ""
+# print "Description: This script creates a set of 3D plots of a laser"
+# print "             pulse propagating towards Azulene C10H8."
+# print ""
+# print "Enter your choice:"
+# print "1- Use default value for the setup variables"
+# print "2- Specify the location of the file containing the list of input"
+# print "3- Specify single inputs"
+# answer = raw_input("\n")
 
 #if (answer=="1"):
 fileex = os.path.exists(inputdata)
@@ -260,9 +261,9 @@ if (len(indata)==0):
     print "Please check the paths and the name of the inputs"
     print ""
     print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
-    if (press=='q'):
-        quit()
+#    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+#    if (press=='q'):
+#        quit()
 
 # Summary of setup variables
 print "Summary of the setup variables:\n"
@@ -280,9 +281,9 @@ else:
     print "-Movie file "+moviename+" will be created"
     print "-Movie speed: ", moviespeed
 print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
-if (press=='q'):
-    quit()
+# press = raw_input("Press enter to continue or type \"q\" to quit\n")
+# if (press=='q'):
+#     quit()
 subprocess.call(["clear", ""])
 
 #########################
@@ -366,7 +367,7 @@ for i in range(0,len(indata)):
     step = activepath[len(activepath)-8:len(activepath)-1]
 
     # We open all databases for the plots
-    OpenDatabase(indensityvtk)
+    OpenDatabase(indensityGsVtk)
     elfvar="elf_rs" #Old simulations: Re. "Re"
     DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
     OpenDatabase(indensityvtk)
@@ -399,14 +400,14 @@ for i in range(0,len(indata)):
     
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="SiBond", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
     #### Window 3 ####
     #CloneWindow()

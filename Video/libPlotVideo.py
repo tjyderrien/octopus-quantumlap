@@ -202,7 +202,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   DrawPlots()
   #}}}
 
-def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="elements"):#{{{
+def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.03, molvar="element"):#{{{
   SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", "Difference", 1, 1)
@@ -318,7 +318,7 @@ def plot2Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
   DrawPlots()
   #}}}
   
-def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, zoomPicture=1.0, Enable_Perspective=0, molvar="elements"):#{{{
+def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -382,18 +382,17 @@ def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
   SetWindowMode("zoom")
   View3DAtts = View3DAttributes()
   View3DAtts.viewAngle = 30
-  View3DAtts.focus = (0.108315, 0.108315, 0.)
+  View3DAtts.focus = (0., 0., 0.) # (0.108315, 0.108315, 0.)
   View3DAtts.viewUp = (0., 0., 1.)
   View3DAtts.viewAngle = 30
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imagePan = (0.000474834, -0.223849)
-  View3DAtts.imageZoom = zoomPicture
+  View3DAtts.imageZoom = ZoomValue
   View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
-  View3DAtts.centerOfRotation = (0.108315, 0.108315, 4.76837e-05)
+  View3DAtts.centerOfRotation = (0.0, 0.0, 0.0)
   View3DAtts.axis3DScaleFlag = 0
   View3DAtts.axis3DScales = (1, 1, 1)
   View3DAtts.shear = (0, 0, 1)
@@ -402,10 +401,18 @@ def plot3Ddifference(inxyz, indensityvtk, step, caption=1, OriginX=0., OriginY=0
   if (axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
     View3DAtts.viewUp = (0, 0, 1)
+    View3DAtts.imagePan = (OriginY, OriginZ)
     
   elif (axis=="Y"):
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
+    View3DAtts.imagePan = (OriginX, OriginZ)
+
+  elif (axis=="3D"):
+    View3DAtts.viewNormal = (0.95, -0.04, 0.18)
+    View3DAtts.focus = (-0.21, -0.21, -0.21)
+    View3DAtts.viewUp = (-0.18, -0.011, 0.98)
+    View3DAtts.imagePan = (OriginX, OriginZ)
   
 #  if(zoomPicture != 1.0):
 #    View3DAtts.imagePan = (0.0211978, -0.240702)
