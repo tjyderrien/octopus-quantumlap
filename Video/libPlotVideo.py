@@ -303,10 +303,10 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   if(axis == "Z"):
     SliceAtts.normal = (0, 0, -1)
     SliceAtts.axisType = SliceAtts.ZAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
-    SliceAtts.upAxis = (1, 0, 0)
+    SliceAtts.upAxis = (0, 0, 1)
     SliceAtts.flip = 1
-    SliceAtts.theta = 0
-    SliceAtts.phi = -90
+    SliceAtts.theta = 90
+    SliceAtts.phi = 0
     SliceAtts.project2d = 1
   
   SliceAtts.interactive = 1

@@ -334,9 +334,9 @@ s.subWindowAtts.win1.position = (0,int(s.height)/2.)
 s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/2.)
 s.subWindowAtts.win2.position = (int(s.width/2.), int(s.height)/2.)
 s.subWindowAtts.win3.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win3.position = ( 0, int(s.height)/2. )
+s.subWindowAtts.win3.position = ( 0, 0 )
 s.subWindowAtts.win4.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win4.position = ( 0, 0 )
+s.subWindowAtts.win4.position = ( 0, int(s.height)/2. )
 
 SetSaveWindowAttributes(s)
 
