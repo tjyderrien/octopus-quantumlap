@@ -56,3 +56,4 @@ fi
 # echo "On the LOCAL machine:"
 # echo "sudo apt-get install vncviewer"
 # echo "vncviewer -via tjyderri@gate.rzg.mpg.de eos01.bc.rzg.mpg.de:1"
+# echo "vncviewer -via tjyderri@gate.rzg.mpg.de draco.mpcdf.mpg.de:1
