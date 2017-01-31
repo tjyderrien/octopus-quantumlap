@@ -83,8 +83,8 @@ OriginY=0.
 OriginZ=0. 
 # 0.6788749999999979 #/BohrRadius
 
-MaxValue=1E-5
-ZoomValue=5. #1:Bulk #3:Slabs
+MaxValue=1.
+ZoomValue=1. #1:Bulk #3:Slabs
 EnablePerspective=0
 
 ###############################################
