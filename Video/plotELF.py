@@ -70,7 +70,8 @@ outdir    = './'
 densityvtk= 'elf_rs.vtk'
 DensityGsVtk= '/../td.0000000/elf_rs.vtk' #This should work for any run in our frame. 
 
-WhatToPlot="ExcitedStateData" #"Difference" 
+WhatToPlot1 = "ExcitedStateData" #"Difference" 
+WhatToPlot2 = "Difference" 
 
 #elfvtk    = 'elf_rs.vtk'
 geometry  = 'geometry.vtk' #'geometry.xyz'
@@ -420,25 +421,25 @@ for i in range(0,len(indata)):
     
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     SetActiveWindow(3)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, molvar)
     
     #### Window 4 ####
     SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
     
     SetActiveWindow(1)
     
