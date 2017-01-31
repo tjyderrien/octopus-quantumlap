@@ -416,25 +416,25 @@ for i in range(0,len(indata)):
     
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, molvar)
     #plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     SetActiveWindow(3)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MaxValue, molvar)
     
     #### Window 4 ####
     #SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MaxValue, molvar)
     
     # Adding the plot of the laser pulse
     
