@@ -432,7 +432,7 @@ for i in range(0,len(indata)):
     plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Z", MaxValue, molvar)
     
     #### Window 4 ####
-    #SetActiveWindow(4)
+    SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MaxValue, molvar)
     
