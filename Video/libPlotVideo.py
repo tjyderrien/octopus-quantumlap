@@ -368,7 +368,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     # divergent 7 contour map (depletion: blue, neutral: white, overdensity: red)
     ContourAtts.SetMultiColor(0, (51, 102, 255, 20)) #deep blue
     ContourAtts.SetMultiColor(1, (153, 204, 255, 30)) #blue sky
-    ContourAtts.SetMultiColor(2, (204, 255, 255, 50)) #light blue
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 20)) #light blue
     ContourAtts.SetMultiColor(3, (255, 255, 255, 0))  #white, transparent
     ContourAtts.SetMultiColor(4, (255, 204, 0, 50)) #light yellow
     ContourAtts.SetMultiColor(5, (255, 153, 0, 58))   #pastel orange
