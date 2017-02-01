@@ -366,8 +366,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     ContourAtts.max = extreme
     ContourAtts.min = -extreme
     # divergent 5 contour map (depletion: blue, neutral: white, overdensity: red)
-    ContourAtts.SetMultiColor(0, (51, 102, 255, 89)) #deep blue
-    ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #blue
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 20)) #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 30)) #blue
     ContourAtts.SetMultiColor(2, (255, 255, 255, 0))  #white, transparent
     ContourAtts.SetMultiColor(3, (255, 153, 0, 58))   #pastel orange
     ContourAtts.SetMultiColor(4, (255, 0, 0, 124))    #strong red
@@ -382,12 +382,12 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     ContourAtts.contourNLevels = 6
     ContourAtts.max = extreme
     ContourAtts.min = minValue
-    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))  #deep blue
-    ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #sky blue
-    ContourAtts.SetMultiColor(2, (204, 255, 255, 10)) #light blue
-    ContourAtts.SetMultiColor(3, (255, 204, 0, 5))    #light yellow
-    ContourAtts.SetMultiColor(4, (255, 153, 0, 58))   #pastel orange
-    ContourAtts.SetMultiColor(5, (255, 0, 0, 121))    #strong red 
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 30))  #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 50)) #sky blue
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 50)) #light blue
+    ContourAtts.SetMultiColor(3, (255, 204, 0, 50))    #light yellow
+    ContourAtts.SetMultiColor(4, (255, 153, 0, 50))   #pastel orange
+    ContourAtts.SetMultiColor(5, (255, 0, 0, 120))    #strong red 
     
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
