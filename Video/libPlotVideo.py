@@ -203,7 +203,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   #}}}
 
 def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=-0.03, extreme=0.03, molvar="element"):#{{{
-  SetViewExtentsType(1)	
+  SetViewExtentsType(0)
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", WhatToPlot, 1, 1)
       
@@ -233,7 +233,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   #SetOperatorOptions(BoxAtts, 1)
 
   # Trying to restrict viewing to the box
-  SetViewExtentsType(1)
+  SetViewExtentsType(0)
 
   ## Adding molecules
   #SetActiveWindow(1)
@@ -322,7 +322,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   #}}}
   
 def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
-  SetViewExtentsType(1)
+  SetViewExtentsType(0)
   ## Adding molecules
   #SetActiveWindow(1)
   #SetActivePlots((0,1))
