@@ -468,7 +468,7 @@ for i in range(0,len(indata)):
     
     #### Window 5 ####
     SetActiveWindow(5)
-    plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
     #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     #### Window 6 ####
