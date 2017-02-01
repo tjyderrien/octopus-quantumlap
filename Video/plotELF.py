@@ -70,11 +70,12 @@ outdir    = './'
 densityvtk= 'elf_rs.vtk'
 DensityGsVtk= '/../td.0000000/elf_rs.vtk' #This should work for any run in our frame. 
 
+# Plots of lines 1 and 2. 
 WhatToPlot1 = "ExcitedStateData" #"Difference" 
-WhatToPlot2 = "Difference" 
+WhatToPlot2 = "Difference" #
 
 #elfvtk    = 'elf_rs.vtk'
-geometry  = 'geometry.vtk' #'geometry.xyz'
+geometry  = 'geometry.vtk' #time-dependent geometry
 
 ShowCaption = 1 
 bonds     = False
@@ -88,7 +89,7 @@ MaxValue=1.; MinValue=0. #-MaxValue
 MaxValue2=0.1; MinValue2=-MaxValue2;
 
 ZoomValue=1. #1:Bulk #3:Slabs
-EnablePerspective=0
+EnablePerspective=1
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -324,20 +325,45 @@ s.advancedMultiWindowSave = 1
 ##s.subWindowAtts.win4.size = ( int(s.width/3.), int(s.height)/2.)
 ##s.subWindowAtts.win4.position = ( int(2.*s.width/3.), 0. )
 
-# #====#====#     
-# # 1  # 2  #     
-# #====#====#      
-# # 3  # 4  #     
-# #====#====#     
+## #====#====#     
+## # 1  # 2  #     
+## #====#====#      
+## # 3  # 4  #     
+## #====#====#     
 
-s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win1.position = (0,int(s.height)/2.)
-s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win2.position = (int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win3.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win3.position = ( 0, 0 )
-s.subWindowAtts.win4.size = ( int(s.width/2.), int(s.height)/2.)
-s.subWindowAtts.win4.position = ( int(s.height)/2., 0 )
+#s.subWindowAtts.win1.size = ( int(s.width/2.), int(s.height)/2.)
+#s.subWindowAtts.win1.position = (0,int(s.height)/2.)
+#s.subWindowAtts.win2.size = ( int(s.width/2.), int(s.height)/2.)
+#s.subWindowAtts.win2.position = (int(s.width/2.), int(s.height)/2.)
+#s.subWindowAtts.win3.size = ( int(s.width/2.), int(s.height)/2.)
+#s.subWindowAtts.win3.position = ( 0, 0 )
+#s.subWindowAtts.win4.size = ( int(s.width/2.), int(s.height)/2.)
+#s.subWindowAtts.win4.position = ( int(s.height)/2., 0 )
+
+#====#====#====#     
+# 1  # 2  # 3  #     
+#====#====#====#      
+# 4  # 5  # 6  #     
+#====#====#====#     
+
+SubWindowSizeX = int(s.width/3.)
+SubWindowSizeY = int(s.height/3.)
+
+SubWindowSize=( SubWindowSizeX, SubWindowSizeY )
+
+s.subWindowAtts.win1.size = SubWindowSize
+s.subWindowAtts.win2.size = SubWindowSize
+s.subWindowAtts.win3.size = SubWindowSize
+s.subWindowAtts.win4.size = SubWindowSize
+s.subWindowAtts.win5.size = SubWindowSize
+s.subWindowAtts.win6.size = SubWindowSize
+
+s.subWindowAtts.win1.position = (0,SubWindowSizeY)
+s.subWindowAtts.win2.position = (0,SubWindowSizeY)
+s.subWindowAtts.win3.position = (0,SubWindowSizeY)
+s.subWindowAtts.win4.position = (0,0)
+s.subWindowAtts.win5.position = (SubWindowSizeX,0)
+s.subWindowAtts.win6.position = (2*SubWindowSizeX,0)
 
 SetSaveWindowAttributes(s)
 
@@ -345,9 +371,8 @@ SetSaveWindowAttributes(s)
 AddWindow() # Create window 2
 AddWindow() # Create window 3
 AddWindow() # Create window 4
-
-
-
+AddWindow() # Create window 5
+AddWindow() # Create window 6
 
 #### Window 1 ####
 SetActiveWindow(1)
@@ -440,6 +465,16 @@ for i in range(0,len(indata)):
     SetActiveWindow(4)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
+    
+    #### Window 5 ####
+    SetActiveWindow(5)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
+    #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
+    
+    #### Window 6 ####
+    SetActiveWindow(6)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue2, ZoomValue, EnablePerspective, molvar)
+    #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     SetActiveWindow(1)
     
