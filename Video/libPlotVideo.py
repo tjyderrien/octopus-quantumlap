@@ -321,7 +321,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   DrawPlots()
   #}}}
   
-def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
+def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=0., extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
@@ -381,7 +381,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     # 6 color map, gradual
     ContourAtts.contourNLevels = 6
     ContourAtts.max = extreme
-    ContourAtts.min = 0.
+    ContourAtts.min = minValue
     ContourAtts.SetMultiColor(0, (51, 102, 255, 89))  #deep blue
     ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #sky blue
     ContourAtts.SetMultiColor(2, (204, 255, 255, 10)) #light blue

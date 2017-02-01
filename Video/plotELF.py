@@ -457,7 +457,7 @@ for i in range(0,len(indata)):
     
     #### Window 3 ####
     SetActiveWindow(3)
-    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     #### Window 4 ####
@@ -473,7 +473,7 @@ for i in range(0,len(indata)):
     
     #### Window 6 ####
     SetActiveWindow(6)
-    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue2, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MinValue2, MaxValue2, ZoomValue, EnablePerspective, molvar)
     #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     SetActiveWindow(1)
