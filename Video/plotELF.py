@@ -85,7 +85,7 @@ OriginY=0.
 OriginZ=0. 
 # 0.6788749999999979 #/BohrRadius
 
-MaxValue=0.6; MinValue=0.1 #-MaxValue
+MaxValue=0.9; MinValue=0.1 #-MaxValue
 MaxValue2=0.3; MinValue2=-MaxValue2; #0.05
 
 ZoomValue=1. #1:Bulk #3:Slabs
