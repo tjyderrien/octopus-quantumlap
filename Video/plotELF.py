@@ -162,7 +162,7 @@ if (outex==False):
 molzoom = 1.
 savename  = 'density'
 moviename = "density.mpg"
-moviespeed = '50'
+moviespeed = '10'
 subprocess.call(["clear", ""])
 
 #elif (answer=="2"):
