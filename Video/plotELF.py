@@ -359,8 +359,8 @@ s.subWindowAtts.win5.size = SubWindowSize
 s.subWindowAtts.win6.size = SubWindowSize
 
 s.subWindowAtts.win1.position = (0,SubWindowSizeY)
-s.subWindowAtts.win2.position = (0,SubWindowSizeY)
-s.subWindowAtts.win3.position = (0,SubWindowSizeY)
+s.subWindowAtts.win2.position = (SubWindowSizeX,SubWindowSizeY)
+s.subWindowAtts.win3.position = (2*SubWindowSizeX,SubWindowSizeY)
 s.subWindowAtts.win4.position = (0,0)
 s.subWindowAtts.win5.position = (SubWindowSizeX,0)
 s.subWindowAtts.win6.position = (2*SubWindowSizeX,0)
