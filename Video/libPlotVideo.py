@@ -361,25 +361,30 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
-  #ContourAtts.min = -extreme
-  #ContourAtts.max = extreme
-  # 3 color map (depletion: blue, overdensity: red)
-  #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
-  #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
-  #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
-  # 5 color map (depletion: blue, overdensity: red)
-  #ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
-  #ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-  #ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
-  #ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
-  #ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
-  # 6 color map
-  ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
-  ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-  ContourAtts.SetMultiColor(2, (204, 255, 255, 10))
-  ContourAtts.SetMultiColor(3, (255, 204, 0, 5))
-  ContourAtts.SetMultiColor(4, (255, 153, 0, 58))
-  ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
+  if(WhatToPlot == "Difference"):
+    ContourAtts.min = -extreme
+    ContourAtts.max = extreme
+    # 5 color map (depletion: blue, neutral: white, overdensity: red)
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+    ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
+    ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
+    ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+    
+  else: 
+    # 3 color map (depletion: blue, overdensity: red)
+    #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
+    #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
+    #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+
+    # 6 color map, gradual
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 10))
+    ContourAtts.SetMultiColor(3, (255, 204, 0, 5))
+    ContourAtts.SetMultiColor(4, (255, 153, 0, 58))
+    ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
+    
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
   SetWindowMode("zoom")
