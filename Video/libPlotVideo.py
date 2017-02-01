@@ -203,7 +203,7 @@ def plot1D(filepath, varX, varY, colorcode=(255, 0, 0, 255)): #{{{
   #}}}
 
 def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=-0.03, extreme=0.03, molvar="element"):#{{{
-  SetViewExtentsType(0)
+  SetViewExtentsType(1)	
   ReOpenDatabase(indensityvtk)
   AddPlot("Pseudocolor", WhatToPlot, 1, 1)
       
@@ -233,7 +233,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   #SetOperatorOptions(BoxAtts, 1)
 
   # Trying to restrict viewing to the box
-  SetViewExtentsType(0)
+  SetViewExtentsType(1)
 
   ## Adding molecules
   #SetActiveWindow(1)
@@ -322,7 +322,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   #}}}
   
 def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
-  SetViewExtentsType(0)
+  SetViewExtentsType(1)
   ## Adding molecules
   #SetActiveWindow(1)
   #SetActivePlots((0,1))
@@ -391,7 +391,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  #View3DAtts.imageZoom = ZoomValue
+  View3DAtts.imageZoom = ZoomValue*10.
   View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
