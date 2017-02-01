@@ -19,7 +19,7 @@ from libString import *
 
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #Would you prefer to work densities, or particle number?
-EnableLogScale = 1 
+EnableLogScale = 0
 
 # Load the n_el and laser files (atomic units)
 geometry = "../Si.xyz"
@@ -55,9 +55,11 @@ PulseDuration_SI = float(PulseDuration_inp[8:15])
 
 # Explicit data
 # PulseDuration_SI = 10E-15
-Egap_SI = 2.58*e
+Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
 
-meff = 0.18
+meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
+#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
+
 # meff = 0.43
 # wavelength_SI = 800e-9
 ValenceBandMax = 5E28 
@@ -189,7 +191,7 @@ plt.plot(time[1:], Efield, 'k-', label="|E(t)|")
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
 #Let's add a grid to compare the extrema
-m=np.arange(0,100) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
+m=np.arange(0,200) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
 xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle='--')
@@ -232,7 +234,7 @@ if(EnableLogScale == 1):
 
 plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')
 plt.savefig('KeldyshAnalysis.png', bbox_inches='tight')
-plt.show()
+# plt.show()
 
 print "** Info: Script ended sucessfully."
 print "** Goodbye."

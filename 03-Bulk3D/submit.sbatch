@@ -37,6 +37,6 @@ module list
 
 # Run the program:
 #srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
-srun /ptmp/tjyderri/octopus-custom/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
+srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
 sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job

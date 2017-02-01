@@ -7,7 +7,7 @@ source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
-MoveIons=0
+MoveIons=1
 kPoints=16
 
 # Renaming inputs to replace into the INP file.
@@ -35,10 +35,10 @@ ProcessArguments () { # Conversion factors for sample
 #   SizeOfVacuum_AU=$( python_calc "${SizeOfVacuum_SI} / ${Bohr2Angstrom}" ) #Bohr
 #   SizeOfVacuumName_SI=$( python_calc "int(round( ${SizeOfVacuum_SI} ))" )
   #MeshSizeAng=0.23 #Angstrom
-  MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
-  MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
-  MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
-  MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
+  export MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
+  export MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
+  export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 #  MeshSize=$( python_calc "${MeshSizeAng} / ${Bohr2Angstrom}"  ) #Bohr
 }
 
@@ -155,10 +155,16 @@ SubmitTheJob () {
   echo "== CHECKING GROUND STATE INTEGRITY =="
   #If ground state exists, we shall copy the ground state in the target folder!
   #else: don't run the ground, just stop the program and tell it. 
+
+  if [ $DryRun == 1 ]; then
+	DryRunChain="--dry-run"
+  else
+	DryRunChain=""
+  fi
   if [ -e ${groundStatePath}-Save ]; then
           echo "[Copy] Source: ${groundStatePath}-Save"
           echo "[Copy] Target: ${groundStatePath}${MoveIonsChain}"
-          ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}${MoveIonsChain}/
+          ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}${MoveIonsChain}/ $DryRunChain
   else
     echo "GROUND STATE DOES NOT EXIST."
     echo "Expected path: ${groundStatePath}-Save"

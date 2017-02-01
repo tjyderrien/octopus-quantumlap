@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #DryRun="--dry-run"
-DryRun=""
+DryRun=$3
 
 set -e
 
@@ -10,13 +10,13 @@ if [ -z $2 ]; then
 	exit
 fi
 
-echo "rsync --dry-run -avher $1 $2"
+echo "rsync ${DryRun} -avhre ssh --progress $1 $2"
 #echo "Add --no-dry-run to confirm the transfer."
 
-if [ $3=="" ]; then
-	rsync ${DryRun} -avher $1 $2
-else 
-	if [ $3=="--no-dry-run" ]; then
-		rsync -avher $1 $2
-	fi
-fi
+# if [ $3=="" ]; then
+	rsync ${DryRun} -avhre ssh --progress $1 $2
+# else 
+# 	if [ $3 == "--no-dry-run" ]; then
+# 		rsync -avher $1 $2
+# 	fi
+# fi

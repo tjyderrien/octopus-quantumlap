@@ -55,11 +55,11 @@ do
 	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
 	echo ""
 	
-	echo "** Generating list of TD-visual outputs..."
+	# echo "** Generating list of TD-visual outputs..."
  	# TODO : $QuantumLaP/Video/buildFileList.sh #generated listoffiles.txt
-        echo "td.0000000/" > listoffiles.txt
- 	echo "td.0007360/" >> listoffiles.txt
-        screen -d -m $QuantumLaP/Video/plotELF.sh
+        # echo "td.0000000/" > listoffiles.txt
+ 	# echo "td.0007770/" >> listoffiles.txt
+        # screen -d -m $QuantumLaP/Video/plotELF.sh
 
 	cd $prevFolder > /dev/null
 done

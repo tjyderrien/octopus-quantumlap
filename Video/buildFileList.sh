@@ -16,8 +16,8 @@ tail -n+2 listoffiles.tmp3 > listoffiles_long.txt
 rm listoffiles.tmp listoffiles.tmp2 listoffiles.tmp3
 
 echo "** Building a SHORT VERSION for pratical purposes..."
-head -n1 listoffiles.txt > listoffiles_short.txt
-tail -n1 listoffiles.txt >> listoffiles_short.txt
+head -n1 listoffiles_long.txt > listoffiles_short.txt
+tail -n1 listoffiles_long.txt >> listoffiles_short.txt
 
 echo ""
 

@@ -7,6 +7,7 @@ NumberLines=$1
 
 DebugMode=0
 
+source ${QuantumLaP}/02-Slab2D/functions.sh
 source ${QuantumLaP}/02-Slab2D/machines.env
 CheckComputerName
 
@@ -20,12 +21,8 @@ FindAvailableJobs() {
 	find | grep "$ResultFile"
 }
 
-FindAvailableFolders() {
-	du --max-depth=${DepthToAnalyze} | awk '{ print $2 }' 
-}
-
 FilterTheMatchingFolder() {
-	for i in $( FindAvailableFolders )
+	for i in $( list_folders )
 	do
 		cd $i > /dev/null 
 		if [ ${DebugMode} == 1 ]; then
