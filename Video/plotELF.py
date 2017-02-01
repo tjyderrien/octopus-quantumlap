@@ -455,6 +455,11 @@ for i in range(0,len(indata)):
     plot2Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
+    #### Window 3 ####
+    SetActiveWindow(3)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
+    #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
+    
     #### Window 4 ####
     #CloneWindow()
     #SetActivePlots(0)
@@ -465,11 +470,6 @@ for i in range(0,len(indata)):
     SetActiveWindow(5)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
-    
-    #### Window 3 ####
-    SetActiveWindow(3)
-    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
-    #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
     #### Window 6 ####
     SetActiveWindow(6)
@@ -499,11 +499,11 @@ for i in range(0,len(indata)):
         zoomtend = 0.
 
     # Saving the image
-    #SetViewExtentsType(1)
+    SetViewExtentsType(1)
     SaveWindow()
 
     # Clear and close
-    for winind in range(1,5):
+    for winind in range(1,10):
         SetActiveWindow(winind)
         DeleteAllPlots()
         RemoveAllOperators()
