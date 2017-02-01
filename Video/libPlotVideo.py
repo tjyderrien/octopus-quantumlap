@@ -391,7 +391,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imageZoom = 1.
+  #View3DAtts.imageZoom = ZoomValue
   View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
@@ -414,12 +414,12 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   elif (axis=="3D"):
     View3DAtts.viewNormal = (0.95, -0.04, 0.18)
     View3DAtts.focus = (-0.21, -0.21, -0.21)
-    #View3DAtts.viewUp = (-0.18, -0.011, 0.98)
+    View3DAtts.viewUp = (-0.18, -0.011, 0.98)
     View3DAtts.imagePan = (OriginX, OriginZ)
   
 #  if(zoomPicture != 1.0):
 #    View3DAtts.imagePan = (0.0211978, -0.240702)
-#  View3DAtts.imageZoom = 9.13208 #TODO: is it functional? 
+#  View3DAtts.imageZoom = 9.13208
 #  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   

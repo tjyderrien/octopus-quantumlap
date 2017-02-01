@@ -75,7 +75,7 @@ WhatToPlot1 = "ExcitedStateData" #"Difference"
 WhatToPlot2 = "Difference" #
 
 #elfvtk    = 'elf_rs.vtk'
-geometry  = 'geometry.vtk' #time-dependent geometry
+geometry  = 'geometry.vtk' #time-dependent geometry #! geometry.xyz looks misaligned with VTK
 
 ShowCaption = 1 
 bonds     = False
