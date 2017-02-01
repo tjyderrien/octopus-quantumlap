@@ -347,7 +347,7 @@ s.advancedMultiWindowSave = 1
 #====#====#====#     
 
 SubWindowSizeX = int(s.width/3.)
-SubWindowSizeY = int(s.height/3.)
+SubWindowSizeY = int(s.height/2.)
 
 SubWindowSize=( SubWindowSizeX, SubWindowSizeY )
 
@@ -455,19 +455,19 @@ for i in range(0,len(indata)):
     plot2Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue, MaxValue, molvar)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
     
-    #### Window 3 ####
+    #### Window 4 ####
     #CloneWindow()
     #SetActivePlots(0)
-    SetActiveWindow(3)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue2, MaxValue2, molvar)
-    
-    #### Window 4 ####
     SetActiveWindow(4)
-    #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
-    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue2, MaxValue2, molvar)
     
     #### Window 5 ####
     SetActiveWindow(5)
+    #plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, 1, molvar)
+    plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
+    
+    #### Window 3 ####
+    SetActiveWindow(3)
     plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "3D", MaxValue, ZoomValue, EnablePerspective, molvar)
     #plot2Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "SiBond", MinValue2, MaxValue2, molvar)
     
