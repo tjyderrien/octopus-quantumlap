@@ -361,8 +361,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
-  ContourAtts.min = -extreme
-  ContourAtts.max = extreme
+  #ContourAtts.min = -extreme
+  #ContourAtts.max = extreme
   # 3 color map (depletion: blue, overdensity: red)
   #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
   #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
