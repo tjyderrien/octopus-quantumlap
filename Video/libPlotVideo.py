@@ -380,6 +380,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
 
     # 6 color map, gradual
     ContourAtts.contourNLevels = 6
+    ContourAtts.max = extreme
+    ContourAtts.min = 0.
     ContourAtts.SetMultiColor(0, (51, 102, 255, 89))  #deep blue
     ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #sky blue
     ContourAtts.SetMultiColor(2, (204, 255, 255, 10)) #light blue
