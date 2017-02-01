@@ -9,8 +9,8 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=13
-#SBATCH --ntasks-per-node=32
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=26
 #
 # Request 120 GB of main Memory per node in Units of MB:
 #SBATCH --mem=122000
@@ -42,8 +42,8 @@ cp inp.02 inp
 srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 
 # Computes the td with floquet tool.
-cp inp.03 inp
-srun  /ptmp/tjyderri/octopus-custom.git/bin/oct-floquet &> floquet.$SLURM_JOB_ID.log
+# cp inp.03 inp
+# srun  /ptmp/tjyderri/octopus-custom.git/bin/oct-floquet &> floquet.$SLURM_JOB_ID.log
 
 sleep 5
 sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job
