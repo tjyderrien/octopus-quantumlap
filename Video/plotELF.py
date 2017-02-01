@@ -86,7 +86,7 @@ OriginZ=0.
 # 0.6788749999999979 #/BohrRadius
 
 MaxValue=0.6; MinValue=0.1 #-MaxValue
-MaxValue2=0.05; MinValue2=-0.3 #-MaxValue2;
+MaxValue2=0.05; MinValue2=-MaxValue2; #-0.3 
 
 ZoomValue=1. #1:Bulk #3:Slabs
 EnablePerspective=1
