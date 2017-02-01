@@ -419,7 +419,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   
 #  if(zoomPicture != 1.0):
 #    View3DAtts.imagePan = (0.0211978, -0.240702)
-#  View3DAtts.imageZoom = 9.13208
+#  View3DAtts.imageZoom = 9.13208 #TODO: is it functional? 
 #  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   
