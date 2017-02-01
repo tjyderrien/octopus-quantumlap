@@ -362,15 +362,17 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
   if(WhatToPlot == "Difference"):
-    ContourAtts.contourNLevels = 5
+    ContourAtts.contourNLevels = 7
     ContourAtts.max = extreme
     ContourAtts.min = -extreme
-    # divergent 5 contour map (depletion: blue, neutral: white, overdensity: red)
+    # divergent 7 contour map (depletion: blue, neutral: white, overdensity: red)
     ContourAtts.SetMultiColor(0, (51, 102, 255, 20)) #deep blue
-    ContourAtts.SetMultiColor(1, (153, 204, 255, 30)) #blue
-    ContourAtts.SetMultiColor(2, (255, 255, 255, 0))  #white, transparent
-    ContourAtts.SetMultiColor(3, (255, 153, 0, 58))   #pastel orange
-    ContourAtts.SetMultiColor(4, (255, 0, 0, 124))    #strong red
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 30)) #blue sky
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 50)) #light blue
+    ContourAtts.SetMultiColor(3, (255, 255, 255, 0))  #white, transparent
+    ContourAtts.SetMultiColor(4, (255, 204, 0, 50)) #light yellow
+    ContourAtts.SetMultiColor(5, (255, 153, 0, 58))   #pastel orange
+    ContourAtts.SetMultiColor(6, (255, 0, 0, 124))    #strong red
     
   else: 
     # 3 color map (depletion: blue, overdensity: red)
