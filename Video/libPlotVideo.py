@@ -357,19 +357,20 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   AddPlot("Contour", WhatToPlot, 1, 1)
   #SetActivePlots((0, 1))
   ContourAtts = ContourAttributes()
-  ContourAtts.contourNLevels = 6
+  
   ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
   ContourAtts.minFlag = 1
   ContourAtts.maxFlag = 1
   if(WhatToPlot == "Difference"):
+    ContourAtts.contourNLevels = 5
     ContourAtts.min = -extreme
     ContourAtts.max = extreme
-    # 5 color map (depletion: blue, neutral: white, overdensity: red)
-    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
-    ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-    ContourAtts.SetMultiColor(2, (255, 255, 255, 0))
-    ContourAtts.SetMultiColor(3, (255, 153, 0, 58))
-    ContourAtts.SetMultiColor(4, (255, 0, 0, 124))
+    # divergent 5 contour map (depletion: blue, neutral: white, overdensity: red)
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 89)) #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #blue
+    ContourAtts.SetMultiColor(2, (255, 255, 255, 0))  #white, transparent
+    ContourAtts.SetMultiColor(3, (255, 153, 0, 58))   #pastel orange
+    ContourAtts.SetMultiColor(4, (255, 0, 0, 124))    #strong red
     
   else: 
     # 3 color map (depletion: blue, overdensity: red)
@@ -378,12 +379,13 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
 
     # 6 color map, gradual
-    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))
-    ContourAtts.SetMultiColor(1, (153, 204, 255, 57))
-    ContourAtts.SetMultiColor(2, (204, 255, 255, 10))
-    ContourAtts.SetMultiColor(3, (255, 204, 0, 5))
-    ContourAtts.SetMultiColor(4, (255, 153, 0, 58))
-    ContourAtts.SetMultiColor(5, (255, 0, 0, 121))  
+    ContourAtts.contourNLevels = 6
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 89))  #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 57)) #sky blue
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 10)) #light blue
+    ContourAtts.SetMultiColor(3, (255, 204, 0, 5))    #light yellow
+    ContourAtts.SetMultiColor(4, (255, 153, 0, 58))   #pastel orange
+    ContourAtts.SetMultiColor(5, (255, 0, 0, 121))    #strong red 
     
   SetPlotOptions(ContourAtts)
   # Magnification on one atomic site below the surface
