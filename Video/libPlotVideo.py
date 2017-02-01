@@ -294,7 +294,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     SliceAtts.originType = SliceAtts.Point  # Point, Intercept, Percent, Zone, Node
     SliceAtts.originPoint = (OriginX, OriginY, OriginZ)
     SliceAtts.axisType = SliceAtts.Arbitrary  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
-    SliceAtts.upAxis = (0, 0, 1)
+    #SliceAtts.upAxis = (0, 0, 1)
     SliceAtts.flip = 0
     SliceAtts.theta = 0
     SliceAtts.phi = 0
@@ -391,7 +391,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imageZoom = ZoomValue*8. 
+  View3DAtts.imageZoom = ZoomValue*6. 
   View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
