@@ -44,7 +44,11 @@ ProcessArguments () { # Conversion factors for sample
 
 DefineParameters () {
   # Input laser parameters
-  RelaxationTime=$( python_calc "100e-15"  )
+  if [ $MoveIon == 1 ]; then
+    RelaxationTime=$( python_calc "500e-15"  )
+  else
+    RelaxationTime=$( python_calc "100e-15" )
+  fi
 
 # echo "Generating pulses..."
 

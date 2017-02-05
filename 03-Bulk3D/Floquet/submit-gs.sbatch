@@ -33,12 +33,12 @@ module load fftw/3.3.4
 module load netcdf-serial/4.4.0
 module list
 
-#module load octopus/nightly
+module load octopus/nightly
 
 # Run the program:
 cp inp.01 inp
-srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-gs.$SLURM_JOB_ID.log
-
+# srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-gs.$SLURM_JOB_ID.log
+srun $OCT_HOME/bin/octopus >& octopus-gs.$SLURM_JOB_ID.log
 # cp inp.02 inp
 #srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log

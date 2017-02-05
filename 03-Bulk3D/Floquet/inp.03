@@ -8,7 +8,7 @@ ExperimentalFeatures=yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
 # UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
-Debug = trace
+# Debug = trace
 
 # Conversion factors
 aAngstrom = 5.431 #Angstrom (experimental value)
@@ -114,6 +114,6 @@ OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 
 # Floquet states
 TDOutput=td_floquet 
-TDFloquetSample = 10 # number of time-steps sampled within one driving cycle
+TDFloquetSample = 100 # number of time-steps sampled within one driving cycle
 TDFloquetFrequency = omegaA # driving frequency 
 TDFloquetDimension = 3 # number of floquet replicas (multi-photon dimension)

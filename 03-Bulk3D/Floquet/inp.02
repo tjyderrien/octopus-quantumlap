@@ -8,7 +8,7 @@ ExperimentalFeatures=yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
 # UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
-Debug = trace
+# Debug = trace
 
 # Conversion factors
 aAngstrom = 5.431 #Angstrom (experimental value)

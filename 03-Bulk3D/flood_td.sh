@@ -27,8 +27,8 @@ SampleXY=1
 lambda1="800e-9"
 lambda2="400e-9"
 # Field amplitude
-# Efield1="9E9"
-Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9 5E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield1="4E9"
+# Efield1="1E9 2E9 3E9 4E9 5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 Efield2="0E9"
 # Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
 # Pulse duration
