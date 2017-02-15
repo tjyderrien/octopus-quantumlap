@@ -47,7 +47,7 @@ BoxShape = parallelepiped
 # Using external file
 XYZCoordinates = "Si.xyz" #input is in Bohr now
 
-ConvRelDens = 1e-7 #1e-9
+ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = no
 ExtraStates = 1 #0: if observable (Ne, Je), more if not-observable
 # smearing = 0.0002
@@ -142,8 +142,10 @@ py2 = sin(th)
 
 # Building up pulses
 %TDExternalFields
-    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
-    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+#   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+#   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA-sin" | "phaseA"
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB-sin" | "phaseB"
 %
 
 %TDFunctions
@@ -151,8 +153,8 @@ py2 = sin(th)
   "FieldColorB" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-pulseDelay-t0)/sigmaTauB)^2)" # GAUSSIAN 2
   "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
-%
-#  "FieldColorA-sin" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)" # with SIN2
+  "FieldColorA-sin" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t+tauA) * (1e0 - step(t-tauA) )
+  "FieldColorB-sin" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t0-tauB)/tauB))^2 * step(t+tauB) * (1e0 - step(t-tauB) )
 #%
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 

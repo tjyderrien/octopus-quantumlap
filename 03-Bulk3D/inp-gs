@@ -9,6 +9,9 @@ FromScratch = yes
 # UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
 
+# Initial temperature
+RandomVelocityTemp = 300e0
+
 # Conversion factors
 aAngstrom = 5.431 #Angstrom (experimental value)
 AngstromPerBohr = 0.52917721067 #AngstromPerBohr
@@ -43,7 +46,7 @@ XYZCoordinates = "Si.xyz"
 %
 
 ##### CONVERGENCE OPTIMIZATION
-ConvRelDens = 1e-7 #1e-9 is the right value. Just playing for non-unicity of solutions.
+ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
 KPointsUseSymmetries = no
 ExtraStates = 1
 
@@ -54,8 +57,5 @@ MaximumIter=1000
 Mixing = 0.05
 
 ### OUTPUTS
-Output = dos
-OutputFormat = xyz
-
-Output = density + potential + geometry
-OutputFormat = vtk #OpenDX, UCSF Chimera
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera

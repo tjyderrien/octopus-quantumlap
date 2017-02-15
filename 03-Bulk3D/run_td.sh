@@ -24,6 +24,8 @@ tau2=${10}
 CEP1=${11}
 CEP2=${12}
 delay=${13}
+InitialTemperature=${14}
+PulseShape=${15}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -77,8 +79,8 @@ DefineParameters () {
   else
         MoveIonsChain=""
   fi
-  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}
-  export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}
+  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}
+  export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
