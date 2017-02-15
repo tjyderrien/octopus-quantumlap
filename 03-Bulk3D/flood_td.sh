@@ -23,7 +23,7 @@ MeshSizeX="0.23"
 SampleLayers=1
 SampleXY=1
 InitialTemperature="300e0"
-PulseShape="SinSquared" #Gaussian #SinSquared #SuperGaussian
+PulseShape="SinSquared" #Gaussian #SinSquared #TODO: SuperGaussian #TODO: Keldysh
 
 # Laser parameters
 lambda1="800e-9"
