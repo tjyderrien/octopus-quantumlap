@@ -144,17 +144,17 @@ py2 = sin(th)
 %TDExternalFields
 #   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
 #   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
-    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA-sin" | "phaseA"
-    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB-sin" | "phaseB"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA"
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
 %
 
 %TDFunctions
-  "FieldColorA" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)" #GAUSSIAN 1
-  "FieldColorB" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-pulseDelay-t0)/sigmaTauB)^2)" # GAUSSIAN 2
+  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)" #GAUSSIAN 1
+  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-pulseDelay-t0)/sigmaTauB)^2)" # GAUSSIAN 2
   "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
-  "FieldColorA-sin" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t+tauA) * (1e0 - step(t-tauA) )
-  "FieldColorB-sin" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t0-tauB)/tauB))^2 * step(t+tauB) * (1e0 - step(t-tauB) )
+  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t+tauA) * (1e0 - step(t-tauA) )"
+  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t0-tauB)/tauB))^2 * step(t+tauB) * (1e0 - step(t-tauB) )"
 #%
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
