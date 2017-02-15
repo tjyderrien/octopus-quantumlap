@@ -127,6 +127,8 @@ ReplaceInputFile () {
   sed -i.bak s/CEP1replaceMe/${CEP1}/g inp
   sed -i.bak s/CEP2replaceMe/${CEP2}/g inp
   sed -i.bak s/ComputingTimeValueToReplace/${ComputingTime}/g inp
+  sed -i.bak s/FieldShapeA/FieldColorA-${PulseShape}/g inp
+  sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
