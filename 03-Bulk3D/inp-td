@@ -155,7 +155,9 @@ py2 = sin(th)
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
   "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t+tauA) * (1e0 - step(t-tauA) )"
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t0-tauB)/tauB))^2 * step(t+tauB) * (1e0 - step(t-tauB) )"
-#%
+  "FieldColorA-Keldysh" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA)*step(0.5*tauA - t)"
+  "FieldColorB-Keldysh" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA)*step(0.5*tauA - t)"
+%
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
