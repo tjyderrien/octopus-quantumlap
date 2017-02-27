@@ -22,7 +22,7 @@ MeshSizeX="0.23"
 # Sample
 SampleLayers=1
 SampleXY=1
-InitialTemperature="300e0"
+InitialTemperature="0e0"
 PulseShape="SinSquared" #Gaussian #SinSquared #Keldysh
 
 # Laser parameters

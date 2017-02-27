@@ -60,8 +60,6 @@ Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
-# meff = 0.43
-# wavelength_SI = 800e-9
 ValenceBandMax = 5E28 
 dtPrecision = 1E-17
 order=50
@@ -170,7 +168,7 @@ print "TimeStep = "+str(dtCurrent)
 
 ### Defining plotting boundaries
 xmin=0.; xmax=40.; unitx=1E15
-ymax=1E28; #max for density plot
+ymax=2E28; #max for density plot
 ymax2=1E0; #max for field plot
 
 # Plotting electric field
@@ -211,7 +209,7 @@ if(QuantityOfInterest == "density"):
   plt.plot(timeNe, observable_proj, 'k-', label=r'TD-DFT: $n_e^{proj}(t)$')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
   plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
-  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b-', label=r'[Gruzdev (2004)]')
+  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b-', label=r'[Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
@@ -232,8 +230,11 @@ plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", b
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
 
-plt.savefig('KeldyshAnalysis.eps', bbox_inches='tight')
-plt.savefig('KeldyshAnalysis.png', bbox_inches='tight')
+filename='KeldyshAnalysis'
+if(EnableLogScale==1): 
+  filename=filename+"-LogScale"
+plt.savefig(filename+'.eps', bbox_inches='tight')
+plt.savefig(filename+'.png', bbox_inches='tight')
 # plt.show()
 
 print "** Info: Script ended sucessfully."

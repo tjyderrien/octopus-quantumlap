@@ -22,6 +22,8 @@
 #SBATCH --time=24:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
+pwd >> $QuantumLap/LastRuns.log
+
 #module load intel/16.0 mkl/11.3 impi/5.1.3 gsl/2.1 fftw/3.3.4
 module purge
 module load intel/16.0

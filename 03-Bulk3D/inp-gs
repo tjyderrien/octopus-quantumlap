@@ -10,7 +10,7 @@ FromScratch = yes
 PeriodicDimensions = 3
 
 # Initial temperature
-RandomVelocityTemp = 300e0
+# RandomVelocityTemp = 300e0
 
 # Conversion factors
 aAngstrom = 5.431 #Angstrom (experimental value)
