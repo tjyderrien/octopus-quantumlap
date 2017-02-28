@@ -3,7 +3,7 @@
 
 # IMPORT LIBRARIES
 import numpy as np
-from numpy import genfromtxt, loadtxt, chararray
+from numpy import genfromtxt, loadtxt, chararray, fft
 # from pylab import *
 import sys
 import decimal
@@ -79,10 +79,30 @@ Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
 
 ### TOTAL_CURRENT file #Just for futur investigations with current
 ShrinkBy=3
+
 timeCurrent=np.asfarray(TotalCurrent[:,1])
 timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
+maxSize=timeCurrent.size-ShrinkBy
+
 CurrentX=np.asfarray(TotalCurrent[:,2])
-CurrentX=CurrentX[:CurrentX.size-ShrinkBy]
+CurrentX=CurrentX[:maxSize]
+
+Efield_AU=Efield/c_AU #fixing dimension
+Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
+CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
+Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
+
+#TODO: use SI units before transformations
+print "** Conductivity"
+Epsilon_maxSize = CurrentX_AU_FT.size
+# print Efield_AU_FT.size
+Conductivity = np.divide(CurrentX_AU_FT, Efield_AU_FT) #work in AU space
+
+Conductivity_plotX = Conductivity_Freqs #Conductivity_Freqs # timeCurrent[1:maxSize]
+Conductivity_plotY = Efield_AU_FT # Conductivity # Efield_AU[1:maxSize]
+print "Conductivity_X: "+str(Conductivity_plotX.size)
+print "Conductivity_Y: "+str(Conductivity_plotY.size)
+
 
 ### POST-PROCESSED FILE #Some attemps with charge density
 # timePost = np.asfarray(PostTreatedDensity[:,2]) #3: time SI
@@ -173,7 +193,7 @@ ymax2=1E0; #max for field plot
 
 # Plotting electric field
 plt.figure(figsize=(10,10))
-ax1 = plt.subplot(211)
+ax1 = plt.subplot(311)
 plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$")
 #plt.xlabel('Time (fs)')
 plt.ylabel('A field (a.u.)')
@@ -196,7 +216,7 @@ for xc in xposition:
 plt.legend(loc=2)
 
 ### Plotting density evolution
-ax2 = plt.subplot(212)
+ax2 = plt.subplot(312)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((0,ymax))
@@ -227,6 +247,10 @@ plt.xlabel('Time (fs)')
 # plt.legend(loc=2)
 plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 
+ax3 = plt.subplot(313)
+plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
+# ax3.set_xscale("log", nonposx='clip')
+
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
 
@@ -235,7 +259,7 @@ if(EnableLogScale==1):
   filename=filename+"-LogScale"
 plt.savefig(filename+'.eps', bbox_inches='tight')
 plt.savefig(filename+'.png', bbox_inches='tight')
-# plt.show()
+plt.show()
 
 print "** Info: Script ended sucessfully."
 print "** Goodbye."
