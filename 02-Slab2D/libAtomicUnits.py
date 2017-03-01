@@ -9,7 +9,7 @@ from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h, hbar
 
 BohrRadius=5.2917721067e-11 #m
 Hartree_Energy = 27.21138602 #eV
-
+c_AU = 137.035999139 
 ## Converts a charge density from AU to SI (m^-3).
 def Density_AU_to_SI(density_AU):#{{{
   return density_AU * BohrRadius**(-3)
