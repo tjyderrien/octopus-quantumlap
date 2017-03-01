@@ -96,7 +96,7 @@ Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
 print "** Conductivity"
 Epsilon_maxSize = CurrentX_AU_FT.size
 # print Efield_AU_FT.size
-Conductivity = np.divide(CurrentX_AU_FT, Efield_AU_FT) #work in AU space
+Conductivity = np.divide(CurrentX_AU_FT, Efield_AU_FT) #working in AU space ...
 
 Conductivity_plotX = Conductivity_Freqs #Conductivity_Freqs # timeCurrent[1:maxSize]
 Conductivity_plotY = Efield_AU_FT # Conductivity # Efield_AU[1:maxSize]
