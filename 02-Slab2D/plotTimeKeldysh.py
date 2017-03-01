@@ -22,11 +22,13 @@ plotA=311; plotB=312; plotC=313
 # Size of main canvas
 SizeX = 10
 SizeY = 15
+RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #Would you prefer to work densities, or particle number?
 EnableLogScale = 0
+ShowFinalPlot  = 0
 
 ## Load geometry, n_el, laser and total_current files (atomic units)
 geometry = "../Si.xyz" #static method
@@ -88,6 +90,7 @@ Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
 ##==== Prepare plotting of energies ====
 timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
 ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
+TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
 IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
 Hartree        = np.asfarray(Energy[:,7]) #Hartree
 
@@ -95,6 +98,12 @@ if(timeEnergies.size != ElectronEnergy.size):
   print "** Error: sizes for energies are different. "
   print timeEnergies.size, ElectronEnergy.size
   exit()
+
+# Normalizing to 0
+ElectronEnergy = ElectronEnergy - ElectronEnergy.min()
+TotalEnergy    = TotalEnergy - TotalEnergy.min()
+IonEnergy      = IonEnergy - IonEnergy.min()
+Hartree        = Hartree - Hartree.min()
 
 ##===== Prepare plotting of total_current ======
 ShrinkBy=3
@@ -111,19 +120,19 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 Efield_AU=Efield/c_AU #fixing dimension #TODO: clean me that...
 
 ##== Fourier transforms ==
-Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
-CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
-Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
+# Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
+# CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
+# Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
 
 ##TODO: use SI units before transformations ?
-print "** Conductivity"
-Epsilon_maxSize = CurrentX_AU_FT.size
-# print Efield_AU_FT.size
-Conductivity = np.divide(CurrentX_AU_FT, Efield_AU_FT) #working in AU space ...
-Conductivity_plotX = Conductivity_Freqs #Conductivity_Freqs # timeCurrent[1:maxSize]
-Conductivity_plotY = Efield_AU_FT # Conductivity # Efield_AU[1:maxSize]
-print "Conductivity_X: "+str(Conductivity_plotX.size)
-print "Conductivity_Y: "+str(Conductivity_plotY.size)
+# print "** Conductivity"
+# Epsilon_maxSize = CurrentX_AU_FT.size
+# # print Efield_AU_FT.size
+# Conductivity = np.divide(CurrentX_AU_FT, Efield_AU_FT) #working in AU space ...
+# Conductivity_plotX = Conductivity_Freqs #Conductivity_Freqs # timeCurrent[1:maxSize]
+# Conductivity_plotY = Efield_AU_FT # Conductivity # Efield_AU[1:maxSize]
+# print "Conductivity_X: "+str(Conductivity_plotX.size)
+# print "Conductivity_Y: "+str(Conductivity_plotY.size)
 
 
 ##=== POST-PROCESSED charge density (n_ex from n_tot) ===
@@ -209,7 +218,7 @@ print "TimeStep = "+str(dtCurrent)
 
 ## ================================== TIME FOR PLOTTING ====================
 ### Defining plotting boundaries
-xmin=0.; xmax=40.; unitx=1E15
+xmin=0.; xmax=50.; unitx=1E15
 ymax=2E28; #max for density plot
 ymax2=1E0; #max for field plot
 
@@ -225,11 +234,12 @@ plt.ylabel('Field amplitude (a.u.)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((-ymax2,ymax2))
-plt.plot(time, A1x, 'b-', label='A(t)') #GOOD
+plt.plot(time, A1x/RatioA, 'b-', label='A(t)/'+str(RatioA)) #GOOD
 ### plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 ### plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c \times E(t)$")
-plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
+plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c E(t)$")
+# plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
+plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
@@ -237,8 +247,8 @@ wavelength_AU = length_SI_to_AU(wavelength_SI)
 m=np.arange(0,200) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
 xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
 for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle='--')
-plt.legend(loc=2)
+  plt.axvline(x=xc, color='k', linestyle=':')
+plt.legend(loc=4)
 
 ### Plotting density evolution
 ax2 = plt.subplot(plotB)
@@ -250,7 +260,7 @@ if(QuantityOfInterest == "density"):
   if(UnitSystem=="AU"):
     plt.ylabel('Density exc. el. (a.u.)')
   elif(UnitSystem=="SI"):
-    plt.ylabel('Density exc. el. (m^{-3})')
+    plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
   plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
@@ -263,28 +273,28 @@ elif (QuantityOfInterest == "number"):
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle='--')
+  plt.axvline(x=xc, color='k', linestyle=':')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
 # plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
 # plt.ylabel('Density (a.u.)')
-plt.legend(loc=2)
+# plt.legend(loc=2)
 # plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 
 ## ============ PLOTTING ENERGIES ======
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_e$')
+plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
 plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,        'r-', label=r"$\xi_{Hartree}$")
+# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy [Ha]')
 plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle='--')
+  plt.axvline(x=xc, color='k', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 # ax4 = plt.subplot(414)
@@ -295,6 +305,11 @@ for xc in xposition:
 
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
+  ax2.legend(loc=4)
+  ax3.set_yscale("log", nonposy='clip')
+  ax3.legend(loc=4)
+else:
+  ax2.legend(loc=4)
 
 ## ==== Writing final picture =====
 
@@ -303,7 +318,8 @@ if(EnableLogScale==1):
   filename=filename+"-LogScale"
 plt.savefig(filename+'.eps', bbox_inches='tight')
 plt.savefig(filename+'.png', bbox_inches='tight')
-# plt.show()
+if(ShowFinalPlot==1):
+  plt.show()
 
 print "** Info: Script ended sucessfully."
 print "** Goodbye."
