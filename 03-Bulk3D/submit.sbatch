@@ -9,7 +9,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=8
+#SBATCH --nodes=17
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
