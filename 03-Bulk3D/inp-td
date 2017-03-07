@@ -49,7 +49,7 @@ XYZCoordinates = "Si.xyz" #input is in Bohr now
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = no
-ExtraStates = 1 #0: if observable (Ne, Je), more if not-observable
+ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
 
