@@ -49,12 +49,13 @@ XYZCoordinates = "Si.xyz" #input is in Bohr now
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = no
-ExtraStates = 1 #0: if observable (Ne, Je), more if not-observable
+ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
 
-MaximumIter=1000
-Mixing = 0.05 #looks important to reach convergence on large systems
+# == THis is for ground state
+# MaximumIter=1000
+# Mixing = 0.05 #looks important to reach convergence on large systems
 
 ################
 # LASER PULSES #
@@ -110,13 +111,16 @@ EfieldB = EfieldBsi / HartreePerBohr
 ## Pulse duration 
 tauA = tauAsi / TimeAUtoSI
 tauB = tauBsi / TimeAUtoSI
-t0 = 2.*max(tauA, tauB)
+t0 = max(tauA, tauB)
+t0Gauss = 2.*t0
 GaussianRatio = 2.*sqrt(2. * ln(2.))
 sigmaTauA = tauA / GaussianRatio
 sigmaTauB = tauB / GaussianRatio
 
 ## Double pulse delay
 pulseDelay = pulseDelaySI / TimeAUtoSI
+t1 = t0 + pulseDelay
+t1Gauss = t0Gauss + pulseDelay
 ## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
 # RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
 
@@ -144,19 +148,19 @@ py2 = sin(th)
 %TDExternalFields
 #   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
 #   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
-    vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
     vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
 %
 
 %TDFunctions
-  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0)/sigmaTauA)^2)" #GAUSSIAN 1
-  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-pulseDelay-t0)/sigmaTauB)^2)" # GAUSSIAN 2
+  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
+  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
   "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
-  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t+tauA) * (1e0 - step(t-tauA) )"
-  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t0-tauB)/tauB))^2 * step(t+tauB) * (1e0 - step(t-tauB) )"
-  "FieldColorA-Keldysh" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA)*step(0.5*tauA - t)"
-  "FieldColorB-Keldysh" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA)*step(0.5*tauA - t)"
+  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-Keldysh" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
+  "FieldColorB-Keldysh" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
 %
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 

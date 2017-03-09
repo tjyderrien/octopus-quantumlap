@@ -22,7 +22,7 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 # SampleLayers="6 8 10 12 14 16 18 20"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16"
+kPoints="4"
 InitialTemperature="0e0" 
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
