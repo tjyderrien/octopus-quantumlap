@@ -51,7 +51,10 @@ timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
 A_squared = A1x**2
 A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
-Efield = - (np.diff(A1x)/np.diff(time)) #correct value must be  *1/c 
+
+Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+Efield2= - (np.diff(A2x)/np.diff(time))
+
 Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
 print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
  
@@ -119,8 +122,8 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
-Efield_AU=Efield/c_AU #fixing dimension #TODO: clean me that...
-# Efield2_AU=Efield2/c_AU
+Efield_AU =Efield/c_AU #fixing dimension #TODO: clean me that...
+Efield2_AU=Efield2/c_AU
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
@@ -184,6 +187,7 @@ density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
 Overlap=np.array([CurrentX.size, A1x.size])
 indexmax=Overlap.min()
 A1xShrinked = A1x[0:indexmax]
+A2xShrinked = A2x[0:indexmax]
 CurrentXShrinked=A1x[0:indexmax]
 NnewDerivDt=np.multiply(CurrentXShrinked,A1xShrinked) #still to multiply by dt and sum.
 Nnew = np.cumsum(NnewDerivDt)
@@ -237,13 +241,18 @@ plt.ylabel('Field amplitude (a.u.)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
 # plt.ylim((-ymax2,ymax2))
-plt.plot(time, A1x/RatioA, 'b-', label='A(t)/'+str(RatioA)) #GOOD
-plt.plot(time, A1x/RatioA, 'b-') #GOOD
-### plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
-### plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c E(t)$")
+
+# plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
+plt.plot(time, A1x/RatioA, 'b-', label=r'$A_1(t)$/'+str(RatioA)) #GOOD
+plt.plot(time, A2x/RatioA, 'b-', label=r'$A_2(t)$/'+str(RatioA))
+# plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
+# plt.plot(time, A_squared, 'g-', label="A^2 (t)")
+plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c E_1(t)$")
+plt.plot(time[1:], Efield2_AU*c_AU, 'k-', label=r"$c E_2(t)$")
+
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
+
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
