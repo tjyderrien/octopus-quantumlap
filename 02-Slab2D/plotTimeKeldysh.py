@@ -26,9 +26,9 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
-QuantityOfInterest = "density" #Would you prefer to work densities, or particle number?
+QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 0
-ShowFinalPlot  = 0
+ShowFinalPlot  = 1
 
 ## Load geometry, n_el, laser and total_current files (atomic units)
 geometry = "../Si.xyz" #static method
@@ -61,6 +61,8 @@ wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
 wavelength_SI = float(wavelength_inp[10:17])
 PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
 PulseDuration_SI = float(PulseDuration_inp[8:15])
+DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
+DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
 
 # Explicit data
 # PulseDuration_SI = 10E-15
@@ -118,6 +120,7 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
 Efield_AU=Efield/c_AU #fixing dimension #TODO: clean me that...
+# Efield2_AU=Efield2/c_AU
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
@@ -227,7 +230,7 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 
 ## Plotting electric field
-plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$")
+plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
 #plt.xlabel('Time (fs)')
 # plt.ylabel('Vector potential (a.u.)')
 plt.ylabel('Field amplitude (a.u.)')
@@ -235,6 +238,7 @@ plt.ylabel('Field amplitude (a.u.)')
 plt.xlim((xmin,xmax))
 # plt.ylim((-ymax2,ymax2))
 plt.plot(time, A1x/RatioA, 'b-', label='A(t)/'+str(RatioA)) #GOOD
+plt.plot(time, A1x/RatioA, 'b-') #GOOD
 ### plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 ### plt.plot(time, A_squared, 'g-', label="A^2 (t)")
 plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c E(t)$")
