@@ -43,6 +43,7 @@ TimeStep = timestepTable[0] #they are all equal, just select the first
 A_squared = A1x**2
 A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+Efield2= - (np.diff(A2x)/np.diff(time))
 Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
 print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
  
@@ -149,6 +150,7 @@ density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
 Overlap=np.array([CurrentX.size, A1x.size])
 indexmax=Overlap.min()
 A1xShrinked = A1x[0:indexmax]
+A2xShrinked = A2x[0:indexmax]
 CurrentXShrinked=A1x[0:indexmax]
 NnewDerivDt=np.multiply(CurrentXShrinked,A1xShrinked) #still to multiply by dt and sum.
 Nnew = np.cumsum(NnewDerivDt)
@@ -201,10 +203,12 @@ plt.ylabel('A field (a.u.)')
 plt.xlim((xmin,xmax))
 # plt.ylim((-ymax2,ymax2))
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
-plt.plot(time, (A1x), 'b-', label='A(t)')
+plt.plot(time, (A1x), 'b-', label=r'$A(t)$')
+plt.plot(time, (A2x), 'b-', label=r'$A_2(t)$')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], Efield, 'k-', label="|E(t)|")
+plt.plot(time[1:], Efield, 'k-', label=r"$E_1(t)$")
+plt.plot(time[1:], Efield2, 'k-', label=r"$E_2(t)$")
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
