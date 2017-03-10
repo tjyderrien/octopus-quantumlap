@@ -6,9 +6,9 @@
 source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 MoveIons=0
-kPoints=4
+kPoints=8
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -26,6 +26,7 @@ CEP2=${12}
 delay=${13}
 InitialTemperature=${14}
 PulseShape=${15}
+InducedField=${16}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -72,6 +73,14 @@ DefineParameters () {
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
   echo "[Run_TD] Pulses generated."
+  
+  if [ $InducedField == 1 ]; then
+     GaugeFieldValue="yes"
+     GaugeFieldText="-InducedFields"
+  else
+     GaugeFieldValue="no"
+     GaugeFieldText=""
+  fi
 
   MoveIonsChain=""
   if [ ${MoveIons} == 1 ]; then
@@ -80,7 +89,7 @@ DefineParameters () {
         MoveIonsChain=""
   fi
   export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}
-  export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}
+  export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${GaugeFieldText}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -129,6 +138,7 @@ ReplaceInputFile () {
   sed -i.bak s/ComputingTimeValueToReplace/${ComputingTime}/g inp
   sed -i.bak s/FieldShapeA/FieldColorA-${PulseShape}/g inp
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
+  sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
