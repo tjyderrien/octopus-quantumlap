@@ -28,7 +28,7 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 0
-ShowFinalPlot  = 1
+ShowFinalPlot  = 0
 
 ## Load geometry, n_el, laser and total_current files (atomic units)
 geometry = "../Si.xyz" #static method
@@ -225,9 +225,9 @@ print "TimeStep = "+str(dtCurrent)
 
 ## ================================== TIME FOR PLOTTING ====================
 ### Defining plotting boundaries
-xmin=0.; xmax=50.; unitx=1E15
+xmin=0.; xmax=80.; unitx=1E15
 ymax=2E28; #max for density plot
-ymax2=1E0; #max for field plot
+ymax2=2E0; #max for field plot
 
 ## Defining plot structure
 plt.figure(figsize=(SizeX,SizeY))
@@ -240,15 +240,15 @@ plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decima
 plt.ylabel('Field amplitude (a.u.)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
-# plt.ylim((-ymax2,ymax2))
+plt.ylim((-ymax2,ymax2))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
-plt.plot(time, A1x/RatioA, 'b-', label=r'$A_1(t)$/'+str(RatioA)) #GOOD
-plt.plot(time, A2x/RatioA, 'b-', label=r'$A_2(t)$/'+str(RatioA))
+plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD
+# plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], Efield_AU*c_AU, 'k-', label=r"$c E_1(t)$")
-plt.plot(time[1:], Efield2_AU*c_AU, 'k-', label=r"$c E_2(t)$")
+plt.plot(time[1:], (Efield_AU+Efield2_AU)*c_AU, 'k-', label=r"$c E(t)$")
+# plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
@@ -261,13 +261,15 @@ m=np.arange(0,200) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
 xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle=':')
-plt.legend(loc=4)
+
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+#plt.legend(loc=4) # Simple caption inside picture. 
 
 ### Plotting density evolution
 ax2 = plt.subplot(plotB)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
-# plt.ylim((0,ymax))
+plt.ylim((0,ymax))
 
 if(QuantityOfInterest == "density"):
   if(UnitSystem=="AU"):
@@ -281,8 +283,10 @@ if(QuantityOfInterest == "density"):
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
+
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.legend()
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 for xc in xposition:
@@ -304,7 +308,8 @@ plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy [Ha]')
-plt.legend(loc=2)
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+# plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 for xc in xposition:
   plt.axvline(x=xc, color='k', linestyle=':')
@@ -322,7 +327,8 @@ if(EnableLogScale == 1):
   ax3.set_yscale("log", nonposy='clip')
   ax3.legend(loc=4)
 else:
-  ax2.legend(loc=4)
+#  ax2.legend(loc=4)
+  ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 ## ==== Writing final picture =====
 
