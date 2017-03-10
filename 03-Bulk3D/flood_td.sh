@@ -41,7 +41,7 @@ tau2="10e-15"
 # Phase
 CEP1="0.0"
 CEP2="0.0"
-# delay="1e-15 3e-15 5e-15 7e-15 9e-15"
+# delay="1e-15 3e-15 5e-15 7e-15 9e-15" #precising the range
 delay="0e-15 10e-15 20e-15 30e-15"
 
 for iLambda1 in ${lambda1};
