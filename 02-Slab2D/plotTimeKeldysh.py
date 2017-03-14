@@ -42,7 +42,12 @@ EnableLogScale = 0
 ShowFinalPlot  = 0
 
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
+
+
 # Treat the data generated with Octopus. 
+
+## Converts a vector potential A to electric field 
+#def GaugeFieldToElectricField(laser):
 
 ## Get the vector potential from laser file
 ### Building laser profile...
@@ -54,8 +59,8 @@ A2x = np.asfarray(laser[:,5]) #column number 6
 
 timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
-A_squared = A1x**2
-A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
+#A_squared = A1x**2
+#A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 
 Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
 Efield2= - (np.diff(A2x)/np.diff(time))
