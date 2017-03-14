@@ -20,6 +20,8 @@ from libPlottingSettings import *
 from libString import *
 from libPlotting import *
 
+PlottingTable = np.empty((0,7)) 
+
 # List all output_iter files
 for FolderName in glob.glob('*/*/output_iter/'): 
   #TODO: this is not general enough, directory level does not help
@@ -112,7 +114,8 @@ for FolderName in glob.glob('*/*/output_iter/'):
   PlottingTable = np.vstack(( PlottingTable, [ 
 				wavelength_SI, PulseDuration_SI, Efield_amplitude_SI, 
 				DoublePulseDelay_SI, density_proj_SI_max, density_proj_SI_final, 
-				density_irreversibility_ratio ] ))
+				density_irreversibility_ratio ] )) ##7
+  
   # Cleaning the guys before next loop
   del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
   del wavelength1, wavelength2, tau1, tau2, Epeak1, Epeak2, CEP1, CEP2, delay, kGrid
