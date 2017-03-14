@@ -21,14 +21,14 @@ from libString import *
 from libPlotting import *
 
 # List all output_iter files
-for name in glob.glob('*/*/output_iter/'): 
+for FolderName in glob.glob('*/*/output_iter/'): 
   #TODO: this is not general enough, directory level does not help
-  print name
+  print FolderName
 
   # Import the quantities from the subfolder
-  geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(name)
+  geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
   # Collect the laser parameters
-  filename = name+"../inp"
+  filename = FolderName+"../inp"
   wavelength_inp = LookUpStringInFile(filename, "lambdaA =")
   wavelength_SI = float(wavelength_inp[10:17])
   PulseDuration_inp = LookUpStringInFile(filename, "tauAsi = ")
@@ -49,14 +49,44 @@ for name in glob.glob('*/*/output_iter/'):
   TimeStep = timestepTable[0] #they are all equal, just select the first
   Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
   Efield2= - (np.diff(A2x)/np.diff(time))
-  Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
+  Efield_AU =Efield/c_AU #fixing dimension #TODO: clean me that...
+  Efield2_AU=Efield2/c_AU
+  Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield_AU)))
   
   print "Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
   
-  del time, A1x, A2x, timestepTable, Efield, Efield2
+  # Capturing cell volume
+  SuperCellVolume_AU = Sample.VolumeOfSupercell_Log("../")
+  SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
+  SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
+  SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
+  print ""
+  print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
+  print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
+  print ""
+  print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
+  print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
+  print ""
+  print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
+  print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+
   # Catch the final excited electron density. 
+  timeNe = np.asfarray(Ne[:,1])
+  Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
+  density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
+  
+  ##==== Prepare plotting of energies ====
+  timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
+  ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
+  TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
+  IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
+  Hartree        = np.asfarray(Energy[:,7]) #Hartree
   
   # Append to the table
+  
+  # Cleaning the guys before next loop
+  del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
+  
 
 # Prepare the summary plots
 ## Plot as function of wavelength for one given peak intensity
