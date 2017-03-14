@@ -127,9 +127,28 @@ for FolderName in glob.glob('*/*/output_iter/'):
   #del EnergyMax
   del timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
   
-print "===== FINAL TABLE ====="
-print PlottingTable
-# Prepare the summary plots
+
+print PlottingTable[0,:])
+
+### Prepare the summary plots
+#xmin=0.; xmax=80.; unitx=1E15
+#ymax=2E28; #max for density plot
+#ymax2=2E0; #max for field plot
+
+### Defining plotting structure
+
+#### Plotting: parameters for controlling the canvas
+#plotA=311; plotB=312; plotC=313
+## Size of main canvas
+#SizeX = 10
+#SizeY = 15
+#RatioA = 10 #(decreases A amplitude visually by RatioA times.
+
+#plt.figure(figsize=(SizeX,SizeY))
+#ax1 = plt.subplot(plotA)
+
+#plt.plot(PlottingTable[])
+
 ## Plot as function of wavelength for one given peak intensity
 ## Plot as function of peak intensity for one given wavelength.
 ## Plot as function of double pulse delay
