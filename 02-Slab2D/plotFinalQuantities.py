@@ -77,13 +77,14 @@ for FolderName in glob.glob('*/*/output_iter/'):
   density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
   density_proj_SI = Density_AU_to_SI(density_proj_AU)
   
-  density_proj_SI_final = density_proj_SI.max()
+  sizeOfDensityTab = density_proj_SI.shape
+  density_proj_SI_final = density_proj_SI[sizeOfDensityTab]
   density_proj_SI_max   = density_proj_SI.max()
   
   print "** Electron density analysis "
   print "Final electron density = "+str(density_proj_SI_final)
   print "Max.  electron density = "+str(density_proj_SI_max)
-  print "Irreversibility ratio (Final / Max) = "+str()
+  print "Irreversibility ratio (Final / Max) = "+str(float(density_proj_SI_final / density_proj_SI_max))
   ##==== Prepare plotting of energies ====
   timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
   ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
