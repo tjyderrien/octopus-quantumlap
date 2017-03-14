@@ -36,7 +36,25 @@ for name in glob.glob('*/*/output_iter/'):
   DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
   DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
   
-  print wavelength_SI, PulseDuration_SI, DoublePulseDelay_SI
+  print "Wavelength (nm): "+str(wavelength_SI)
+  print "Pulse duration (s): "+str(PulseDuration_SI)
+  print "Double pulse delay (s): "+str(DoublePulseDelay_SI)
+  
+  # Catch the peak field
+  # /!\ TODO: duplicated code
+  time = np.asfarray(laser[:,1]) #column 2
+  A1x = np.asfarray(laser[:,2]) #column number 3
+  A2x = np.asfarray(laser[:,5]) #column number 6
+  timestepTable = np.diff(time) #size N-1
+  TimeStep = timestepTable[0] #they are all equal, just select the first
+  Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+  Efield2= - (np.diff(A2x)/np.diff(time))
+  Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
+  
+  print "Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+  
+  del time, A1x, A2x, timestepTable, Efield, Efield2
+  # Catch the final excited electron density. 
   
   # Append to the table
 
