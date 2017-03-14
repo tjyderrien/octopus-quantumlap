@@ -114,10 +114,10 @@ for FolderName in glob.glob('*/*/output_iter/'):
 				DoublePulseDelay_SI, density_proj_SI_max, density_proj_SI_final, 
 				density_irreversibility_ratio ] ))
   # Cleaning the guys before next loop
-  del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy, 
-	   wavelength1, wavelength2, tau1, tau2, Epeak1, Epeak2, CEP1, CEP2, delay, kGrid, 
-	   MeshSize, NeMax, NeEnd, density_irreversibility_ratio, EnergyMax, 
-	   timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
+  del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
+  del wavelength1, wavelength2, tau1, tau2, Epeak1, Epeak2, CEP1, CEP2, delay, kGrid
+  del MeshSize, NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
+  del timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
   
 print "===== FINAL TABLE ====="
 print PlottingTable
