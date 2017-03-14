@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+# @module plotTimeKeldysh
+# Plots the TD-n_excited density of electrons, automatically compares with Keldysh model, assuming a limiter. 
+# Plots the TD-energy. 
+# Plots the TD-fields and currents. 
+
 ## IMPORT LIBRARIES
 import numpy as np
 from numpy import genfromtxt, loadtxt, chararray, fft
