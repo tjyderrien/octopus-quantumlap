@@ -59,6 +59,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
   SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
   SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
   SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
+  CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
   SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
   print ""
   print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
