@@ -81,11 +81,12 @@ for FolderName in glob.glob('*/*/output_iter/'):
 
   density_proj_SI_final = density_proj_SI[sizeOfDensityTab-1]
   density_proj_SI_max   = density_proj_SI.max()
+  density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
   
   print "** Electron density analysis "
   print "Final electron density = "+str(density_proj_SI_final)
   print "Max.  electron density = "+str(density_proj_SI_max)
-  print "Irreversibility ratio (Final / Max) = "+str(float(density_proj_SI_final / density_proj_SI_max))
+  print "Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
   ##==== Prepare plotting of energies ====
   timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
   ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
@@ -94,11 +95,32 @@ for FolderName in glob.glob('*/*/output_iter/'):
   Hartree        = np.asfarray(Energy[:,7]) #Hartree
   
   # Append to the table
-  
+  # Structure: 
+  # wavelength1, wavelength2, tau1, tau2, 
+  # Epeak1, Epeak2, 
+  # CEP1, CEP2, delay, 
+  # kGrid, MeshSize, 
+  # NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
+  # One line is one octopus run. O_o
+  #PlottingTable = np.vstack(( PlottingTable, [ 
+				#wavelength1, wavelength2, 
+				#tau1, tau2, Epeak1, Epeak2, 
+				#CEP1, CEP2, delay, 
+				#kGrid, MeshSize, 
+				#NeMax, NeEnd, density_irreversibility_ratio, EnergyMax ] ))
+  # Simplified version first
+  PlottingTable = np.vstack(( PlottingTable, [ 
+				wavelength_SI, PulseDuration_SI, Efield_amplitude_SI, 
+				DoublePulseDelay_SI, density_proj_SI_max, density_proj_SI_final, 
+				density_irreversibility_ratio ] ))
   # Cleaning the guys before next loop
-  del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
+  del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy, 
+	   wavelength1, wavelength2, tau1, tau2, Epeak1, Epeak2, CEP1, CEP2, delay, kGrid, 
+	   MeshSize, NeMax, NeEnd, density_irreversibility_ratio, EnergyMax, 
+	   timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
   
-
+print "===== FINAL TABLE ====="
+print PlottingTable
 # Prepare the summary plots
 ## Plot as function of wavelength for one given peak intensity
 ## Plot as function of peak intensity for one given wavelength.
