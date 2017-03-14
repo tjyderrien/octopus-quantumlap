@@ -56,7 +56,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
   print "Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
   
   # Capturing cell volume
-  SuperCellVolume_AU = Sample.VolumeOfSupercell_Log("../")
+  SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
   SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
   SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
   SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
