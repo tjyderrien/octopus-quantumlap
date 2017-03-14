@@ -9,7 +9,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=17
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
@@ -19,7 +19,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=24:00:00
+#SBATCH --time=10:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 pwd >> $QuantumLap/LastRuns.log

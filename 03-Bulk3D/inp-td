@@ -142,7 +142,7 @@ px2 = cos(th)
 py2 = sin(th)
 
 # Enable the induced field
-# GaugeFieldPropagate = no # | yes
+GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
 # Building up pulses
 %TDExternalFields
