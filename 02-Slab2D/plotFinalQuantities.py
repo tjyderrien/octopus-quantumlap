@@ -146,21 +146,22 @@ irreversibility = PlottingTable[:,6]
 ### Defining plotting structure
 
 #### Plotting: parameters for controlling the canvas
+
 # 2 plots
 plotA=211; plotB=212; #plotC=313
 # 3 plots
 #plotA=311; plotB=312; plotC=313
+
 # Size of main canvas
 SizeX = 10
 SizeY = 15
-RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 plt.figure(figsize=(SizeX,SizeY))
 
 #Plot 1: irreversibility
 ax1 = plt.subplot(plotA)
 plt.title('Irreversibility factor')
-plt.plot(Efield1, irreversibility, label='Irreversibility')
+plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
 ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Field peak amplitude (V/m)')
 plt.ylabel('Irreversibility factor')
@@ -168,7 +169,7 @@ plt.ylabel('Irreversibility factor')
 #Plot 2: Final density as function of delay
 ax2 = plt.subplot(plotB)
 plt.title('Density as function of delay')
-plt.plot(Delay, Ne_final, label='N_{exc}[Delay]')
+plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
 ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
