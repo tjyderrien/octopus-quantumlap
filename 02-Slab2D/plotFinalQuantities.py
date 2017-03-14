@@ -138,7 +138,7 @@ Ne_max          = PlottingTable[:,4]
 Ne_final        = PlottingTable[:,5]
 irreversibility = PlottingTable[:,6]
 
-print wavelengths1.size, pulses1.size, Efield1.size, Delay.size, Ne_max.size, Ne_final.size, irreversibility.size
+#print wavelengths1.shape, pulses1.shape, Efield1.shape, Delay.shape, Ne_max.shape, Ne_final.shape, irreversibility.shape
 
 ## Prepare the summary plots
 
@@ -173,6 +173,7 @@ plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
 ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
+plt.ylim((0,4*5e28))
 
 # Final saving
 figname = 'Metaplot'
