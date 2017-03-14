@@ -18,11 +18,17 @@ import libKeldysh as Keldysh
 from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
+from libPlotting import *
 
 
 ## TODO: separate plotting and density post-calculation into libs
 
-## Plotting parameters
+## Materials properties
+Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
+meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
+#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
+
+## Plotting: parameters for controlling the canvas
 plotA=311; plotB=312; plotC=313
 # Size of main canvas
 SizeX = 10
@@ -35,14 +41,8 @@ QuantityOfInterest = "density" #number" #Would you prefer to work densities (den
 EnableLogScale = 0
 ShowFinalPlot  = 1
 
-## Load geometry, n_el, laser and total_current files (atomic units)
-geometry = "../Si.xyz" #static method
-Ne=loadtxt("../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
-#laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
-laser=np.genfromtxt("../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
-# PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
-TotalCurrent=loadtxt("../td.general/total_current", dtype='str', skiprows=4)
-Energy = np.genfromtxt("../td.general/energy", dtype='str', skip_header=5)
+geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
+# Treat the data generated with Octopus. 
 
 ## Get the vector potential from laser file
 ### Building laser profile...
@@ -71,13 +71,6 @@ PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
 PulseDuration_SI = float(PulseDuration_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
-
-# Explicit data
-# PulseDuration_SI = 10E-15
-Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
-
-meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
-#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ##==== KELDYSH CALCULATION ====
 ValenceBandMax = 5E28 
@@ -135,7 +128,7 @@ Efield2_AU=Efield2/c_AU
 # CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
 # Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
 
-##TODO: use SI units before transformations ?
+##TODO: Do not use FFT, see reasons in Numerical Receipes. 
 # print "** Conductivity"
 # Epsilon_maxSize = CurrentX_AU_FT.size
 # # print Efield_AU_FT.size
