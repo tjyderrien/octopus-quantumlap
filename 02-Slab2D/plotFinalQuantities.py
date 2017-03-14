@@ -61,7 +61,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
   SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
   CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
   SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
-  print ""
+  print "** Sample volumes **"
   print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
   print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
   print ""
@@ -70,12 +70,20 @@ for FolderName in glob.glob('*/*/output_iter/'):
   print ""
   print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
   print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
-
+  print "" 
   # Catch the final excited electron density. 
   timeNe = np.asfarray(Ne[:,1])
   Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
   density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
+  density_proj_SI = Density_AU_to_SI(density_proj_AU)
   
+  density_proj_SI_final = density_proj_SI.max()
+  density_proj_SI_max   = density_proj_SI.max()
+  
+  print "** Electron density analysis "
+  print "Final electron density = "+str(density_proj_SI_final)
+  print "Max.  electron density = "+str(density_proj_SI_max)
+  print "Irreversibility ratio (Final / Max) = "+str()
   ##==== Prepare plotting of energies ====
   timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
   ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
