@@ -138,10 +138,9 @@ Ne_max          = PlottingTable[:,4]
 Ne_final        = PlottingTable[:,5]
 irreversibility = PlottingTable[:,6]
 
-### Prepare the summary plots
-#xmin=0.; xmax=80.; unitx=1E15
-#ymax=2E28; #max for density plot
-#ymax2=2E0; #max for field plot
+print wavelengths1.size, pulses1.size, Efield1.size, Delay.size, Ne_max.size, Ne_final.size, irreversibility.size
+
+## Prepare the summary plots
 
 ### Defining plotting structure
 
@@ -165,6 +164,7 @@ plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
 ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Field peak amplitude (V/m)')
 plt.ylabel('Irreversibility factor')
+plt.ylim((0,1))
 
 #Plot 2: Final density as function of delay
 ax2 = plt.subplot(plotB)
