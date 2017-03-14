@@ -5,6 +5,7 @@
 ## Define shared functions for plotting routines
 
 from numpy import genfromtxt, loadtxt, chararray
+import numpy as np
 
 ## Load geometry, n_el, laser and total_current files (atomic units)
 def LoadRunOutputs(path):
