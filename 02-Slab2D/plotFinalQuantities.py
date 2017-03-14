@@ -77,8 +77,8 @@ for FolderName in glob.glob('*/*/output_iter/'):
   density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
   density_proj_SI = Density_AU_to_SI(density_proj_AU)
   
-  sizeOfDensityTab = density_proj_SI.shape
-  density_proj_SI_final = density_proj_SI[sizeOfDensityTab]
+  sizeOfDensityTab = density_proj_SI.size
+  density_proj_SI_final = density_proj_SI[sizeOfDensityTab-1]
   density_proj_SI_max   = density_proj_SI.max()
   
   print "** Electron density analysis "
