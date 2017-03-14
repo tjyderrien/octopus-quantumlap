@@ -22,6 +22,8 @@ from libPlotting import *
 
 PlottingTable = np.empty((0,7)) 
 
+ShowFinalPlot=1
+
 # List all output_iter files
 for FolderName in glob.glob('*/*/output_iter/'): 
   #TODO: this is not general enough, directory level does not help
@@ -128,7 +130,13 @@ for FolderName in glob.glob('*/*/output_iter/'):
   del timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
   
 
-print PlottingTable[0,:])
+wavelengths1    = PlottingTable[:,0]
+pulses1         = PlottingTable[:,1]
+Efield1         = PlottingTable[:,2]
+Delay           = PlottingTable[:,3]
+Ne_max          = PlottingTable[:,4]
+Ne_final        = PlottingTable[:,5]
+irreversibility = PlottingTable[:,6]
 
 ### Prepare the summary plots
 #xmin=0.; xmax=80.; unitx=1E15
@@ -146,8 +154,17 @@ print PlottingTable[0,:])
 
 #plt.figure(figsize=(SizeX,SizeY))
 #ax1 = plt.subplot(plotA)
+plt.figure()
+plt.plot(Efield1, irreversibility, label='Irreversibility')
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+figname = 'Irreversibility'
+plt.xlabel('Field peak amplitude (V/m)')
+plt.ylabel('Irreversibility factor')
+plt.savefig(figname+'.eps', bbox_inches='tight')
+plt.savefig(figname+'.png', bbox_inches='tight')
+if(ShowFinalPlot==1):
+  plt.show()
 
-#plt.plot(PlottingTable[])
 
 ## Plot as function of wavelength for one given peak intensity
 ## Plot as function of peak intensity for one given wavelength.
