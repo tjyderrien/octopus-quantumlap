@@ -173,7 +173,7 @@ plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
 ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
-plt.ylim((0,4*5e28))
+plt.ylim((0,5e28))
 
 # Final saving
 figname = 'Metaplot'
