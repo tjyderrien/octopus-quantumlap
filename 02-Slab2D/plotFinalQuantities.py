@@ -157,23 +157,23 @@ SizeY = 15
 
 plt.figure(figsize=(SizeX,SizeY))
 
-#Plot 1: irreversibility
+#Plot 1: Final density as function of delay
 ax1 = plt.subplot(plotA)
+plt.title('Density as function of delay')
+plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.xlabel('Double pulse delay (s)')
+plt.ylabel(r'Final density (m$^{-3}$)')
+plt.ylim((0,5e28))
+
+#Plot 2: irreversibility
+ax2 = plt.subplot(plotB)
 plt.title('Irreversibility factor')
 plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
 ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Field peak amplitude (V/m)')
 plt.ylabel('Irreversibility factor')
 plt.ylim((0,1))
-
-#Plot 2: Final density as function of delay
-ax2 = plt.subplot(plotB)
-plt.title('Density as function of delay')
-plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
-ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-plt.xlabel('Double pulse delay (s)')
-plt.ylabel(r'Final density (m$^{-3}$)')
-plt.ylim((0,5e28))
 
 # Final saving
 figname = 'Metaplot'
