@@ -36,6 +36,8 @@ for name in glob.glob('*/*/output_iter/'):
   DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
   DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
   
+  print wavelength_SI, PulseDuration_SI, DoublePulseDelay_SI
+  
   # Append to the table
 
 # Prepare the summary plots
