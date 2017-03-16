@@ -23,6 +23,8 @@ def LookUpStringInFile(Filename, string): #{{{
   for line in searchfile:
     if string in line:
       result = line;
+    else:
+	 result = ""
   return result
 #}}}
 
