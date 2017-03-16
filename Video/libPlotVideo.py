@@ -321,6 +321,157 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   DrawPlots()
   #}}}
   
+def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=-0.03, extreme=0.03, molvar="element"):#{{{
+  SetViewExtentsType(1)	
+  
+  # Showing geometry
+  SetViewExtentsType(1)
+  ## Adding molecules
+  #SetActiveWindow(1)
+  #SetActivePlots((0,1))
+  ReOpenDatabase(inxyz)
+  AddPlot("Molecule", molvar, 1, 1)
+  mol1 = MoleculeAttributes()
+  mol1.drawAtomsAs = mol1.SphereAtoms  # NoAtoms, SphereAtoms, ImposterAtoms
+  mol1.colorBonds = mol1.ColorByAtom  # ColorByAtom, SingleColor
+  mol1.bondSingleColor = (128, 128, 128, 255)
+  mol1.scaleRadiusBy = mol1.Fixed # Fixed, Covalent, Atomic, Variable
+  mol1.radiusFixed = 0.3 #0.3 ?
+  mol1.radiusVariable = "default"
+  mol1.radiusScaleFactor = 1.0
+  mol1.drawBondsAs = mol1.CylinderBonds
+  mol1.bondRadius = 0.12
+  mol1.bondLineWidth = 0
+  mol1.elementColorTable = "cpk_jmol"
+  mol1.residueTypeColorTable = "amino_shapely"
+  mol1.atomSphereQuality = mol1.Super
+  mol1.bondLineStyle = mol1.SOLID
+  mol1.residueSequenceColorTable = "Default"
+  mol1.continuousColorTable = "Default"
+  mol1.bondCylinderQuality = mol1.Super
+  #MoleculeAtts.legendFlag = 1
+  #MoleculeAtts.minFlag = 0
+  #MoleculeAtts.scalarMin = 0
+  #MoleculeAtts.maxFlag = 0
+  #MoleculeAtts.scalarMax = 1
+  SetPlotOptions(mol1)
+  
+  ### Pseudo color to remove
+  ReOpenDatabase(indensityvtk)
+  AddPlot("Contour", WhatToPlot, 1, 1)
+      
+  ReOpenDatabase(indensityvtk)
+  AddPlot("Contour", WhatToPlot, 1, 1)
+  #SetActivePlots((0, 1))
+  ContourAtts = ContourAttributes()
+  
+  
+  if(WhatToPlot == "Difference"): #will not be used
+    ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
+    ContourAtts.minFlag = 1
+    ContourAtts.maxFlag = 1
+    ContourAtts.contourNLevels = 7
+    ContourAtts.max = extreme
+    ContourAtts.min = -extreme
+    # divergent 7 contour map (depletion: blue, neutral: white, overdensity: red)
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 50)) #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 50)) #blue sky
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 20)) #light blue
+    ContourAtts.SetMultiColor(3, (255, 255, 255, 0))  #white, transparent
+    ContourAtts.SetMultiColor(4, (255, 204, 0, 70)) #light yellow
+    ContourAtts.SetMultiColor(5, (255, 153, 0, 70))   #pastel orange
+    ContourAtts.SetMultiColor(6, (255, 0, 0, 124))    #strong red
+    
+  elif (WhatToPlot == "ELFcontour"):
+    ContourAtts.contourMethod = ContourAtts.Value  # Level, Value, Percent
+    ContourAtts.minFlag = 0
+    ContourAtts.maxFlag = 0
+    ContourAtts.colorType = ContourAtts.ColorBySingleColor
+    ContourAtts.legendFlag = 1
+    ContourAtts.lineStyle = ContourAtts.SOLID
+    ContourAtts.singleColor = (0, 0, 255, 255)
+    
+  else: 
+    ContourAtts.contourMethod = ContourAtts.Level  # Level, Value, Percent
+    ContourAtts.minFlag = 1
+    ContourAtts.maxFlag = 1
+    # 3 color map (depletion: blue, overdensity: red)
+    #ContourAtts.SetMultiColor(0, (25, 94, 255, 255))
+    #ContourAtts.SetMultiColor(1, (255, 255, 255, 0))
+    #ContourAtts.SetMultiColor(2, (255, 0, 0, 255))
+
+    # 6 color map, gradual
+    ContourAtts.contourNLevels = 6
+    ContourAtts.max = extreme
+    ContourAtts.min = minValue
+    ContourAtts.SetMultiColor(0, (51, 102, 255, 30))  #deep blue
+    ContourAtts.SetMultiColor(1, (153, 204, 255, 50)) #sky blue
+    ContourAtts.SetMultiColor(2, (204, 255, 255, 50)) #light blue
+    ContourAtts.SetMultiColor(3, (255, 204, 0, 30))    #light yellow
+    ContourAtts.SetMultiColor(4, (255, 153, 0, 30))   #pastel orange
+    ContourAtts.SetMultiColor(5, (255, 0, 0, 100))    #strong red 
+    
+  SetPlotOptions(ContourAtts)
+  # Magnification on one atomic site below the surface
+  SetWindowMode("zoom")
+  #DrawPlots()
+  #SetActivePlots(1)
+      
+  # Build a 2D slide from 3D system
+  SetActivePlots((0, 1))
+  #SetActivePlots(0)
+  AddOperator("Slice", 1)
+  SliceAtts = SliceAttributes()
+  if(axis == "X"): #Aligned with H bonds :) 
+    SliceAtts.normal = (1, 0, 0)
+    SliceAtts.axisType = SliceAtts.XAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
+    SliceAtts.upAxis = (0, 0, 1)
+    SliceAtts.flip = 1
+    SliceAtts.theta = 90
+    SliceAtts.phi = 0
+    SliceAtts.project2d = 1
+  
+  if(axis == "Y"): #Not aligned with Si chemical bonds :-(
+    SliceAtts.normal = (0, -1, 0)
+    SliceAtts.axisType = SliceAtts.YAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
+    SliceAtts.upAxis = (0, 0, 1)
+    SliceAtts.flip = 0
+    SliceAtts.theta = 180
+    SliceAtts.phi = 0
+    SliceAtts.project2d = 1
+    
+  if(axis == "SiBond"): #Aligned with Si chemical bonds :)
+    SliceAtts.normal = (1, 1, 1)
+    SliceAtts.originType = SliceAtts.Point  # Point, Intercept, Percent, Zone, Node
+    SliceAtts.originPoint = (OriginX, OriginY, OriginZ)
+    SliceAtts.axisType = SliceAtts.Arbitrary  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
+    #SliceAtts.upAxis = (0, 0, 1)
+    SliceAtts.flip = 0
+    SliceAtts.theta = 0
+    SliceAtts.phi = 0
+    SliceAtts.project2d = 1
+    
+  if(axis == "Z"):
+    SliceAtts.normal = (0, 0, -1)
+    SliceAtts.axisType = SliceAtts.ZAxis  # XAxis, YAxis, ZAxis, Arbitrary, ThetaPhi
+    SliceAtts.upAxis = (0, 0, 1)
+    SliceAtts.flip = 1
+    SliceAtts.theta = 90
+    SliceAtts.phi = 0
+    SliceAtts.project2d = 1
+  
+  SliceAtts.interactive = 1
+  SetOperatorOptions(SliceAtts, 1)
+
+  #Adding a label for the time step    
+  l1s = CreateAnnotationObject("Text2D")
+  l1s.text = "step # "+step
+  l1s.position = (0.05, 0.05)
+  
+  # Drawing plot to run query
+  DrawPlots()
+  #}}}  
+  
 def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=0., extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
   SetViewExtentsType(1)
   ## Adding molecules
