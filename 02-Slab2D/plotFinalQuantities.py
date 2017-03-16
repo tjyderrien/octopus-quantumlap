@@ -39,13 +39,14 @@ for FolderName in glob.glob('*/*/output_iter/'):
   PulseDuration_SI = float(PulseDuration_inp[8:15])
   DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
   DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
-  FieldInduced_inp = LookUpStringInFile(filename, "GaugeFieldPropagate = yes")
-  FieldInduced_length = len(FieldInduced_inp[0:25])
-  if(FieldInduced_length > 0): 
-    FieldInducedEnabled=True
-    continue #Jump this calculation. Too complicated to understand for now.
-  else:
+  FieldInduced_inp = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
+  FieldInduced_string = FieldInduced_inp[0]
+
+  if(FieldInduced_string == "#"): #remove runs with induced fields! 
     FieldInducedEnabled=False
+  else:
+    FieldInducedEnabled=True
+    continue
   
   print "Wavelength (nm): "+str(wavelength_SI)
   print "Pulse duration (s): "+str(PulseDuration_SI)
@@ -156,7 +157,9 @@ irreversibility = PlottingTable[:,6]
 # 2 plots
 #plotA=211; plotB=212; #plotC=313
 # 3 plots
-plotA=311; plotB=312; plotC=313
+# plotA=311; plotB=312; plotC=313;
+# 4 plots 
+plotA=221; plotB=222; plotC=223; plotD=224;
 
 # Size of main canvas
 SizeX = 10
@@ -166,10 +169,10 @@ plt.figure(figsize=(SizeX,SizeY))
 
 #Plot 1: Final density as function of delay
 ax1 = plt.subplot(plotA)
-plt.title('Density as function of delay')
-plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
+plt.title('Density as function of peak field')
+plt.plot(Efield1, Ne_final, 'o', label='N_{exc}[Delay]')
 ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-plt.xlabel('Double pulse delay (s)')
+# plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
 plt.ylim((0,5e28))
 
@@ -182,20 +185,20 @@ plt.xlabel('Field peak amplitude (V/m)')
 plt.ylabel('Irreversibility factor')
 plt.ylim((0,1))
 
-#Plot 2: Final density as function of delay
-ax2 = plt.subplot(plotB)
+#Plot 3: Final density as function of delay
+ax3 = plt.subplot(plotC)
 plt.title('Density as function of delay')
 plt.plot(Delay, Ne_final, 'o', label='N_{exc}[Delay]')
-ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
 plt.ylim((0,5e28))
 
-#Plot 3: Irreversibility as function of delayD
-ax3 = plt.subplot(plotC)
+#Plot 4: Irreversibility as function of delayD
+ax4 = plt.subplot(plotD)
 plt.title('Irreversibility factor')
 plt.plot(Delay, irreversibility, 'o', label='Irreversibility')
-ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel('Irreversibility factor')
 plt.ylim((0,1))
