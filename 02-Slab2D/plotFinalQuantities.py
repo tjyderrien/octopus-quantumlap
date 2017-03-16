@@ -39,6 +39,13 @@ for FolderName in glob.glob('*/*/output_iter/'):
   PulseDuration_SI = float(PulseDuration_inp[8:15])
   DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
   DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
+  FieldInduced_inp = LookUpStringInFile(filename, "GaugeFieldPropagate = yes")
+  FieldInduced_length = len(FieldInduced_inp[0:25])
+  if(FieldInduced_length > 0): 
+    FieldInducedEnabled=True
+    continue #Jump this calculation. Too complicated to understand for now.
+  else:
+    FieldInducedEnabled=False
   
   print "Wavelength (nm): "+str(wavelength_SI)
   print "Pulse duration (s): "+str(PulseDuration_SI)
@@ -147,9 +154,9 @@ irreversibility = PlottingTable[:,6]
 #### Plotting: parameters for controlling the canvas
 
 # 2 plots
-plotA=211; plotB=212; #plotC=313
+#plotA=211; plotB=212; #plotC=313
 # 3 plots
-#plotA=311; plotB=312; plotC=313
+plotA=311; plotB=312; plotC=313
 
 # Size of main canvas
 SizeX = 10
@@ -174,6 +181,15 @@ ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 plt.xlabel('Double pulse delay (s)')
 plt.ylabel(r'Final density (m$^{-3}$)')
 plt.ylim((0,5e28))
+
+#Plot 3: Irreversibility as function of delayD
+ax3 = plt.subplot(plotC)
+plt.title('Irreversibility factor')
+plt.plot(Delay, irreversibility, 'o', label='Irreversibility')
+ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.xlabel('Double pulse delay (s)')
+plt.ylabel('Irreversibility factor')
+plt.ylim((0,1))
 
 # Final saving
 figname = 'Metaplot'
