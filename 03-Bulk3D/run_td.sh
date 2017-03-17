@@ -47,7 +47,7 @@ ProcessArguments () { # Conversion factors for sample
 
 DefineParameters () {
   # Input laser parameters
-  if [ $MoveIon == 1 ]; then
+  if [ $MoveIons == 1 ]; then
     RelaxationTime=$( python_calc "500e-15"  )
   else
     RelaxationTime=$( python_calc "100e-15" )
@@ -89,7 +89,7 @@ DefineParameters () {
         MoveIonsChain=""
   fi
   export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}
-  export localPath=${groundStatePath}${MoveIonsChain}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${GaugeFieldText}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
