@@ -501,7 +501,8 @@ for i in range(0,len(indata)):
     # Saving the image
     SetViewExtentsType(1)
     SaveWindow()
-    DeleteActiveAnnotationObjects()
+    #DeleteActiveAnnotationObjects()
+    ClearWindow()
     ClearAllWindows() #Attempt to avoid keeping marks from one picture to another. 
 
     # Clear and close
@@ -509,7 +510,7 @@ for i in range(0,len(indata)):
         SetActiveWindow(winind)
         DeleteAllPlots()
         RemoveAllOperators()
-        ClearWindow(True)
+        ClearWindow()
         ClearAllWindows()
         
    
