@@ -501,6 +501,7 @@ for i in range(0,len(indata)):
     # Saving the image
     SetViewExtentsType(1)
     SaveWindow()
+    ClearAllWindows() #Attempt to avoid keeping marks from one picture to another. 
 
     # Clear and close
     for winind in range(1,10):
