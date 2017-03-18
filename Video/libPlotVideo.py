@@ -319,6 +319,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   
   # Drawing plot to run query
   DrawPlots()
+  DeleteActiveAnnotationObjects() #remove the annotation object
   #}}}
   
 def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=-0.03, extreme=0.03, molvar="element"):#{{{
@@ -470,6 +471,7 @@ def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., 
   
   # Drawing plot to run query
   DrawPlots()
+  DeleteActiveAnnotationObjects()
   #}}}  
   
 def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., OriginY=0., OriginZ=0., axis="X", minValue=0., extreme=0.01, ZoomValue=1.0, Enable_Perspective=0, molvar="element"):#{{{
@@ -591,4 +593,5 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   l1s.position = (0.05, 0.05)
   
   DrawPlots()
+  DeleteActiveAnnotationObjects()
   #}}}
