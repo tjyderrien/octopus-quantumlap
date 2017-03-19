@@ -320,7 +320,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   # Drawing plot to run query
   DrawPlots()
 #  l1s_delete = GetAnnotationObject()
-  l1s.Delete()
+#  l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
 #  l1s_delete.Delete()
   # DeleteActiveAnnotationObjects() #remove the annotation object
   #}}}
@@ -475,7 +475,7 @@ def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., 
   # Drawing plot to run query
   DrawPlots()
   # l1s_delete = GetAnnotationObject(0)
-  l1s.Delete()
+#  l1s.Delete() #Was not helpful
   #DeleteActiveAnnotationObjects()
   #}}}  
   
@@ -599,6 +599,6 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   
   DrawPlots()
   #l1s_delete = GetAnnotationObject(0)
-  l1s.Delete()
+#  l1s.Delete() #Not helpful
   #DeleteActiveAnnotationObjects()
   #}}}
