@@ -54,8 +54,8 @@ do
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
 	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
 	echo ""
-	
-	# echo "** Generating list of TD-visual outputs..."
+
+ 	# echo "** Generating list of TD-visual outputs..."
  	# TODO : $QuantumLaP/Video/buildFileList.sh #generated listoffiles.txt
         # echo "td.0000000/" > listoffiles.txt
  	# echo "td.0007770/" >> listoffiles.txt
@@ -63,6 +63,18 @@ do
 
 	cd $prevFolder > /dev/null
 done
+
+# for folder in $( list_folders | grep -v 'lambda' ) 
+# do
+#  prevFolder=$( pwd )
+#  cd $folder
+  echo "** Plotting nice figure for post-processed density for $(pwd)..."
+  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 0 0
+  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 0 1
+  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 1 0
+  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 1 1
+#   cd $prevFolder > /dev/null
+# done 
 
 # git commit -m 'Added new time-dependent plots.'
 # echo "plots have been added to Git. Just commit and push them."
