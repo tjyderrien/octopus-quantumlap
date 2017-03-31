@@ -8,6 +8,8 @@
 ## IMPORT LIBRARIES
 import numpy as np
 from numpy import genfromtxt, loadtxt, chararray
+# from scipy import interpolate
+import matplotlib.pyplot as pplt
 # from pylab import *
 import sys
 import decimal
@@ -23,8 +25,10 @@ from libPlotting import *
 PlottingTable = np.empty((0,7)) 
 
 ShowFinalPlot              = 1
-EnableDoublePulseAnalysis  = 0
-EnableInducedFieldAnalysis = 0
+EnableDoublePulseAnalysis  = 1 #also enables plotting with scattered dots
+EnableInducedFieldAnalysis = 1
+
+Density=5E28
 
 # List all output_iter files
 for FolderName in glob.glob('*/*/output_iter/'): 
@@ -198,37 +202,60 @@ plt.figure(figsize=(SizeX,SizeY))
 
 #Plot 1: Final density as function of delay
 ax1 = plt.subplot(plotA)
-plt.title('Density as function of peak field')
-plt.plot(Efield1, Ne_final, 'o', label=r'$N_{exc}$[Field]')
-ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-plt.xlabel('Field peak amplitude (V/m)')
-plt.ylabel(r'Final density (m$^{-3}$)')
-plt.ylim((0,5e28))
+if(EnableDoublePulseAnalysis==1): 
+  plt.title('Final density (peak field, delay)')
+  print "** 3d plot: Ne_final size = "+str(len(Ne_final))
+  Efield1_uniq=list(set(Efield1)); Delay_uniq=list(set(Delay));
+  print "** 3d plot: Delay*    size = "+str(len(Delay_uniq)) 
+  print "** 3d plot: Efield1*  size = "+str(len(Efield1_uniq))
+#  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
+  # Ne_final_3d_interp = interpolate.interp2d(Efield1, Delay, Ne_final)
+  # Efield1_interp = np.arange(1E8, 1E10, 1E8)
+  # Delay_interp   = np.arange(0e0, 50e-15, 10e-15)
+  # Ne_final_3d = Ne_final_3d_interp(Efield1_interp, Delay_interp) 
+  # plt.contourf(Efield1_interp, Delay_interp, Ne_final_3d, tri=True)
+  pplt.ylabel('Delay (fs)')
+  pplt.xlabel('Field ampl. (V/m)')
+  pplt.scatter(Efield1, Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
+else: 
+  plt.title('Density as function of peak field')
+  plt.plot(Efield1, Ne_final, 'o', label=r'$N_{exc}$[Field]')
+  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.xlabel('Field peak amplitude (V/m)')
+  plt.ylabel(r'Final density (m$^{-3}$)')
+  plt.ylim((0,5e28))
 
 #Plot 2: irreversibility
 ax2 = plt.subplot(plotB)
 plt.title('Irreversibility factor')
-plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
-ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-plt.xlabel('Field peak amplitude (V/m)')
-plt.ylabel('Irreversibility factor')
-plt.ylim((0,1))
+if(EnableDoublePulseAnalysis==1):
+  pplt.ylabel('Delay (fs)')
+  pplt.xlabel('Field ampl. (V/m)')
+#  area = np.po
+  pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
+else:
+  plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
+  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.xlabel('Field peak amplitude (V/m)')
+  plt.ylabel('Irreversibility factor')
+  plt.ylim((0,1))
 
 if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay
   ax3 = plt.subplot(plotC)
   plt.title('Density as function of delay')
-  plt.plot(Delay, Ne_final, 'o', label=r'$N_{exc}$[Delay]')
-  ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.semilogy(Delay, Ne_final, 'o', label=r'$N_{exc}$[Delay]')
+  # ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   plt.xlabel('Double pulse delay (s)')
   plt.ylabel(r'Final density (m$^{-3}$)')
   plt.ylim((0,5e28))
+
 
   #Plot 4: Irreversibility as function of delayD
   ax4 = plt.subplot(plotD)
   plt.title('Irreversibility factor')
   plt.plot(Delay, irreversibility, 'o', label='Irreversibility[Delay]')
-  ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   plt.xlabel('Double pulse delay (s)')
   plt.ylabel('Irreversibility factor')
   plt.ylim((0,1))

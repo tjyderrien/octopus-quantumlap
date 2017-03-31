@@ -39,7 +39,9 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 0
-ShowFinalPlot  = 0
+ShowFinalPlot  = 1
+
+PlottingMode = "nonthermalmelting" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
@@ -228,9 +230,21 @@ print "TimeStep = "+str(dtCurrent)
 
 ## ================================== TIME FOR PLOTTING ====================
 ### Defining plotting boundaries
-xmin=0.; xmax=80.; unitx=1E15
-ymax=2E28; #max for density plot
-ymax2=2E0; #max for field plot
+if(PlottingMode=="nonthermalmelting"):
+  xmin=0.; xmax=500.; unitx=1E15
+  ymin=1E0; ymax=1E29; #max for density plot
+  ymax2=5E0; #max for field plot
+  PlotGrid=0
+elif(PlottingMode=="doublepulse"):
+  xmin=0.; xmax=100.; unitx=1E15
+  ymin=1E0; ymax=1E29; 
+  ymax2=5E0;
+  PlotGrid=1 
+elif(PlottingMode=="keldysh"):
+  xmin=0.; xmax=40.; unitx=1E15
+  ymin=1E0; ymax=1E29;
+  ymax2=5E0;
+  PlotGrid=1
 
 ## Defining plot structure
 plt.figure(figsize=(SizeX,SizeY))
@@ -259,11 +273,12 @@ plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
 
-##Let's add a grid to compare the A extrema and Ne(t) extrema
-m=np.arange(0,200) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
-xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
-for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle=':')
+if(PlotGrid==1):
+  ##Let's add a grid to compare the A extrema and Ne(t) extrema
+  m=np.arange(0,500) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
+  xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
+  for xc in xposition:
+    plt.axvline(x=xc, color='k', linestyle=':')
 
 plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 #plt.legend(loc=4) # Simple caption inside picture. 
@@ -272,7 +287,7 @@ plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 ax2 = plt.subplot(plotB)
 # plt.xlim((0,unitx*timePost.max()))
 plt.xlim((xmin,xmax))
-plt.ylim((0,ymax))
+plt.ylim((ymin,ymax))
 
 if(QuantityOfInterest == "density"):
   if(UnitSystem=="AU"):
@@ -292,8 +307,9 @@ elif (QuantityOfInterest == "number"):
 plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
-for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle=':')
+if(PlotGrid==1):
+  for xc in xposition:
+    plt.axvline(x=xc, color='k', linestyle=':')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
 # plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
 
@@ -314,8 +330,9 @@ plt.ylabel('Energy [Ha]')
 plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 # plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
-for xc in xposition:
-  plt.axvline(x=xc, color='k', linestyle=':')
+if(PlotGrid==1):
+  for xc in xposition:
+    plt.axvline(x=xc, color='k', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 # ax4 = plt.subplot(414)
