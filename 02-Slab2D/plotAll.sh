@@ -52,7 +52,8 @@ do
         echo "** ENABLE ONLY IF NECESSARY. Very long.. (1h)"
 	# screen -d -m ${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
-	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
+	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py auto 0
+        screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py auto 1
 	echo ""
 
  	# echo "** Generating list of TD-visual outputs..."

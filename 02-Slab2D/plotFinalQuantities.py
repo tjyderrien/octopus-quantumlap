@@ -21,6 +21,7 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
 from libPlotting import *
+from libKeldysh import *
 
 PlottingTable = np.empty((0,7)) 
 
@@ -245,7 +246,7 @@ else:
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Field peak amplitude (V/m)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
-  pplt.ylim((1E16,4.*5e28))
+#  pplt.ylim((1E16,4.*5e28))
 #  ax1.set_yscale('log')
 
 #Plot 2: irreversibility
@@ -253,15 +254,24 @@ ax2 = plt.subplot(plotB)
 plt.title('Irreversibility factor')
 if(EnableDoublePulseAnalysis==1):
   pplt.ylabel('Delay (fs)')
+  pplt.y2label('Adibadicity parameter')
   pplt.xlabel('Field ampl. (V/m)')
 #  area = np.po
   pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
 else:
   pplt.scatter(Efield1, irreversibility, c=Delay*1E15, label='Irreversibility')
-  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Field peak amplitude (V/m)')
   pplt.ylabel('Irreversibility factor')
   pplt.ylim((0,1))
+  
+  ax22 = ax2.twinx()
+  pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
+  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  pplt.ylabel('Adiabadicity factor')
+#  pplt.ylim((0,1))
+  ax22.set_yscale("log")
+  ax2.legend(loc=2, borderaxespad=0.)
+  ax22.legend(loc=1, borderaxespad=0.)
 
 if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay

@@ -38,10 +38,42 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
-EnableLogScale = 0
+EnableLogScale = 2 #1: yes, 2: from command line
 ShowFinalPlot  = 1
 
-PlottingMode = "nonthermalmelting" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
+PlottingMode = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
+PlottingMethod = "detect" #bruteforce
+
+if(PlottingMode == "auto"):
+## METHOD BRUTEFORCE
+  if(PlottingMethod == "bruteforce"):
+    PlottingMode = sys.argv[1]
+    if( not (PlottingMode == "nonthermalmelting" or PlottingMode == "doublepulse" or PlottingMode == "keldysh") ):
+      print "Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1>"
+      exit()
+## METHOD detection in input file
+  else:
+    filename = "../inp"
+    Efield2_inp = LookUpStringInFile(filename, "EfieldBsi =")
+    Efield2_SI  = float(Efield2_inp[11:15])
+    MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
+    MoveIonValue = MoveIonChain[11:15]
+    MoveIonClean = MoveIonValue.strip()
+    if(Efield2_SI > 1E0): #double pulse enabled
+      PlottingMode="doublepulse" #priority 1
+    elif(MoveIonClean == "yes"):
+      PlottingMode="nonthermalmelting" #priority 2
+    else: 
+      PlottingMode="keldysh" #priority 3
+    print "** Plotting mode automatic: "+PlottingMode
+if(int(EnableLogScale) == 2):
+  try: 
+    EnableLogScale = int(sys.argv[2]) #read from terminal
+    ShowFinalPlot  = 0     # MORE SAFE. 
+  except: 
+    print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1>."
+    exit()
+  
 
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
@@ -352,7 +384,7 @@ else:
 
 ## ==== Writing final picture =====
 
-filename='KeldyshAnalysis'
+filename='KeldyshAnalysis-'+PlottingMode
 if(EnableLogScale==1): 
   filename=filename+"-LogScale"
 plt.savefig(filename+'.eps', bbox_inches='tight')

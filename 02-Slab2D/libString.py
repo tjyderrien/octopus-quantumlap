@@ -20,11 +20,11 @@ def LookUpStringInFile(Filename, string): #{{{
   searchfile = open(newest, "r")
 
   # Search into this file the <line> with <string>
+  result=''
+
   for line in searchfile:
     if string in line:
       result = line;
-    else:
-	 result = ""
   return result
 #}}}
 

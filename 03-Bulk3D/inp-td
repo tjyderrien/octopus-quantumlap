@@ -194,9 +194,9 @@ Output = density + potential + geometry + elf + current + kinetic_energy_density
 #OutputFormat = cube #VisIt
 OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + cube + netcdf #OpenDX, UCSF Chimera
 
-OutputInterval = 10
-RestartWriteInterval = 50
-TDOutputComputeInterval = 10
+OutputInterval = 50
+RestartWriteInterval = 100
+TDOutputComputeInterval = 50
 
 # Absorbing boundary
 # AbsorbingBoundaries = mask
