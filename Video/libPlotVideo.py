@@ -313,7 +313,8 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   SetOperatorOptions(SliceAtts, 1)
 
   #Adding a label for the time step   
-  l1s.Delete()
+  try: 
+    l1s.Delete()
   l1s = CreateAnnotationObject("Text2D") #TODO: transparency is kept from one picture to another, making writings not readable
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
@@ -469,7 +470,8 @@ def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., 
   SetOperatorOptions(SliceAtts, 1)
 
   #Adding a label for the time step    
-  l1s.Delete()
+  try:
+    l1s.Delete()
   l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
@@ -595,7 +597,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   SetView3D(View3DAtts)
   
   #Adding a label for the time step
-  l1s.Delete() #remove if exists
+  try:
+    l1s.Delete() #remove if exists
   l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
