@@ -8,7 +8,7 @@ source functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0
-kPoints=8 # 8
+kPoints=4 # 8
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -181,8 +181,8 @@ SubmitTheJob () {
   fi
   if [ -e ${groundStatePath}-Save ]; then
           echo "[Copy] Source: ${groundStatePath}-Save"
-          echo "[Copy] Target: ${groundStatePath}${MoveIonsChain}"
-          ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}${MoveIonsChain}/ $DryRunChain
+          echo "[Copy] Target: ${groundStatePath}"
+          ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
   else
     echo "GROUND STATE DOES NOT EXIST."
     echo "Expected path: ${groundStatePath}-Save"

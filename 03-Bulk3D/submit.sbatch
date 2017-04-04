@@ -19,7 +19,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=10:00:00
+#SBATCH --time=24:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 pwd >> $QuantumLap/LastRuns.log
