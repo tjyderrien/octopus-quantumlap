@@ -25,10 +25,25 @@ from libPlotting import *
 PlottingTable = np.empty((0,7)) 
 
 ShowFinalPlot              = 1
-EnableDoublePulseAnalysis  = 1 #also enables plotting with scattered dots
-EnableInducedFieldAnalysis = 1
+
+EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
+EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
 
 Density=5E28
+
+if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mode
+  try: 
+    EnableDoublePulseAnalysis = int(float(sys.argv[1]))
+    EnableInducedFieldAnalysis = int(float(sys.argv[2]))
+    print "Double pulse mode?"+str(EnableDoublePulseAnalysis)
+    print "Induced fields   ?"+str(EnableInducedFieldAnalysis)
+#    ShowFinalPlot = 0 #avoids problems with serial plotting 
+  except: 
+    print "Usage: plotFinalQuantities.py DoublePulse? InducedFields? "
+    print "Ex:    plotFinalQuantities.py 1 1"
+    exit()
+  
+
 
 # List all output_iter files
 for FolderName in glob.glob('*/*/output_iter/'): 
@@ -53,20 +68,27 @@ for FolderName in glob.glob('*/*/output_iter/'):
   except:
     FieldInduced_string = ''
 
-  # Filter the induced fields
+  # Filter the induced fields #TODO: reshape these tests. Maybe invert test on InducedFieldDetection and InducedFieldAnalysis?  Problem is: we would like to miss none of the runs. Because counting dots and number of runs is complicated. 
+  ## Remove contradictory caes
   if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
-    print "Jumped [Case 1]"
+    print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
     continue
   if(EnableInducedFieldAnalysis == 0 and FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
-    print "Jumped [Case 2]"
+    print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
     continue
-  else:
+  ## Matching cases also may have some exceptions
+  else: 
     if(FieldInduced_string == "#"):
-      FieldInducedEnabled=False
+      print "Induced Field was DISABLED in computation."
     elif(FieldInduced_string == "G"):
-      FieldInducedEnabled=True
+      print "Induced field was ENABLED in computation."
     else:
-      FieldInducedEnabled=False
+      if(EnableInducedFieldAnalysis==1):
+        print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
+        continue
+      else:
+        print "Induced field was not found in this computation. But we take it into account."
+  
 
   # Jump selections which don't match with desire. 
   if(  Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
@@ -188,7 +210,7 @@ irreversibility = PlottingTable[:,6]
 if(EnableDoublePulseAnalysis==0):
   # 2 plots
   plotA=211; plotB=212; #plotC=313
-elif(EnableDoublePulseAnalysis==1):
+else: #if(EnableDoublePulseAnalysis==1):
 # 3 plots
 # plotA=311; plotB=312; plotC=313;
   # 4 plots 
@@ -218,12 +240,13 @@ if(EnableDoublePulseAnalysis==1):
   pplt.xlabel('Field ampl. (V/m)')
   pplt.scatter(Efield1, Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
 else: 
-  plt.title('Density as function of peak field')
-  plt.plot(Efield1, Ne_final, 'o', label=r'$N_{exc}$[Field]')
+  pplt.title('Density as function of peak field')
+  pplt.scatter(Efield1, Ne_final, c=Delay, label=r'$N_{exc}$[Field]')
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  plt.xlabel('Field peak amplitude (V/m)')
-  plt.ylabel(r'Final density (m$^{-3}$)')
-  plt.ylim((0,5e28))
+  pplt.xlabel('Field peak amplitude (V/m)')
+  pplt.ylabel(r'Final density (m$^{-3}$)')
+  pplt.ylim((1E16,4.*5e28))
+#  ax1.set_yscale('log')
 
 #Plot 2: irreversibility
 ax2 = plt.subplot(plotB)
@@ -234,39 +257,42 @@ if(EnableDoublePulseAnalysis==1):
 #  area = np.po
   pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
 else:
-  plt.plot(Efield1, irreversibility, 'o', label='Irreversibility')
+  pplt.scatter(Efield1, irreversibility, c=Delay*1E15, label='Irreversibility')
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  plt.xlabel('Field peak amplitude (V/m)')
-  plt.ylabel('Irreversibility factor')
-  plt.ylim((0,1))
+  pplt.xlabel('Field peak amplitude (V/m)')
+  pplt.ylabel('Irreversibility factor')
+  pplt.ylim((0,1))
 
 if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay
   ax3 = plt.subplot(plotC)
-  plt.title('Density as function of delay')
-  plt.semilogy(Delay, Ne_final, 'o', label=r'$N_{exc}$[Delay]')
+  pplt.title('Density as function of delay')
+  pplt.scatter(Delay*1E15, Ne_final, c=Efield1/1E9, label=r'$N_{exc}$[Delay]')
   # ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  plt.xlabel('Double pulse delay (s)')
-  plt.ylabel(r'Final density (m$^{-3}$)')
-  plt.ylim((0,5e28))
-
+  pplt.xlabel('Double pulse delay (fs)')
+  pplt.ylabel(r'Final density (m$^{-3}$)')
+#  plt.ylim((0,5e28))
+  ax3.set_yscale("log")
 
   #Plot 4: Irreversibility as function of delayD
   ax4 = plt.subplot(plotD)
-  plt.title('Irreversibility factor')
-  plt.plot(Delay, irreversibility, 'o', label='Irreversibility[Delay]')
+  pplt.title('Irreversibility factor')
+  pplt.scatter(Delay*1E15, irreversibility, c=Efield1/1E9, label='Irreversibility[Delay]')
   # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  plt.xlabel('Double pulse delay (s)')
-  plt.ylabel('Irreversibility factor')
-  plt.ylim((0,1))
+  pplt.xlabel('Double pulse delay (fs)')
+  pplt.ylabel('Irreversibility factor')
+  pplt.ylim((0,1))
 
+##TODO: shall we make a multi-wavelength figure?
+##TODO: - If wavelength2!=wavelength1, yes.
+##TODO: - If len(set(wavelength1)) > 1, yes.  
 
 # Final saving
 figmode=''
 
 if(EnableDoublePulseAnalysis == 1):
   figmode = figmode+'-DoublePulse'
-elif(EnableInducedFieldAnalysis == 1):
+if(EnableInducedFieldAnalysis == 1):
   figmode = figmode+'-InducedFields'
 
 figname = 'Metaplot'+figmode
