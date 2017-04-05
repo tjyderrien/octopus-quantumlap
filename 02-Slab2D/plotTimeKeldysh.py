@@ -29,7 +29,7 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
-plotA=311; plotB=312; plotC=313
+plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 15
@@ -41,7 +41,7 @@ QuantityOfInterest = "density" #number" #Would you prefer to work densities (den
 EnableLogScale = 2 #1: yes, 2: from command line
 ShowFinalPlot  = 1
 
-PlottingMode = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
+PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
 if(PlottingMode == "auto"):
@@ -72,11 +72,9 @@ if(int(EnableLogScale) == 2):
     ShowFinalPlot  = 0     # MORE SAFE. 
   except: 
     print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1>."
-    exit()
-  
+    exit() 
 
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
-
 
 # Treat the data generated with Octopus. 
 
@@ -367,9 +365,9 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='k', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
-# ax4 = plt.subplot(414)
-# plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
-# ax3.set_xscale("log", nonposx='clip')
+ax4 = plt.subplot(414)
+plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
+ax4.set_xscale("log", nonposx='clip')
 
 ## ======== Applying logscales...
 

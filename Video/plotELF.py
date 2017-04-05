@@ -506,7 +506,7 @@ for i in range(0,len(indata)):
     ClearAllWindows() #Attempt to avoid keeping marks from one picture to another. 
 
     # Clear and close
-    for winind in range(1,10):
+    for winind in range(0,10):
         SetActiveWindow(winind)
         DeleteAllPlots()
         RemoveAllOperators()
