@@ -54,3 +54,15 @@ def FilterDirectories(keyword, path, FieldIndex):
   ListOfFoldersFiltered = FilterDatabaseContains(ListOfFolders, keyword, FieldIndex)
   return ListOfFoldersFiltered
   
+## Returns the last line of file
+# Returns the last line (<string>) of a file
+# Source: http://stackoverflow.com/questions/3346430/what-is-the-most-efficient-way-to-get-first-and-last-line-of-a-text-file
+# @param file <string> filename
+def GetLastLine(file):
+  with open(file, "rb") as f:
+	 first = f.readline()      # Read the first line.
+	 f.seek(-2, 2)             # Jump to the second last byte.
+	 while f.read(1) != b"\n": # Until EOL is found...
+		f.seek(-2, 1)         # ...jump back the read byte plus one more.
+	 last = f.readline()       # Read last line.
+	 return last
