@@ -6,9 +6,9 @@
 source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
-DryRun=0
-MoveIons=0
-kPoints=4 # 8
+DryRun=1
+MoveIons=0 #cost: 3x runtime(MoveIons=no)
+kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -50,7 +50,7 @@ DefineParameters () {
   if [ $MoveIons == 1 ]; then
     RelaxationTime=$( python_calc "500e-15"  )
   else
-    RelaxationTime=$( python_calc "100e-15" )
+    RelaxationTime=$( python_calc "60e-15" )
   fi
 
 # echo "Generating pulses..."

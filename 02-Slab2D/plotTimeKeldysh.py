@@ -29,7 +29,10 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
-plotA=411; plotB=412; plotC=413; plotD=414
+## 3 canvas
+plotA=311; plotB=312; plotC=313;
+## 4 canvas
+# plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 15
@@ -39,7 +42,7 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: from command line
-ShowFinalPlot  = 1
+ShowFinalPlot  = 0
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
@@ -59,9 +62,13 @@ if(PlottingMode == "auto"):
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
+    LastNexcLine = GetLastLine("../td.general/n_ex") 
+    LastNexcLineArray = np.array([ float(x) for x in LastNexcLine.split() ])
+    
     if(Efield2_SI > 1E0): #double pulse enabled
       PlottingMode="doublepulse" #priority 1
-    elif(MoveIonClean == "yes"):
+    elif(Time_AU_to_SI(LastNexcLineArray[1]) > 100e-15 ): #latest time of simulation is longer than 100 fs
+    # elif(MoveIonClean == "yes"):
       PlottingMode="nonthermalmelting" #priority 2
     else: 
       PlottingMode="keldysh" #priority 3
@@ -69,7 +76,7 @@ if(PlottingMode == "auto"):
 if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
-    ShowFinalPlot  = 0     # MORE SAFE. 
+#    ShowFinalPlot  = 0     # MORE SAFE. 
   except: 
     print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1>."
     exit() 
@@ -98,10 +105,14 @@ Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c
 Efield2= - (np.diff(A2x)/np.diff(time))
 
 Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
-print "** Info: Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+Efield_amplitudeB_SI=np.max(abs(Field_AU_to_SI(Efield2 / c_AU)))
+print "** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+print "** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
+
  
 ### N_Keldysh and N_Gruzdev
 print "Getting input from octopus..."
+print "== PULSE 1 =="
 wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
 wavelength_SI = float(wavelength_inp[10:17])
 PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
@@ -109,7 +120,13 @@ PulseDuration_SI = float(PulseDuration_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
 
-##==== KELDYSH CALCULATION ====
+print "== PULSE 2 =="
+wavelengthB_inp = LookUpStringInFile("../inp", "lambdaB =")
+wavelengthB_SI = float(wavelengthB_inp[10:17])
+PulseDurationB_inp = LookUpStringInFile("../inp", "tauBsi = ")
+PulseDurationB_SI = float(PulseDurationB_inp[8:15])
+
+##==== KELDYSH CALCULATION PULSE 1 ====
 ValenceBandMax = 5E28 
 dtPrecision = 1E-17
 order=50
@@ -122,6 +139,22 @@ PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
 print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
 print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
 timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, PeakFluence_SI, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
+
+##==== KELDYSH CALCULATION PULSE 2 ====
+PeakIntensityB_SI = Keldysh.FieldToIntensity(Efield_amplitudeB_SI)
+PeakFluenceB_SI = PeakIntensityB_SI * PulseDurationB_SI
+PeakFluenceBText=round(PeakFluenceB_SI*1E-4*1E3)
+PeakIntensityBText = PeakIntensityB_SI * 1E-4 #W/cm2
+print "** Info: equiv. Peak fluence = "+str(PeakFluenceBText)+" mJ/cm2."
+print "** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2."
+
+CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
+# if(PlottingMode == "doublepulse"):
+try: 
+  timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, PeakFluenceB_SI, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+except: 
+  N_KeldyshB_SI = N_Keldysh_SI * 0e0
+  N_GruzdevB_SI = N_Gruzdev_SI * 0e0
 
 ##==== Prepare plotting of N_EX (projection method)  ====
 timeNe = np.asfarray(Ne[:,1])
@@ -259,21 +292,42 @@ else:
 print "TimeStep = "+str(dtCurrent)
 
 ## ================================== TIME FOR PLOTTING ====================
+# Managing stepwise maximum for Y1
+ymin=1E16; ymax=ValenceBandMax; #max for density plot
+if(observable_proj.max() < ymax / 50.):
+  ymax = ymax / 50.
+elif(observable_proj.max() < ymax / 5.):
+  ymax = ymax / 5.
+elif(observable_proj.max() > ValenceBandMax):
+  ymax=4.*ymax;
+# Managing stepwise maximum for Y2
+ymax2=5E0; ymax2value = (Efield_AU+Efield2_AU)*c_AU
+ymax2valueMax = ymax2value.max()
+if(ymax2valueMax < ymax2 / 100.):
+  ymax2 = ymax2 / 100.
+elif(ymax2valueMax < ymax2 / 10.):
+  ymax2 = ymax2 / 10.
+elif(ymax2valueMax > ymax2):
+  ymax2=5.*ymax2;
+
+
 ### Defining plotting boundaries
 if(PlottingMode=="nonthermalmelting"):
   xmin=0.; xmax=500.; unitx=1E15
-  ymin=1E0; ymax=1E29; #max for density plot
-  ymax2=5E0; #max for field plot
+#  ymin=1E16; ymax=5E28; #max for density plot
+#  if(observable_proj.max() > 5E28):
+#    ymax=4.*ymax; 
+#  ymax2=5E0; #max for field plot
   PlotGrid=0
 elif(PlottingMode=="doublepulse"):
-  xmin=0.; xmax=100.; unitx=1E15
-  ymin=1E0; ymax=1E29; 
-  ymax2=5E0;
+  xmin=0.; xmax=60.; unitx=1E15
+#  ymin=1E16; ymax=4.*5E28; 
+#  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
   xmin=0.; xmax=40.; unitx=1E15
-  ymin=1E0; ymax=1E29;
-  ymax2=5E0;
+#  ymin=1E16; ymax=5E28;
+#  ymax2=5E0;
   PlotGrid=1
 
 ## Defining plot structure
@@ -326,8 +380,11 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
-  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI, 'b-', label=r'[Gruzdev (2014)]')
+#  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
+  if(PlottingMode=="doublepulse"):
+    plt.plot(timeKeldysh*unitx, N_Gruzdev_SI , 'b--', label=r'Exc. N_A [Gruzdev (2014)]')
+    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'Exc. N_B [Gruzdev (2014)]')
+  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI+N_GruzdevB_SI, 'r-', label=r'N_A(t) + N_B(t)')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
@@ -365,9 +422,9 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='k', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
-ax4 = plt.subplot(414)
-plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
-ax4.set_xscale("log", nonposx='clip')
+# ax4 = plt.subplot(plotD)
+# plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
+# ax4.set_xscale("log", nonposx='clip')
 
 ## ======== Applying logscales...
 

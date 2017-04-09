@@ -192,7 +192,7 @@ TDExpOrder = 16
 TDOutput = geometry + energy + laser + total_current + multipoles + n_excited_el
 Output = density + potential + geometry + elf + current + kinetic_energy_density
 #OutputFormat = cube #VisIt
-OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + cube + netcdf #OpenDX, UCSF Chimera
+OutputFormat = vtk + xyz +  netcdf #OpenDX, UCSF Chimera
 
 OutputInterval = 50
 RestartWriteInterval = 100

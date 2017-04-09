@@ -254,7 +254,7 @@ ax2 = plt.subplot(plotB)
 plt.title('Irreversibility factor')
 if(EnableDoublePulseAnalysis==1):
   pplt.ylabel('Delay (fs)')
-  pplt.y2label('Adibadicity parameter')
+#  pplt.y2label('Adibadicity parameter')
   pplt.xlabel('Field ampl. (V/m)')
 #  area = np.po
   pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
@@ -264,14 +264,14 @@ else:
   pplt.ylabel('Irreversibility factor')
   pplt.ylim((0,1))
   
-  ax22 = ax2.twinx()
-  pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
-  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  pplt.ylabel('Adiabadicity factor')
+ax22 = ax2.twinx()
+pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
+# ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+pplt.ylabel('Adiabadicity factor')
 #  pplt.ylim((0,1))
-  ax22.set_yscale("log")
-  ax2.legend(loc=2, borderaxespad=0.)
-  ax22.legend(loc=1, borderaxespad=0.)
+ax22.set_yscale("log")
+ax2.legend(loc=2, borderaxespad=0.)
+ax22.legend(loc=1, borderaxespad=0.)
 
 if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay
@@ -281,7 +281,7 @@ if(EnableDoublePulseAnalysis==1):
   # ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Double pulse delay (fs)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
-#  plt.ylim((0,5e28))
+  plt.ylim((1E16,4.*5e28))
   ax3.set_yscale("log")
 
   #Plot 4: Irreversibility as function of delayD
