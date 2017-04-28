@@ -6,7 +6,7 @@
 source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no)
 kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
 
@@ -27,6 +27,8 @@ delay=${13}
 InitialTemperature=${14}
 PulseShape=${15}
 InducedField=${16}
+CrossPolarization=${17}
+TheoryLevel=${18}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -74,6 +76,13 @@ DefineParameters () {
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
   echo "[Run_TD] Pulses generated."
   
+  if [ ${CrossPolarization} == 1 ]; then
+     CrossPolarizationText="-CrossPola"
+     CrossPolaAngle="0.5*pi"
+  else
+     CrossPolaAngle="0."
+  fi
+
   if [ $InducedField == 1 ]; then
      GaugeFieldValue="yes"
      GaugeFieldText="-InducedFields"
@@ -88,8 +97,16 @@ DefineParameters () {
   else
         MoveIonsChain=""
   fi
+
+  if [ ${TheoryLevel} != "independent_particles" ]; then
+    TheoryLevelPath="-Indep_particles"
+  else
+    TheoryLevelPath=""
+  fi
+
+  echo "Generating the folder name..."
   export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}${TheoryLevelPath}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -139,10 +156,16 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeA/FieldColorA-${PulseShape}/g inp
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
+  sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
 	echo "MoveIons = yes" >> inp
+  fi
+
+  if [ ${TheoryLevel} == "independent_particles" ]; then
+        echo "Theory level: independent particles was added to the input file."
+        echo "TheoryLevel = independent_particles" >> inp
   fi
 
 }

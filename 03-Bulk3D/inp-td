@@ -135,11 +135,12 @@ ComputingTime = ComputingTimeValueSI / TimeAUtoSI
 #4.*sigmaTau1 + pulseDelay + RelaxationTime #time of computation
 
 #TODO: script the change of polarization
-th = 0
-px1 = cos(th)
-py1 = sin(th)
-px2 = cos(th)
-py2 = sin(th)
+th1 = 0
+th2 = ReplaceMeTheta      #Scripted
+px1 = cos(th1)
+py1 = sin(th1)
+px2 = cos(th2)
+py2 = sin(th2)
 
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
@@ -194,9 +195,9 @@ Output = density + potential + geometry + elf + current + kinetic_energy_density
 #OutputFormat = cube #VisIt
 OutputFormat = vtk + xyz +  netcdf #OpenDX, UCSF Chimera
 
-OutputInterval = 50
-RestartWriteInterval = 100
-TDOutputComputeInterval = 50
+OutputInterval = 10
+RestartWriteInterval = 50
+TDOutputComputeInterval = 10
 
 # Absorbing boundary
 # AbsorbingBoundaries = mask
