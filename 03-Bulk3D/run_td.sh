@@ -98,7 +98,7 @@ DefineParameters () {
         MoveIonsChain=""
   fi
 
-  if [ ${TheoryLevel} != "independent_particles" ]; then
+  if [ ${TheoryLevel} == "independent_particles" ]; then
     TheoryLevelPath="-Indep_particles"
   else
     TheoryLevelPath=""
