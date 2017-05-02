@@ -17,6 +17,7 @@ MeshSizeXInput_SI=$3
 MeshSizeZInput_SI=$4
 kPoints=$5
 InitialTemperature=$6
+TheoryLevel=$7
 
 python_calc () {
     python -c "print ($@)"
@@ -34,10 +35,16 @@ ProcessArguments () { # Conversion factors
   SampleXY=$2
   MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
   MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  if [ ${TheoryLevel} == "independent_particles" ]; then
+    export TheoryLevelPath="-Indep_particles"
+  else
+    export TheoryLevelPath=""
+  fi
+
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}"
+  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -89,6 +96,11 @@ BuildSample () {
   sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g ${localPath}/inp
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g ${localPath}/inp
   sed -i.bak s/kPointsValue/${kPoints}/g ${localPath}/inp
+
+  if [ ${TheoryLevel} == "independent_particles" ]; then
+        echo "Theory level: independent particles was added to the input file."
+        echo "TheoryLevel = independent_particles" >> inp
+  fi
 }
 
 SubmitTheJob () {

@@ -23,7 +23,8 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 SampleLayers="1"
 SampleXY="1"
 kPoints="8"
-InitialTemperature="0e0" 
+InitialTemperature="0e0"
+TheoryLevel="independent_particles" # or emty (means LDA)
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
 do
@@ -43,7 +44,7 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature}
+      ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel}
  #    done
     done
  #   done

@@ -54,7 +54,7 @@ ExtraStates = 1
 # SmearingFunction=fermi_dirac
 
 MaximumIter=1000
-Mixing = 0.05
+# Mixing = 0.05
 
 ### OUTPUTS
 Output = dos + density + potential + geometry

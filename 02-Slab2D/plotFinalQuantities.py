@@ -23,9 +23,9 @@ from libString import *
 from libPlotting import *
 from libKeldysh import *
 
-PlottingTable = np.empty((0,7)) 
+PlottingTable = np.empty((0,8)) 
 
-ShowFinalPlot              = 1
+ShowFinalPlot              = 0
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
@@ -68,6 +68,13 @@ for FolderName in glob.glob('*/*/output_iter/'):
     FieldInduced_string = FieldInduced_inp[0]
   except:
     FieldInduced_string = ''
+  try:
+    CrossPolarization_inp = LookUpStringInFile(filename, "th2 = ")
+    CrossPolarization_angle = float(CrossPolarization_inp[6:13])
+  except: 
+    CrossPolarization_inp = '0.'
+    CrossPolarization_angle = 0.
+  print "CrossPol"+str(CrossPolarization_angle)
 
   # Filter the induced fields #TODO: reshape these tests. Maybe invert test on InducedFieldDetection and InducedFieldAnalysis?  Problem is: we would like to miss none of the runs. Because counting dots and number of runs is complicated. 
   ## Remove contradictory caes
@@ -179,7 +186,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
   PlottingTable = np.vstack(( PlottingTable, [ 
 				wavelength_SI, PulseDuration_SI, Efield_amplitude_SI, 
 				DoublePulseDelay_SI, density_proj_SI_max, density_proj_SI_final, 
-				density_irreversibility_ratio ] )) ##7
+				density_irreversibility_ratio, CrossPolarization_angle ] )) ##7
   
   # Cleaning the guys before next loop
   del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
@@ -200,6 +207,7 @@ Delay           = PlottingTable[:,3]
 Ne_max          = PlottingTable[:,4]
 Ne_final        = PlottingTable[:,5]
 irreversibility = PlottingTable[:,6]
+CrossPolarization=PlottingTable[:,7]
 
 #print wavelengths1.shape, pulses1.shape, Efield1.shape, Delay.shape, Ne_max.shape, Ne_final.shape, irreversibility.shape
 
@@ -242,7 +250,7 @@ if(EnableDoublePulseAnalysis==1):
   pplt.scatter(Efield1, Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
 else: 
   pplt.title('Density as function of peak field')
-  pplt.scatter(Efield1, Ne_final, c=Delay, label=r'$N_{exc}$[Field]')
+  pplt.scatter(Efield1, Ne_final, c=Delay, s=(30+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Field peak amplitude (V/m)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
@@ -264,25 +272,27 @@ else:
   pplt.ylabel('Irreversibility factor')
   pplt.ylim((0,1))
   
-ax22 = ax2.twinx()
-pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
+# ax22 = ax2.twinx()
+# pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
 # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-pplt.ylabel('Adiabadicity factor')
+# pplt.ylabel('Adiabadicity factor')
 #  pplt.ylim((0,1))
-ax22.set_yscale("log")
+# ax22.set_yscale("log")
 ax2.legend(loc=2, borderaxespad=0.)
-ax22.legend(loc=1, borderaxespad=0.)
+# ax22.legend(loc=1, borderaxespad=0.)
 
 if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay
   ax3 = plt.subplot(plotC)
   pplt.title('Density as function of delay')
-  pplt.scatter(Delay*1E15, Ne_final, c=Efield1/1E9, label=r'$N_{exc}$[Delay]')
+  pplt.scatter(Delay*1E15, Ne_final, c=Efield1/1E9, s=(30+CrossPolarization*50.), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization*90.)+"deg")
   # ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Double pulse delay (fs)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
-  plt.ylim((1E16,4.*5e28))
-  ax3.set_yscale("log")
+# plt.ylim((1E16,4.*5e28))
+  # plt.xlim((0.5E-1, 35.))
+  # ax3.set_xscale("log")
+  # ax3.set_yscale("log")
 
   #Plot 4: Irreversibility as function of delayD
   ax4 = plt.subplot(plotD)
