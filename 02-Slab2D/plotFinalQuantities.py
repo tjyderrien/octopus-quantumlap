@@ -25,7 +25,7 @@ from libKeldysh import *
 
 PlottingTable = np.empty((0,8)) 
 
-ShowFinalPlot              = 0
+ShowFinalPlot              = 1
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
@@ -68,11 +68,10 @@ for FolderName in glob.glob('*/*/output_iter/'):
     FieldInduced_string = FieldInduced_inp[0]
   except:
     FieldInduced_string = ''
-  try:
-    CrossPolarization_inp = LookUpStringInFile(filename, "th2 = ")
-    CrossPolarization_angle = float(CrossPolarization_inp[6:13])
-  except: 
-    CrossPolarization_inp = '0.'
+  CrossPolarization_inp = LookUpStringInFile(filename, "th2 =") #if not found, then empty
+  if(CrossPolarization_inp):
+    CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
+  else: 
     CrossPolarization_angle = 0.
   print "CrossPol"+str(CrossPolarization_angle)
 
@@ -98,7 +97,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
         print "Induced field was not found in this computation. But we take it into account."
   
 
-  # Jump selections which don't match with desire. 
+  # Double-pulse cases: jump selections which don't match with desire. 
   if(  Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
     print "Jump [Case 3]"
     continue #we jump this run, then 
@@ -237,8 +236,10 @@ if(EnableDoublePulseAnalysis==1):
   plt.title('Final density (peak field, delay)')
   print "** 3d plot: Ne_final size = "+str(len(Ne_final))
   Efield1_uniq=list(set(Efield1)); Delay_uniq=list(set(Delay));
+  CrossPolarization_uniq=list(set(CrossPolarization))
   print "** 3d plot: Delay*    size = "+str(len(Delay_uniq)) 
   print "** 3d plot: Efield1*  size = "+str(len(Efield1_uniq))
+  print "** 3d plot: CrossPolarization  size = "+str(len(CrossPolarization_uniq))
 #  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
   # Ne_final_3d_interp = interpolate.interp2d(Efield1, Delay, Ne_final)
   # Efield1_interp = np.arange(1E8, 1E10, 1E8)
@@ -255,7 +256,7 @@ else:
   pplt.xlabel('Field peak amplitude (V/m)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
 #  pplt.ylim((1E16,4.*5e28))
-#  ax1.set_yscale('log')
+  ax1.set_yscale('log')
 
 #Plot 2: irreversibility
 ax2 = plt.subplot(plotB)
@@ -285,8 +286,8 @@ if(EnableDoublePulseAnalysis==1):
   #Plot 3: Final density as function of delay
   ax3 = plt.subplot(plotC)
   pplt.title('Density as function of delay')
-  pplt.scatter(Delay*1E15, Ne_final, c=Efield1/1E9, s=(30+CrossPolarization*50.), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization*90.)+"deg")
-  # ax3.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  pplt.scatter(Delay*1E15, Ne_final, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization[0]*180./pi)+"deg")
+  # ax3.legend(bbox_to_anchor=(0.00, -0.1), loc=3, borderaxespad=0.)
   pplt.xlabel('Double pulse delay (fs)')
   pplt.ylabel(r'Final density (m$^{-3}$)')
 # plt.ylim((1E16,4.*5e28))
@@ -297,7 +298,7 @@ if(EnableDoublePulseAnalysis==1):
   #Plot 4: Irreversibility as function of delayD
   ax4 = plt.subplot(plotD)
   pplt.title('Irreversibility factor')
-  pplt.scatter(Delay*1E15, irreversibility, c=Efield1/1E9, label='Irreversibility[Delay]')
+  pplt.scatter(Delay*1E15, irreversibility, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label='Irreversibility[Delay]')
   # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   pplt.xlabel('Double pulse delay (fs)')
   pplt.ylabel('Irreversibility factor')

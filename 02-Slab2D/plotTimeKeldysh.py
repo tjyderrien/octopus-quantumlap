@@ -42,7 +42,7 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: from command line
-ShowFinalPlot  = 1
+ShowFinalPlot  = 0
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
@@ -92,7 +92,9 @@ geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 ### Building laser profile...
 time = np.asfarray(laser[:,1]) #column 2
 A1x = np.asfarray(laser[:,2]) #column number 3
+A1y = np.asfarray(laser[:,3]) #column number 4
 A2x = np.asfarray(laser[:,5]) #column number 6 
+A2y = np.asfarray(laser[:,6]) #column number 7
 
 # c_AU = 137.035999139 #TODO: transfer to lib and remove this line
 
@@ -101,30 +103,47 @@ TimeStep = timestepTable[0] #they are all equal, just select the first
 #A_squared = A1x**2
 #A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 
-Efield = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
-Efield2= - (np.diff(A2x)/np.diff(time))
+Efield_X  = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+Efield2_X = - (np.diff(A2x)/np.diff(time)) #correct value is *1/c
+Efield_Y  = - (np.diff(A1y)/np.diff(time)) #correct value is *1/c 
+Efield2_Y = - (np.diff(A2y)/np.diff(time)) #correct value is *1/c
 
-Efield_amplitude_SI=np.max(abs(Field_AU_to_SI(Efield / c_AU)))
-Efield_amplitudeB_SI=np.max(abs(Field_AU_to_SI(Efield2 / c_AU)))
+## Correcting the value by 1/c_AU
+Efield_X_AU =Efield_X/c_AU
+Efield_Y_AU =Efield_Y/c_AU
+Efield2_X_AU=Efield2_X/c_AU
+Efield2_Y_AU=Efield2_Y/c_AU
+
+# E field amplitudes (in AU)
+Efield_norm_AU  = np.sqrt(Efield_X_AU**2  + Efield_Y_AU**2) 
+Efield2_norm_AU = np.sqrt(Efield2_X_AU**2 + Efield2_Y_AU**2)
+
+Efield_amplitude_SI =np.max(abs(Field_AU_to_SI(Efield_norm_AU)))
+Efield_amplitudeB_SI=np.max(abs(Field_AU_to_SI(Efield2_norm_AU)))
 print "** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
 print "** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
 
+### Computing amplitude for the total pulse
+EfieldAB_X_AU = Efield_X_AU + Efield2_X_AU
+EfieldAB_Y_AU = Efield_Y_AU + Efield2_Y_AU
+EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) even introducing this into Keldysh 
+EfieldAB_amplitude_SI = np.max(abs(Field_AU_to_SI(EfieldAB_amplitude_AU)))
  
 ### N_Keldysh and N_Gruzdev
 print "Getting input from octopus..."
 print "== PULSE 1 =="
-wavelength_inp = LookUpStringInFile("../inp", "lambdaA =")
-wavelength_SI = float(wavelength_inp[10:17])
-PulseDuration_inp = LookUpStringInFile("../inp", "tauAsi = ")
-PulseDuration_SI = float(PulseDuration_inp[8:15])
-DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
-DoublePulseDelay_SI = float(DoublePulseDelay_inp[15:22])
+wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
+wavelength_SI        = float(wavelength_inp[10:17])
+PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
+PulseDuration_SI     = float(PulseDuration_inp[8:15])
 
 print "== PULSE 2 =="
-wavelengthB_inp = LookUpStringInFile("../inp", "lambdaB =")
-wavelengthB_SI = float(wavelengthB_inp[10:17])
-PulseDurationB_inp = LookUpStringInFile("../inp", "tauBsi = ")
-PulseDurationB_SI = float(PulseDurationB_inp[8:15])
+wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB =")
+wavelengthB_SI       = float(wavelengthB_inp[10:17])
+PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
+PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
+DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
+DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
 ##==== KELDYSH CALCULATION PULSE 1 ====
 ValenceBandMax = 5E28 
@@ -132,9 +151,9 @@ dtPrecision = 1E-17
 order=50
 CentralTime = 2.*PulseDuration_SI #20E-15
 ShowPlot=False
-PeakIntensity_SI = Keldysh.FieldToIntensity(Efield_amplitude_SI)
-PeakFluence_SI = PeakIntensity_SI * PulseDuration_SI
-PeakFluenceText=round(PeakFluence_SI*1E-4*1E3)
+PeakIntensity_SI  = Keldysh.FieldToIntensity(Efield_amplitude_SI)
+PeakFluence_SI    = PeakIntensity_SI * PulseDuration_SI
+PeakFluenceText   = round(PeakFluence_SI*1E-4*1E3)
 PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
 print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
 print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
@@ -155,6 +174,18 @@ try:
 except: 
   N_KeldyshB_SI = N_Keldysh_SI * 0e0
   N_GruzdevB_SI = N_Gruzdev_SI * 0e0
+
+##==== KELDYSH CALCULATION FOR BOTH PULSES =====
+PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+# PeakFluenceAB_SI    = PeakIntensityAB_SI * PulseDurationAB_SI #TODO: THIS HAS NO MEANING. 
+# PeakFluenceABText   = round(PeakFluenceAB_SI*1E-4*1E3) #TODO: THIS HAS NO MEANING. 
+PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
+
+if(wavelengthA_SI == wavelengthB_SI):
+  IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+  timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthA_SI, PulseDurationB_SI+CentralTimeB, IntensityEnvelop, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+else:
+  print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
 
 ##==== Prepare plotting of N_EX (projection method)  ====
 timeNe = np.asfarray(Ne[:,1])
@@ -189,9 +220,6 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
-
-Efield_AU =Efield/c_AU #fixing dimension #TODO: clean me that...
-Efield2_AU=Efield2/c_AU
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
