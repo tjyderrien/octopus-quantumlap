@@ -103,10 +103,11 @@ TimeStep = timestepTable[0] #they are all equal, just select the first
 #A_squared = A1x**2
 #A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 
-Efield_X  = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
-Efield2_X = - (np.diff(A2x)/np.diff(time)) #correct value is *1/c
-Efield_Y  = - (np.diff(A1y)/np.diff(time)) #correct value is *1/c 
-Efield2_Y = - (np.diff(A2y)/np.diff(time)) #correct value is *1/c
+# oscillating fields from octopus (real valued)
+Efield_X  = - (np.diff(A1x)/np.diff(time)) #physical value is *1/c 
+Efield2_X = - (np.diff(A2x)/np.diff(time)) #physical value is *1/c
+Efield_Y  = - (np.diff(A1y)/np.diff(time)) #physical value is *1/c 
+Efield2_Y = - (np.diff(A2y)/np.diff(time)) #physical value is *1/c
 
 ## Correcting the value by 1/c_AU
 Efield_X_AU =Efield_X/c_AU
@@ -114,7 +115,7 @@ Efield_Y_AU =Efield_Y/c_AU
 Efield2_X_AU=Efield2_X/c_AU
 Efield2_Y_AU=Efield2_Y/c_AU
 
-# E field amplitudes (in AU)
+# E field amplitudes (in atomic units, real-valued)
 Efield_norm_AU  = np.sqrt(Efield_X_AU**2  + Efield_Y_AU**2) 
 Efield2_norm_AU = np.sqrt(Efield2_X_AU**2 + Efield2_Y_AU**2)
 Efield_norm_SI  = Field_AU_to_SI(Efield_norm_AU)
@@ -124,10 +125,10 @@ Efield_amplitudeB_SI=np.max(abs(Efield2_norm_SI))
 print "** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
 print "** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
 
-### Computing amplitude for the total pulse
+### Computing the total oscillating field for mixed pulses (from octopus, real-valued)
 EfieldAB_X_AU = Efield_X_AU + Efield2_X_AU
 EfieldAB_Y_AU = Efield_Y_AU + Efield2_Y_AU
-EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) even introducing this into Keldysh 
+EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) even if to introduce this into Keldysh 
 EfieldAB_amplitude_SI = np.max(abs(Field_AU_to_SI(EfieldAB_amplitude_AU)))
 print "** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_SI / 1E9)+" V/nm."
  
@@ -147,6 +148,19 @@ PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
+##==== Building the laser pulses for Keldysh ======
+##(they cannot be the ones of octopus, as we need
+## the complex space to build the bicolor envelope)
+t0   = 3.5*PulseDuration_SI #initial time is actually 0 in octopus. 
+tmin = -3.5*PulseDuration_SI+t0 #zero...
+tmax =  3.5*PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
+instants=np.arange(tmin,tmax,dt)
+
+#TODO: introduce CEP1 and CEP2 !
+FieldEnvelope   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, t0, 0.) #TODO: introduce CEP1 and CEP2 !
+FieldEnvelope2  = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
+FieldEnvelopeAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, 0., 0., t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
+
 ##==== KELDYSH CALCULATION PULSE 1 ====
 ValenceBandMax = 5E28 
 dtPrecision = 1E-17
@@ -159,7 +173,7 @@ PeakFluenceText   = round(PeakFluence_SI*1E-4*1E3)
 PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
 print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
 print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, Keldysh.FieldToIntensity(Efield_norm_SI), dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
+timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
 
 ##==== KELDYSH CALCULATION PULSE 2 ====
 PeakIntensityB_SI = Keldysh.FieldToIntensity(np.max(Efield2_norm_SI))
@@ -172,7 +186,7 @@ print "** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2."
 CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 # if(PlottingMode == "doublepulse"):
 try: 
-  timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield2_norm_SI), dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+  timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
 except: 
   N_KeldyshB_SI = N_Keldysh_SI * 0e0
   N_GruzdevB_SI = N_Gruzdev_SI * 0e0
