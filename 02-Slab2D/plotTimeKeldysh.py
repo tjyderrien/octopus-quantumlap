@@ -178,7 +178,7 @@ CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 t0   = 3.5*PulseDuration_SI #initial time is actually 0 in octopus. 
 tmin = -3.5*PulseDuration_SI+t0 #zero...
 tmax =  3.5*PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
-instants=np.arange(tmin,tmax,dt)
+instants=np.arange(tmin,tmax,dtPrecision)
 
 #TODO: introduce CEP1 and CEP2 !
 FieldEnvelope   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, t0, 0.) #TODO: introduce CEP1 and CEP2 !
