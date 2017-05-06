@@ -148,6 +148,30 @@ PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
+##==== KELDYSH CALCULATION PULSE 1 ====
+ValenceBandMax = 5E28 
+dtPrecision = 1E-17
+order=50
+CentralTime = 2.*PulseDuration_SI #20E-15
+ShowPlot=False
+PeakIntensity_SI  = Keldysh.FieldToIntensity(Efield_amplitude_SI)
+PeakFluence_SI    = PeakIntensity_SI * PulseDuration_SI
+PeakFluenceText   = round(PeakFluence_SI*1E-4*1E3)
+PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
+print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
+print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
+
+##==== KELDYSH CALCULATION PULSE 2 ====
+PeakIntensityB_SI = Keldysh.FieldToIntensity(np.max(Efield2_norm_SI))
+PeakFluenceB_SI = PeakIntensityB_SI * PulseDurationB_SI
+PeakFluenceBText=round(PeakFluenceB_SI*1E-4*1E3)
+PeakIntensityBText = PeakIntensityB_SI * 1E-4 #W/cm2
+print "** Info: equiv. Peak fluence = "+str(PeakFluenceBText)+" mJ/cm2."
+print "** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2."
+
+CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
+# if(PlottingMode == "doublepulse"):
+
 ##==== Building the laser pulses for Keldysh ======
 ##(they cannot be the ones of octopus, as we need
 ## the complex space to build the bicolor envelope)
@@ -161,30 +185,10 @@ FieldEnvelope   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_S
 FieldEnvelope2  = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
 FieldEnvelopeAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, 0., 0., t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
 
-##==== KELDYSH CALCULATION PULSE 1 ====
-ValenceBandMax = 5E28 
-dtPrecision = 1E-17
-order=50
-CentralTime = 2.*PulseDuration_SI #20E-15
-ShowPlot=False
-PeakIntensity_SI  = Keldysh.FieldToIntensity(Efield_amplitude_SI)
-PeakFluence_SI    = PeakIntensity_SI * PulseDuration_SI
-PeakFluenceText   = round(PeakFluence_SI*1E-4*1E3)
-PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
-print "** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
-print "** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
+## Computing final excited electron density for Pulse 1
 timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
 
-##==== KELDYSH CALCULATION PULSE 2 ====
-PeakIntensityB_SI = Keldysh.FieldToIntensity(np.max(Efield2_norm_SI))
-PeakFluenceB_SI = PeakIntensityB_SI * PulseDurationB_SI
-PeakFluenceBText=round(PeakFluenceB_SI*1E-4*1E3)
-PeakIntensityBText = PeakIntensityB_SI * 1E-4 #W/cm2
-print "** Info: equiv. Peak fluence = "+str(PeakFluenceBText)+" mJ/cm2."
-print "** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2."
-
-CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
-# if(PlottingMode == "doublepulse"):
+## Computing final excited electron density for Pulse 2
 try: 
   timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
 except: 
