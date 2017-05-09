@@ -34,7 +34,7 @@ plotA=311; plotB=312; plotC=313;
 ## 4 canvas
 # plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
-SizeX = 10
+SizeX = 15
 SizeY = 15
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
@@ -378,7 +378,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; xmax=40.; unitx=1E15
+  xmin=0.; xmax=20.; unitx=1E15
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -417,7 +417,7 @@ if(PlotGrid==1):
   for xc in xposition:
     plt.axvline(x=xc, color='k', linestyle=':')
 
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
 #plt.legend(loc=4) # Simple caption inside picture. 
 
 ### Plotting density evolution
@@ -457,7 +457,7 @@ elif (QuantityOfInterest == "number"):
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.legend()
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -476,11 +476,13 @@ plt.xlabel('Time (fs)')
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
+plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
 plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
+
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy [Ha]')
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
 # plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -501,7 +503,7 @@ if(EnableLogScale == 1):
   ax3.legend(loc=4)
 else:
 #  ax2.legend(loc=4)
-  ax2.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  ax2.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
 
 ## ==== Writing final picture =====
 
