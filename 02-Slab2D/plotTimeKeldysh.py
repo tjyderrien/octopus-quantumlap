@@ -360,7 +360,7 @@ elif(observable_proj.max() < ymax / 5.):
 elif(observable_proj.max() > ValenceBandMax):
   ymax=4.*ymax;
 # Managing stepwise maximum for Y2
-ymax2=5E0; ymax2value = (Efield_norm_AU+Efield2_norm_AU)*c_AU
+ymax2=5E0; ymax2value = (Efield_norm_AU+Efield2_norm_AU)*c_AU #TODO: this is not optimum when not overlapping.  
 ymax2valueMax = ymax2value.max()
 if(ymax2valueMax < ymax2 / 100.):
   ymax2 = ymax2 / 100.
@@ -452,12 +452,12 @@ if(QuantityOfInterest == "density"):
   timeKeldyshB= instants
  
   if(PlottingMode=="doublepulse"):
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. N_A [Gruzdev (2014)]')
-    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'Exc. N_B [Gruzdev (2014)]')
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r-', label=r'N_A(t) + N_B(t)')
-    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$N_{exc} [E_A+E_B] (t)$')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. $n^(A)_{exc}$ [Gruzdev (2014)]')
+    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'Exc. $n_{exc}^B$ [Gruzdev (2014)]')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + N_{exc}[E_B(t)]$')
+    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A+E_B] (t)$')
   else: 
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. $N_{exc}$ [Gruzdev (2014)]')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b-', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
