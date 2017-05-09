@@ -42,10 +42,12 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: from command line
-ShowFinalPlot  = 0
+ShowFinalPlot  = 1
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
+
+Header="[octopus-slabs] "
 
 if(PlottingMode == "auto"):
 ## METHOD BRUTEFORCE
@@ -115,24 +117,24 @@ Efield_Y_AU =Efield_Y/c_AU
 Efield2_X_AU=Efield2_X/c_AU
 Efield2_Y_AU=Efield2_Y/c_AU
 
-# E field amplitudes (in atomic units, real-valued)
+# E field amplitudes (in atomic units, positive real-valued)
 Efield_norm_AU  = np.sqrt(Efield_X_AU**2  + Efield_Y_AU**2) 
 Efield2_norm_AU = np.sqrt(Efield2_X_AU**2 + Efield2_Y_AU**2)
 Efield_norm_SI  = Field_AU_to_SI(Efield_norm_AU)
 Efield2_norm_SI = Field_AU_to_SI(Efield2_norm_AU)
 Efield_amplitude_SI =np.max(abs(Efield_norm_SI))
 Efield_amplitudeB_SI=np.max(abs(Efield2_norm_SI))
-print "** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
-print "** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
+print "[octopus-slabs] ** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+print "[octopus-slabs] ** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
 
 ### Computing the total oscillating field for mixed pulses (from octopus, real-valued)
 EfieldAB_X_AU = Efield_X_AU + Efield2_X_AU
 EfieldAB_Y_AU = Efield_Y_AU + Efield2_Y_AU
-EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) even if to introduce this into Keldysh 
+EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) 
 EfieldAB_amplitude_SI = np.max(abs(Field_AU_to_SI(EfieldAB_amplitude_AU)))
 print "** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_SI / 1E9)+" V/nm."
  
-### N_Keldysh and N_Gruzdev
+### Importing input from octopus 
 print "== Getting input from octopus... =="
 print " PULSE 1 ..."
 wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
@@ -175,37 +177,40 @@ CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 ##==== Building the laser pulses for Keldysh ======
 ##(they cannot be the ones of octopus, as we need
 ## the complex space to build the bicolor envelope)
-t0   = 3.5*PulseDuration_SI #initial time is actually 0 in octopus. 
-tmin = -3.5*PulseDuration_SI+t0 #zero...
-tmax =  3.5*PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
+t0   =  PulseDuration_SI #initial time is actually 0 in octopus. 
+tmin = -PulseDuration_SI+t0 #zero...
+if(PlottingMode=="doublepulse"):
+  tmax =  PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
+else:
+  tmax = PulseDuration_SI + t0
 instants=np.arange(tmin,tmax,dtPrecision)
 
-#TODO: introduce CEP1 and CEP2 !
-FieldEnvelope   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, t0, 0.) #TODO: introduce CEP1 and CEP2 !
-FieldEnvelope2  = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
-FieldEnvelopeAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, 0., 0., t0, DoublePulseDelay_SI) #TODO: introduce CEP1 and CEP2 !
+CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 reading from octopus input file
+
+FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
+FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
+FieldEnvelopeAB, FieldComplexAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, CEP1, CEP2, t0, DoublePulseDelay_SI) 
 
 ## Computing final excited electron density for Pulse 1
 timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
 
 ## Computing final excited electron density for Pulse 2
-try: 
-  timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
-except: 
-  N_KeldyshB_SI = N_Keldysh_SI * 0e0
-  N_GruzdevB_SI = N_Gruzdev_SI * 0e0
+if(PlottingMode=="doublepulse"):
+  try: 
+    timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+  except: 
+    N_KeldyshB_SI = N_Keldysh_SI * 0e0
+    N_GruzdevB_SI = N_Gruzdev_SI * 0e0
 
-##==== KELDYSH CALCULATION FOR BOTH PULSES =====
-PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-# PeakFluenceAB_SI    = PeakIntensityAB_SI * PulseDurationAB_SI #TODO: THIS HAS NO MEANING. 
-# PeakFluenceABText   = round(PeakFluenceAB_SI*1E-4*1E3) #TODO: THIS HAS NO MEANING. 
-PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
+  ##==== KELDYSH CALCULATION FOR BOTH PULSES =====
+  PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+  PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
 
-if(wavelength_SI == wavelengthB_SI):
-  IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-  timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, IntensityEnvelop, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
-else:
-  print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
+  if(wavelength_SI == wavelengthB_SI):
+    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+    timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, IntensityEnvelop, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+  else:
+    print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
 
 ##==== Prepare plotting of N_EX (projection method)  ====
 timeNe = np.asfarray(Ne[:,1])
@@ -392,11 +397,11 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax2,ymax2))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
-plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD
+plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD #TODO: warn if polarization are not similar
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], (Efield_norm_AU+Efield2_norm_AU)*c_AU, 'k-', label=r"$c E(t)$")
+plt.plot(time[1:], (Efield_X_AU+Efield2_X_AU)*c_AU, 'k-', label=r"$c E(t)$")
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
@@ -429,10 +434,23 @@ if(QuantityOfInterest == "density"):
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
+  ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
+  ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
+
+  if(len(timeKeldysh) != len(N_Gruzdev_SI)):
+    print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
+    print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
+    print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
+ 
+  timeKeldysh = instants
+ 
   if(PlottingMode=="doublepulse"):
-    plt.plot(timeKeldysh*unitx, N_Gruzdev_SI , 'b--', label=r'Exc. N_A [Gruzdev (2014)]')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. N_A [Gruzdev (2014)]')
     plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'Exc. N_B [Gruzdev (2014)]')
-  plt.plot(timeKeldysh*unitx, N_Gruzdev_SI+N_GruzdevB_SI, 'r-', label=r'N_A(t) + N_B(t)')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r-', label=r'N_A(t) + N_B(t)')
+    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$N_{exc} [E_A+E_B] (t)$')
+  else: 
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. $N_{exc}$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
