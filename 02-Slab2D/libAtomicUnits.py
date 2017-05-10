@@ -22,7 +22,7 @@ def Volume_AU_to_SI(volume_AU):#{{{
 
 ## Converts time from AU to SI (seconds)
 def Time_AU_to_SI(time_AU):#{{{
-  return hbar / e / 27.21138505e0
+  return hbar / e / Hartree_Energy
 #}}}
 
 ## Converts length from SI (meters) to AU (Bohr radius)
@@ -34,6 +34,14 @@ def length_SI_to_AU(length_SI): #{{{
 def Field_AU_to_SI(Field_SI):#{{{
   return Hartree_Energy / BohrRadius * Field_SI
 #}}}
+def Energy_Hartree_to_eV(Energy_Ha):#{{{
+  return Energy_Ha * Hartree_Energy
+#}}}
+def Energy_eV_to_Hartree(Energy_eV):#{{{
+  return Energy_eV / Hartree_Energy
+#}}}
+Energy_Hartree_to_eV = vectorize(Energy_Hartree_to_eV)
+Energy_eV_to_Hartree = vectorize(Energy_eV_to_Hartree)
 Density_AU_to_SI = vectorize(Density_AU_to_SI)
 Volume_AU_to_SI  = vectorize(Volume_AU_to_SI)
 Time_AU_to_SI    = vectorize(Time_AU_to_SI)
