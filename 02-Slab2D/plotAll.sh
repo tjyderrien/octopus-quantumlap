@@ -17,6 +17,7 @@ do
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
 		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeLaser.gnu"
+                gnuplot "${QuantumLaP}/03-Bulk3D/plotPolarization.gnu"
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
