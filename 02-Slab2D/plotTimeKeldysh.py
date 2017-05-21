@@ -187,12 +187,18 @@ CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 ##==== Building the laser pulses for Keldysh ======
 ##(they cannot be the ones of octopus, as we need
 ## the complex space to build the bicolor envelope)
-t0   =  PulseDuration_SI #initial time is actually 0 in octopus. 
-tmin = -PulseDuration_SI+t0 #zero...
-if(PlottingMode=="doublepulse"):
-  tmax =  PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
-else:
-  tmax = PulseDuration_SI + t0
+if(PulseType == "SinSquared"): 
+  t0   =  PulseDuration_SI #initial time is actually 0 in octopus. 
+  tmin = -PulseDuration_SI+t0 #zero...
+  if(PlottingMode=="doublepulse"):
+    tmax =  PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI + t0
+  else:
+    tmax = PulseDuration_SI + t0
+elif(PulseType == "gaussian"): 
+  t0   =  2.*PulseDuration_SI
+  tmin = -2.*PulseDuration_SI + t0
+  tmax =  2.*PulseDuration_SI + t0
+
 instants=np.arange(tmin,tmax,dtPrecision)
 
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 reading from octopus input file
