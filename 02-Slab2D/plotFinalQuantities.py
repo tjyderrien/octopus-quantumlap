@@ -25,7 +25,7 @@ from libKeldysh import *
 
 PlottingTable = np.empty((0,8)) 
 
-ShowFinalPlot              = 1
+ShowFinalPlot              = 0
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
