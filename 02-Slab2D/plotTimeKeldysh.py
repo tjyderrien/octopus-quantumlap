@@ -75,6 +75,7 @@ if(PlottingMode == "auto"):
     else: 
       PlottingMode="keldysh" #priority 3
     print "** Plotting mode automatic: "+PlottingMode
+    
 if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
@@ -150,6 +151,15 @@ PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
+# Gaussian or SinSquared pulse? 
+PulseType_inp = LookUpStringInFile("../inp", "FieldColorA-SinSquared")
+if(PulseType_inp == ""):
+  print Header+"Assuming Gaussian pulse..."
+  PulseType="gaussian"
+else:
+  print Header+"Assuming Sin squared pulse..."
+  PulseType="SinSquared"
+
 ##==== KELDYSH CALCULATION PULSE 1 ====
 ValenceBandMax = 5E28 
 dtPrecision = 1E-17
@@ -187,13 +197,18 @@ instants=np.arange(tmin,tmax,dtPrecision)
 
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 reading from octopus input file
 
-print Header+"Defining Pulse 1 for Keldysh analysis..."
-FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
-print Header+"Defining Pulse 2 for Keldysh analysis..."
-FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
-print Header+"Defining Pulse AB for Keldysh analysis..."
-FieldEnvelopeAB, FieldComplexAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, CEP1, CEP2, t0, DoublePulseDelay_SI) 
-
+print Header+"Defining Pulses for Keldysh analysis..."
+if(PulseType == "SinSquared"): 
+  FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
+  FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
+  FieldEnvelopeAB, FieldComplexAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, CEP1, CEP2, t0, DoublePulseDelay_SI) 
+elif(PulseType == "gaussian"):
+  IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(instants, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0)
+  FieldEnvelope      = Keldysh.IntensityToField(IntensityEnvelope) 
+  IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(instants, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
+  FieldEnvelope2     = Keldysh.IntensityToField(IntensityEnvelope2)
+  #TODO: add double-gaussian-pulses here
+  
 ## Computing final excited electron density for Pulse 1
 print Header+"Computing Keldysh for Pulse 1: "
 timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
