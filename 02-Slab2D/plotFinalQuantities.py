@@ -23,6 +23,7 @@ from libString import *
 from libPlotting import *
 from libKeldysh import *
 
+Header="[plotFinalQuantities] "
 PlottingTable = np.empty((0,8)) 
 
 ShowFinalPlot              = 0
@@ -52,7 +53,10 @@ for FolderName in glob.glob('*/*/output_iter/'):
   print FolderName
 
   # Import the quantities from the subfolder
-  geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
+  try:
+    geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
+  except:
+    continue #could not load the files, so jump this run.
   # Collect the laser parameters
   filename = FolderName+"../inp"
   Efield2_inp = LookUpStringInFile(filename, "EfieldBsi =")
@@ -129,7 +133,10 @@ for FolderName in glob.glob('*/*/output_iter/'):
   print "Electric field amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
   
   # Capturing cell volume
-  SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
+  try:
+    SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
+  except:
+    continue
   SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
   SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
   CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
@@ -183,7 +190,7 @@ for FolderName in glob.glob('*/*/output_iter/'):
 				#NeMax, NeEnd, density_irreversibility_ratio, EnergyMax ] ))
   # Simplified version first
   PlottingTable = np.vstack(( PlottingTable, [ 
-				wavelength_SI, PulseDuration_SI, Efield_amplitude_SI, 
+				float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, 
 				DoublePulseDelay_SI, density_proj_SI_max, density_proj_SI_final, 
 				density_irreversibility_ratio, CrossPolarization_angle ] )) ##7
   
@@ -210,7 +217,19 @@ CrossPolarization=PlottingTable[:,7]
 
 #print wavelengths1.shape, pulses1.shape, Efield1.shape, Delay.shape, Ne_max.shape, Ne_final.shape, irreversibility.shape
 
-## Prepare the summary plots
+print Header+"** Preparing the summary plots..."
+
+# Generates lists of unique entries to count the range of parameters we have. 
+wavelengths1_uniq      = list(set(wavelengths1))
+Efield1_uniq           = list(set(Efield1))
+Delay_uniq             = list(set(Delay))
+CrossPolarization_uniq = list(set(CrossPolarization))
+wavelength_numbers     = len(wavelengths1_uniq)
+
+print "** 3d plot: Ne_final           size = "+str(len(Ne_final))
+print "** 3d plot: Efield1*           size = "+str(len(Efield1_uniq))
+print "** 3d plot: wavelength1*       size = "+str(len(wavelengths1_uniq))
+print "** 3d plot: CrossPolarization  size = "+str(len(CrossPolarization_uniq))
 
 ### Defining plotting structure
 
@@ -218,6 +237,8 @@ CrossPolarization=PlottingTable[:,7]
 if(EnableDoublePulseAnalysis==0):
   # 2 plots
   plotA=211; plotB=212; #plotC=313
+elif (wavelength_numbers > 1):
+  plotA=311; plotB=312; plotC=313;
 else: #if(EnableDoublePulseAnalysis==1):
 # 3 plots
 # plotA=311; plotB=312; plotC=313;
@@ -234,12 +255,8 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 if(EnableDoublePulseAnalysis==1): 
   plt.title('Final density (peak field, delay)')
-  print "** 3d plot: Ne_final size = "+str(len(Ne_final))
-  Efield1_uniq=list(set(Efield1)); Delay_uniq=list(set(Delay));
-  CrossPolarization_uniq=list(set(CrossPolarization))
-  print "** 3d plot: Delay*    size = "+str(len(Delay_uniq)) 
-  print "** 3d plot: Efield1*  size = "+str(len(Efield1_uniq))
-  print "** 3d plot: CrossPolarization  size = "+str(len(CrossPolarization_uniq))
+  print "** 3d plot: Delay*       size = "+str(len(Delay_uniq))
+  print "** 3d plot: wavelength1* size = "+str(len(wavelengths1_uniq))
 #  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
   # Ne_final_3d_interp = interpolate.interp2d(Efield1, Delay, Ne_final)
   # Efield1_interp = np.arange(1E8, 1E10, 1E8)
@@ -249,29 +266,49 @@ if(EnableDoublePulseAnalysis==1):
   pplt.ylabel('Delay (fs)')
   pplt.xlabel('Field ampl. (V/m)')
   pplt.scatter(Efield1, Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
-else: 
-  pplt.title('Density as function of peak field')
-  pplt.scatter(Efield1, Ne_final, c=Delay, s=(30+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
-  # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  pplt.xlabel('Field peak amplitude (V/m)')
-  pplt.ylabel(r'Final density (m$^{-3}$)')
-#  pplt.ylim((1E16,4.*5e28))
-  ax1.set_yscale('log')
+else:
+  if(wavelength_numbers == 1): #{{{ #single color simulations
+    pplt.title('Density as function of peak field')
+    pplt.scatter(Efield1, Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+    # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    pplt.xlabel('Field peak amplitude (V/m)')
+    pplt.ylabel(r'Final density (m$^{-3}$)')
+  #  pplt.ylim((1E16,4.*5e28))
+    ax1.set_yscale('log')
+  #}}}
+  else: #{{{ #various runs of different colors
+    pplt.title('Available simulation results')
+    pplt.scatter(1E9*wavelengths1, Efield1/1E9, c=Efield1/1E9, label='List of runs')
+    pplt.xlabel('Laser wavelength (nm)')
+    pplt.ylabel('Electric field (V/m)')
+#    pplt.ylim((0,1))
+ 
+ #}}}
 
 #Plot 2: irreversibility
 ax2 = plt.subplot(plotB)
-plt.title('Irreversibility factor')
+
 if(EnableDoublePulseAnalysis==1):
+  plt.title('Irreversibility factor')
   pplt.ylabel('Delay (fs)')
 #  pplt.y2label('Adibadicity parameter')
   pplt.xlabel('Field ampl. (V/m)')
 #  area = np.po
   pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
 else:
-  pplt.scatter(Efield1, irreversibility, c=Delay*1E15, label='Irreversibility')
-  pplt.xlabel('Field peak amplitude (V/m)')
-  pplt.ylabel('Irreversibility factor')
-  pplt.ylim((0,1))
+  if(wavelength_numbers == 1): #{{{
+    plt.title('Irreversibility factor')
+    pplt.scatter(Efield1, irreversibility, c=Delay*1E15, label='Irreversibility')
+    pplt.xlabel('Field peak amplitude (V/m)')
+    pplt.ylabel('Irreversibility factor')
+    pplt.ylim((0,1))
+  #}}}
+  else: #{{{
+    pplt.title('Density as function of laser wavelength')
+    pplt.scatter(1E9*wavelengths1, Ne_final, c=Efield1, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+    pplt.xlabel('Laser wavelength (nm)')
+    pplt.ylabel(r'Final density (m$^{-3}$)')
+  #}}}
   
 # ax22 = ax2.twinx()
 # pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
@@ -282,27 +319,35 @@ else:
 ax2.legend(loc=2, borderaxespad=0.)
 # ax22.legend(loc=1, borderaxespad=0.)
 
-if(EnableDoublePulseAnalysis==1):
-  #Plot 3: Final density as function of delay
-  ax3 = plt.subplot(plotC)
-  pplt.title('Density as function of delay')
-  pplt.scatter(Delay*1E15, Ne_final, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization[0]*180./pi)+"deg")
-  # ax3.legend(bbox_to_anchor=(0.00, -0.1), loc=3, borderaxespad=0.)
-  pplt.xlabel('Double pulse delay (fs)')
-  pplt.ylabel(r'Final density (m$^{-3}$)')
-# plt.ylim((1E16,4.*5e28))
-  # plt.xlim((0.5E-1, 35.))
-  # ax3.set_xscale("log")
-  # ax3.set_yscale("log")
+if(EnableDoublePulseAnalysis==1): #{{{
+  if(wavelength_numbers == 1): 
+    #Plot 3: Final density as function of delay
+    pplt.title('Density as function of delay')
+    pplt.scatter(Delay*1E15, Ne_final, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization[0]*180./pi)+"deg")
+    # ax3.legend(bbox_to_anchor=(0.00, -0.1), loc=3, borderaxespad=0.)
+    pplt.xlabel('Double pulse delay (fs)')
+    pplt.ylabel(r'Final density (m$^{-3}$)')
+    # plt.ylim((1E16,4.*5e28))
+    # plt.xlim((0.5E-1, 35.))
+    # ax3.set_xscale("log")
+    # ax3.set_yscale("log")
 
-  #Plot 4: Irreversibility as function of delayD
-  ax4 = plt.subplot(plotD)
-  pplt.title('Irreversibility factor')
-  pplt.scatter(Delay*1E15, irreversibility, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label='Irreversibility[Delay]')
-  # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  pplt.xlabel('Double pulse delay (fs)')
-  pplt.ylabel('Irreversibility factor')
-  pplt.ylim((0,1))
+    #Plot 4: Irreversibility as function of delay
+    ax4 = plt.subplot(plotD)
+    pplt.title('Irreversibility factor')
+    pplt.scatter(Delay*1E15, irreversibility, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label='Irreversibility[Delay]')
+    # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    pplt.xlabel('Double pulse delay (fs)')
+    pplt.ylabel('Irreversibility factor')
+    pplt.ylim((0,1))
+  #}}}
+else: #single pulse mode #TODO: this is redundant. ORganization of various cases is sot clear. 
+  if(wavelength_numbers > 1): #several colors
+    pplt.scatter(1E9*wavelengths1, irreversibility, c=Efield1, label='Irreversibility')
+    pplt.xlabel('Laser wavelength (nm)')
+    pplt.ylabel('Irreversibility factor')
+    pplt.ylim((0,1))
+ 
 
 ##TODO: shall we make a multi-wavelength figure?
 ##TODO: - If wavelength2!=wavelength1, yes.
