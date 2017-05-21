@@ -6,6 +6,5 @@ python_calc () {
 
 list_folders () {
     find . -type d
-
 }
 
