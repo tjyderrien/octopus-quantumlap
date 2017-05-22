@@ -42,7 +42,7 @@ RatioA = 10 #(decreases A amplitude visually by RatioA times.
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: from command line
-ShowFinalPlot  = 1
+ShowFinalPlot  = 0
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
