@@ -473,10 +473,10 @@ if(QuantityOfInterest == "density"):
   timeKeldyshB= instants
  
   if(PlottingMode=="doublepulse"):
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'Exc. $n^(A)_{exc}$ [Gruzdev (2014)]')
-    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'Exc. $n_{exc}^B$ [Gruzdev (2014)]')
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + N_{exc}[E_B(t)]$')
-    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A+E_B] (t)$')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$')
   else: 
     plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b-', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):

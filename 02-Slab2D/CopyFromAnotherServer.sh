@@ -3,7 +3,7 @@ set -e
 
 if [ -z $1 ]; then
 	echo "Usage: Localize yourself on the TARGET server. "
-	echo "And run ./CopyCluster2Cluster.sh <draco2eos | eos2draco>"
+	echo "And run ./CopyCluster2Cluster.sh <draco2eos | eos2draco | draco2hydra>"
 	exit
 fi
 
@@ -12,8 +12,9 @@ DryRun=""
 
 DracoPrev=/ptmp
 EOSPrev=/scratch
+HydraPrev=/ptmp
 
-CommonPath=tjyderri/octopus/02-Slab2D/Si-6x6x6-k-1x1x1-L24-Mesh0.434637008855-Mesh0.340150702582/ #Dont forget the slash. 
+CommonPath=tjyderri/octopus/02-Slab2D/ #Dont forget the slash. 
 
 #tjyderri/octopus/02-Slab2D/Si-4x4x6-k-1x1x1-L12-Save/
 
@@ -28,6 +29,10 @@ case $1 in
 		Target=${DracoPrev}/${CommonPath}
 		SourceServerAddress=tjyderri@eos01.bc.rzg.mpg.de
 	;;
+        draco2hydra )
+                Source=${DracoPrev}/${CommonPath}
+                Target=${HydraPrev}/${CommonPath}
+                SourceServerAddress=tjyderri@hydra.rzg.mpg.de
 	*)
 	echo "This entry is not taken into account."
 	;;
