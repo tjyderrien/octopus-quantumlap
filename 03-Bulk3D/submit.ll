@@ -26,3 +26,5 @@ RunningTrunc=/ptmp/tjyderri/octopus.git/bin
 
 # cd /ptmp/${USER}/
 poe -n $NSLOTS $RunningTrunc/octopus >& $LOADL_JOB_NAME.log
+
+# MORE VARIABLE NAMES ARE AVAILABLE AT https://www.lrz.de/services/compute/supermuc/loadleveler/
