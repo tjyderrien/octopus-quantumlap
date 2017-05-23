@@ -25,17 +25,16 @@ SampleXY=1
 InitialTemperature="0e0"
 PulseShape="SinSquared" #Gaussian #SinSquared #Keldysh
 CrossPolarization=0 #1
-InducedFields="0" #0 or 1
-TheoryLevel="independent_particles" #dft #independent_particles
+InducedFields="0" #0 or 1: avoid, as understanding is highly non-trivial there. 
+TheoryLevel="dft" #dft #independent_particles
 
 # Laser parameters
 lambda1="800e-9"
-lambda2="800e-9"
+lambda2="1030e-9"
 # Field amplitude
-Efield1="1E9"
-# Efield1="1E8 2E8 3E8 4E8" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-Efield2="0E9"
-# Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11 5E11 1E12"
+# Efield1="1E9"
+Efield1="1E8 1E9 5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield2="1E8 1E9 5E9"
 # Pulse duration
 # tau1="10e-15 20e-15 30e-15"
 tau1="10e-15"
