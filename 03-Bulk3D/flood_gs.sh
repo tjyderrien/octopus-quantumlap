@@ -24,7 +24,7 @@ SampleLayers="1"
 SampleXY="1"
 kPoints="8"
 InitialTemperature="0e0"
-TheoryLevel="independent_particles" # or emty (means LDA)
+TheoryLevel="" #"independent_particles" # or emty (means LDA)
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
 do

@@ -14,7 +14,8 @@ DracoPrev=/ptmp
 EOSPrev=/scratch
 HydraPrev=/ptmp
 
-CommonPath=tjyderri/octopus/02-Slab2D/ #Dont forget the slash. 
+CommonPath=tjyderri/octopus-slabs/03-Bulk3D/Si-1x1x1-k-8x8x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/
+#PLEASE Dont forget the slash. 
 
 #tjyderri/octopus/02-Slab2D/Si-4x4x6-k-1x1x1-L12-Save/
 
@@ -32,7 +33,8 @@ case $1 in
         draco2hydra )
                 Source=${DracoPrev}/${CommonPath}
                 Target=${HydraPrev}/${CommonPath}
-                SourceServerAddress=tjyderri@hydra.rzg.mpg.de
+                SourceServerAddress=tjyderri@@draco.mpcdf.mpg.de
+        ;;
 	*)
 	echo "This entry is not taken into account."
 	;;
