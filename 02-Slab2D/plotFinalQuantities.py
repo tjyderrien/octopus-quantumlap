@@ -63,22 +63,6 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     # Collect the laser parameters
     filename             = FolderName+"../inp"
     
-    Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
-    Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
-    
-    if(Efield2_SI > 1.0):#{ #get the second pulse data
-	 print "** Entering second pulse input."
-	 wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
-	 wavelength2_SI        = float(wavelength2_inp[10:17])
-	 
-	 PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
-	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
-	 
-	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
-	 print CEP2_inp #       = exec(CEP2_inp[7:])
-         CEP2_SI               = float(pi/2.)
-	 #}
-	 
     wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
     wavelength_SI        = float(wavelength_inp[10:17])
     
@@ -106,7 +90,27 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     print CEP1_inp
     CEP1_SI              = float(pi/2.) #exec(CEP1_inp[7:])
     
-
+    Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
+    Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
+        
+    if(Efield2_SI > 1.0):#{ #get the second pulse data
+	 print "** Entering second pulse input."
+	 wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
+	 wavelength2_SI        = float(wavelength2_inp[10:17])
+	 
+	 PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
+	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
+	 
+	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
+	 print CEP2_inp #       = exec(CEP2_inp[7:])
+	 CEP2_SI               = float(pi/2.)
+	 #}
+    else: #{{{
+	 wavelength2_SI=wavelength_SI
+	 PulseDuration2_SI=PulseDuration_SI
+	 CEP2_SI=CEP1_SI
+    #}}}
+    
     # Filter the induced fields #TODO: reshape these tests. 
     ## Remove contradictory caes
     if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
