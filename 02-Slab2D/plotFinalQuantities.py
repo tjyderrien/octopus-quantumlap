@@ -48,7 +48,7 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
 
 
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,13))
+  PlottingTable = np.empty((0,12))
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
@@ -228,7 +228,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
 			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
 			   float(CrossPolarization_angle), float(density_proj_SI_max), float(density_proj_SI_final), 
-			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
+			   float(density_irreversibility_ratio)] #, float(FinalEnergy_SI_final) ]
     
     print StackToAdd
     
