@@ -74,8 +74,9 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
 	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
 	 
-	 CEP2_inp             = LookUpStringInFile(filename, "CEPB =")
-	 CEP2_SI              = print(CEP2_inp[7:])
+	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
+	 print CEP2_inp #       = exec(CEP2_inp[7:])
+         CEP2_SI               = float(pi/2.)
 	 #}
 	 
     wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
@@ -102,7 +103,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     ## Import CEP data
     CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
-    CEP1_SI              = exec(CEP1_inp[7:])
+    print CEP1_inp
+    CEP1_SI              = float(pi/2.) #exec(CEP1_inp[7:])
     
 
     # Filter the induced fields #TODO: reshape these tests. 
