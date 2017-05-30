@@ -111,7 +111,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     #}}}
     
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
-    
+    FieldInduced_enabled = 0
     if(FieldInduced_string == "#"):
 	 FieldInduced_enabled = 1
     elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
