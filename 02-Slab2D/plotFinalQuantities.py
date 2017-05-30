@@ -37,18 +37,18 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
   try: 
     EnableDoublePulseAnalysis = int(float(sys.argv[1]))
     EnableInducedFieldAnalysis = int(float(sys.argv[2]))
-    print "Double pulse mode?"+str(EnableDoublePulseAnalysis)
-    print "Induced fields   ?"+str(EnableInducedFieldAnalysis)
+    print Header+"Input: Double pulse mode?"+str(EnableDoublePulseAnalysis)
+    print Header+"Input: Induced fields   ?"+str(EnableInducedFieldAnalysis)
 #    ShowFinalPlot = 0 #avoids problems with serial plotting 
   except: 
-    print "Usage: plotFinalQuantities.py DoublePulse? InducedFields? "
-    print "Ex:    plotFinalQuantities.py 1 1"
+    print Header+"Usage: plotFinalQuantities.py DoublePulse? InducedFields? "
+    print Header+"Ex:    plotFinalQuantities.py 1 1"
     exit()
   
 
 
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,13)) 
+  PlottingTable = np.empty((0,13))
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
@@ -120,18 +120,19 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
 	 continue
     ## Matching cases also may have some exceptions
-    else: 
+    else: #{
 	 if(FieldInduced_string == "#"):
 	   print "Induced Field was DISABLED in computation."
 	 elif(FieldInduced_string == "G"):
 	   print "Induced field was ENABLED in computation."
-	 else:
+	 else: #{
 	   if(EnableInducedFieldAnalysis==1):
 		print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
 		continue
 	   else:
 		print "Induced field was not found in this computation. But we take it into account."
-    
+	#}
+    #}
 
     # Double-pulse cases: jump selections which don't match with desire. 
     if(Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
@@ -221,8 +222,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     # One line is one octopus run. O_o
 
     # Simplified version first
-    PlottingTable = np.vstack(( PlottingTable, [ 
-				  float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, #0-2
+    PlottingTable = np.vstack(( PlottingTable, [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, #0-2
 				  CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, #3-5
 				  Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, #6-8
 				  CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, #11
