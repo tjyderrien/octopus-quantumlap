@@ -88,7 +88,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     ## Import CEP data
     CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
     print CEP1_inp
-    CEP1_SI              = float(pi/2.) #exec(CEP1_inp[7:])
+    CEP1_SI              = float(pi/2.-pi/2.) #convention due to some shift in octopus #exec(CEP1_inp[7:])
     
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
@@ -103,7 +103,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 
 	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
 	 print CEP2_inp #       = exec(CEP2_inp[7:])
-	 CEP2_SI               = float(pi/2.)
+	 CEP2_SI               = float(pi/2.-pi/2.) #convention due to some shift in octopus
 	 #}
     else: #{{{
 	 wavelength2_SI=wavelength_SI
@@ -223,9 +223,12 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     # One line is one octopus run. O_o
      
     print "Checking integrity before adding to table..."
-    print float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final
+       
+    StackToAdd = [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final ]
     
-    PlottingTable = np.vstack(( PlottingTable, [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final ] )) ##13
+    print StackToAdd
+    
+    PlottingTable = np.vstack(( PlottingTable, StackToAdd )) ##13
     
     # Cleaning the guys before next loop
     del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
