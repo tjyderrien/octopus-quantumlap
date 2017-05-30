@@ -212,6 +212,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     TotalEnergy_size = TotalEnergy.size
     TotalEnergy_AU_final = TotalEnergy[TotalEnergy_size-1] #selects last value of energy
     FinalEnergy_SI_final = Energy_Hartree_to_eV(TotalEnergy_AU_final)
+    print "Total energy (eV)     = "+str(FinalEnergy_SI_final)
     # Append to the table
     # Structure: 
     # wavelength1, wavelength2, tau1, tau2, 
@@ -222,6 +223,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     # One line is one octopus run. O_o
 
     # Simplified version first
+    
     PlottingTable = np.vstack(( PlottingTable, [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, 				  CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final ] )) ##13
     
     # Cleaning the guys before next loop
