@@ -89,7 +89,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
     print CEP1_inp
     CEP1_SI              = eval(CEP1_inp[7:]) 
-    CEP1_SI              = CEP_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
+    CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
