@@ -280,26 +280,33 @@ except:
 # Save the table to a file
 libDatabase.ExportToTxt(PlottingTable, DatabaseName)
 
-# Splitting the data
-wavelengths1      = PlottingTable[:,0]
-pulses1           = PlottingTable[:,1]
-Efield1           = PlottingTable[:,2]
-CEP1              = PlottingTable[:,3]
+def ExtractData(PlottingTable): #{{{
+  wavelengths1      = PlottingTable[:,0]
+  pulses1           = PlottingTable[:,1]
+  Efield1           = PlottingTable[:,2]
+  CEP1              = PlottingTable[:,3]
 
-wavelengths2      = PlottingTable[:,4]
-pulses2           = PlottingTable[:,5]
-Efield2           = PlottingTable[:,6]
-CEP2              = PlottingTable[:,7]
+  wavelengths2      = PlottingTable[:,4]
+  pulses2           = PlottingTable[:,5]
+  Efield2           = PlottingTable[:,6]
+  CEP2              = PlottingTable[:,7]
 
-Delay             = PlottingTable[:,8]
-CrossPolarization = PlottingTable[:,9]
+  Delay             = PlottingTable[:,8]
+  CrossPolarization = PlottingTable[:,9]
 
-FieldInduced      = PlottingTable[:,10]
+  FieldInduced      = PlottingTable[:,10]
 
-Ne_max            = PlottingTable[:,11]
-Ne_final          = PlottingTable[:,12]
-irreversibility   = PlottingTable[:,13]
-Energy_max        = PlottingTable[:,14]
+  Ne_max            = PlottingTable[:,11]
+  Ne_final          = PlottingTable[:,12]
+  irreversibility   = PlottingTable[:,13]
+  Energy_max        = PlottingTable[:,14]
+
+  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
+#}}}
+
+wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
+
+IndexTable = {'wavelengths1': 0, 'pulses1': 1, 'Efield1': 2, 'CEP1': 3, 'wavelengths2': 4, 'pulses2': 5, 'Efield2': 6, 'CEP2': 7, 'Delay':  8, 'CrossPolarization': 9, 'TheoryLevel': 10, 'FieldInduced': 11, 'Ne_max': 12, 'Ne_final': 13, 'irreversibility': 14, 'Energy_max': 15}
 
 print Header+"** Preparing the summary plots..."
 
@@ -347,7 +354,6 @@ print "** 3d plot: Total energy       size = "+str(len(Energy_max))
 ### Defining plotting structure
 
 # Observables:        {N_exc^max, N_exc^final, irreversibility, Energy_max, Energy_final}
-# Number of subplots: 
 
 #### Plotting: parameters for controlling the canvas
 if(EnableDoublePulseAnalysis==0):
@@ -367,8 +373,13 @@ SizeY = 15
 
 plt.figure(figsize=(SizeX,SizeY))
 
-#Plot 1: Final density as function of delay 
-#Filter: we need double pulses of the same wavelengths, same intensity
+#====== Plot 1: Final density as function of delay ======
+#Filter: we need double pulses of the same wavelengths
+PlottingDoublePulses = FilterDatabaseGreaterThan(Plotting, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. 
+PlottingDoublePulses = FilterDatabase(Plotting, wavelength1, IndexTable['wavelength2']) #removes fields where wavelength2 != wavelength1
+
+wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingDoublePulses)
+
 ax1 = plt.subplot(plotA)
 if(EnableDoublePulseAnalysis==1): 
   # Number of sweeped parameters: 2
