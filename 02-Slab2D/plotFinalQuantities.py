@@ -67,6 +67,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
     
     if(Efield2_SI > 1.0):#{ #get the second pulse data
+	 print "** Entering second pulse input."
 	 wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
 	 wavelength2_SI        = float(wavelength2_inp[10:17])
 	 
@@ -74,7 +75,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
 	 
 	 CEP2_inp             = LookUpStringInFile(filename, "CEPB =")
-	 CEP2_SI              = exec(CEP2_inp[7:])
+	 CEP2_SI              = print(CEP2_inp[7:])
 	 #}
 	 
     wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
