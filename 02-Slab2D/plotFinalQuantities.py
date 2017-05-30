@@ -229,6 +229,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 			   Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, 
 			   CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, 
 			   density_irreversibility_ratio, FinalEnergy_SI_final ]
+    StackToAdd = float(StackToAdd)
     
     print StackToAdd
     
