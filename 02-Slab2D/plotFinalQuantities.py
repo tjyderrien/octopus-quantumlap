@@ -302,6 +302,14 @@ else:
     pplt.xlabel('Field peak amplitude (V/m)')
     pplt.ylabel('Irreversibility factor')
     pplt.ylim((0,1))
+    ax22 = ax2.twinx()
+    pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
+    pplt.ylabel('Adiabadicity factor')
+    pplt.ylim((0,1))
+    # ax2.set_yscale("log")
+    ax2.legend(loc=2, borderaxespad=0.)
+    # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    ax22.legend(loc=1, borderaxespad=0.)
   #}}}
   else: #{{{
     pplt.title('Density as function of laser wavelength')
@@ -310,15 +318,6 @@ else:
     pplt.ylabel(r'Final density (m$^{-3}$)')
   #}}}
   
-# ax22 = ax2.twinx()
-# pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
-# ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-# pplt.ylabel('Adiabadicity factor')
-#  pplt.ylim((0,1))
-# ax22.set_yscale("log")
-ax2.legend(loc=2, borderaxespad=0.)
-# ax22.legend(loc=1, borderaxespad=0.)
-
 if(EnableDoublePulseAnalysis==1): #{{{
   if(wavelength_numbers == 1): 
     #Plot 3: Final density as function of delay
