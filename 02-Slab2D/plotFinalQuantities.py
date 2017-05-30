@@ -224,11 +224,15 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
      
     print "Checking integrity before adding to table..."
        
-    StackToAdd = [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final ]
+    StackToAdd = [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, 
+			   CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, 
+			   Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, 
+			   CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, 
+			   density_irreversibility_ratio, FinalEnergy_SI_final ]
     
     print StackToAdd
     
-    PlottingTable = np.vstack(( PlottingTable, StackToAdd )) ##13
+    PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
     
     # Cleaning the guys before next loop
     del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
