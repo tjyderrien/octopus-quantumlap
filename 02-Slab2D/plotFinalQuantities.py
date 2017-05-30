@@ -25,7 +25,6 @@ from libKeldysh import *
 import libDatabase
 
 Header="[plotFinalQuantities] "
-PlottingTable = np.empty((0,13)) 
 
 ShowFinalPlot              = 0
 
@@ -49,6 +48,7 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
 
 
 def ListAllOutput(path='*/*/output_iter/'): #{{{
+  PlottingTable = np.empty((0,13)) 
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
