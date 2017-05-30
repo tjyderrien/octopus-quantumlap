@@ -267,19 +267,20 @@ libDatabase.ExportToTxt(PlottingTable, DatabaseName)
 wavelengths1      = PlottingTable[:,0]
 pulses1           = PlottingTable[:,1]
 Efield1           = PlottingTable[:,2]
-CEP1              = PlottingTable[:,3] #TODO: conflict of name
+CEP1              = PlottingTable[:,3]
+
 wavelengths2      = PlottingTable[:,4]
 pulses2           = PlottingTable[:,5]
 Efield2           = PlottingTable[:,6]
-CEP2              = PlottingTable[:,7] #TODO: conflict of name
+CEP2              = PlottingTable[:,7]
+
 Delay             = PlottingTable[:,8]
 CrossPolarization = PlottingTable[:,9]
+
 Ne_max            = PlottingTable[:,10]
 Ne_final          = PlottingTable[:,11]
 irreversibility   = PlottingTable[:,12]
 Energy_max        = PlottingTable[:,13]
-
-#print wavelengths1.shape, pulses1.shape, Efield1.shape, Delay.shape, Ne_max.shape, Ne_final.shape, irreversibility.shape
 
 print Header+"** Preparing the summary plots..."
 
@@ -312,6 +313,7 @@ print "** 3d plot: pulse duration*    size = "+str(len(pulses2_uniq))
 print "** 3d plot: CEP2               size = "+str(len(CEP2_uniq))
 
 print "=== COUPLING EFFECTS ==="
+print "** 3d plot: Delays             size = "+str(len(Delay_uniq))
 print "** 3d plot: CrossPolarization  size = "+str(len(CrossPolarization_uniq))
 
 print "====== RESULTS ====="
