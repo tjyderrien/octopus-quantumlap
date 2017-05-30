@@ -211,7 +211,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     TotalEnergy_size = TotalEnergy.size
     TotalEnergy_AU_final = TotalEnergy[TotalEnergy_size-1] #selects last value of energy
-    FinalEnergy_SI_final = Energy_Hartree_to_eV(TotalEnergy_AU_final)
+    FinalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
     print "Total energy (eV)     = "+str(FinalEnergy_SI_final)
     # Append to the table
     # Structure: 
