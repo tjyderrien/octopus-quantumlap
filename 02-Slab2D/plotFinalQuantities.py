@@ -359,23 +359,24 @@ if(EnableDoublePulseAnalysis==1):
   # plt.contourf(Efield1_interp, Delay_interp, Ne_final_3d, tri=True)
   pplt.ylabel('Delay (fs)')
   pplt.xlabel('Field ampl. (V/m)')
-  pplt.scatter(Efield1, Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
+  pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
 else:
   if(wavelength_numbers == 1): #{{{ #single color simulations
     pplt.title('Density as function of peak field')
     # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-    pplt.scatter(Efield1, Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+    pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
     # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    pplt.xlabel('Field peak amplitude (V/m)')
+    pplt.xlabel(r'Peak intensity (W/m$^2$)')
     pplt.ylabel(r'Final density (m$^{-3}$)')
   #  pplt.ylim((1E16,4.*5e28))
     ax1.set_yscale('log')
   #}}}
   else: #{{{ #various runs of different colors
     pplt.title('Available simulation results')
-    pplt.scatter(1E9*wavelengths1, Efield1/1E9, c=Efield1/1E9, label='List of runs')
+    pplt.scatter(1E9*wavelengths1, FieldToIntensity(Efield1), c=FieldToIntensity(Efield1), label='List of runs')
     pplt.xlabel('Laser wavelength (nm)')
-    pplt.ylabel('Electric field (V/m)')
+    #pplt.ylabel('Electric field (V/m)')
+    pplt.ylabel(r'Peak intensity (W/m$^2$)')
 #    pplt.ylim((0,1))
  
  #}}}
@@ -389,16 +390,16 @@ if(EnableDoublePulseAnalysis==1):
 #  pplt.y2label('Adibadicity parameter')
   pplt.xlabel('Field ampl. (V/m)')
 #  area = np.po
-  pplt.scatter(Efield1, Delay*1E15, s=34+32*irreversibility, c=irreversibility)
+  pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, s=34+32*irreversibility, c=irreversibility)
 else:
   if(wavelength_numbers == 1): #{{{
     plt.title('Irreversibility factor')
-    pplt.scatter(Efield1, irreversibility, c=Delay*1E15, label='Irreversibility')
+    pplt.scatter(FieldToIntensity(Efield1), irreversibility, c=Delay*1E15, label='Irreversibility')
     pplt.xlabel('Field peak amplitude (V/m)')
     pplt.ylabel('Irreversibility factor')
     pplt.ylim((0,1))
     ax22 = ax2.twinx()
-    pplt.scatter(Efield1, gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
+    pplt.scatter(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), c='r', label='Adiabaticity')
     pplt.ylabel('Adiabadicity factor')
     pplt.ylim((0,1))
     # ax2.set_yscale("log")
@@ -408,7 +409,7 @@ else:
   #}}}
   else: #{{{
     pplt.title('Density as function of laser wavelength')
-    pplt.scatter(1E9*wavelengths1, Ne_final, c=Efield1, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+    pplt.scatter(1E9*wavelengths1, Ne_final, c=FieldToIntensity(Efield1), s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Intensity]')
     pplt.xlabel('Laser wavelength (nm)')
     pplt.ylabel(r'Final density (m$^{-3}$)')
   #}}}
@@ -417,7 +418,7 @@ if(EnableDoublePulseAnalysis==1): #{{{
   if(wavelength_numbers == 1): 
     #Plot 3: Final density as function of delay
     pplt.title('Density as function of delay')
-    pplt.scatter(Delay*1E15, Ne_final, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization[0]*180./pi)+"deg")
+    pplt.scatter(Delay*1E15, Ne_final, s=5.+(FieldToIntensity(Efield1)/1E14)*10., c=10*np.rint(CrossPolarization*180./pi), label=r'$N_{exc}$[Delay], Pola='+str(CrossPolarization[0]*180./pi)+"deg")
     # ax3.legend(bbox_to_anchor=(0.00, -0.1), loc=3, borderaxespad=0.)
     pplt.xlabel('Double pulse delay (fs)')
     pplt.ylabel(r'Final density (m$^{-3}$)')
@@ -429,7 +430,7 @@ if(EnableDoublePulseAnalysis==1): #{{{
     #Plot 4: Irreversibility as function of delay
     ax4 = plt.subplot(plotD)
     pplt.title('Irreversibility factor')
-    pplt.scatter(Delay*1E15, irreversibility, s=5.+(Efield1/1E9)*10., c=10*np.rint(CrossPolarization*180./pi), label='Irreversibility[Delay]')
+    pplt.scatter(Delay*1E15, irreversibility, s=5.+(FieldToIntensity(Efield1)/1E14)*10., c=10*np.rint(CrossPolarization*180./pi), label='Irreversibility[Delay]')
     # ax4.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     pplt.xlabel('Double pulse delay (fs)')
     pplt.ylabel('Irreversibility factor')
@@ -437,7 +438,7 @@ if(EnableDoublePulseAnalysis==1): #{{{
   #}}}
 else: #single pulse mode #TODO: this is redundant. Organization of various cases is sot clear. 
   if(wavelength_numbers > 1): #several colors
-    pplt.scatter(1E9*wavelengths1, irreversibility, c=Efield1, label='Irreversibility')
+    pplt.scatter(1E9*wavelengths1, irreversibility, c=FieldToIntensity(Efield1), label='Irreversibility')
     pplt.xlabel('Laser wavelength (nm)')
     pplt.ylabel('Irreversibility factor')
     pplt.ylim((0,1))
