@@ -88,7 +88,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     ## Import CEP data
     CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
     print CEP1_inp
-    CEP1_SI              = eval(CEP1_inp) 
+    CEP1_SI              = eval(CEP1_inp[7:]) 
     CEP1_SI              = CEP_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
@@ -103,7 +103,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
 	 
 	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
-	 CEP2_SI               = eval(CEP2_inp)
+	 CEP2_SI               = eval(CEP2_inp[7:])
 	 CEP2_SI               = CEP2_SI - pi/2. #convention due to some shift in octopus
 	 #}
     else: #{{{
