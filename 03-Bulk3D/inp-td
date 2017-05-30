@@ -92,8 +92,11 @@ tauBsi = tau2ToReplace #This is FWHM of the Gaussian pulse
 ## Double pulse delay
 pulseDelaySI = pulseDelayToReplace
 ## Envelope phase CEP
-CEPA = CEP1replaceMe + pi/2.
-CEPB = CEP2replaceMe + pi/2.
+CEPA = pi*CEP1replaceMe
+CEPB = pi*CEP2replaceMe 
+# shifting by pi/2.
+CEPA = CEPA + pi/2.
+CEPB = CEPB + pi/2.
 ## Computational time
 ComputingTimeValueSI = ComputingTimeValueToReplace
 
