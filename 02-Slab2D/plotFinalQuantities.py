@@ -251,10 +251,16 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 
 # Capture the data
 path='*/*/output_iter/'
-PlottingTable = ListAllOutput(path)
+DatabaseName = 'Database.csv'
+
+print Header+"Attempting to load previous results..."
+try:
+  PlottingTable = loadtxt(DatabaseName, delimiter=",")
+except:
+  PlottingTable = ListAllOutput(path)
 
 # Save the table to a file
-libDatabase.ExportToTxt(PlottingTable, 'Database.csv')
+libDatabase.ExportToTxt(PlottingTable, DatabaseName)
 
 # Splitting the data
 wavelengths1      = PlottingTable[:,0]
