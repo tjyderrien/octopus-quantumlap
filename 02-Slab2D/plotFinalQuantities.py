@@ -46,7 +46,7 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
     exit()
   
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,15))
+  PlottingTable = np.empty((0,16))
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
@@ -60,6 +60,19 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     # Collect the laser parameters
     filename             = FolderName+"../inp"
+    
+    ## Checking the theory level
+    TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
+    try:
+	 TheoryLevel_string   = TheoryLevel_inp[14:]
+    except:
+	 TheoryLevel_string   = ''
+    if(TheoryLevel_string == "independent_particles"):
+	 TheoryLevel = 0 #independent particles
+    else: 
+	 TheoryLevel = 1 #dft
+	 
+    ##TODO: Getting k-grid value
     
     wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
     wavelength_SI        = float(wavelength_inp[10:17])
@@ -231,7 +244,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     StackToAdd = [float(wavelength_SI), float(PulseDuration_SI), float(Efield_amplitude_SI), 
 			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
 			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
-			   float(CrossPolarization_angle), float(FieldInduced_enabled), 
+			   float(CrossPolarization_angle), float(TheoryLevel), float(FieldInduced_enabled), 
 			   float(density_proj_SI_max), float(density_proj_SI_final), 
 			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
     
@@ -255,7 +268,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
   #}}} #end of function
 
 # Capture the data
-path='*/*/output_iter/'
+path='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 DatabaseName = 'Database.csv'
 
 print Header+"Attempting to load previous results..."
@@ -266,8 +279,6 @@ except:
 
 # Save the table to a file
 libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-
-# Filtering the data
 
 # Splitting the data
 wavelengths1      = PlottingTable[:,0]
@@ -329,6 +340,10 @@ print "** 3d plot: Ne_final           size = "+str(len(Ne_final))
 print "** 3d plot: Irreversibility    size = "+str(len(irreversibility))
 print "** 3d plot: Total energy       size = "+str(len(Energy_max))
 
+#### =============== PLOTTING STARTS HERE ==================
+# The filtering will be done on the fly. Then we are sure of 
+# what we plot in each figure. 
+
 ### Defining plotting structure
 
 # Observables:        {N_exc^max, N_exc^final, irreversibility, Energy_max, Energy_final}
@@ -352,7 +367,8 @@ SizeY = 15
 
 plt.figure(figsize=(SizeX,SizeY))
 
-#Plot 1: Final density as function of delay
+#Plot 1: Final density as function of delay 
+#Filter: we need double pulses of the same wavelengths, same intensity
 ax1 = plt.subplot(plotA)
 if(EnableDoublePulseAnalysis==1): 
   # Number of sweeped parameters: 2
