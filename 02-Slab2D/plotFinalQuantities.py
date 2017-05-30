@@ -226,7 +226,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 				  CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, #3-5
 				  Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, #6-8
 				  CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, #11
-				  density_irreversibility_ratio, FinalEnergy_SI_final ] )) ##13
+				  density_irreversibility_ratio, 0.0 ] )) ##13
     
     # Cleaning the guys before next loop
     del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
