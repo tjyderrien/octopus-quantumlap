@@ -221,8 +221,9 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     # kGrid, MeshSize, 
     # NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
     # One line is one octopus run. O_o
-
-    # Simplified version first
+     
+    print "Checking integrity before adding to table..."
+    print float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final
     
     PlottingTable = np.vstack(( PlottingTable, [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio, FinalEnergy_SI_final ] )) ##13
     
