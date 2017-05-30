@@ -326,8 +326,6 @@ print "** 3d plot: Total energy       size = "+str(len(Energy_max))
 # Observables:        {N_exc^max, N_exc^final, irreversibility, Energy_max, Energy_final}
 # Number of subplots: 
 
-exit()
-
 #### Plotting: parameters for controlling the canvas
 if(EnableDoublePulseAnalysis==0):
   # 2 plots
