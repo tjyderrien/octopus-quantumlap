@@ -283,10 +283,12 @@ CEP2              = PlottingTable[:,7]
 Delay             = PlottingTable[:,8]
 CrossPolarization = PlottingTable[:,9]
 
-Ne_max            = PlottingTable[:,10]
-Ne_final          = PlottingTable[:,11]
-irreversibility   = PlottingTable[:,12]
-Energy_max        = PlottingTable[:,13]
+FieldInduced      = PlottingTable[:,10]
+
+Ne_max            = PlottingTable[:,11]
+Ne_final          = PlottingTable[:,12]
+irreversibility   = PlottingTable[:,13]
+Energy_max        = PlottingTable[:,14]
 
 print Header+"** Preparing the summary plots..."
 
