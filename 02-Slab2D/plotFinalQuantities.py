@@ -45,10 +45,8 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
     print Header+"Ex:    plotFinalQuantities.py 1 1"
     exit()
   
-
-
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,14))
+  PlottingTable = np.empty((0,15))
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
@@ -112,36 +110,41 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 CEP2_SI=CEP1_SI
     #}}}
     
-    # Filter the induced fields #TODO: reshape these tests. 
-    ## Remove contradictory caes
-    if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
-	 print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
-	 continue
-    if(EnableInducedFieldAnalysis == 0 and FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
-	 print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
-	 continue
-    ## Matching cases also may have some exceptions
-    else: #{
-	 if(FieldInduced_string == "#"):
-	   print "Induced Field was DISABLED in computation."
-	 elif(FieldInduced_string == "G"):
-	   print "Induced field was ENABLED in computation."
-	 else: #{
-	   if(EnableInducedFieldAnalysis==1):
-		print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
-		continue
-	   else:
-		print "Induced field was not found in this computation. But we take it into account."
-	#}
-    #}
+    ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
+    
+    if(FieldInduced_string == "#"):
+	 FieldInduced_enabled = 1
+    elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
+	 FieldInduced_enabled = 0
+    ### Remove contradictory caes
+    #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
+	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
+	 #continue
+    #if(EnableInducedFieldAnalysis == 0 and FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
+	 #print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
+	 #continue
+    ### Matching cases also may have some exceptions
+    #else: #{
+	 #if(FieldInduced_string == "#"):
+	   #print "Induced Field was DISABLED in computation."
+	 #elif(FieldInduced_string == "G"):
+	   #print "Induced field was ENABLED in computation."
+	 #else: #{
+	   #if(EnableInducedFieldAnalysis==1):
+		#print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
+		#continue
+	   #else:
+		#print "Induced field was not found in this computation. But we take it into account."
+	##}
+    ##}
 
-    # Double-pulse cases: jump selections which don't match with desire. 
-    if(Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
-	 print "Jump [Case 3]"
-	 continue #we jump this run, then 
-    elif(Efield2_SI < 1E0 and EnableDoublePulseAnalysis == 1): 
-	 print "Jump [Case 4]"
-	 continue
+    ## Double-pulse cases: jump selections which don't match with desire. 
+    #if(Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
+	 #print "Jump [Case 3]"
+	 #continue #we jump this run, then 
+    #elif(Efield2_SI < 1E0 and EnableDoublePulseAnalysis == 1): 
+	 #print "Jump [Case 4]"
+	 #continue
 
   #  else: 
   #    print "SINGLE-PULSE MODE"
@@ -228,7 +231,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     StackToAdd = [float(wavelength_SI), float(PulseDuration_SI), float(Efield_amplitude_SI), 
 			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
 			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
-			   float(CrossPolarization_angle), float(density_proj_SI_max), float(density_proj_SI_final), 
+			   float(CrossPolarization_angle), float(FieldInduced_enabled), 
+			   float(density_proj_SI_max), float(density_proj_SI_final), 
 			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
     
     print StackToAdd
@@ -262,6 +266,8 @@ except:
 
 # Save the table to a file
 libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+
+# Filtering the data
 
 # Splitting the data
 wavelengths1      = PlottingTable[:,0]
@@ -348,7 +354,7 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 if(EnableDoublePulseAnalysis==1): 
   # Number of sweeped parameters: 2
-  plt.title('Final density (peak field, delay)')
+  plt.title('Final density (peak intensity, delay)')
   print "** 3d plot: Delay*       size = "+str(len(Delay_uniq))
   print "** 3d plot: wavelength1* size = "+str(len(wavelengths1_uniq))
 #  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
@@ -362,7 +368,7 @@ if(EnableDoublePulseAnalysis==1):
   pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
 else:
   if(wavelength_numbers == 1): #{{{ #single color simulations
-    pplt.title('Density as function of peak field')
+    pplt.title('Density as function of peak intensity')
     # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
     pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
     # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
@@ -461,7 +467,6 @@ plt.savefig(figname+'.eps', bbox_inches='tight')
 plt.savefig(figname+'.png', bbox_inches='tight')
 if(ShowFinalPlot==1):
   plt.show()
-
 
 ## Plot as function of wavelength for one given peak intensity
 ## Plot as function of peak intensity for one given wavelength.
