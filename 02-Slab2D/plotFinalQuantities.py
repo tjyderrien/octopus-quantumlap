@@ -255,7 +255,7 @@ DatabaseName = 'Database.csv'
 
 print Header+"Attempting to load previous results..."
 try:
-  PlottingTable = loadtxt(DatabaseName, delimiter=",")
+  PlottingTable = loadtxt(DatabaseName, delimiter="\t")
 except:
   PlottingTable = ListAllOutput(path)
 
