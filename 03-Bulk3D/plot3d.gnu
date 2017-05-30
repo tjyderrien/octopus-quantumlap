@@ -3,7 +3,7 @@
 reset
 summary="Database.csv"
 
-plot1="< awk '{ if($6<1. print }'".summary
+plot1="< awk '{ if($6<1.) print }'".summary
 
 ## PLOT 1: N_final(Efield, CEP1)
-splot plot1 u 3:4:13 w p
+splot "< awk '{ if($6<1.) print }' Database.csv" u 3:4:13 w p
