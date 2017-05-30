@@ -224,12 +224,11 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
      
     print "Checking integrity before adding to table..."
        
-    StackToAdd = [float(wavelength_SI), PulseDuration_SI, Efield_amplitude_SI, 
-			   CEP1_SI, float(wavelength2_SI), PulseDuration2_SI, 
-			   Efield2_amplitude_SI, CEP2_SI, DoublePulseDelay_SI, 
-			   CrossPolarization_angle, density_proj_SI_max, density_proj_SI_final, 
-			   density_irreversibility_ratio, FinalEnergy_SI_final ]
-    StackToAdd = float(StackToAdd)
+    StackToAdd = [float(wavelength_SI), float(PulseDuration_SI), float(Efield_amplitude_SI), 
+			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
+			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
+			   float(CrossPolarization_angle), float(density_proj_SI_max), float(density_proj_SI_final), 
+			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
     
     print StackToAdd
     
