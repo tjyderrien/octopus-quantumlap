@@ -1,1 +1,1 @@
-/ptmp/tjyderri/octopus-slabs/Samples/calculateVolume.py
+../Samples/calculateVolume.py
