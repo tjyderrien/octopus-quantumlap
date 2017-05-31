@@ -18,3 +18,300 @@ def LoadRunOutputs(path):
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   return geometry, Ne, laser, TotalCurrent, Energy
 
+## Lists the available octopus runs, and build the table of results
+#  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
+def ListAllOutput(path='*/*/output_iter/'): #{{{
+  #PlottingTable = np.empty((0,16))
+  PlottingTable = np.empty((0,15)) #missing TheoryLevel
+  # List all output_iter files
+  for FolderName in glob.glob(path): #{{{
+    #TODO: this is not general enough, directory level does not help
+    print FolderName
+
+    # Import the quantities from the subfolders
+    try:
+	 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
+    except:
+	 continue #could not load the files, so jump this run.
+    
+    # Collect the laser parameters
+    filename             = FolderName+"../inp"
+    
+    ## Checking the theory level
+    TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
+    try:
+	 TheoryLevel_string   = TheoryLevel_inp[14:]
+    except:
+	 TheoryLevel_string   = ''
+    if(TheoryLevel_string == "independent_particles"):
+	 TheoryLevel = 0 #independent particles
+    else: 
+	 TheoryLevel = 1 #dft
+	 
+    ##TODO: Getting k-grid value
+    
+    wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
+    wavelength_SI        = float(wavelength_inp[10:17])
+    
+    PulseDuration_inp    = LookUpStringInFile(filename, "tauAsi = ")
+    PulseDuration_SI     = float(PulseDuration_inp[8:15])
+	 
+    DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
+    DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
+    
+    FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
+    try:
+	 FieldInduced_string = FieldInduced_inp[0]
+    except:
+	 FieldInduced_string = ''
+	 
+    CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then empty
+    if(CrossPolarization_inp):
+	 CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
+    else: 
+	 CrossPolarization_angle = 0.
+    print "CrossPol"+str(CrossPolarization_angle)
+    
+    ## Import CEP data
+    CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
+    print CEP1_inp
+    CEP1_SI              = eval(CEP1_inp[7:]) 
+    CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
+    
+    Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
+    Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
+        
+    if(Efield2_SI > 1.0):#{ #get the second pulse data
+	 print "** Entering second pulse input."
+	 wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
+	 wavelength2_SI        = float(wavelength2_inp[10:17])
+	 
+	 PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
+	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
+	 
+	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
+	 CEP2_SI               = eval(CEP2_inp[7:])
+	 CEP2_SI               = CEP2_SI - pi/2. #convention due to some shift in octopus
+	 #}
+    else: #{{{
+	 wavelength2_SI=wavelength_SI
+	 PulseDuration2_SI=PulseDuration_SI
+	 CEP2_SI=CEP1_SI
+    #}}}
+    
+    ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
+    FieldInduced_enabled = 0
+    if(FieldInduced_string == "#"):
+	 FieldInduced_enabled = 1
+    elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
+	 FieldInduced_enabled = 0
+    ### Remove contradictory caes
+    #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
+	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
+	 #continue
+    #if(EnableInducedFieldAnalysis == 0 and FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
+	 #print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
+	 #continue
+    ### Matching cases also may have some exceptions
+    #else: #{
+	 #if(FieldInduced_string == "#"):
+	   #print "Induced Field was DISABLED in computation."
+	 #elif(FieldInduced_string == "G"):
+	   #print "Induced field was ENABLED in computation."
+	 #else: #{
+	   #if(EnableInducedFieldAnalysis==1):
+		#print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
+		#continue
+	   #else:
+		#print "Induced field was not found in this computation. But we take it into account."
+	##}
+    ##}
+
+    ## Double-pulse cases: jump selections which don't match with desire. 
+    #if(Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
+	 #print "Jump [Case 3]"
+	 #continue #we jump this run, then 
+    #elif(Efield2_SI < 1E0 and EnableDoublePulseAnalysis == 1): 
+	 #print "Jump [Case 4]"
+	 #continue
+
+  #  else: 
+  #    print "SINGLE-PULSE MODE"
+	 # Remove the pulses with double
+
+    print "Wavelength (nm): "+str(wavelength_SI)
+    print "Pulse duration (s): "+str(PulseDuration_SI)
+    print "Double pulse delay (s): "+str(DoublePulseDelay_SI)
+    print "Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi)
+    
+    # Catch the peak field #We could also take the one of input file..
+    time                = np.asfarray(laser[:,1]) #column 2
+    A1x                 = np.asfarray(laser[:,2]) #column number 3
+    A2x                 = np.asfarray(laser[:,5]) #column number 6
+    timestepTable       = np.diff(time) #size N-1
+    TimeStep            = timestepTable[0] #they are all equal, just select the first
+    Efield              = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
+    Efield2             = - (np.diff(A2x)/np.diff(time))
+    Efield_AU           = Efield/c_AU #fixing dimension #TODO: clean me that...
+    Efield2_AU          = Efield2/c_AU
+    Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
+    Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
+    
+    print "Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+    print "Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."
+    
+    # Capturing cell volume
+    try:
+	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
+    except:
+	 continue
+    SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
+    SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
+    CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
+    SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
+    #print "** Sample volumes **"
+    #print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
+    #print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
+    #print ""
+    #print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
+    #print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
+    #print ""
+    #print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
+    #print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+    #print "" 
+    
+    # Catch the final excited electron density. 
+    timeNe           = np.asfarray(Ne[:,1])
+    Nproj_AU         = np.asfarray(Ne[:,2]) #number of particles, not a density!
+    density_proj_AU  = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
+    density_proj_SI  = Density_AU_to_SI(density_proj_AU)
+    sizeOfDensityTab = density_proj_SI.size
+
+    density_proj_SI_final         = density_proj_SI[sizeOfDensityTab-1]
+    density_proj_SI_max           = density_proj_SI.max()
+    density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
+    
+    print "** Electron density analysis "
+    print "Final electron density = "+str(density_proj_SI_final)
+    print "Max.  electron density = "+str(density_proj_SI_max)
+    print "Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
+    ##==== Prepare plotting of energies ====
+    timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
+    ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
+    TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
+    IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
+    Hartree        = np.asfarray(Energy[:,7]) #Hartree
+    
+    TotalEnergy_size = TotalEnergy.size
+    TotalEnergy_AU_final = TotalEnergy[TotalEnergy_size-1] #selects last value of energy
+    FinalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
+    print "Total energy (eV)     = "+str(FinalEnergy_SI_final)
+    # Append to the table
+    # Structure: 
+    # wavelength1, wavelength2, tau1, tau2, 
+    # Epeak1, Epeak2, 
+    # CEP1, CEP2, delay, 
+    # kGrid, MeshSize, 
+    # NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
+    # One line is one octopus run. O_o
+     
+    print "Checking integrity before adding to table..."
+       
+    StackToAdd = [float(wavelength_SI), float(PulseDuration_SI), float(Efield_amplitude_SI), 
+			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
+			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
+			   float(CrossPolarization_angle), float(TheoryLevel), float(FieldInduced_enabled), 
+			   float(density_proj_SI_max), float(density_proj_SI_final), 
+			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
+    
+    print StackToAdd
+    
+    PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+    
+    # Cleaning the guys before next loop
+    del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
+    #del wavelength1, wavelength2
+    #del tau1, tau2
+    #del Epeak1, Epeak2
+    #del CEP1, CEP2
+    #del delay, kGrid, MeshSize
+    del density_proj_SI_max, density_proj_SI_final, density_irreversibility_ratio
+    #del EnergyMax
+    del timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
+    
+    #}}}
+  return PlottingTable
+  #}}} #end of function
+  
+
+## Unfold the data from an array of octopus results
+# @param PlottingTable: array of floats containing the data to extract. 
+# /!\ The size of the table must match the one given in ListAllOutput()
+def ExtractData(PlottingTable): #{{{
+  wavelengths1      = PlottingTable[:,0]
+  pulses1           = PlottingTable[:,1]
+  Efield1           = PlottingTable[:,2]
+  CEP1              = PlottingTable[:,3]
+
+  wavelengths2      = PlottingTable[:,4]
+  pulses2           = PlottingTable[:,5]
+  Efield2           = PlottingTable[:,6]
+  CEP2              = PlottingTable[:,7]
+
+  Delay             = PlottingTable[:,8]
+  CrossPolarization = PlottingTable[:,9]
+
+  #TheoryLevel      = PlottingTable[:,10]
+  FieldInduced      = PlottingTable[:,10]
+
+  Ne_max            = PlottingTable[:,11]
+  Ne_final          = PlottingTable[:,12]
+  irreversibility   = PlottingTable[:,13]
+  Energy_max        = PlottingTable[:,14]
+
+  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
+#}}}
+
+## Counts the number of available laser parameters in a set of octopus results
+# @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
+def CountTheNumberOfLaserParameters(Database):#{{{
+  wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  # Generates lists of unique entries to count the range of parameters we have. 
+  wavelengths1_uniq      = list(set(wavelengths1))
+  wavelengths2_uniq      = list(set(wavelengths2))
+  Efield1_uniq           = list(set(Efield1))
+  Efield2_uniq           = list(set(Efield2))
+  pulses1_uniq           = list(set(pulses1))
+  pulses2_uniq           = list(set(pulses2))
+  Delay_uniq             = list(set(Delay))
+  CrossPolarization_uniq = list(set(CrossPolarization))
+  CEP1_uniq              = list(set(CEP1))
+  CEP2_uniq              = list(set(CEP2))
+
+  wavelength_numbers     = len(wavelengths1_uniq)
+  wavelength2_numbers    = len(wavelengths2_uniq)
+
+
+  print "====== PULSE 1 ====="
+  print "** Efield1*           size = "+str(len(Efield1_uniq))
+  print "** wavelength1*       size = "+str(len(wavelengths1_uniq))
+  print "** pulse duration*    size = "+str(len(pulses1_uniq))
+  print "** CEP1               size = "+str(len(CEP1_uniq))
+
+  print "====== PULSE 2 ====="
+  print "** Efield2*           size = "+str(len(Efield2_uniq))
+  print "** wavelength2*       size = "+str(len(wavelengths2_uniq))
+  print "** pulse duration*    size = "+str(len(pulses2_uniq))
+  print "** CEP2               size = "+str(len(CEP2_uniq))
+
+  print "=== COUPLING EFFECTS ==="
+  print "** Delays             size = "+str(len(Delay_uniq))
+  print "** CrossPolarization  size = "+str(len(CrossPolarization_uniq))
+
+  print "====== RESULTS ====="
+  print "** Ne_final           size = "+str(len(Ne_final))
+  print "** Irreversibility    size = "+str(len(irreversibility))
+  print "** Total energy       size = "+str(len(Energy_max))
+  
+  return(wavelengths1_uniq, CEP1_uniq)
+#}}}
