@@ -69,19 +69,16 @@ try:
 except:
   PlottingTable = ListAllOutput(path)
 
-# Save the table to a file
-try:
-  libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-except: 
-  print "Error when writing the database.csv."
-  exit()
-
+  print Header+"Save the table to a file..."
+  try:
+    libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+  except: 
+    print "Error when writing the database.csv."
+    exit()
 
 wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
-#TODO: add this field ! #TheoryLevel,
 
 IndexTable = {'wavelengths1': 0, 'pulses1': 1, 'Efield1': 2, 'CEP1': 3, 'wavelengths2': 4, 'pulses2': 5, 'Efield2': 6, 'CEP2': 7, 'Delay':  8, 'CrossPolarization': 9, 'TheoryLevel': 10, 'FieldInduced': 11, 'Ne_max': 12, 'Ne_final': 13, 'irreversibility': 14, 'Energy_max': 15}
-#TODO: add 'TheoryLevel': 10, 
 
 print Header+"** Preparing the summary plots..."
 
