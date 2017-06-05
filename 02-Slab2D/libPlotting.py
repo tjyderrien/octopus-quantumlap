@@ -216,8 +216,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
     Hartree        = np.asfarray(Energy[:,7]) #Hartree
     
-    TotalEnergy_size = TotalEnergy.size
-    TotalEnergy_AU_final = TotalEnergy[TotalEnergy_size-1] #selects last value of energy
+    TotalEnergy_size = ElectronEnergy.size #TotalEnergy.size #TODO: to clean
+    TotalEnergy_AU_final = ElectronEnergy[TotalEnergy_size-1] # TotalEnergy[TotalEnergy_size-1] #selects last value of energy
     FinalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
     print "Total energy (eV)     = "+str(FinalEnergy_SI_final)
     # Append to the table
