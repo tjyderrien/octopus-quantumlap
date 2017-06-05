@@ -8,6 +8,8 @@ from numpy import genfromtxt, loadtxt, chararray
 import glob
 import numpy as np
 
+from libString import *
+
 ## Load geometry, n_el, laser and total_current files (atomic units)
 def LoadRunOutputs(path):
   geometry = path+"../Si.xyz" #static method
