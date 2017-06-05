@@ -36,7 +36,7 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libPlotting import *
 from libKeldysh import *
-from libDatabase import *
+import libDatabase
 
 Header="[plotFinalQuantities] "
 
