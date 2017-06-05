@@ -177,17 +177,21 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
     
+    print Header+"** Sample volumes **"
+    print Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
+    print Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
+    print Header+""
+    print Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
+    print Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
+    print Header+""
+    print Header+"Cell volume = "+str(CellVolume_AU)+" Bohr**3."
+    print Header+"Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+    print Header+"" 
     
-    print "** Sample volumes **"
-    print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
-    print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
-    print ""
-    print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
-    print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
-    print ""
-    print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
-    print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
-    print "" 
+    print Header+"** Capturing the RUN ID of octopus on Draco..."
+    
+          
+    print Header+"** Importing simulation data..."
     
     # Catch the final excited electron density. 
     timeNe           = np.asfarray(Ne[:,1])
@@ -226,12 +230,12 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
      
     print "Checking integrity before adding to table..."
        
-    StackToAdd = [float(wavelength_SI), float(PulseDuration_SI), float(Efield_amplitude_SI), 
-			   float(CEP1_SI), float(wavelength2_SI), float(PulseDuration2_SI), 
-			   float(Efield2_amplitude_SI), float(CEP2_SI), float(DoublePulseDelay_SI), 
-			   float(CrossPolarization_angle), float(TheoryLevel), float(FieldInduced_enabled), 
-			   float(density_proj_SI_max), float(density_proj_SI_final), 
-			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
+    StackToAdd = [float(runid), float(wavelength_SI), float(PulseDuration_SI), 
+	      float(Efield_amplitude_SI), float(CEP1_SI), float(wavelength2_SI), 
+	      float(PulseDuration2_SI), float(Efield2_amplitude_SI), float(CEP2_SI), 
+	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
+	      float(FieldInduced_enabled), float(density_proj_SI_max), float(density_proj_SI_final), 
+	      float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
     
     print Header+"Stack contains:"
     print StackToAdd
@@ -258,35 +262,33 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 # @param PlottingTable: array of floats containing the data to extract. 
 # /!\ The size of the table must match the one given in ListAllOutput()
 def ExtractData(PlottingTable): #{{{
-  wavelengths1      = PlottingTable[:,0]
-  pulses1           = PlottingTable[:,1]
-  Efield1           = PlottingTable[:,2]
-  CEP1              = PlottingTable[:,3]
+  runid             =   PlottingTable[:,0]
+  wavelengths1      =   PlottingTable[:,1]
+  pulses1           =   PlottingTable[:,2]
+  Efield1           =   PlottingTable[:,3]
+  CEP1              =   PlottingTable[:,4]
+  wavelengths2      =   PlottingTable[:,5]
+  pulses2           =   PlottingTable[:,6]
+  Efield2           =   PlottingTable[:,7]
+  CEP2              =   PlottingTable[:,8]
+  Delay             =   PlottingTable[:,9]
+  CrossPolarization =   PlottingTable[:,10]
+  TheoryLevel       =   PlottingTable[:,11]
+  FieldInduced      =   PlottingTable[:,12]
+  Ne_max            =   PlottingTable[:,13]
+  Ne_final          =   PlottingTable[:,14]
+  irreversibility   =   PlottingTable[:,15]
+  Energy_max        =   PlottingTable[:,16]
 
-  wavelengths2      = PlottingTable[:,4]
-  pulses2           = PlottingTable[:,5]
-  Efield2           = PlottingTable[:,6]
-  CEP2              = PlottingTable[:,7]
-
-  Delay             = PlottingTable[:,8]
-  CrossPolarization = PlottingTable[:,9]
-
-  TheoryLevel       = PlottingTable[:,10]
-  FieldInduced      = PlottingTable[:,11]
-
-  Ne_max            = PlottingTable[:,12]
-  Ne_final          = PlottingTable[:,13]
-  irreversibility   = PlottingTable[:,14]
-  Energy_max        = PlottingTable[:,15]
-
-  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
+  runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
   wavelengths2_uniq      = list(set(wavelengths2))
   Efield1_uniq           = list(set(Efield1))
