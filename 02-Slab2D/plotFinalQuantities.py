@@ -175,7 +175,7 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
   #if(ShowFinalPlot==1):
     #pplt.show()
 
-del ax1, ax2, ax22, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
+  del ax1, ax2, ax22, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
 #}}}
   
 #====== Plot: SINGLE PULSE, EFFET OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======
