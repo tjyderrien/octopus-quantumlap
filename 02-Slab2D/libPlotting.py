@@ -25,7 +25,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,16))
+  PlottingTable = np.empty((0,15))
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
@@ -265,7 +265,7 @@ def ExtractData(PlottingTable): #{{{
   Delay             = PlottingTable[:,8]
   CrossPolarization = PlottingTable[:,9]
 
-  TheoryLevel      = PlottingTable[:,10]
+  TheoryLevel       = PlottingTable[:,10]
   FieldInduced      = PlottingTable[:,11]
 
   Ne_max            = PlottingTable[:,12]

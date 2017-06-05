@@ -110,7 +110,7 @@ plt.figure(figsize=(SizeX,SizeY))
 
 ## We change strategy: now we plot all the available data based on the number of parameters we have detected. The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
 
-#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======
+print "#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
 #Filter: double pulses, same wavelengths, same polarization
 PlottingSinglePulses = PlottingTable #get the full database
 PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
@@ -178,7 +178,7 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
   del ax1, ax2, ax22, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
 #}}}
   
-#====== Plot: SINGLE PULSE, EFFET OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======
+print "#====== Plot: SINGLE PULSE, EFFET OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
 #Filter: double pulses, same wavelengths, same polarization
 
 # Simple pulse, single color
@@ -241,7 +241,7 @@ del ax1, PlottingSinglePulses
 
 exit()
 
-##====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final density as function of delay and field ======
+print "#====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final density as function of delay and field ======"
   
 #if(EnableDoublePulseAnalysis==1): #{{{
   #if(wavelength_numbers == 1): 
