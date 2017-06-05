@@ -26,6 +26,7 @@ def LoadRunOutputs(path):
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
 def ListAllOutput(path='*/*/output_iter/'): #{{{
   PlottingTable = np.empty((0,16))
+  Header="[libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
@@ -228,6 +229,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 			   float(density_proj_SI_max), float(density_proj_SI_final), 
 			   float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
     
+    print Header+"Stack contains:"
     print StackToAdd
     
     PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
