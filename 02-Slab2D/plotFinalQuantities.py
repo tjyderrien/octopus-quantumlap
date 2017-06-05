@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+# Copyright (C) 2013-2017 T. J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 # @module plotFinalQuantities
 # Collects the generated octopus simulations from subfolders
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
@@ -58,80 +73,15 @@ except:
 # Save the table to a file
 libDatabase.ExportToTxt(PlottingTable, DatabaseName)
 
-def ExtractData(PlottingTable): #{{{
-  wavelengths1      = PlottingTable[:,0]
-  pulses1           = PlottingTable[:,1]
-  Efield1           = PlottingTable[:,2]
-  CEP1              = PlottingTable[:,3]
 
-  wavelengths2      = PlottingTable[:,4]
-  pulses2           = PlottingTable[:,5]
-  Efield2           = PlottingTable[:,6]
-  CEP2              = PlottingTable[:,7]
-
-  Delay             = PlottingTable[:,8]
-  CrossPolarization = PlottingTable[:,9]
-
-  #TheoryLevel      = PlottingTable[:,10]
-  FieldInduced      = PlottingTable[:,10]
-
-  Ne_max            = PlottingTable[:,11]
-  Ne_final          = PlottingTable[:,12]
-  irreversibility   = PlottingTable[:,13]
-  Energy_max        = PlottingTable[:,14]
-
-  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
-#}}}
-
-wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
+wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
 #TODO: add this field ! #TheoryLevel,
 
-IndexTable = {'wavelengths1': 0, 'pulses1': 1, 'Efield1': 2, 'CEP1': 3, 'wavelengths2': 4, 'pulses2': 5, 'Efield2': 6, 'CEP2': 7, 'Delay':  8, 'CrossPolarization': 9, 'FieldInduced': 10, 'Ne_max': 11, 'Ne_final': 12, 'irreversibility': 13, 'Energy_max': 14}
+IndexTable = {'wavelengths1': 0, 'pulses1': 1, 'Efield1': 2, 'CEP1': 3, 'wavelengths2': 4, 'pulses2': 5, 'Efield2': 6, 'CEP2': 7, 'Delay':  8, 'CrossPolarization': 9, 'TheoryLevel': 10, 'FieldInduced': 11, 'Ne_max': 12, 'Ne_final': 13, 'irreversibility': 14, 'Energy_max': 15}
 #TODO: add 'TheoryLevel': 10, 
 
 print Header+"** Preparing the summary plots..."
 
-def CountTheNumberOfLaserParameters(Database):#{{{
-  wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
-  # Generates lists of unique entries to count the range of parameters we have. 
-  wavelengths1_uniq      = list(set(wavelengths1))
-  wavelengths2_uniq      = list(set(wavelengths2))
-  Efield1_uniq           = list(set(Efield1))
-  Efield2_uniq           = list(set(Efield2))
-  pulses1_uniq           = list(set(pulses1))
-  pulses2_uniq           = list(set(pulses2))
-  Delay_uniq             = list(set(Delay))
-  CrossPolarization_uniq = list(set(CrossPolarization))
-  CEP1_uniq              = list(set(CEP1))
-  CEP2_uniq              = list(set(CEP2))
-
-  wavelength_numbers     = len(wavelengths1_uniq)
-  wavelength2_numbers    = len(wavelengths2_uniq)
-
-
-  print "====== PULSE 1 ====="
-  print "** Efield1*           size = "+str(len(Efield1_uniq))
-  print "** wavelength1*       size = "+str(len(wavelengths1_uniq))
-  print "** pulse duration*    size = "+str(len(pulses1_uniq))
-  print "** CEP1               size = "+str(len(CEP1_uniq))
-
-  print "====== PULSE 2 ====="
-  print "** Efield2*           size = "+str(len(Efield2_uniq))
-  print "** wavelength2*       size = "+str(len(wavelengths2_uniq))
-  print "** pulse duration*    size = "+str(len(pulses2_uniq))
-  print "** CEP2               size = "+str(len(CEP2_uniq))
-
-  print "=== COUPLING EFFECTS ==="
-  print "** Delays             size = "+str(len(Delay_uniq))
-  print "** CrossPolarization  size = "+str(len(CrossPolarization_uniq))
-
-  print "====== RESULTS ====="
-  print "** Ne_final           size = "+str(len(Ne_final))
-  print "** Irreversibility    size = "+str(len(irreversibility))
-  print "** Total energy       size = "+str(len(Energy_max))
-  
-  return(wavelengths1_uniq, CEP1_uniq)
-#}}}
 
 #### =============== PLOTTING STARTS HERE ==================
 # The filtering will be done on the fly. Then we are sure of 
@@ -171,7 +121,7 @@ PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1
 #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
 ## prints the current state of selection
-wavelength_uniq, CEP1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq= CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
 # Simple pulse, single color
 

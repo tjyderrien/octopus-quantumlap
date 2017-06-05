@@ -261,21 +261,21 @@ def ExtractData(PlottingTable): #{{{
   Delay             = PlottingTable[:,8]
   CrossPolarization = PlottingTable[:,9]
 
-  #TheoryLevel      = PlottingTable[:,10]
-  FieldInduced      = PlottingTable[:,10]
+  TheoryLevel      = PlottingTable[:,10]
+  FieldInduced      = PlottingTable[:,11]
 
-  Ne_max            = PlottingTable[:,11]
-  Ne_final          = PlottingTable[:,12]
-  irreversibility   = PlottingTable[:,13]
-  Energy_max        = PlottingTable[:,14]
+  Ne_max            = PlottingTable[:,12]
+  Ne_final          = PlottingTable[:,13]
+  irreversibility   = PlottingTable[:,14]
+  Energy_max        = PlottingTable[:,15]
 
-  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
+  return wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   wavelengths1_uniq      = list(set(wavelengths1))
   wavelengths2_uniq      = list(set(wavelengths2))
@@ -284,6 +284,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   pulses1_uniq           = list(set(pulses1))
   pulses2_uniq           = list(set(pulses2))
   Delay_uniq             = list(set(Delay))
+  TheoryLevel_uniq       = list(set(TheoryLevel))
   CrossPolarization_uniq = list(set(CrossPolarization))
   CEP1_uniq              = list(set(CEP1))
   CEP2_uniq              = list(set(CEP2))
@@ -304,6 +305,9 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "** pulse duration*    size = "+str(len(pulses2_uniq))
   print "** CEP2               size = "+str(len(CEP2_uniq))
 
+  print "=== THEORY LEVEL ==="
+  print "** Number of theory levels = "+str(len(TheoryLevel_uniq))
+  
   print "=== COUPLING EFFECTS ==="
   print "** Delays             size = "+str(len(Delay_uniq))
   print "** CrossPolarization  size = "+str(len(CrossPolarization_uniq))
@@ -313,5 +317,5 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "** Irreversibility    size = "+str(len(irreversibility))
   print "** Total energy       size = "+str(len(Energy_max))
   
-  return(wavelengths1_uniq, CEP1_uniq)
+  return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq)
 #}}}
