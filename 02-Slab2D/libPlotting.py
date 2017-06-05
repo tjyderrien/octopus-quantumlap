@@ -189,8 +189,10 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     print Header+"" 
     
     print Header+"** Capturing the RUN ID of octopus on Draco..."
+    LogFile=LookUpLatestLogFile(FolderName+"../")
+    print Header+"LogFile="
+    print LogFile
     
-          
     print Header+"** Importing simulation data..."
     
     # Catch the final excited electron density. 

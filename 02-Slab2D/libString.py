@@ -10,6 +10,13 @@ import os
 from libDatabase import * #uses symbolic link
 #from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
 
+## Returns the name of the most recent octopus logfile
+def LookUpLatestLogFile(Filename): #{{{{
+  import glob
+  newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
+  return newest
+#}}}
+
 ## Looks for a string in a file. 
 # If duplicate files are found, the most recent file is selected.
 def LookUpStringInFile(Filename, string): #{{{

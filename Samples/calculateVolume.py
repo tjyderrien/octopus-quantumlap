@@ -11,13 +11,6 @@ import os
 
 from libString import *
 
-## Returns the name of the most recent octopus logfile
-def LookUpLatestLogFile(Filename): #{{{{
-  import glob
-  newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
-  return newest
-#}}}
-
 def VolumePerPoint_Log(Filename): #{{{
   """      Get the volume per point from the most recent log file
   """
