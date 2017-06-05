@@ -70,7 +70,11 @@ except:
   PlottingTable = ListAllOutput(path)
 
 # Save the table to a file
-libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+try:
+  libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+except: 
+  print "Error when writing the database.csv."
+  exit()
 
 
 wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
