@@ -169,8 +169,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     try:
 	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
     except:
+	 print Header+"** Warning: sample computation volume was jumped!"
 	 continue
-             print Header+"** Warning: sample computation volume was jumped!"
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
