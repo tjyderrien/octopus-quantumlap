@@ -174,16 +174,18 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
-    #print "** Sample volumes **"
-    #print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
-    #print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
-    #print ""
-    #print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
-    #print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
-    #print ""
-    #print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
-    #print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
-    #print "" 
+    
+    
+    print "** Sample volumes **"
+    print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
+    print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
+    print ""
+    print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
+    print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
+    print ""
+    print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
+    print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+    print "" 
     
     # Catch the final excited electron density. 
     timeNe           = np.asfarray(Ne[:,1])
