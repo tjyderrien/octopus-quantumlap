@@ -75,7 +75,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
 	 CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
     else: 
 	 CrossPolarization_angle = 0.
-    print "CrossPol"+str(CrossPolarization_angle)
+    print Header+"CrossPol"+str(CrossPolarization_angle)
     
     ## Import CEP data
     CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
@@ -144,10 +144,10 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
   #    print "SINGLE-PULSE MODE"
 	 # Remove the pulses with double
 
-    print "Wavelength (nm): "+str(wavelength_SI)
-    print "Pulse duration (s): "+str(PulseDuration_SI)
-    print "Double pulse delay (s): "+str(DoublePulseDelay_SI)
-    print "Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi)
+    print Header+"Wavelength (nm): "+str(wavelength_SI)
+    print Header+"Pulse duration (s): "+str(PulseDuration_SI)
+    print Header+"Double pulse delay (s): "+str(DoublePulseDelay_SI)
+    print Header+"Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi)
     
     # Catch the peak field #We could also take the one of input file..
     time                = np.asfarray(laser[:,1]) #column 2
@@ -162,14 +162,15 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
     Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
     
-    print "Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
-    print "Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."
+    print Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
+    print Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."
     
     # Capturing cell volume
     try:
 	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
     except:
 	 continue
+             print Header+"** Warning: sample computation volume was jumped!"
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
