@@ -121,7 +121,7 @@ PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1
 #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
 ## prints the current state of selection
-wavelength_uniq, CEP1_uniq, TheoryLevel_uniq= CountTheNumberOfLaserParameters(PlottingSinglePulses)
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
 # Simple pulse, single color
 
@@ -189,7 +189,7 @@ PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexT
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq. 
 
-wavelength_uniq, CEP1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
 #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
 # Complexity level: 2
