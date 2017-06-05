@@ -9,6 +9,7 @@ import glob
 import numpy as np
 
 from libString import *
+from libAtomicUnits import *
 
 ## Load geometry, n_el, laser and total_current files (atomic units)
 def LoadRunOutputs(path):
