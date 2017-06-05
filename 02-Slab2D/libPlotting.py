@@ -189,9 +189,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     print Header+"" 
     
     print Header+"** Capturing the RUN ID of octopus on Draco..."
-    LogFile=LookUpLatestLogFile(FolderName+"../")
-    print Header+"LogFile="
-    print LogFile
+    runid=LookUpLatestLogFile(FolderName+"../")
+    print Header+"LogFile="+str(runid)
     
     print Header+"** Importing simulation data..."
     
