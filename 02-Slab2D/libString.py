@@ -14,7 +14,8 @@ from libDatabase import * #uses symbolic link
 def LookUpLatestLogFile(Filename): #{{{{
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
-  return newest
+  result = [int(s) for s in newest.split() if s.isdigit()]
+  return result
 #}}}
 
 ## Looks for a string in a file. 
