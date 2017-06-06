@@ -51,13 +51,14 @@ Header="[octopus-slabs] "
 
 if(PlottingMode == "auto"):
 ## METHOD BRUTEFORCE
-  if(PlottingMethod == "bruteforce"):
+  if(PlottingMethod == "bruteforce"): #{{{
     PlottingMode = sys.argv[1]
     if( not (PlottingMode == "nonthermalmelting" or PlottingMode == "doublepulse" or PlottingMode == "keldysh") ):
       print "Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1>"
       exit()
+  #}}}
 ## METHOD detection in input file
-  else:
+  else: #{{{
     filename = "../inp"
     Efield2_inp = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI  = float(Efield2_inp[11:15])
@@ -75,7 +76,7 @@ if(PlottingMode == "auto"):
     else: 
       PlottingMode="keldysh" #priority 3
     print "** Plotting mode automatic: "+PlottingMode
-    
+  #}}}
 if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
