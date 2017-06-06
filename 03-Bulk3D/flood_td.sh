@@ -31,19 +31,19 @@ TheoryLevel="dft" #dft #independent_particles
 
 # Laser parameters
 lambda1="800e-9"
-lambda2="1030e-9"
+lambda2="800e-9"
 # Field amplitude
 
 # Efield1="1E9"
-Efield1="1E8 1E9 5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-Efield2="1E8 1E9 5E9"
+Efield1="5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield2="0E0"
 
 # Pulse duration
 # tau1="10e-15 20e-15 30e-15"
 tau1="10e-15"
 tau2="10e-15"
 # Phase
-CEP1="0.0 pi/2. pi/.3 pi/4. pi/6."
+CEP1="0.5 0.333333333 0.25 0.16666667" #will be multiplied by pi in script file
 CEP2="0.0"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 0e-15 10e-15 20e-15 30e-15" #precising the range

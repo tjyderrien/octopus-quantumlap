@@ -6,7 +6,7 @@
 source machines.env
 source functions.sh
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no)
 kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
 
