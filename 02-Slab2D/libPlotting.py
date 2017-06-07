@@ -299,6 +299,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   pulses1_uniq           = list(set(pulses1))
   pulses2_uniq           = list(set(pulses2))
   Delay_uniq             = list(set(Delay))
+  FieldInduced_uniq      = list(set(FieldInduced))
   TheoryLevel_uniq       = list(set(TheoryLevel))
   CrossPolarization_uniq = list(set(CrossPolarization))
   CEP1_uniq              = list(set(CEP1))
@@ -322,6 +323,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 
   print "=== THEORY LEVEL ==="
   print "** Number of theory levels = "+str(len(TheoryLevel_uniq))
+  print "** Induced Fields          = "+str(len(FieldInduced_uniq))
   
   print "=== COUPLING EFFECTS ==="
   print "** Delays             size = "+str(len(Delay_uniq))
