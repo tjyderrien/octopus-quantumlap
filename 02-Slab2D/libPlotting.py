@@ -336,3 +336,6 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq)
 #}}}
+
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Ne_max': 13, 'Ne_final': 14, 'irreversibility': 15, 'Energy_max': 16}
+

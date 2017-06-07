@@ -81,7 +81,6 @@ PlottingTable = FilterDatabase(PlottingTable, 0, IndexTable['FieldInduced']) #re
 
 runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Ne_max': 13, 'Ne_final': 14, 'irreversibility': 15, 'Energy_max': 16}
 
 print Header+"** Preparing the summary plots..."
 
