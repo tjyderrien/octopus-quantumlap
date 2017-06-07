@@ -119,7 +119,7 @@ PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, Inde
 PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0. 
-#PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced']) #removes induced fields data
 
 ## prints the current state of selection
 wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
