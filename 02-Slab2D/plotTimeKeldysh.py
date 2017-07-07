@@ -367,7 +367,7 @@ else:
   exit()
 
 ### Building up an instantaneous W_PI(t)
-wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe)
+wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime)
 
 ### Converting fields from AU to SI
 
