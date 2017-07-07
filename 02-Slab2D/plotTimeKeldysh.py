@@ -469,7 +469,7 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT.cumsum() / timeNe[1:].size(), 'b--', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL. 
+  plt.plot(timeNe[1:], wPI_TDDFT.cumsum() / timeNe[1:].size, 'b--', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL. 
   plt.plot(timeNe[1:], wPI_TDDFT, 'b-', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
