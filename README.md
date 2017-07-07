@@ -2,6 +2,12 @@
 
 Private repository made to develop Octopus simulations for QuantumLaP project. 
 
+WARNING: the repository spp-extended-theory is necessary to run the routines. Download the program here: git clone git@bitbucket.org:tjyderrien/spp-extended-theory.git.  
+
+WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
+
+# Contents
+
 List of folders
 
 * Papers/: contains the future possible papers
