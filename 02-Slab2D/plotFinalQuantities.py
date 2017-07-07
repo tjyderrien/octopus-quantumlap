@@ -181,7 +181,7 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
     PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
     runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_wavelength)
-    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'or', label=r'$<w_{PI}>$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'or', label=r'$\left\langle w_{PI} \right\rangle$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
     
   pplt.ylabel(r'$w_{PI}$')
   #pplt.ylim((0,1))
