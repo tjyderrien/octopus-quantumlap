@@ -134,46 +134,37 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
   pplt.title('Density as function of peak intensity')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
   #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
-  for wavelength_value in wavelength_uniq:
+  for wavelength_value in wavelength_uniq: #{{{
     # select the corresponding wavelength in results
     PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
     runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_wavelength)
 
     pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+  #}}}
   ax1.legend(loc=2, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
   #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  pplt.ylabel(r'Final density (m$^{-3}$)')
+  pplt.ylabel(r'Final exc. density (m$^{-3}$)')
 #  pplt.ylim((1E16,4.*5e28))
   ax1.set_xscale('log')
   ax1.set_yscale('log')
+  ax12 = ax1.twinx()
+  for wavelength_value in wavelength_uniq: #{{{
+    # select the corresponding wavelength in results
+    PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_wavelength)
+
+    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ro', label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+  #}}}
+  ax12.set_yscale('log')
   
   ax2 = plt.subplot(plotB)
-  
-  ## Enable if you want irreversilibity factor on the Y2 axis. Not really useful so far. 
-  #plt.title('Irreversibility factor')
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
-  #pplt.xlabel(r'Intensity (W/m$^2$)')
-  #pplt.ylabel('Irreversibility factor')
-  #pplt.ylim((0,1))
-  #ax2.set_xscale('log')
-  #ax22 = ax2.twinx()
-  #for wavelength_value in wavelength_uniq:
-    ## select the corresponding wavelength in results
-    #PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
-
-    #runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_wavelength)
-    #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
-  #pplt.ylabel('Adiabadicity factor')
-  ##pplt.ylim((0,1))
-  #ax22.set_yscale('log')
-  
-  ## PLOTTING W_PI instead of N_exc (time-dependent average, and effective final W_pi)
-  #plt.title(r'$w_{PI} (t)$')
-  #pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'o', label=r'$w_PI=N_{exc}/\tau$')
+  plt.title('Virtual exc. factor')
+  pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Virtual exc.')
   pplt.xlabel(r'Intensity (W/m$^2$)')
-  #pplt.ylabel(r'$w_{PI}$')
-  #pplt.ylim((0,1))
+  pplt.ylabel('Virtual exc. factor')
+  pplt.ylim((0,1))
   ax2.set_xscale('log')
   ax22 = ax2.twinx()
   for wavelength_value in wavelength_uniq:
@@ -181,15 +172,17 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
     PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
     runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_wavelength)
-    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'or', label=r'$\left\langle w_{PI} \right\rangle$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
-    
-  pplt.ylabel(r'$w_{PI}$')
+    pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+  pplt.ylabel('Adiabadicity factor')
   #pplt.ylim((0,1))
   ax22.set_yscale('log')
+  
+  #}}}
   
   # ax2.set_yscale("log")
   ax2.legend(loc=2, borderaxespad=0.)
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  ax12.legend(loc=4, borderaxespad=0.)
   ax22.legend(loc=1, borderaxespad=0.)
   
   # Saving the plot
