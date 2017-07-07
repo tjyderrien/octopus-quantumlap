@@ -39,7 +39,7 @@ SizeY = 15
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
-CaptionX = 1.10
+CaptionX = 1.15
 CaptionY = 1.00
 
 ## User choices
@@ -371,8 +371,8 @@ else:
   exit()
 
 ### Building up an instantaneous W_PI(t)
-wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime)
-wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #valid while all timesteps are equal
+wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
+wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #TODO: depends on tmax :-( still not exact. 
 
 ### Converting fields from AU to SI
 
@@ -397,7 +397,7 @@ elif(ymax2valueMax < ymax2 / 10.):
 elif(ymax2valueMax > ymax2):
   ymax2=5.*ymax2;
 # Managing wpi plotting
-ymin_wpi = 1E25
+ymin_wpi = 1E40
 ymax_wpi = 1E50
 
 
