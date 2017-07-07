@@ -474,7 +474,7 @@ if(QuantityOfInterest == "density"):
   plt.plot(timeNe[1:], wPI_TDDFT, 'b--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
-  plt.ylim((ymin_wpi,ymax_wpi))
+  #plt.ylim((ymin_wpi,ymax_wpi))
   #ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
