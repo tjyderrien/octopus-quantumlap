@@ -493,7 +493,7 @@ elif (QuantityOfInterest == "number"):
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.legend()
-plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
