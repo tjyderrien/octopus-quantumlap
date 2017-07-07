@@ -33,6 +33,8 @@ module load fftw/3.3.4
 module load netcdf-serial/4.4.0
 module list
 
+export I_MPI_DAPL_TRANSLATION_CACHE=0 #avoids the mess with MPI
+
 #module load octopus/nightly
 
 # Run the program:
