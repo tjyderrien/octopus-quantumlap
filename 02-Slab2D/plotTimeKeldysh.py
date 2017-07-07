@@ -39,8 +39,8 @@ SizeY = 15
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
-CaptionX = 1.20
-CaptionY = 1.0
+CaptionX = 1.10
+CaptionY = 1.00
 
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
