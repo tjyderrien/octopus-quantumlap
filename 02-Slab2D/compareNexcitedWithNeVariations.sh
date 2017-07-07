@@ -5,7 +5,7 @@ module load gnuplot
 module load anaconda
 module list
 
-source $QuantumLaP/02-Slab2D/functions.sh
+source functions.sh
  
 rm *.tmp 
 
@@ -28,7 +28,7 @@ echo "** Total number of folders: $TotalNumberOfFolders"
 		counter=$(( counter + 1 )) #TODO: better perf?
 	        echo "** Folder ${counter} / ${TotalNumberOfFolders}."
 		echo "$folder" > folders.tmp
-		$QuantumLaP/02-Slab2D/compareNexcitedWithNeVariations.py > densities.tmp
+		$OctopusSlabsSources/02-Slab2D/compareNexcitedWithNeVariations.py > densities.tmp
 		cd $previousFolder > /dev/null
 	done
 
@@ -66,5 +66,5 @@ echo "** Total number of folders: $TotalNumberOfFolders"
 # fi
 
 echo "Plotting the comparison with excited density..."
-gnuplot $QuantumLaP/02-Slab2D/compareNexcitedWithNeVariations.gnu #--persist
+gnuplot $OctopusSlabsSources/02-Slab2D/compareNexcitedWithNeVariations.gnu #--persist
 

@@ -7,8 +7,8 @@ NumberLines=$1
 
 DebugMode=0
 
-source ${QuantumLaP}/02-Slab2D/functions.sh
-source ${QuantumLaP}/02-Slab2D/machines.env
+source ${OctopusSlabsSources}/02-Slab2D/functions.sh
+source ${OctopusSlabsSources}/02-Slab2D/machines.env
 CheckComputerName
 
 if [ -z ${DepthToAnalyze} ]; then
