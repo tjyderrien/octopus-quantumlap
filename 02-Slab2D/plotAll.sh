@@ -4,7 +4,7 @@ module load gnuplot
 module load anaconda
 module list
 
-source $QuantumLaP/02-Slab2D/functions.sh
+source $OctopusSlabsSources/02-Slab2D/functions.sh
 # set -e
 
 echo "Current folder: $( pwd )"
@@ -16,23 +16,23 @@ do
 	cd $folder
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeLaser.gnu"
-                gnuplot "${QuantumLaP}/03-Bulk3D/plotPolarization.gnu"
+		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeLaser.gnu"
+                gnuplot "${OctopusSlabsSources}/03-Bulk3D/plotPolarization.gnu"
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeEnergy.gnu"
+		gnuplot "${OctopuSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeCurrent.gnu"
+		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
 	fi
 	if [ -e n_ex ]; then
-#		gnuplot "${QuantumLaP}/02-Slab2D/plotTimeDensity.gnu"
+#		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
-		${QuantumLaP}/fixOutputFile.sh laser
+		${OctopusSlabsSources}/fixOutputFile.sh laser
 #		echo "Plotting density..."
-#               ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py
+#               ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py
 	fi
 	echo ""
 	echo "** NEXT FOLDER PLEASE :)"
@@ -51,17 +51,17 @@ do
         cd $folder
 	echo "** Building files for post-processed density..."
         echo "** ENABLE ONLY IF NECESSARY. Very long.. (1h)"
-	# screen -d -m ${QuantumLaP}/02-Slab2D/compareNexcitedWithNeVariations.sh
+	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting nice figure for post-processed density for $(pwd)..."
-	screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py auto 0
-        screen -d -m ${QuantumLaP}/02-Slab2D/plotTimeKeldysh.py auto 1
+	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0
+        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1
 	echo ""
 
  	# echo "** Generating list of TD-visual outputs..."
- 	# TODO : $QuantumLaP/Video/buildFileList.sh #generated listoffiles.txt
+ 	# TODO : $OctopusSlabsSources/Video/buildFileList.sh #generated listoffiles.txt
         # echo "td.0000000/" > listoffiles.txt
  	# echo "td.0007770/" >> listoffiles.txt
-        # screen -d -m $QuantumLaP/Video/plotELF.sh
+        # screen -d -m $OctopusSlabsSources/Video/plotELF.sh
 
 	cd $prevFolder > /dev/null
 done
@@ -71,10 +71,10 @@ done
 #  prevFolder=$( pwd )
 #  cd $folder
   echo "** Plotting nice figure for post-processed density for $(pwd)..."
-  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 0 0
-  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 0 1
-  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 1 0
-  screen -d -m ${QuantumLaP}/02-Slab2D/plotFinalQuantities.py 1 1
+  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 0 0
+  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 0 1
+  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 1 0
+  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 1 1
 #   cd $prevFolder > /dev/null
 # done 
 
