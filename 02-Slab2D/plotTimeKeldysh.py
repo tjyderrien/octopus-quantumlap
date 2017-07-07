@@ -38,6 +38,10 @@ SizeX = 10
 SizeY = 15
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
+## Position of the captions
+CaptionX = 1.20
+CaptionY = 1.0
+
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
@@ -446,7 +450,7 @@ if(PlotGrid==1):
   for xc in xposition:
     plt.axvline(x=xc, color='k', linestyle=':')
 
-plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 #plt.legend(loc=4) # Simple caption inside picture. 
 
 ### Plotting density evolution
@@ -462,7 +466,7 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT, 'k--', label=r'$w_{PI}^{proj}(t)$')
+  plt.plot(timeNe[1:], wPI_TDDFT.cumsum(), 'k--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
   #pplt.ylim((0,1))
@@ -493,7 +497,7 @@ elif (QuantityOfInterest == "number"):
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.legend()
-plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -518,7 +522,7 @@ plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy [Ha]')
-plt.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
+plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 # plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -539,7 +543,7 @@ if(EnableLogScale == 1):
   ax3.legend(loc=4)
 else:
 #  ax2.legend(loc=4)
-  ax2.legend(bbox_to_anchor=(1.00, 1), loc=2, borderaxespad=0.)
+  ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 
 ## ==== Writing final picture =====
 
