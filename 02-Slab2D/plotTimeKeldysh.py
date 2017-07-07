@@ -475,7 +475,7 @@ if(QuantityOfInterest == "density"):
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
   plt.ylim((ymin_wpi,ymax_wpi))
-  ax22.set_yscale('log')
+  #ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
