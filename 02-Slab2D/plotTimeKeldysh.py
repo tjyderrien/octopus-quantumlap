@@ -464,6 +464,7 @@ if(QuantityOfInterest == "density"):
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
   plt.plot(timeNe[1:], wPI_TDDFT, 'k--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
+  plt.xlim((xmin,xmax))
   #pplt.ylim((0,1))
   ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
