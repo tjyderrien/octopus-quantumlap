@@ -395,6 +395,9 @@ elif(ymax2valueMax < ymax2 / 10.):
   ymax2 = ymax2 / 10.
 elif(ymax2valueMax > ymax2):
   ymax2=5.*ymax2;
+# Managing wpi plotting
+ymin_wpi = 1E25
+ymax_wpi = 1E50
 
 
 ### Defining plotting boundaries
@@ -466,10 +469,10 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT.cumsum(), 'k--', label=r'$w_{PI}^{proj}(t)$')
+  plt.plot(timeNe[1:], wPI_TDDFT, 'b--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
-  #pplt.ylim((0,1))
+  plt.ylim((ymin_wpi,ymax_wpi))
   ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
@@ -490,7 +493,7 @@ if(QuantityOfInterest == "density"):
     plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
     plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$')
   else: 
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b-', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
