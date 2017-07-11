@@ -371,8 +371,11 @@ else:
   exit()
 
 ### Building up an instantaneous W_PI(t)
+omega = 2.*pi*c/wavelength_SI
 wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
-wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #TODO: depends on tmax :-( still not exact. 
+wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #TODO: depends on tmax :-( still not exact.
+wPI_TDDFT_cos = np.exp(- 1j * omega / 2. / pi * timeNe[1:] / UnitTime) 
+wPI_TDDFT_env = wPI_TDDFT * wPI_TDDFT_cos.real
 
 ### Converting fields from AU to SI
 
@@ -472,11 +475,11 @@ if(QuantityOfInterest == "density"):
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
   plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL? 
   if(EnableLogScale==0): 
-    plt.plot(timeNe[1:], wPI_TDDFT, 'b--', label=r'$w_{PI}^{proj}(t)$')
+    plt.plot(timeNe[1:], wPI_TDDFT_env, 'b--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
-  if(EnableLogScale==1): 
-    plt.ylim((ymin_wpi,ymax_wpi))
+  #if(EnableLogScale==1): 
+  # plt.ylim((ymin_wpi,ymax_wpi))
   #ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
