@@ -483,11 +483,13 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL. 
-  plt.plot(timeNe[1:], wPI_TDDFT, 'b--', label=r'$w_{PI}^{proj}(t)$')
+  plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL? 
+  if(EnableLogScale==0): 
+    plt.plot(timeNe[1:], wPI_TDDFT, 'b--', label=r'$w_{PI}^{proj}(t)$')
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
-  #plt.ylim((ymin_wpi,ymax_wpi))
+  if(EnableLogScale==1): 
+    plt.ylim((ymin_wpi,ymax_wpi))
   #ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
@@ -556,6 +558,7 @@ if(PlotGrid==1):
 
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
+  ax22.set_yscale("log", nonposy='clip')
   ax2.legend(loc=4)
   ax3.set_yscale("log", nonposy='clip')
   ax3.legend(loc=4)
