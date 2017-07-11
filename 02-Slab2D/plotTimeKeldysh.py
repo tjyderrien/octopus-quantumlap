@@ -1,6 +1,22 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
+# Copyright (C) 2013-2017 T. J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
 # @module plotTimeKeldysh
 # Plots the TD-n_excited density of electrons, automatically compares with Keldysh model, assuming a limiter. 
 # Plots the TD-energy. 
@@ -20,8 +36,6 @@ from libPlottingSettings import *
 from libString import *
 from libPlotting import *
 
-
-## TODO: separate plotting and density post-calculation into libs
 
 ## Materials properties
 Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
@@ -45,8 +59,8 @@ CaptionY = 1.00
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
-EnableLogScale = 2 #1: yes, 2: from command line
-ShowFinalPlot  = 1
+EnableLogScale = 2 #1: yes, 2: auto from command line
+ShowFinalPlot  = 0 #TODO: should be commanded via terminal
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
@@ -103,8 +117,6 @@ A1x = np.asfarray(laser[:,2]) #column number 3
 A1y = np.asfarray(laser[:,3]) #column number 4
 A2x = np.asfarray(laser[:,5]) #column number 6 
 A2y = np.asfarray(laser[:,6]) #column number 7
-
-# c_AU = 137.035999139 #TODO: transfer to lib and remove this line
 
 timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
@@ -206,7 +218,7 @@ elif(PulseType == "gaussian"):
 
 instants=np.arange(tmin,tmax,dtPrecision)
 
-CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 reading from octopus input file
+CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 auto reading from octopus input file
 
 print Header+"Defining Pulses for Keldysh analysis..."
 if(PulseType == "SinSquared"): 
@@ -283,7 +295,8 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 # CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
 # Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
 
-##TODO: Do not use FFT, see reasons in Numerical Receipes. 
+##TODO: Prepare the conductivity plots, also! 
+## Do not use FFT, see reasons in Numerical Receipes. 
 # print "** Conductivity"
 # Epsilon_maxSize = CurrentX_AU_FT.size
 # # print Efield_AU_FT.size
@@ -323,7 +336,7 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 # Calculation using quantum projections < phi_gs | phi(t) >
 #Nproj_AU = density #* CellVolume_AU 
 # Nproj_AU = Nproj_AU * CellVolume_AU #Should we really multiply by volume ?
-density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
+density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.)
 # Calculation of particle number from charge density (octopus.output.density)
 # Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
 # Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
