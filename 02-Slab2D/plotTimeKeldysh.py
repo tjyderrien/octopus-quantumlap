@@ -489,6 +489,7 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+  ax2.legend(loc=2)
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
   plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
   plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/\tau$')
@@ -514,12 +515,12 @@ if(QuantityOfInterest == "density"):
   timeKeldyshB= instants
  
   if(PlottingMode=="doublepulse"):
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-    plt.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
-    plt.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$')
+    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+    ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+    ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$')
   else: 
-    plt.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
