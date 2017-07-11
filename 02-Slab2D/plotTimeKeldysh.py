@@ -60,7 +60,7 @@ CaptionY = 1.00
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: auto from command line
-ShowFinalPlot  = 0 #TODO: should be commanded via terminal
+ShowFinalPlot  = 1 #TODO: should be commanded via terminal
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
@@ -387,8 +387,12 @@ else:
 omega = 2.*pi*c/wavelength_SI
 wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
 wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #TODO: depends on tmax :-( still not exact.
-wPI_TDDFT_cos = np.exp(- 1j * omega / 2. / pi * timeNe[1:] / UnitTime) 
-wPI_TDDFT_env = wPI_TDDFT * wPI_TDDFT_cos.real
+wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
+wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
+wPI_TDDFT_approx  = observable_proj / PulseDuration_SI
+
+print Header+"** Final value for <w_PI> = "+str(wPI_TDDFT_average[wPI_TDDFT_average.size-1])
+print Header+"** Final value for w_PI_approx = "+str(wPI_TDDFT_approx[wPI_TDDFT_approx.size-1])
 
 ### Converting fields from AU to SI
 
@@ -470,8 +474,8 @@ if(PlotGrid==1):
   for xc in xposition:
     plt.axvline(x=xc, color='k', linestyle=':')
 
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-#plt.legend(loc=4) # Simple caption inside picture. 
+# plt.legend(bbox_to_anchor=(CaptionX, 0, loc=1, borderaxespad=0.)
+plt.legend(loc=4) # Simple caption inside picture. 
 
 ### Plotting density evolution
 ax2 = plt.subplot(plotB)
@@ -486,13 +490,15 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$w_{PI}^{proj}(t)$') #NOTHING PHYSICAL? 
-  if(EnableLogScale==0): 
-    plt.plot(timeNe[1:], wPI_TDDFT_env, 'b--', label=r'$w_{PI}^{proj}(t)$')
+  plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
+  plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/\tau$')
+  # if(EnableLogScale==1): 
+  #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
+  plt.legend(loc=4)
   plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
-  #if(EnableLogScale==1): 
-  # plt.ylim((ymin_wpi,ymax_wpi))
+#  if(EnableLogScale==1): 
+#   plt.ylim((ymin_wpi,ymax_wpi))
   #ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
@@ -519,8 +525,8 @@ elif (QuantityOfInterest == "number"):
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-#  plt.legend()
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+plt.legend(loc=1)
+# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -546,7 +552,7 @@ plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy [Ha]')
 plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-# plt.legend(loc=2)
+plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
