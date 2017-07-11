@@ -4,6 +4,8 @@ module load gnuplot
 module load anaconda
 module list
 
+source $QuantumLaPsources/machines.env
+CheckComputerName
 source $OctopusSlabsSources/02-Slab2D/functions.sh
 # set -e
 
