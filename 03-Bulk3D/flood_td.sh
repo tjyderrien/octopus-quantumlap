@@ -1,4 +1,11 @@
 #!/bin/bash
+set -e 
+
+source $QuantumLaPsources/machines.env
+CheckComputerName
+
+echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
 
 echo "Description: Massive job submitter for QuantumLaP."
 echo "WARNING:     1 job ~ 19,200 core-hours per job."
@@ -35,7 +42,7 @@ lambda2="800e-9"
 # Field amplitude
 
 # Efield1="1E9"
-Efield1="5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield1="1.5E8" # 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 Efield2="0E0"
 
 # Pulse duration
@@ -43,7 +50,7 @@ Efield2="0E0"
 tau1="10e-15"
 tau2="10e-15"
 # Phase
-CEP1="0.5 0.333333333 0.25 0.16666667" #will be multiplied by pi in script file
+CEP1="0.0" #.5 0.333333333 0.25 0.16666667" #will be multiplied by pi in script file
 CEP2="0.0"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 0e-15 10e-15 20e-15 30e-15" #precising the range
@@ -82,7 +89,7 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time! 
-            ./run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel}
 #           done
           done
 #          done

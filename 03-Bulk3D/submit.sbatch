@@ -27,12 +27,12 @@ pwd >> $OctopusSlabsRuns/LastRuns.log
 #module load intel/16.0 mkl/11.3 impi/5.1.3 gsl/2.1 fftw/3.3.4
 module purge
 module load intel/17.0
-module load impi/5.1.3
-module load mkl/11.3
-module load libxc/2.2.3
-module load gsl/2.1
-module load fftw/3.3.4
-module load netcdf-serial/4.4.0
+module load impi/2017.3
+module load mkl/2017
+module load libxc/3.0.0
+module load gsl/2.3
+module load fftw/3.3.6
+module load netcdf-serial/4.4.1.1
 module list
 
 export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
@@ -41,6 +41,6 @@ export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 
 # Run the program:
 #srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
-srun /ptmp/tjyderri/octopus-custom.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
+srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
 sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job

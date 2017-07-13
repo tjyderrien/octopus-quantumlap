@@ -2,9 +2,13 @@
 # Input: $1: SampleLayers, $2: SampleXY
 # Purpose: TD-evolution. 
 
-# set -e
-source machines.env
-source functions.sh
+set -e
+source $QuantumLaPsources/machines.env
+CheckComputerName
+source $QuantumLaPsources/03-Bulk3D/machines.env
+echo "[Checking] Variable basePath: $basePath"
+
+source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no)
@@ -134,7 +138,7 @@ ReplaceInputFile () {
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to TIME-DEPENDENT RUN"
-  cp inp-td inp
+  cp $OctopusSlabsSources/03-Bulk3D/inp-td inp
   echo ""; echo "REPLACING MATERIAL PARAMETERS..."
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
@@ -176,10 +180,11 @@ BuildSample() {
     rm Si.xyz
     echo "[Info] Removed the previous sample file."
   fi
+  echo "[Checking] AbsPath: $AbsPath"
   echo "[Info] Building the geometry input..."; echo ""
-  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
+  $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
   echo "[Info] Conversion to octopus format" 
-  $AbsPath/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
+  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
 
   # Add the number of lines at the beginning of the file
   numLines=$( wc -l Si.xyz | awk '{ print $1 }' )
@@ -205,7 +210,7 @@ SubmitTheJob () {
   if [ -e ${groundStatePath}-Save ]; then
           echo "[Copy] Source: ${groundStatePath}-Save"
           echo "[Copy] Target: ${groundStatePath}"
-          ./DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
+          $OctopusSlabsSources/02-Slab2D/DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
   else
     echo "GROUND STATE DOES NOT EXIST."
     echo "Expected path: ${groundStatePath}-Save"
@@ -219,7 +224,7 @@ SubmitTheJob () {
   cp ${basePath}/inp ${localPath}/
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
   cp ${basePath}/Si.xyz ${localPath}/
-  cp ${basePath}/$SubmitScript ${localPath}/
+  cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
@@ -227,6 +232,7 @@ SubmitTheJob () {
           ${SubmitCommand} ${SubmitScript} > submit.log
 	  jobnumber=$( cat submit.log | awk '{ print $4 }') 
 	  cp submit.log $jobnumber.log
+          echo "[Submit] Job number: $jobnumber"
           cd -
   else
           echo "** DRY-RUN: Change value into the script to unlock the safety. **"
