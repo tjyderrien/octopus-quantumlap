@@ -43,7 +43,7 @@ def LoadRunOutputs(path):
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
 def ListAllOutput(path='*/*/output_iter/'): #{{{
   PlottingTable = np.empty((0,17))
-  Header="[libPlotting] "
+  Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
@@ -95,11 +95,16 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     print Header+"CrossPol"+str(CrossPolarization_angle)
     
     ## Import CEP data
-    CEP1_inp             = LookUpStringInFile(filename, "CEPA =")
-    print CEP1_inp
-    CEP1_SI              = eval(CEP1_inp[7:]) 
+    try:
+      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") ##the wrong expression can be selected sometimes: how to exclude CEPA = CEPA case ? Put zero if failing. Yes?  
+      CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes 
+    except: 
+      CEP1_inp             = "0.0"
+      CEP1_SI              = 0.0
+
     CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    
+    print Header+CEP1_inp[7:]
+       
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
         

@@ -60,7 +60,7 @@ CaptionY = 1.00
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: auto from command line
-ShowFinalPlot  = 1 #TODO: should be commanded via terminal
+ShowFinalPlot  = 0 #TODO: should be commanded via terminal
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
