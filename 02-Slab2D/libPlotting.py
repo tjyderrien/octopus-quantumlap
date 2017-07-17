@@ -99,8 +99,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") ##the wrong expression can be selected sometimes: how to exclude CEPA = CEPA case ? Put zero if failing. Yes?  
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes 
     except: 
-      CEP1_inp             = "0.0"
-      CEP1_SI              = 0.0
+      CEP1_inp             = "pi/2."
+      CEP1_SI              = 0.5*pi
 
     CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     print Header+CEP1_inp[7:]
