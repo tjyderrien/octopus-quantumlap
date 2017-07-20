@@ -53,7 +53,7 @@ SizeY = 15
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
-CaptionX = 1.15
+CaptionX = 1.00
 CaptionY = 1.00
 
 ## User choices
@@ -472,7 +472,7 @@ if(PlotGrid==1):
   m=np.arange(0,500) #[-5.,-4.,-3.,-2.,-1.,0.,1.,2.,3.,4.,5.]
   xposition = np.multiply(m,unitx*wavelength_SI/(2.*c))-3.*pi/2.
   for xc in xposition:
-    plt.axvline(x=xc, color='k', linestyle=':')
+    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 # plt.legend(bbox_to_anchor=(CaptionX, 0, loc=1, borderaxespad=0.)
 plt.legend(loc=4) # Simple caption inside picture. 
@@ -490,13 +490,14 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   ax2.legend(loc=2)
-  ax22 = ax2.twinx() #let's plot instant w_PI (t)
-  plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-  plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/\tau$')
+  if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
+    ax22 = ax2.twinx() #let's plot instant w_PI (t)
+    plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
+    plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/\tau$')
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-  plt.legend(loc=4)
-  plt.ylabel('$w_{PI}(t)$')
+    plt.legend(loc=4)
+    plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
@@ -532,7 +533,7 @@ plt.legend(loc=1)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
-    plt.axvline(x=xc, color='k', linestyle=':')
+    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
 # plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
 
@@ -543,21 +544,21 @@ plt.xlabel('Time (fs)')
 # plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 
 ## ============ PLOTTING ENERGIES ======
-ax3 = plt.subplot(plotC)
-plt.xlim((xmin,xmax))
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
-plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
+# ax3 = plt.subplot(plotC)
+# plt.xlim((xmin,xmax))
+# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
+# plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
+# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
 
-# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
-plt.xlabel('Time (fs)')
-plt.ylabel('Energy [Ha]')
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-plt.legend(loc=2)
-## Plotting vertical bars for comparison A(t) and Ne(t)
-if(PlotGrid==1):
-  for xc in xposition:
-    plt.axvline(x=xc, color='k', linestyle=':')
+# # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
+# plt.xlabel('Time (fs)')
+# plt.ylabel('Energy [Ha]')
+# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+# plt.legend(loc=2)
+# ## Plotting vertical bars for comparison A(t) and Ne(t)
+# if(PlotGrid==1):
+#   for xc in xposition:
+#     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 # ax4 = plt.subplot(plotD)
@@ -570,11 +571,11 @@ if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
   ax22.set_yscale("log", nonposy='clip')
   ax2.legend(loc=4)
-  ax3.set_yscale("log", nonposy='clip')
-  ax3.legend(loc=4)
+#  ax3.set_yscale("log", nonposy='clip')
+#  ax3.legend(loc=4)
 else:
-#  ax2.legend(loc=4)
-  ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+#  ax3.legend(loc=1)
+  ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=1, borderaxespad=0.)
 
 ## ==== Writing final picture =====
 
