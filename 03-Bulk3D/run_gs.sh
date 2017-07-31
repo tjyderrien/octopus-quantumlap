@@ -71,58 +71,79 @@ print_usage () {
 
 ReplaceInputFile () {
   # We would like to start the ground state
-  if [ -e ${localPath}/inp ]; then
-	  echo "Input file INP was renamed to .BAK..."
-	  mv ${localPath}/inp ${localPath}/inp.bak
+  # INP file is modified in root, then copied to the ${localPath} folder  
+  echo "[Run_td.sh: ReplaceInputFile] Path for submission: $( pwd ) "
+  if [ -e inp ]; then
+	  echo ""; echo "Input file INP was renamed to .BAK..."
+	  mv inp inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp $OctopusSlabsSources/03-Bulk3D/inp-gs ${localPath}/inp || exit
+  cp $OctopusSlabsSources/03-Bulk3D/inp-gs inp || exit
+
+  if [ ${Functional} != "" ]; then
+    echo "XCFunctional = ${Functional}" >> inp
+  fi
 }
 
 BuildSample () {
   # Build the sample
-  if [ -e ${localPath}/Si.xyz ]; then
-    rm ${localPath}/Si.xyz
+  if [ -e Si.xyz ]; then
+    rm Si.xyz
+    echo "[Info] Removed the previous sample file."
   fi
+  echo "[Checking] AbsPath: $AbsPath"
+  echo "[Info] Building the geometry input..."; echo ""
   $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
-  # $AbsPath/Samples/fhi2octopus.sh geometry.in 
-  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz #this is now in Bohr!
+  # $AbsPath/Samples/fhi2octopus.sh geometry.in
+  echo "[Info] Conversion to octopus format"
+  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in > Si.xyz #this is now in Bohr!
 
   # Add the number of lines at the beginning of the file
   numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
 
-  echo $numLines >> ${localPath}/Si.tmp
-  echo "# This line is a comment." >> ${localPath}/Si.tmp
-  cat ${localPath}/Si.xyz >> ${localPath}/Si.tmp
-  cat ${localPath}/Si.tmp
-  mv ${localPath}/Si.tmp ${localPath}/Si.xyz
+  echo $numLines >> Si.tmp
+  echo "# This line is a comment." >> Si.tmp
+  cat Si.xyz >> Si.tmp
+  cat Si.tmp
+  mv Si.tmp Si.xyz
 
   # Define the missing parameters
-  sed -i.bak s/SizeOfTheBox/$SampleXY/g ${localPath}/inp
-  sed -i.bak s/NumberOfBlocks/$SampleLayers/g ${localPath}/inp
-#   sed -i.bak s/SizeOfVacuum/$SizeOfVacuum/g ${localPath}/inp
-  sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g ${localPath}/inp
-  sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g ${localPath}/inp
-  sed -i.bak s/kPointsValue/${kPoints}/g ${localPath}/inp
+  sed -i.bak s/SizeOfTheBox/$SampleXY/g inp
+  sed -i.bak s/NumberOfBlocks/$SampleLayers/g inp
+#   sed -i.bak s/SizeOfVacuum/$SizeOfVacuum/g inp
+  sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g inp
+  sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
+  sed -i.bak s/kPointsValue/${kPoints}/g inp
 
   if [ ${TheoryLevel} == "independent_particles" ]; then
         echo "Theory level: independent particles was added to the input file."
         echo "TheoryLevel = independent_particles" >> inp
   fi
 
-  if [ ${Functional} == "mgga_x_tb09" ]; then
+  if [ ${Functional} != "" ]; then
     echo "Theory Functional: Meta GGA: Tran Blaha 2009 was added to the input file."
-    echo "XCFunctional = mgga_x_tb09" >> inp
+    echo "XCFunctional = ${Functional}" >> inp
+    echo "FilterPotentials = filter_none" >> inp
   else
     echo "Default LDA functional was used (lda_x + lda_c_pz_mod). See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha." 
   fi
 }
 
 SubmitTheJob () {
+  echo "== Copying the file in the submission folder... =="
+  echo "Source: ${OctopusSlabsRuns}."
+  echo "Target: ${localPath}."
+
+  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/
+  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   cp $QuantumLaPsources/03-Bulk3D/${SubmitScript} ${localPath}/
+
   if [ ${DryRun} == 0 ]; then
 	  cd ${localPath}
-	  ${SubmitCommand} ${SubmitScript}
+	  ${SubmitCommand} ${SubmitScript} > submit.log
+          jobnumber=$( cat submit.log | awk '{ print $4 }')
+          cp submit.log $jobnumber.log
+          echo "[Submit] Job number: $jobnumber"
 	  cd -
   else
 	  echo "** DRY-RUN: Change value into the script to unlock the safety. **"
