@@ -33,6 +33,7 @@ PulseShape=${15}
 InducedField=${16}
 CrossPolarization=${17}
 TheoryLevel=${18}
+Functional=${19}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -108,9 +109,15 @@ DefineParameters () {
     TheoryLevelPath=""
   fi
 
+  if [ ${Functional} == "mgga_x_tb09" ]; then
+    FunctionalPath="-TB09"
+  else 
+    FunctionalPath=""
+  fi
+
   echo "Generating the folder name..."
-  export groundStatePath=${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}${FunctionalPath}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -133,13 +140,14 @@ ReplaceInputFile () {
   # Define the material parameters
   # We would like to start the td-calculation
   # INP file is modified in root, then copied to the ${localPath} folder  
+  echo "[Run_td.sh: ReplaceInputFile] Path for submission: $( pwd ) "
   if [ -e inp ]; then
 	  echo ""; echo "Input file INP was renamed to .BAK..."
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to TIME-DEPENDENT RUN"
   cp $OctopusSlabsSources/03-Bulk3D/inp-td inp
-  echo ""; echo "REPLACING MATERIAL PARAMETERS..."
+  echo ""; echo "REPLACING MATERIAL PARAMETERS for $localPath"
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
 #   sed -i.bak s/SizeOfVacuum_AU/${SizeOfVacuum_AU}/g inp
@@ -171,6 +179,7 @@ ReplaceInputFile () {
         echo "Theory level: independent particles was added to the input file."
         echo "TheoryLevel = independent_particles" >> inp
   fi
+  # cd - >& /dev/null
 
 }
 
@@ -219,11 +228,11 @@ SubmitTheJob () {
   fi 
   echo ""
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${basePath}."
+  echo "Source: ${OctopusSlabsRuns}."
   echo "Target: ${localPath}."
-  cp ${basePath}/inp ${localPath}/
+  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
-  cp ${basePath}/Si.xyz ${localPath}/
+  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/
 
   # Start the run

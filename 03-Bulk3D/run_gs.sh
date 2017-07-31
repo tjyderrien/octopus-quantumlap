@@ -8,7 +8,10 @@ set -e
 DryRun=0
 # kPoints=16
 
-source machines.env
+source $QuantumLaPsources/machines.env
+CheckComputerName
+source $QuantumLaPsources/03-Bulk3D/machines.env
+echo "[Checking] Variable basePath: $basePath"
 
 # Renaming inputs
 SampleLayers=$1
@@ -18,6 +21,7 @@ MeshSizeZInput_SI=$4
 kPoints=$5
 InitialTemperature=$6
 TheoryLevel=$7
+Functional=$8
 
 python_calc () {
     python -c "print ($@)"
@@ -41,10 +45,14 @@ ProcessArguments () { # Conversion factors
     export TheoryLevelPath=""
   fi
 
+  if [ ${Functional} == "mgga_x_tb09" ]; then
+   export FunctionalPath="-TB09" 
+  fi
+
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}"
+  export localPath="${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -68,7 +76,7 @@ ReplaceInputFile () {
 	  mv ${localPath}/inp ${localPath}/inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp ${basePath}/inp-gs ${localPath}/inp || exit
+  cp $OctopusSlabsSources/03-Bulk3D/inp-gs ${localPath}/inp || exit
 }
 
 BuildSample () {
@@ -76,9 +84,9 @@ BuildSample () {
   if [ -e ${localPath}/Si.xyz ]; then
     rm ${localPath}/Si.xyz
   fi
-  $AbsPath/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
+  $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
   # $AbsPath/Samples/fhi2octopus.sh geometry.in 
-  $AbsPath/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz #this is now in Bohr!
+  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in > ${localPath}/Si.xyz #this is now in Bohr!
 
   # Add the number of lines at the beginning of the file
   numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
@@ -101,10 +109,17 @@ BuildSample () {
         echo "Theory level: independent particles was added to the input file."
         echo "TheoryLevel = independent_particles" >> inp
   fi
+
+  if [ ${Functional} == "mgga_x_tb09" ]; then
+    echo "Theory Functional: Meta GGA: Tran Blaha 2009 was added to the input file."
+    echo "XCFunctional = mgga_x_tb09" >> inp
+  else
+    echo "Default LDA functional was used (lda_x + lda_c_pz_mod). See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha." 
+  fi
 }
 
 SubmitTheJob () {
-  cp ${basePath}/${SubmitScript} ${localPath}/
+  cp $QuantumLaPsources/03-Bulk3D/${SubmitScript} ${localPath}/
   if [ ${DryRun} == 0 ]; then
 	  cd ${localPath}
 	  ${SubmitCommand} ${SubmitScript}

@@ -9,7 +9,7 @@
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=1
+#SBATCH --nodes=8
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
@@ -43,4 +43,4 @@ export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 #srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
-sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job
+sed -i 's/FromScratch/#FromScracth/g' inp #Avoid to kill the data while restarting the job

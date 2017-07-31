@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set -e
+
+source $QuantumLaPsources/machines.env
+CheckComputerName
+
 echo "Massive job submitter for QuantumLaP."
 echo "WARNING: 1 job ~ 19,200 core-hours per job."
 echo "HANDLE WITH CARE."
@@ -22,9 +27,10 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 # SampleLayers="6 8 10 12 14 16 18 20"
 SampleLayers="1"
 SampleXY="1"
-kPoints="8"
+kPoints="4"
 InitialTemperature="0e0"
-TheoryLevel="" #"independent_particles" # or emty (means LDA)
+TheoryLevel="dft" #"independent_particles" or "dft". Empty means dft. 
+Functional="mgga_x_tb09" #empty means octopus default "lda_x + lda_c_pz_mod". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
 do
@@ -44,7 +50,7 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel}
+      $OctopusSlabsSources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional}
  #    done
     done
  #   done

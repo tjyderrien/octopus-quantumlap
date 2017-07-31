@@ -35,14 +35,15 @@ CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is highly non-trivial there. 
 TheoryLevel="dft" #dft #independent_particles
+Functional="mgga_x_tb09" #default uses "lda_x + lda_c_pz_mod". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 
 # Laser parameters
 lambda1="800e-9"
 lambda2="800e-9"
-# Field amplitude
 
-# Efield1="1E9"
-Efield1="1.5E8" # 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+# Field amplitude
+Efield1="9.5E9"
+# Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 Efield2="0E0"
 
 # Pulse duration
@@ -89,7 +90,7 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time! 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional}
 #           done
           done
 #          done
