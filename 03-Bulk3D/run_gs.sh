@@ -117,7 +117,9 @@ BuildSample () {
 
   if [ ${TheoryLevel} == "independent_particles" ]; then
         echo "Theory level: independent particles was added to the input file."
-        echo "TheoryLevel = independent_particles" >> inp
+#        echo "TheoryLevel = independent_particles" >> inp #WRONG MANNER.
+        echo "Independent particles = Frozen Exchange Correlation."
+        echo "TDFreezeHxc=yes" >> inp
   fi
 
   if [ ${Functional} != "" ]; then

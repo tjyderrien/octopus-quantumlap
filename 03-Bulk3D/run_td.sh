@@ -11,8 +11,8 @@ echo "[Checking] Variable basePath: $basePath"
 source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
-MoveIons=0 #cost: 3x runtime(MoveIons=no)
-kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
+MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
+kPoints=4 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -55,9 +55,9 @@ ProcessArguments () { # Conversion factors for sample
 DefineParameters () {
   # Input laser parameters
   if [ $MoveIons == 1 ]; then
-    RelaxationTime=$( python_calc "500e-15"  )
+    export RelaxationTime=$( python_calc "500e-15"  )
   else
-    RelaxationTime=$( python_calc "60e-15" )
+    export RelaxationTime=$( python_calc "60e-15" )
   fi
 
 # echo "Generating pulses..."
@@ -117,7 +117,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}${FunctionalPath}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -176,8 +176,18 @@ ReplaceInputFile () {
   fi
 
   if [ ${TheoryLevel} == "independent_particles" ]; then
-        echo "Theory level: independent particles was added to the input file."
-        echo "TheoryLevel = independent_particles" >> inp
+#        echo "Theory level: independent particles was added to the input file." #WRONG MANNER.
+        echo "Independent particles = Frozen exchange correlation only. "
+#        echo "TheoryLevel = independent_particles" >> inp #WRONG MANNER.
+        echo "TDFreezeHxc = yes" >> inp
+  fi
+
+  if [ ${Functional} != "" ]; then
+    echo "XCFunctional = ${Functional}" >> inp
+    sed -i 's/TDPropagator/#TDPropagator/g' inp # disable aetrs
+    echo "TDPropagator = etrs" >> inp #and replace by etrs only. 
+    echo "TDStepsWithSelfConsistency = all_steps" >> inp #with self-consistent
+    echo "FilterPotentials = filter_none" >> inp
   fi
   # cd - >& /dev/null
 
@@ -221,9 +231,8 @@ SubmitTheJob () {
           echo "[Copy] Target: ${groundStatePath}"
           $OctopusSlabsSources/02-Slab2D/DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
   else
-    echo "GROUND STATE DOES NOT EXIST."
+    echo "SAVE OF GROUND STATE DOES NOT EXIST."
     echo "Expected path: ${groundStatePath}-Save"
-    echo "Run it manually using run_gs.sh ${SampleLayers} ${SampleXY}."
     exit
   fi 
   echo ""
