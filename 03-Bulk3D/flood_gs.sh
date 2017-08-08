@@ -29,8 +29,8 @@ SampleLayers="1"
 SampleXY="1"
 kPoints="8"
 InitialTemperature="0e0"
-TheoryLevel="" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="mgga_x_tb09 + lda_c_pw" #empty means octopus default "lda_x + lda_c_pz_mod". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
+Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
 do

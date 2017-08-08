@@ -45,9 +45,18 @@ ProcessArguments () { # Conversion factors
     export TheoryLevelPath=""
   fi
 
-  if [ ${Functional} == "mgga_x_tb09" ]; then
-   export FunctionalPath="-TB09" 
-  fi
+  case "${Functional}" in
+    "TB09")
+      FunctionalPath="-TB09"
+      ;;
+    "LDA")
+      FunctionalPath=""
+      ;;
+    *)
+      echo "This functional was not planned. Modify run_td.sh."
+      exit 1
+      ;;
+  esac
 
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
@@ -80,9 +89,16 @@ ReplaceInputFile () {
   echo "Input file INP was set to ground state."
   cp $OctopusSlabsSources/03-Bulk3D/inp-gs inp || exit
 
-  if [ ${Functional} != "" ]; then
-    echo "XCFunctional = ${Functional}" >> inp
+  if [ ${Functional} == "TB09" ]; then
+    echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
+    echo "FilterPotentials = filter_none" >> inp
   fi
+
+  if [ ${Functional} == "LDA" ]; then
+    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+  fi
+
+
 }
 
 BuildSample () {
