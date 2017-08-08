@@ -12,7 +12,7 @@ source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=1
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=4 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -113,15 +113,23 @@ DefineParameters () {
     FreezeXCchain="-FreezeXC"
   fi
 
-  if [ ${Functional} == "mgga_x_tb09" ]; then
-    FunctionalPath="-TB09"
-  else 
-    FunctionalPath=""
-  fi
+  case "${Functional}" in 
+    "TB09") 
+      FunctionalPath="-TB09"
+      $Functional
+      ;; 
+    "LDA")
+      FunctionalPath=""
+      ;;
+    *)
+      echo "This functional was not planned. Modify run_td.sh."
+      exit 1
+      ;;
+  esac
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}${FreezeXCchain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -189,12 +197,16 @@ ReplaceInputFile () {
     echo "TDFreezeHXC = yes" >> inp    
   fi
 
-  if [ ${Functional} != "" ]; then
-    echo "XCFunctional = ${Functional}" >> inp
+  if [ ${Functional} == "TB09" ]; then
+    echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
     sed -i 's/TDPropagator/#TDPropagator/g' inp # disable aetrs
     echo "TDPropagator = etrs" >> inp #and replace by etrs only. 
     echo "TDStepsWithSelfConsistency = all_steps" >> inp #with self-consistent
     echo "FilterPotentials = filter_none" >> inp
+  fi
+
+  if [ ${Functional} == "LDA" ]; then
+    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp 
   fi
   # cd - >& /dev/null
 
