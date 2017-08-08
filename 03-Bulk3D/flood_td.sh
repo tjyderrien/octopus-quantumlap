@@ -34,8 +34,9 @@ PulseShape="SinSquared" #Gaussian #SinSquared #Keldysh
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is highly non-trivial there. 
-TheoryLevel="dft" #dft #independent_particles
-Functional="mgga_x_tb09" #default uses "lda_x + lda_c_pz_mod". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+TheoryLevel="independent_particles" #dft #independent_particles /!\ independent-particles is actually just a FrozenXC computations with standards XC functionals !!. 
+Functional="" #"mgga_x_tb09 + lda_c_pw" #default uses "lda_x + lda_c_pz_mod". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+FreezeXC="0" #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 # Laser parameters
 lambda1="800e-9"
@@ -90,7 +91,7 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time! 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC}
 #           done
           done
 #          done

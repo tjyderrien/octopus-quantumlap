@@ -10,9 +10,9 @@ echo "[Checking] Variable basePath: $basePath"
 
 source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
-DryRun=0
+DryRun=1
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=4 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -34,7 +34,7 @@ InducedField=${16}
 CrossPolarization=${17}
 TheoryLevel=${18}
 Functional=${19}
-
+FreezeXC=${20}
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
 
@@ -109,6 +109,10 @@ DefineParameters () {
     TheoryLevelPath=""
   fi
 
+  if [ ${FreezeXC} == 1 ]; then 
+    FreezeXCchain="-FreezeXC"
+  fi
+
   if [ ${Functional} == "mgga_x_tb09" ]; then
     FunctionalPath="-TB09"
   else 
@@ -117,7 +121,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}${FreezeXCchain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -176,10 +180,13 @@ ReplaceInputFile () {
   fi
 
   if [ ${TheoryLevel} == "independent_particles" ]; then
-#        echo "Theory level: independent particles was added to the input file." #WRONG MANNER.
-        echo "Independent particles = Frozen exchange correlation only. "
-#        echo "TheoryLevel = independent_particles" >> inp #WRONG MANNER.
-        echo "TDFreezeHxc = yes" >> inp
+        echo "Theory level: independent particles was added to the input file."
+        echo "WARNING: don't mix with TDFreezeXC !"
+        echo "TheoryLevel = independent_particles" >> inp 
+  fi
+
+  if [ ${FreezeXC} == 1 ]; then
+    echo "TDFreezeHXC = yes" >> inp    
   fi
 
   if [ ${Functional} != "" ]; then

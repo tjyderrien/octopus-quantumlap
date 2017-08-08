@@ -115,15 +115,15 @@ BuildSample () {
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
 
-  if [ ${TheoryLevel} == "independent_particles" ]; then
+  if [ ${TheoryLevel} == "independent_particles" ]; then 
         echo "Theory level: independent particles was added to the input file."
-#        echo "TheoryLevel = independent_particles" >> inp #WRONG MANNER.
-        echo "Independent particles = Frozen Exchange Correlation."
-        echo "TDFreezeHxc=yes" >> inp
+        echo "Warning: maybe you meant TDFreezeHxc ? Warning: it is using the same ground state as usual."
+        echo "TheoryLevel = independent_particles" >> inp
+#        echo "TDFreezeHxc=yes" >> inp #THIS LEAD TO NEVER CONVERGE THE GS. 
   fi
 
   if [ ${Functional} != "" ]; then
-    echo "Theory Functional: Meta GGA: Tran Blaha 2009 was added to the input file."
+    echo "Theory Functional: you have specified a xc functional. ${Functional} was added to the input file."
     echo "XCFunctional = ${Functional}" >> inp
     echo "FilterPotentials = filter_none" >> inp
   else
