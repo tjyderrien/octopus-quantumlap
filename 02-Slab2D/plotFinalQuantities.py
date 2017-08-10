@@ -312,6 +312,31 @@ pplt.ylabel(r'Final density (m$^{-3}$)')
 pplt.xlim((100.,1500.))
 #ax1.set_xscale('log')
 ax1.set_yscale('log')
+ax12 = ax1.twinx()
+for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
+  #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+  # TODO: how to merge data with values close to each others? Maybe introduce tolerance of 10% ?
+  PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*1.1, IndexTable['Efield1'])
+  PlottingSinglePulses_Efield = FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*0.9, IndexTable['Efield1'])
+  print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
+  #print PlottingSinglePulses_Efield
+  # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
+  ## prints the current state of selection and stores the values of sweeped parameters
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_Efield)
+  
+  #print Efield1_value
+  # TODO: PUT here a select case which attributes a new color to a new field interval
+  if(0.99e8 < Efield1_value < 1.01e8):
+    pplt.plot(1e9*wavelengths1, Ne_final/pulses1, 'or', label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(0.99e9 < Efield1_value < 1.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final/pulses1, 'ob', label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(4.99e9 < Efield1_value < 5.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final/pulses1, 'og', label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(8.99e9 < Efield1_value < 9.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final/pulses1, 'ok', label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  del PlottingSinglePulses_Efield
+ax12.set_yscale('log')
+ax12.set_ylabel(r'$w_{PI}$ (m$^{-3}$/s)')
 
 #ax2 = plt.subplot(plotB)
 #plt.title('Irreversibility factor')
