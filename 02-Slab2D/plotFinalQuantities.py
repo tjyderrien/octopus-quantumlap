@@ -44,7 +44,7 @@ ShowFinalPlot              = 0
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
 
-Density=5E28
+Density=5E28 #specific to Si
 
 if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mode
   try: 
@@ -255,10 +255,73 @@ pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfCEP.png')
 del ax1, PlottingSinglePulses
 #}}}
 
-exit()
+##TODO: shall we make a multi-wavelength figure?
+##TODO: - If wavelength2!=wavelength1, yes.
+##TODO: - If len(set(wavelength1)) > 1, yes.  
+
+print "#====== Plot: SINGLE PULSE, EFFET OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
+#Filter: double pulses, same wavelengths, same polarization
+
+# Simple pulse, single color
+PlottingSinglePulses = PlottingTable #get the full database
+PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #keeps only CEP = 0. 
+## TODO: we shall select one unique intensity? Or put several plots with intensities for 1 CEP. 
+## TODO: check if CEP could count at smaller wavelength. 
+
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+
+#if(len(CEP1_uniq) == 1): #{{{ #single color simulations
+# Complexity level: 2
+
+ax1 = plt.subplot(111)
+
+pplt.title('Final density as function of laser wavelength, for various intensities')
+for Efield1_value in Efield1: #for each value of CEP1, we make a new search, and plot one new line in the chart
+  PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['Efield1']) #select the local Efield
+  ## prints the current state of selection and stores the values of sweeped parameters
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP)
+  
+  pplt.plot(1e9*wavelengths1, Ne_final, 'o', label=r'$N_{exc}^{final}$, I='+str(round(FieldToIntensity(Efield1))))
+    
+ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
+pplt.xlabel(r'Laser wavelength (nm)')
+pplt.ylabel(r'Final density (m$^{-3}$)')
+#  pplt.ylim((1E16,4.*5e28))
+ax1.set_xscale('log')
+ax1.set_yscale('log')
+
+#ax2 = plt.subplot(plotB)
+#plt.title('Irreversibility factor')
+#pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
+#pplt.xlabel(r'Intensity (W/m$^2$)')
+#pplt.ylabel('Irreversibility factor')
+#pplt.ylim((0,1))
+#ax2.set_xscale('log')
+#ax22 = ax2.twinx()
+#pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiabaticity')
+#pplt.ylabel('Adiabadicity factor')
+##pplt.ylim((0,1))
+#ax22.set_yscale('log')
+
+# ax2.set_yscale("log")
+#ax2.legend(loc=2, borderaxespad=0.)
+# ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+#ax22.legend(loc=1, borderaxespad=0.)
+
+# Saving the plot
+pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelength.eps')
+pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelength.png')
+#if(ShowFinalPlot==1):
+  #pplt.show()
+
+del ax1, PlottingSinglePulses
+#}}}
 
 print "#====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final density as function of delay and field ======"
-  
+print "Jammed. Have to reorganize the double-pulse plotting."
 #if(EnableDoublePulseAnalysis==1): #{{{
   #if(wavelength_numbers == 1): 
     ##Plot 3: Final density as function of delay
@@ -281,13 +344,6 @@ print "#====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final den
     #pplt.ylabel('Irreversibility factor')
     #pplt.ylim((0,1))
   ##}}}
-  
- 
-
-##TODO: shall we make a multi-wavelength figure?
-##TODO: - If wavelength2!=wavelength1, yes.
-##TODO: - If len(set(wavelength1)) > 1, yes.  
-
 ## Final saving
 #figmode=''
 
@@ -306,33 +362,33 @@ print "#====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final den
 ## Plot as function of peak intensity for one given wavelength.
 ## Plot as function of double pulse delay
 
-#====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final density as function of delay and field ======
-#Filter: double pulses, same wavelengths, same polarization
-PlottingDoublePulses = PlottingTable #get the full database
-PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
-PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelengths1, IndexTable['wavelengths2']) #removes fields where wavelength2 != wavelength1
-PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, float(0.), IndexTable['CrossPolarization']) #removes fields where wavelength2 != wavelength1
-runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingDoublePulses)
+#print "====== Plot: DOUBLE PULSE, SAME WAVELENGTH, SAME POLARIZATION: final density as function of delay and field ======"
+##Filter: double pulses, same wavelengths, same polarization
+#PlottingDoublePulses = PlottingTable #get the full database
+#PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
+#PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelengths1, IndexTable['wavelengths2']) #removes fields where wavelength2 != wavelength1
+#PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, float(0.), IndexTable['CrossPolarization']) #removes fields where wavelength2 != wavelength1
+#runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingDoublePulses)
 
-#ax1 = plt.subplot(plotA)
+##ax1 = plt.subplot(plotA)
 
-# Number of sweeped parameters: 2
-plt.title('Final density (peak intensity, delay)')
-print "** 3d plot: Delay*       size = "+str(len(Delay_uniq))
-print "** 3d plot: wavelength1* size = "+str(len(wavelengths1_uniq))
-#  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
-# Ne_final_3d_interp = interpolate.interp2d(Efield1, Delay, Ne_final)
-# Efield1_interp = np.arange(1E8, 1E10, 1E8)
-# Delay_interp   = np.arange(0e0, 50e-15, 10e-15)
-# Ne_final_3d = Ne_final_3d_interp(Efield1_interp, Delay_interp) 
-# plt.contourf(Efield1_interp, Delay_interp, Ne_final_3d, tri=True)
-pplt.ylabel('Delay (fs)')
-pplt.xlabel('Field ampl. (V/m)')
-#pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
-pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, c=Ne_final/Density)
-pplt.savefig('Metaplot-DoublePulse.eps')
-pplt.savefig('Metaplot-DoublePulse.png')
-pplt.show()
+## Number of sweeped parameters: 2
+#plt.title('Final density (peak intensity, delay)')
+#print "** 3d plot: Delay*       size = "+str(len(Delay_uniq))
+#print "** 3d plot: wavelength1* size = "+str(len(wavelengths1_uniq))
+##  Ne_final_3d=np.reshape(Ne_final, (len(Efield1_uniq), len(Delay_uniq)))
+## Ne_final_3d_interp = interpolate.interp2d(Efield1, Delay, Ne_final)
+## Efield1_interp = np.arange(1E8, 1E10, 1E8)
+## Delay_interp   = np.arange(0e0, 50e-15, 10e-15)
+## Ne_final_3d = Ne_final_3d_interp(Efield1_interp, Delay_interp) 
+## plt.contourf(Efield1_interp, Delay_interp, Ne_final_3d, tri=True)
+#pplt.ylabel('Delay (fs)')
+#pplt.xlabel('Field ampl. (V/m)')
+##pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, s=34+30*Ne_final/Density, c=Ne_final/Density)
+#pplt.scatter(FieldToIntensity(Efield1), Delay*1E15, c=Ne_final/Density)
+#pplt.savefig('Metaplot-DoublePulse.eps')
+#pplt.savefig('Metaplot-DoublePulse.png')
+#pplt.show()
 
 exit()
 
