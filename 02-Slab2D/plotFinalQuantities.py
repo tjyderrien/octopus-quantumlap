@@ -122,7 +122,7 @@ PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['Cros
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0. 
 
 ## prints the current state of selection
-wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
 # Simple pulse, single color
 
@@ -204,7 +204,7 @@ PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexT
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq. 
 
-wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
 #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
 # Complexity level: 2
@@ -220,6 +220,7 @@ for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and 
   runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP)
   
   pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}^{final}$, CEP='+str(round(CEP1_value*180./pi)))
+  print Efield1, CEP1_value
     
 ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
 pplt.xlabel(r'Peak intensity (W/m$^2$)')
@@ -252,45 +253,64 @@ pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfCEP.png')
 #if(ShowFinalPlot==1):
   #pplt.show()
 
-del ax1, PlottingSinglePulses
+del ax1, PlottingSinglePulses, wavelength_uniq, wavelengths1
 #}}}
 
 ##TODO: shall we make a multi-wavelength figure?
 ##TODO: - If wavelength2!=wavelength1, yes.
 ##TODO: - If len(set(wavelength1)) > 1, yes.  
 
-print "#====== Plot: SINGLE PULSE, EFFET OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
+#del PlottingTable
+
+print "#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
 #Filter: double pulses, same wavelengths, same polarization
 
 # Simple pulse, single color
 PlottingSinglePulses = PlottingTable #get the full database
 PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
 PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
 PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #keeps only CEP = 0. 
-## TODO: we shall select one unique intensity? Or put several plots with intensities for 1 CEP. 
+
 ## TODO: check if CEP could count at smaller wavelength. 
 
-wavelength_uniq, CEP1_uniq, TheoryLevel_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
-
+print Header+"Available data: "
+wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
 # Complexity level: 2
 
-ax1 = plt.subplot(111)
-
-pplt.title('Final density as function of laser wavelength, for various intensities')
-for Efield1_value in Efield1: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['Efield1']) #select the local Efield
+pplt.figure() #new figure
+ax1 = pplt.subplot(111)
+pplt.title('Final density as function of laser wavelength')
+print Header+"Total number of datasets: "+str(len(set(Efield1_uniq)))
+for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
+  #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+  # TODO: how to merge data with values close to each others? Maybe introduce tolerance of 10% ?
+  PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*1.1, IndexTable['Efield1'])
+  PlottingSinglePulses_Efield = FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*0.9, IndexTable['Efield1'])
+  print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
+  #print PlottingSinglePulses_Efield
+  # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
   ## prints the current state of selection and stores the values of sweeped parameters
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_Efield)
   
-  pplt.plot(1e9*wavelengths1, Ne_final, 'o', label=r'$N_{exc}^{final}$, I='+str(round(FieldToIntensity(Efield1))))
+  #print Efield1_value
+  # TODO: PUT here a select case which attributes a new color to a new field interval
+  if(0.99e8 < Efield1_value < 1.01e8):
+    pplt.plot(1e9*wavelengths1, Ne_final, 'or', label=r'$N_{exc}^{final}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(0.99e9 < Efield1_value < 1.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final, 'ob', label=r'$N_{exc}^{final}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(4.99e9 < Efield1_value < 5.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final, 'og', label=r'$N_{exc}^{final}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  if(8.99e9 < Efield1_value < 9.01e9):
+    pplt.plot(1e9*wavelengths1, Ne_final, 'ok', label=r'$N_{exc}^{final}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  del PlottingSinglePulses_Efield
     
-ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
+#ax1.legend(loc=3, borderaxespad=0., bbox_to_anchor=(1.05, 0.05))
 pplt.xlabel(r'Laser wavelength (nm)')
 pplt.ylabel(r'Final density (m$^{-3}$)')
-#  pplt.ylim((1E16,4.*5e28))
-ax1.set_xscale('log')
+pplt.xlim((100.,1500.))
+#ax1.set_xscale('log')
 ax1.set_yscale('log')
 
 #ax2 = plt.subplot(plotB)
