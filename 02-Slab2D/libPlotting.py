@@ -97,10 +97,11 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     ## Import CEP data
     try:
-      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") ##the wrong expression can be selected sometimes: how to exclude CEPA = CEPA case ? Put zero if failing. Yes?  
+      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") #BUG: the wrong expression can be selected sometimes: how to exclude CEPA = CEPA case ? Put zero if failing. Yes?  
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes 
       if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
-        CEP1_SI = "pi/2."
+        CEP1_SI = 0.5*pi
+        print Header+"** Exception: problem on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
       CEP1_SI              = 0.5*pi
