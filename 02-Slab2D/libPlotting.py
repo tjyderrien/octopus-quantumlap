@@ -346,7 +346,7 @@ def ExtractData(PlottingTable): #{{{
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
