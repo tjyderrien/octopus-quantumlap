@@ -42,7 +42,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
 def ListAllOutput(path='*/*/output_iter/'): #{{{
-  PlottingTable = np.empty((0,19))
+  PlottingTable = np.empty((0,18))
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
@@ -398,5 +398,5 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14,'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18}
 
