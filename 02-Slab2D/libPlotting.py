@@ -141,6 +141,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       Functional_string = LookUpStringInFile(filename, "XCFunctional")
     except:
       Functional_string = 'lda'
+      print Header+"** Warning: XCFunctional was not found."
     # if nothing is found, then assume lda. 
     Functional_value  = Functional_string[13:] #capturing name of the functional
     Functional_lda_position = Functional_value.find("lda_x")
@@ -159,6 +160,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
     except:
       FreezeHXC_string = ''
+      print Header+"** Warning: TDFreezeHXC was not found."
     if(FreezeHXC_string == "TDFreezeHXC = yes"):
       FreezeHXC = 1
     else:
