@@ -48,12 +48,13 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
   # List all output_iter files
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
-    print FolderName
+    print Header+"** Info: entering folder: "+str(FolderName)
 
     # Import the quantities from the subfolders
     try:
 	 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
+	 print Header+"** Warning: This folder was jumped: "+str(FolderName)
 	 continue #could not load the files, so jump this run.
     
     # Collect the laser parameters
