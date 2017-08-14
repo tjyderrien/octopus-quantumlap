@@ -104,37 +104,37 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       CEP1_SI              = 0.5*pi
 
     CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    print Header+CEP1_inp[7:]
+    print Header+"** Info: CEP1="+CEP1_inp[7:]
        
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI > 1.0):#{ #get the second pulse data
-	 print "** Entering second pulse input."
-	 wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
-	 wavelength2_SI        = float(wavelength2_inp[10:17])
+      print "** Entering second pulse input."
+      wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
+      wavelength2_SI        = float(wavelength2_inp[10:17])
 	 
-	 PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
-	 PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
-	 
-	 CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
-	 CEP2_SI               = eval(CEP2_inp[7:])
-	 CEP2_SI               = CEP2_SI - pi/2. #convention due to some shift in octopus
-	 #}
+      PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
+      PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
+      
+      CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
+      CEP2_SI               = eval(CEP2_inp[7:])
+      CEP2_SI               = CEP2_SI - pi/2. #convention due to some shift in octopus
+      #}
     else: #{{{
-	 wavelength2_SI=wavelength_SI
-	 PulseDuration2_SI=PulseDuration_SI
-	 CEP2_SI=CEP1_SI
+      wavelength2_SI=wavelength_SI
+      PulseDuration2_SI=PulseDuration_SI
+      CEP2_SI=CEP1_SI
     #}}}
     
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
     FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
-	 FieldInduced_enabled = 0
+      FieldInduced_enabled = 0
     elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
-	 FieldInduced_enabled = 1
+      FieldInduced_enabled = 1
     else:
-	 FieldInduced_enabled = 0
+      FieldInduced_enabled = 0
     
     ### Captures the functional which has been used for the computation. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
