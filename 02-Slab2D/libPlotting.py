@@ -143,9 +143,11 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       Functional_string = 'lda'
     # if nothing is found, then assume lda. 
     Functional_value  = Functional_string[13:] #capturing name of the functional
-    if((FilterDatabaseContains(Functional_value, "lda_x", 0) or (Functional_value == "lda_x + lda_c_pz_mod") ):
+    Functional_lda_size = FilterDatabaseContains(Functional_value, "lda_x", 0)
+    Functional_mgga_size = FilterDatabaseContains(Functional_value, "mgga", 0)
+    if(len(Functional_lda_size) > 0 or (Functional_value == "lda_x + lda_c_pz_mod") ):
       Functional = 0 #lda
-    elif(FilterDatabaseContains(Functional_value, "mgga", 0): #Functional_value contains "mgga"
+    elif(len(Functional_mgga_size) > 0)
       Functional = 1 #gga
     else: 
       Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
