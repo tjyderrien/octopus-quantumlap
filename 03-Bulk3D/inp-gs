@@ -23,6 +23,7 @@ n = NumberOfBlocks #Z blocks: to be replaced by script
 
 # Optimization
 # PoissonFFTKernel = planar
+ParKPoints = auto
 # ParStates = auto
 # ParDomains = no #crashes if made per state only
 

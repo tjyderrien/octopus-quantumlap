@@ -138,13 +138,6 @@ BuildSample () {
 #        echo "TDFreezeHxc=yes" >> inp #THIS LEAD TO NEVER CONVERGE THE GS. 
   fi
 
-  if [ ${Functional} != "" ]; then
-    echo "Theory Functional: you have specified a xc functional. ${Functional} was added to the input file."
-    echo "XCFunctional = ${Functional}" >> inp
-    echo "FilterPotentials = filter_none" >> inp
-  else
-    echo "Default LDA functional was used (lda_x + lda_c_pz_mod). See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha." 
-  fi
 }
 
 SubmitTheJob () {

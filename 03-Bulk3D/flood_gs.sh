@@ -27,7 +27,7 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 # SampleLayers="6 8 10 12 14 16 18 20"
 SampleLayers="1"
 SampleXY="1"
-kPoints="8"
+kPoints="16"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
