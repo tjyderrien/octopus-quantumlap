@@ -152,7 +152,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       Functional = 1 #gga
     else: 
       Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
-      exit()
+      exit(-1)
     
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0

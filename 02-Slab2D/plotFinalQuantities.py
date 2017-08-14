@@ -72,7 +72,7 @@ except:
   try:
     libDatabase.ExportToTxt(PlottingTable, DatabaseName)
   except: 
-    print "Error when writing the database.csv."
+    print "** Error when writing the database.csv."
     exit()
 
 print PlottingTable
@@ -435,5 +435,6 @@ print "Jammed. Have to reorganize the double-pulse plotting."
 #pplt.savefig('Metaplot-DoublePulse.png')
 #pplt.show()
 
+print Header+"End of program."
 exit()
 
