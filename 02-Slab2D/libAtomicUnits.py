@@ -54,6 +54,12 @@ def length_AU_to_SI(length_AU): #{{{
 def Field_AU_to_SI(Field_SI):#{{{
   return Hartree_Energy / BohrRadius * Field_SI
 #}}}
+
+## Converts Electric field SI (V/m) to (Hartree / Bohr).
+def Field_SI_to_AU(Field_AU):#{{{
+  return (Hartree_Energy / BohrRadius) ** (-1.) * Field_AU
+#}}}
+
 def Energy_Hartree_to_eV(Energy_Ha):#{{{
   return Energy_Ha * Hartree_Energy
 #}}}

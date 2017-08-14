@@ -58,7 +58,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     # Collect the laser parameters
     filename             = FolderName+"../inp"
-    
+    TheoryLevel          = 1 #default value
     ## Checking the theory level
     TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
     try:
@@ -127,14 +127,42 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     #}}}
     
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
-    FieldInduced_enabled = 0
+    FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
 	 FieldInduced_enabled = 0
     elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
 	 FieldInduced_enabled = 1
     else:
 	 FieldInduced_enabled = 0
-    ### Remove contradictory caes
+    
+    ### Captures the functional which has been used for the computation. 
+    Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
+    try: 
+      Functional_string = LookUpStringInFile(filename, "XCFunctional")
+    except:
+      Functional_string = 'lda'
+    # if nothing is found, then assume lda. 
+    Functional_value  = Functional_string[13:] #capturing name of the functional
+    if((FilterDatabaseContains(Functional_value, "lda_x", 0) or (Functional_value == "lda_x + lda_c_pz_mod") ):
+      Functional = 0 #lda
+    elif(FilterDatabaseContains(Functional_value, "mgga", 0): #Functional_value contains "mgga"
+      Functional = 1 #gga
+    else: 
+      Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
+      exit()
+    
+    ### Captures if FreezeHXC was used. 
+    FreezeHXC = 0
+    try:
+      FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
+    except:
+      FreezeHXC_string = ''
+    if(FreezeHXC_string == "TDFreezeHXC = yes"):
+      FreezeHXC = 1
+    else:
+      FreezeHXC = 0
+    
+    ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
 	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
 	 #continue
@@ -254,12 +282,13 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
      
     print "Checking integrity before adding to table..."
        
-    StackToAdd = [float(runid), float(wavelength_SI), float(PulseDuration_SI), 
+    StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
 	      float(Efield_amplitude_SI), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_amplitude_SI), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), float(density_proj_SI_max), float(density_proj_SI_final), 
-	      float(density_irreversibility_ratio), float(FinalEnergy_SI_final) ]
+	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
+	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
+	      float(FinalEnergy_SI_final) ]
     
     print Header+"Stack contains:"
     print StackToAdd
@@ -299,12 +328,14 @@ def ExtractData(PlottingTable): #{{{
   CrossPolarization =   PlottingTable[:,10]
   TheoryLevel       =   PlottingTable[:,11]
   FieldInduced      =   PlottingTable[:,12]
-  Ne_max            =   PlottingTable[:,13]
-  Ne_final          =   PlottingTable[:,14]
-  irreversibility   =   PlottingTable[:,15]
-  Energy_max        =   PlottingTable[:,16]
+  Functional        =   PlottingTable[:,13]
+  FreezeHXC         =   PlottingTable[:,14]
+  Ne_max            =   PlottingTable[:,15]
+  Ne_final          =   PlottingTable[:,16]
+  irreversibility   =   PlottingTable[:,17]
+  Energy_max        =   PlottingTable[:,18]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
