@@ -295,7 +295,10 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     print Header+"Stack contains:"
     print StackToAdd
     
-    PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+    try:
+      PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+    except:
+      Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
     # Cleaning the guys before next loop
     #del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
