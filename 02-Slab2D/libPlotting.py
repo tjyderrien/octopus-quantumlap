@@ -149,8 +149,10 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     Functional_mgga_position = Functional_value.find("mgga")
     if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
       Functional = 0 #lda
+      Header+"** Info: Functional LDA detected."
     elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
       Functional = 1 #gga
+      Header+"** Info: Functional GGA detected."
     else: 
       Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
       exit(-1)
