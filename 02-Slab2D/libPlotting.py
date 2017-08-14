@@ -299,6 +299,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     try:
       PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+      print Header+"** Info: these data were added to the stack."
     except:
       Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
