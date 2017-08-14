@@ -343,7 +343,7 @@ def ExtractData(PlottingTable): #{{{
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_final, irreversibility, Energy_max = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -355,6 +355,8 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   Delay_uniq             = list(set(Delay))
   FieldInduced_uniq      = list(set(FieldInduced))
   TheoryLevel_uniq       = list(set(TheoryLevel))
+  Functional_uniq        = list(set(Functional))
+  FreezeHXC_uniq         = list(set(FreezeHXC))
   CrossPolarization_uniq = list(set(CrossPolarization))
   CEP1_uniq              = list(set(CEP1))
   CEP2_uniq              = list(set(CEP2))
@@ -378,6 +380,8 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "=== THEORY LEVEL ==="
   print "** Number of theory levels = "+str(len(TheoryLevel_uniq))
   print "** Induced Fields          = "+str(len(FieldInduced_uniq))
+  print "** Functionals             = "+str(len(Functional_uniq))
+  print "** FreezeHXC               = "+str(len(FreezeHXC_uniq))
   
   print "=== COUPLING EFFECTS ==="
   print "** Delays             size = "+str(len(Delay_uniq))
@@ -391,5 +395,5 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Ne_max': 13, 'Ne_final': 14, 'irreversibility': 15, 'Energy_max': 16}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14,'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18}
 
