@@ -143,27 +143,30 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
     
-    ### Captures the functional which has been used for the computation. 
+    ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
     try: 
       Functional_string = LookUpStringInFile(filename, "XCFunctional")
     except:
       Functional_string = 'lda'
-      print Header+"** Warning: XCFunctional was not found."
+      print Header+"** Warning: search of XCFunctional failed. Default value was set: lda"
     # if nothing is found, then assume lda. 
-    Functional_value  = Functional_string[13:] #capturing name of the functional
-    Functional_lda_position = Functional_value.find("lda_x")
-    Functional_mgga_position = Functional_value.find("mgga")
-    if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
-      Functional = 0 #lda
-      print Header+"** Info: Functional LDA detected."
-    elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
-      Functional = 1 #gga
-      print Header+"** Info: Functional GGA detected."
-    else: 
-      print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
-      exit(-1)
-    
+    if( len(Functional_string)) != 0 ): #should be run only if search could find something. 
+      Functional_value = Functional_string[13:] #capturing name of the functional
+      Functional_lda_position = Functional_value.find("lda_x")
+      Functional_mgga_position = Functional_value.find("mgga")
+      if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
+        Functional = 0 #lda
+        print Header+"** Info: Functional LDA detected."
+      elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
+        Functional = 1 #gga
+        print Header+"** Info: Functional GGA detected."
+      else: 
+        print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
+        exit(-1)
+    else: #XCFunctional was not specified: assuming LDA.
+      print Header+"Warning: XCFunctional was not specified. Assuming default value: lda."
+      Functional = 0
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
     try:
