@@ -171,6 +171,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       FreezeHXC_string = ''
       #print Header+"Info: TDFreezeHXC disabled."
       print Header+"** Warning: TDFreezeHXC was not found."
+      FreezeHXC = 0
       
     #else:
       #FreezeHXC = 0
