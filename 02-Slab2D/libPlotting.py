@@ -171,6 +171,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       FreezeHXC = 1
     else:
       FreezeHXC = 0
+    print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
     
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
