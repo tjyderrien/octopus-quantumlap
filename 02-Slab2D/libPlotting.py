@@ -128,16 +128,20 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       wavelength2_SI=wavelength_SI
       PulseDuration2_SI=PulseDuration_SI
       CEP2_SI=CEP1_SI
+      print Header+"Info: Pulse 2 was not used. "
     #}}}
     
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
     FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
       FieldInduced_enabled = 0
+      print Header+"Info: InducedFields was disabled."
     elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
       FieldInduced_enabled = 1
+      print Header+"Info: InducedFields was enabled."
     else:
       FieldInduced_enabled = 0
+      print Header+"Info: InducedFields was disabled."
     
     ### Captures the functional which has been used for the computation. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
@@ -152,12 +156,12 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     Functional_mgga_position = Functional_value.find("mgga")
     if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
       Functional = 0 #lda
-      Header+"** Info: Functional LDA detected."
+      print Header+"** Info: Functional LDA detected."
     elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
       Functional = 1 #gga
-      Header+"** Info: Functional GGA detected."
+      print Header+"** Info: Functional GGA detected."
     else: 
-      Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
+      print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
       exit(-1)
     
     ### Captures if FreezeHXC was used. 
