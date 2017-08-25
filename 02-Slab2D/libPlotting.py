@@ -162,17 +162,18 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
+    #if(FreezeHXC_string == "TDFreezeHXC = yes"): #We shall not make a strict test, which was failing. 
     try:
       FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
-    except:
-      FreezeHXC_string = ''
-      print Header+"** Warning: TDFreezeHXC was not found."
-    if(FreezeHXC_string == "TDFreezeHXC = yes"):
       FreezeHXC = 1
       print Header+"Info: enabled TDFreezeHXC."
-    else:
-      FreezeHXC = 0
-      print Header+"Info: TDFreezeHXC disabled."
+    except:
+      FreezeHXC_string = ''
+      #print Header+"Info: TDFreezeHXC disabled."
+      print Header+"** Warning: TDFreezeHXC was not found."
+      
+    #else:
+      #FreezeHXC = 0
     print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
     
     ### Remove contradictory case
