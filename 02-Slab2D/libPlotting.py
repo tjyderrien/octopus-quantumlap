@@ -162,21 +162,19 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
-    #if(FreezeHXC_string == "TDFreezeHXC = yes"): #We shall not make a strict test, which was failing. 
     try:
       FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
-      FreezeHXC = 1
-      print Header+"Info: enabled TDFreezeHXC."
+      print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
     except:
-      FreezeHXC_string = ''
-      #print Header+"Info: TDFreezeHXC disabled."
-      print Header+"** Warning: TDFreezeHXC was not found."
+      print Header+"** Info: TDFreezeHXC was not found in the input file."
+      #FreezeHXC_string = ''
+    if("yes" in FreezeHXC_string): #We shall not make a strict test, which was failing. 
+      FreezeHXC = 1
+      print Header+"Info: TDFreezeHXC enabled."
+    else:
       FreezeHXC = 0
+      print Header+"Info: TDFreezeHXC not found."
       
-    #else:
-      #FreezeHXC = 0
-    print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
-    
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
 	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
