@@ -97,7 +97,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     
     ## Import CEP data
     try:
-      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") #BUG: the wrong expression can be selected sometimes: how to exclude CEPB = CEPA case ? Put zero if failing. Yes?  
+      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
       print Header+"** CEP1_inp: "+str(CEP1_inp)
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
       #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
@@ -108,7 +108,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       print Header+"** Exception: CEP1 was se to 0 due to failure."
       CEP1_SI              = 0.5*pi
 
-    CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
+    #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     print Header+"** Info: CEP1: "+CEP1_inp[7:]
        
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
