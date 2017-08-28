@@ -105,7 +105,7 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
         print Header+"** Exception on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
-      print HeadeR+"** Exception: CEP1 was se to 0 due to failure."
+      print Header+"** Exception: CEP1 was se to 0 due to failure."
       CEP1_SI              = 0.5*pi
 
     CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
