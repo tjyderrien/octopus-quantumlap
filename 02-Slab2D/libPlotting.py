@@ -98,17 +98,18 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     ## Import CEP data
     try:
       CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") #BUG: the wrong expression can be selected sometimes: how to exclude CEPB = CEPA case ? Put zero if failing. Yes?  
-      print Header+"** CEP1_inp = "+str(CEP1_inp)
-      CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes 
+      print Header+"** CEP1_inp: "+str(CEP1_inp)
+      CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
       if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
         CEP1_SI = 0.5*pi
-        print Header+"** Exception: problem on CEP1_SI."
+        print Header+"** Exception on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
+      print HeadeR+"** Exception: CEP1 was se to 0 due to failure."
       CEP1_SI              = 0.5*pi
 
     CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    print Header+"** Info: CEP1="+CEP1_inp[7:]
+    print Header+"** Info: CEP1: "+CEP1_inp[7:]
        
     Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
