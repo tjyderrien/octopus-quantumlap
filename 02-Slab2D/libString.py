@@ -31,7 +31,12 @@ def LookUpLatestLogFile(Filename): #{{{{
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
   result = [int(s) for s in newest.split(".") if s.isdigit()]
-  return max(result)
+  # For some folders, result was empty (?!)
+  try:
+    final = max(result)
+  except: 
+    final = result
+  return final
 #}}}
 
 ## Looks for a string in a file. 
