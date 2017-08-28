@@ -100,9 +100,9 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       CEP1_inp             = LookUpStringInFile(filename, "CEPA = ") #BUG: the wrong expression can be selected sometimes: how to exclude CEPB = CEPA case ? Put zero if failing. Yes?  
       print Header+"** CEP1_inp: "+str(CEP1_inp)
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
-      if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
-        CEP1_SI = 0.5*pi
-        print Header+"** Exception on CEP1_SI."
+      #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
+        #CEP1_SI = 0.5*pi
+        #print Header+"** Exception on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
       print Header+"** Exception: CEP1 was se to 0 due to failure."
