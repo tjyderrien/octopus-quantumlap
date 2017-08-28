@@ -54,6 +54,7 @@ def LookUpStringInFile(Filename, string): #{{{
   for line in searchfile:
     if string in line:
       result = line;
+      break; #stop as soon as it is found, to avoid taking next lines
   return result
 #}}}
 
