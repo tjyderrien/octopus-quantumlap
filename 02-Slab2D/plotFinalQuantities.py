@@ -191,7 +191,7 @@ if(len(wavelength_uniq) == 1): #{{{ #single color simulations
   #if(ShowFinalPlot==1):
     #pplt.show()
 
-  del ax1, ax2, ax22, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
+  del ax1, ax12, ax2, ax22, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
 #}}}
   
 print "#====== Plot: SINGLE PULSE, EFFET OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
@@ -209,39 +209,69 @@ wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLas
 #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
 # Complexity level: 2
 
-ax1 = plt.subplot(111)
 
-pplt.title('Final density as function of peak intensity, for various CEP')
+ax1 = plt.subplot(plotA)
+pplt.title('Final density as function of peak intensity')
 # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
 #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
 for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
   PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  # Filtering the FreezeHXC states
+  PlottingSinglePulses_CEP_NoFreezeHXC = FilterDatabase(PlottingSinglePulses_CEP, 0, IndexTable['FreezeHXC']) #select the non-frozen HXC
+  PlottingSinglePulses_CEP_FreezeHXC = FilterDatabase(PlottingSinglePulses_CEP, 1, IndexTable['FreezeHXC']) #select the frozen HXC
   ## prints the current state of selection and stores the values of sweeped parameters
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}^{final}$, CEP='+str(round(CEP1_value*180./pi)))
+  pplt.plot(FieldToIntensity(Efield1), Ne_final, 'or', label=r'$N_{exc}^{final}$, CEP='+str(round(CEP1_value*180./pi)))
+  
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  
+  pplt.plot(FieldToIntensity(Efield1), Ne_final, 'og', label=r'$N_{exc}^{final}$, FrozenHXC, CEP='+str(round(CEP1_value*180./pi)))
+  
+  ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
+  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
+  pplt.ylabel(r'Final density (m$^{-3}$)')
+  #  pplt.ylim((1E16,4.*5e28))
+  ax1.set_xscale('log')
+  ax1.set_yscale('log')
+
+  #Adding axis of gammaKeldysh
+  ax12 = ax1.twinx()
+  
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  
+  pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'or', label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  
+  pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ob', label=r'$N_{exc}/\tau$, FrozenHXC') #, I='+str(FieldToIntensity(Efield1_value))+r'
+  
+  ax12.set_yscale('log')
+  ax12.set_ylabel(r'$w_{PI}$ (m$^{-3}$/s)')
+
+  ax2 = pplt.subplot(plotB)
+  pplt.title('Virtual excitation factor')
+  
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  
+  pplt.plot(FieldToIntensity(Efield1), irreversibility, 'og', label='Virtual exc.')
+  
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  
+  pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc., FreezeHXC')
+  
+  pplt.xlabel(r'Peak intensity (W/m$^2$)')
+  pplt.ylabel('Virtual exc. factor')
+  pplt.ylim((0,1))
+  ax2.set_xscale('log')
+  #adding the Keldysh adiabatic factor
+  ax22 = ax2.twinx()
+  pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiabaticity') #BUG: 2.56 must not be specified by hand here! 
+  pplt.ylabel('Adiabadicity factor')
+  #pplt.ylim((0,1))
+  ax22.set_yscale('log')
+
   print Efield1, CEP1_value
-    
-ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
-pplt.xlabel(r'Peak intensity (W/m$^2$)')
-pplt.ylabel(r'Final density (m$^{-3}$)')
-#  pplt.ylim((1E16,4.*5e28))
-ax1.set_xscale('log')
-ax1.set_yscale('log')
-
-#ax2 = plt.subplot(plotB)
-#plt.title('Irreversibility factor')
-#pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
-#pplt.xlabel(r'Intensity (W/m$^2$)')
-#pplt.ylabel('Irreversibility factor')
-#pplt.ylim((0,1))
-#ax2.set_xscale('log')
-#ax22 = ax2.twinx()
-#pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiabaticity')
-#pplt.ylabel('Adiabadicity factor')
-##pplt.ylim((0,1))
-#ax22.set_yscale('log')
-
 # ax2.set_yscale("log")
 #ax2.legend(loc=2, borderaxespad=0.)
 # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)

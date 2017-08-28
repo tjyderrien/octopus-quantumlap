@@ -150,8 +150,8 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
     except:
       Functional_string = 'lda'
       print Header+"** Warning: search of XCFunctional failed. Default value was set: lda"
-    # if nothing is found, then assume lda. 
-    if( len(Functional_string)) != 0 ): #should be run only if search could find something. 
+    
+    if( len(Functional_string) > 0 ): #should be run only if Functional_string is defined. 
       Functional_value = Functional_string[13:] #capturing name of the functional
       Functional_lda_position = Functional_value.find("lda_x")
       Functional_mgga_position = Functional_value.find("mgga")
@@ -164,9 +164,11 @@ def ListAllOutput(path='*/*/output_iter/'): #{{{
       else: 
         print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
         exit(-1)
-    else: #XCFunctional was not specified: assuming LDA.
+    elif ( Functional_string == 'lda' ): #XCFunctional was not specified: assuming LDA.
       print Header+"Warning: XCFunctional was not specified. Assuming default value: lda."
       Functional = 0
+    
+    
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
     try:
