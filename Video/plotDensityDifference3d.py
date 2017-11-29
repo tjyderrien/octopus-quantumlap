@@ -81,7 +81,7 @@ WhatToPlot2 = "Difference" #
 #elfvtk     = 'elf_rs.vtk'
 geometry    = 'geometry.vtk'
 
-ShowCaption = 1 
+ShowCaption = 0 
 bonds       = False
 
 OriginX=0.
@@ -89,7 +89,8 @@ OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=0.01
-ZoomValue=0.8 
+MinValue=-MaxValue
+ZoomValue=0.8*6. 
 #1:Bulk #3:Slabs
 EnablePerspective=0
 
