@@ -261,16 +261,32 @@ timeNe = np.asfarray(Ne[:,1])
 Nproj_AU = np.asfarray(Ne[:,2]) #number of particles, not a density!
 
 ##==== Prepare plotting of energies ====
-timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
-ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
-TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
-IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
-Hartree        = np.asfarray(Energy[:,7]) #Hartree
+timeEnergies      = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
+TotalEnergy       = np.asfarray(Energy[:,2]) #Hartree
+IonEnergy         = np.asfarray(Energy[:,3]) #Hartree, Kinetic energy !
+#NOTE: We dont need the ion-ion when matter does not move. 
+#TODO: But we DO need it when MoveIon = yes! 
+ElectronEnergy    = np.asfarray(Energy[:,5]) #Hartree
+EigenValuesEnergy = np.asfarray(Energy[:,6]) #Hartree
+Hartree           = np.asfarray(Energy[:,7]) #Hartree energy (electron-electron interaction)
+IntVxcNEnergy     = np.asfarray(Energy[:,8]) #Hartree, int ( vxc n(r) )
+ExchangeEnergy    = np.asfarray(Energy[:,9]) #Hartree, exchange 
+CorrelationEnergy = np.asfarray(Energy[:,10]) #Hartree, correlation
+try:
+  ElectronKineticEnergy = np.asfarray(Energy[:,11]) #Hartree, electron kinetic energy
+except:
+  ElectronKineticEnergy = 0. #not outputed before 2017 Nov 29th. 
 
+# Somehow checking the data integrity
 if(timeEnergies.size != ElectronEnergy.size):
   print "** Error: sizes for energies are different. "
   print timeEnergies.size, ElectronEnergy.size
   exit()
+
+# Controlling that we well understood the energy balance. 
+# RebuildTotalEnergy = EigenValuesEnergy - Hartree + ExchangeEnergy + CorrelationEnergy - IntVxcEnergy
+# if(RebuildTotalEnergy != TotalEnergy):
+#   print Header+"** Warning: Kinetic energy may not be well reconstructed. "
 
 # Normalizing to 0
 ElectronEnergy = ElectronEnergy - ElectronEnergy.min()
