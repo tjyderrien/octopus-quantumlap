@@ -29,6 +29,7 @@ from libAtomicUnits import *
 import calculateVolume as Sample
 
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
+# @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path):
   geometry = path+"../Si.xyz" #static method
   Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
