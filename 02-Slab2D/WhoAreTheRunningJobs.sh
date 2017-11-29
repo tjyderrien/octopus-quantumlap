@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $OctopusSlabsSources/03-Bulk3D/machines.env
+source $QuantumLaPsources/machines.env
 CheckComputerName
 
 echo "Current machine: ${ComputerName}"
