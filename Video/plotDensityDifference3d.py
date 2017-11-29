@@ -74,6 +74,10 @@ densityvtk  = 'density.vtk'
 DensityGsVtk= '/../td.0000000/density.vtk' #This should work for any run in our frame. 
 #densityvtk= 'elf_rs.vtk'
 
+# Plots of lines 1 and 2. 
+WhatToPlot1 = "Difference" # "ExcitedStateData" #"Difference" 
+WhatToPlot2 = "Difference" #
+
 #elfvtk     = 'elf_rs.vtk'
 geometry    = 'geometry.vtk'
 
@@ -85,7 +89,8 @@ OriginY=0.
 OriginZ=0. #0.6788749999999979/BohrRadius
 
 MaxValue=0.01
-ZoomValue=0.8 #1:Bulk #3:Slabs
+ZoomValue=0.8 
+#1:Bulk #3:Slabs
 EnablePerspective=0
 
 ###############################################
@@ -403,14 +408,14 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="SiBond", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 3 ####
     #CloneWindow()

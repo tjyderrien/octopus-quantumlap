@@ -571,7 +571,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   View3DAtts.parallelScale = 57.1578
   View3DAtts.nearPlane = -114.316
   View3DAtts.farPlane = 114.316
-  View3DAtts.imageZoom = ZoomValue*6. 
+  View3DAtts.imageZoom = ZoomValue 
   View3DAtts.perspective = Enable_Perspective
   View3DAtts.eyeAngle = 2
   View3DAtts.centerOfRotationSet = 0
