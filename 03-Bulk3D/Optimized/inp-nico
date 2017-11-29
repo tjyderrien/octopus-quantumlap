@@ -1,0 +1,74 @@
+
+CalculationMode = gs
+
+PeriodicDimensions = 3
+
+a = 10.26120
+
+BoxShape = parallelepiped
+
+ExperimentalFeatures = yes
+
+%LatticeParameters
+  a | a | a
+%
+
+%LatticeVectors
+ 0.  | 0.5 | 0.5
+ 0.5 | 0.  | 0.5
+ 0.5 | 0.5 | 0.0
+%
+
+%ReducedCoordinates
+ "Si" |   0.0    | 0.0     | 0.0
+ "Si" |   1/4    | 1/4     | 1/4
+%
+
+Spacing = 0.5
+
+FromScratch = yes
+ParStates = no
+ParDomains = no
+ParKPoints = auto
+
+%KPointsGrid
+3 | 3 | 3
+0.5 | 0.5 | 0.5
+0.5 | 0.0 | 0.0
+0.0 | 0.5 | 0.0
+0.0 | 0.0 | 0.5
+%
+
+KPointsUseSymmetries = yes
+
+ExtraStates = 0
+XCFunctional = mgga_x_tb09 + lda_c_pw
+FilterPotentials = filter_none
+
+# Length of propagation -> e.g. 100fs = 4134.1105 a.u.
+au2fs = 0.024189
+Tsimul  = (180)/au2fs   # 50fs
+dt = 0.2   # Length of time step.
+
+TDPropagator = etrs
+TDStepsWithSelfConsistency = all_steps
+TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+TDPropagationTime = Tsimul
+TDTimeStep = dt
+
+theta = 45.0*pi/180.0
+ell = 0.0
+
+%TDExternalFields
+  vector_potential | cos(theta)-i*ell*sin(theta) | sin(theta)+i*ell*cos(theta) | 0.0 | 0.0 | "envelope_sin2"
+%
+
+%SymmetryBreakDir
+ cos(theta)-i*ell*sin(theta) | sin(theta)+i*ell*cos(theta) | 0.0
+%
+
+TDOutput = laser + total_current + energy
+
+
