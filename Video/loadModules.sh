@@ -1,5 +1,5 @@
 #!/bin/bash
-source $QuantumLaP/02-Slab2D/machines.env
+source $QuantumLaPsources/machines.env
 
 CheckComputerName # if EOS: ModuleForEOS 
 
