@@ -1,0 +1,160 @@
+
+CalculationMode = td
+
+PeriodicDimensions = 3
+
+a = 10.26120
+
+BoxShape = parallelepiped
+
+ExperimentalFeatures = yes
+
+%LatticeParameters
+  a | a | a
+%
+
+%LatticeVectors
+ 0.  | 0.5 | 0.5
+ 0.5 | 0.  | 0.5
+ 0.5 | 0.5 | 0.0
+%
+
+%ReducedCoordinates
+ "Si" |   0.0    | 0.0     | 0.0
+ "Si" |   1/4    | 1/4     | 1/4
+%
+
+Spacing = 0.5
+
+FromScratch = yes
+ParStates = no
+ParDomains = no
+ParKPoints = auto
+
+%KPointsGrid
+12 | 12 | 12
+%
+
+KPointsUseSymmetries = yes
+
+ExtraStates = 1
+XCFunctional = mgga_x_tb09 + lda_c_pw
+FilterPotentials = filter_none
+
+%SymmetryBreakDir
+ 1 | 0 | 0
+%
+
+TDPropagator = etrs
+TDStepsWithSelfConsistency = all_steps
+
+
+# Some constants
+cSI = 299792458e0
+eVperHartree = 27.21138505e0 #Wikipedia [Hartree]
+BohrRadius = 5.2917721067e-11 #m, Wikipedia [Bohr radius]
+HartreePerBohr = eVperHartree / BohrRadius
+hSI = 6.626070040e-34
+heVs = 4.135667662e-15
+ecSI = 1.6021766208e-19
+hbarSI = 1.054571800e-34
+TimeAUtoSI = hbarSI / eVperHartree / ecSI
+lightvelocity = 137.035999139 #light velocity = 1e0/fine structure constant [https://en.wikipedia.org/wiki/Fine-structure_constant]
+
+# To be replaced by script
+## Pulse wavelengths ##
+lambdaA = 800e-9 #SI: s-1, to be replaced by script
+lambdaB = 800e-9 #SI: s-1, to be replaced by script
+## Field amplitude
+EfieldAsi = 5.5E9 #V/m, to be replaced by script
+EfieldBsi = 0E0 #V/m, to be replaced by script
+## Pulse duration 
+tauAsi = 10e-15 #This is FWHM of the Gaussian pulse
+tauBsi = 10e-15 #This is FWHM of the Gaussian pulse
+## Double pulse delay
+pulseDelaySI = 0e-15
+## Envelope phase CEP
+CEPA = pi*0.0
+CEPB = pi*0.0
+# shifting by pi/2.
+CEPA = CEPA + pi/2.
+CEPB = CEPB + pi/2.
+## Computational time
+ComputingTimeValueSI = 9.39728720115e-14
+
+# Conversion to a.u.
+## Pulse wavelengths ##
+# omegaAsi = 2.*pi*cSI / lambdaA
+# omegaBsi = 2.*pi*cSI / lambdaB
+# omegaA = omegaAsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree 
+# omegaB = omegaBsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree
+omegaA = heVs * cSI / lambdaA / eVperHartree
+omegaB = heVs * cSI / lambdaB / eVperHartree
+## Field amplitude
+EfieldA = EfieldAsi / HartreePerBohr
+EfieldB = EfieldBsi / HartreePerBohr
+## Pulse duration 
+tauA = tauAsi / TimeAUtoSI
+tauB = tauBsi / TimeAUtoSI
+t0 = max(tauA, tauB)
+t0Gauss = 2.*t0
+GaussianRatio = 2.*sqrt(2. * ln(2.))
+sigmaTauA = tauA / GaussianRatio
+sigmaTauB = tauB / GaussianRatio
+
+## Double pulse delay
+pulseDelay = pulseDelaySI / TimeAUtoSI
+t1 = t0 + pulseDelay
+t1Gauss = t0Gauss + pulseDelay
+## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
+# RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
+
+## Vector field amplitude
+
+# /!\ Assumption is made on the temporal integration of Efield
+amplitudeA = EfieldA * lightvelocity / omegaA
+amplitudeB = EfieldB * lightvelocity / omegaB
+
+## Simulation time management
+ComputingTime = ComputingTimeValueSI / TimeAUtoSI
+#4.*sigmaTau1 + pulseDelay + RelaxationTime #tim
+
+#TODO: script the change of polarization
+th1 = 0
+th2 = 0.      #Scripted
+px1 = cos(th1)
+py1 = sin(th1)
+px2 = cos(th2)
+py2 = sin(th2)
+
+# Enable the induced field
+GaugeFieldPropagate = no # | yes
+
+# Building up pulses
+%TDExternalFields
+#   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+#   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA-SinSquared" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB-SinSquared" | "phaseB"
+%
+
+%TDFunctions
+  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
+  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
+  "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
+  "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
+  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-Keldysh" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
+                                          
+  "FieldColorB-Keldysh" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+%
+
+TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDPropagationTime = ComputingTime
+#TDPropagator = aetrs
+TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+
+
