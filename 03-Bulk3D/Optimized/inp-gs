@@ -31,7 +31,7 @@ ParDomains = no #crashes if made per state only
 BoxShape = parallelepiped
 %Spacing
 	# 0.434637008855 | 0.434637008855 | 0.434637008855 #to be replaced by script
-        0.5 | 0.5 | 0.5
+        MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU
 %
 
 %LatticeParameters #noncubic cells
@@ -59,7 +59,7 @@ BoxShape = parallelepiped
 
 %KPointsGrid
 #  12 | 12 | 12
-   3 | 3 | 3
+   kPointsValue | kPointsValue | kPointsValue
    0.5 | 0.5 | 0.5
    0.5 | 0.0 | 0.0
    0   | 0.5 | 0
@@ -73,7 +73,7 @@ KPointsUseSymmetries = yes
   1 | 0 | 0
 %
 
-ExtraStates = 2
+ExtraStates = 0
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
@@ -86,5 +86,5 @@ MaximumIter=1000
 ### OUTPUTS
 Output = dos + density + potential + geometry
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
-XCFunctional = mgga_x_tb09 + lda_c_pw
-FilterPotentials = filter_none
+# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+# FilterPotentials = filter_none        #this will be added automatically
