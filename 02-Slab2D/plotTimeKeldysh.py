@@ -38,8 +38,8 @@ from libPlotting import *
 
 
 ## Materials properties
-Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
-meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
+Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
@@ -113,10 +113,10 @@ geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 ## Get the vector potential from laser file
 ### Building laser profile...
 time = np.asfarray(laser[:,1]) #column 2
-A1x = np.asfarray(laser[:,2]) #column number 3
-A1y = np.asfarray(laser[:,3]) #column number 4
-A2x = np.asfarray(laser[:,5]) #column number 6 
-A2y = np.asfarray(laser[:,6]) #column number 7
+A1x  = np.asfarray(laser[:,2]) #column number 3
+A1y  = np.asfarray(laser[:,3]) #column number 4
+A2x  = np.asfarray(laser[:,5]) #column number 6 
+A2y  = np.asfarray(laser[:,6]) #column number 7
 
 timestepTable = np.diff(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
