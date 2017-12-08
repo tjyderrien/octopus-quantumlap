@@ -60,7 +60,7 @@ CaptionY = 1.00
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: auto from command line
-ShowFinalPlot  = 0 #TODO: should be commanded via terminal
+ShowFinalPlot  = 1 #TODO: should be commanded via terminal
 
 PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
@@ -403,11 +403,11 @@ else:
 omega = 2.*pi*c/wavelength_SI
 wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
 # wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #not good as depends on the final time
-NumberOfTimeSteps = int(2.*PulseDuration_SI/TimeStep)
-wPI_TDDFT_average = wPI_TDDFT[NumberOfTimeSteps-1] / NumberOfTimeSteps 
+NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI))
+wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / NumberOfTimeSteps 
 wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
 wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
-wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI).
+wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI)
 
 print Header+"** Final value for <w_PI> = "+str(wPI_TDDFT_average[wPI_TDDFT_average.size-1])
 print Header+"** Final value for w_PI_approx = "+str(wPI_TDDFT_approx[wPI_TDDFT_approx.size-1])
