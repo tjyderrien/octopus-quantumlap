@@ -4,7 +4,7 @@ source $QuantumLaPsources/machines.env
 CheckComputerName # if EOS: ModuleForEOS 
 
 echo "/!\ Visualization is necessary to obtain the pictures."
-echo "Hence, open visualization server using ./vncRemoteVisualization.sh file."
+# echo "Hence, open visualization server using ./vncRemoteVisualization.sh file."
 
 rm *.mpg *.png
 
