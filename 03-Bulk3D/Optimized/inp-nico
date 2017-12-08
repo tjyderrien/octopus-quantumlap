@@ -1,5 +1,7 @@
+# Input file provided by N. Tancogne-Dejean
+# Optimize basic Si cell using symmetries. 
 
-CalculationMode = gs
+CalculationMode = td
 
 PeriodicDimensions = 3
 

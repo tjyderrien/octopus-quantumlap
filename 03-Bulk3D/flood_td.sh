@@ -33,16 +33,16 @@ InitialTemperature="0e0"
 PulseShape="SinSquared" #Gaussian #SinSquared #Keldysh
 CrossPolarization=0 #1
 
-InducedFields="0" #0 or 1: avoid, as understanding is highly non-trivial there. 
+InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 # echo "Defining laser parameters..."
 # Laser parameters
-lambda1="400e-9"
+lambda1="800e-9"
 # lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
-lambda2="800e-9"
+lambda2="400e-9"
 
 # Field amplitude
 # Efield1="9.5E9"
