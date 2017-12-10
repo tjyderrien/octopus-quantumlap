@@ -12,7 +12,7 @@ source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=8 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=16 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -150,7 +150,7 @@ print_usage () {
 ReplaceInputFile () {
   # Define the material parameters
   # We would like to start the td-calculation
-  # INP file is modified in root, then copied to the ${localPath} folder  
+  # INP file is modified in the octopus-slabs root, then copied to the ${localPath} folder  
   echo "[Run_td.sh: ReplaceInputFile] Path for submission: $( pwd ) "
   if [ -e inp ]; then
 	  echo ""; echo "Input file INP was renamed to .BAK..."
@@ -257,7 +257,9 @@ SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
   echo "Source: ${OctopusSlabsRuns}."
   echo "Target: ${localPath}."
-  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/
+#  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/ #induces an error: parameters were not replaced systematically
+# Good path is actually $( pwd ).
+  cp inp ${localPath}/
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/

@@ -159,6 +159,7 @@ ComputingTime = ComputingTimeValueSI / TimeAUtoSI
 
 # Predicting which simulation axis will be broken during excitation. 
 theta_inc = 0. #angle of incidence of the laser
+ell = 0. #ellipticity
 %SymmetryBreakDir
  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 %
@@ -171,6 +172,9 @@ px1 = cos(th1)
 py1 = sin(th1)
 px2 = cos(th2)
 py2 = sin(th2)
+
+# Duration of the rise is linked with laser wavelength
+tauRise = 2.*pi/omegaA
 
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
@@ -190,8 +194,10 @@ GaugeFieldPropagate = ReplaceMeGaugeField # | yes
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
   "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
-  "FieldColorA-Keldysh" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
-  "FieldColorB-Keldysh" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+  "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
+  "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+  "FieldColorA-SoftTopHat" | tdf_from_expr | "amplitudeA * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )"
+  "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 %
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 

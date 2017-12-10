@@ -22,7 +22,7 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.20"
+MeshSizeX="0.23 0.20"
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
@@ -30,7 +30,7 @@ MeshSizeX="0.20"
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-PulseShape="SinSquared" #Gaussian #SinSquared #Keldysh
+PulseShape="SinSquared" #Gaussian #SinSquared #TopHat #SoftTopHat
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
@@ -51,7 +51,7 @@ Efield1="1e8 1e9 5e9 9.9e9"
 Efield2="0E0"
 
 # Pulse duration
-tau1="30e-15 10e-15 20e-15"
+tau1="10e-15 20e-15 30e-15"
 # tau1="30e-15"
 tau2="10e-15"
 # Phase
