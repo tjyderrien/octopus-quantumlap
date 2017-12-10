@@ -60,9 +60,9 @@ CaptionY = 1.00
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
 QuantityOfInterest = "density" #number" #Would you prefer to work densities (density), or particle number (number)?
 EnableLogScale = 2 #1: yes, 2: auto from command line
-ShowFinalPlot  = 1 #TODO: should be commanded via terminal
 
-PlottingMode   = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
+ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
+PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
 Header="[octopus-slabs] "
@@ -72,7 +72,7 @@ if(PlottingMode == "auto"):
   if(PlottingMethod == "bruteforce"): #{{{
     PlottingMode = sys.argv[1]
     if( not (PlottingMode == "nonthermalmelting" or PlottingMode == "doublepulse" or PlottingMode == "keldysh") ):
-      print "Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1>"
+      print "Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1> <ShowFinalPlot = 0 | 1>"
       exit()
   #}}}
 ## METHOD detection in input file
@@ -100,8 +100,15 @@ if(int(EnableLogScale) == 2):
     EnableLogScale = int(sys.argv[2]) #read from terminal
 #    ShowFinalPlot  = 0     # MORE SAFE. 
   except: 
-    print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1>."
-    exit() 
+    print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1> <ShowFinalPlot? 0 | 1>."
+    exit()
+if(sys.argv[3] == ""):
+  ShowFinalPlot = 0
+elif(sys.argv[3] == "1"):
+  ShowFinalPlot = 1
+else:
+  ShowFinalPlot = ShowFinalPlotDefault
+  
 
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
