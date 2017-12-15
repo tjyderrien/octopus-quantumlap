@@ -30,7 +30,7 @@ MeshSizeX="0.23 0.20"
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-PulseShape="SinSquared" #Gaussian #SinSquared #TopHat #SoftTopHat
+PulseShape="SinSquared" #Gaussian #SinSquared #TopHat #STH (SofTopHat)
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 

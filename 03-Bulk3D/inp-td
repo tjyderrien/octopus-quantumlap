@@ -187,6 +187,8 @@ GaugeFieldPropagate = ReplaceMeGaugeField # | yes
     vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
 %
 
+tR = tauRise
+
 %TDFunctions
   "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
   "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
@@ -196,10 +198,9 @@ GaugeFieldPropagate = ReplaceMeGaugeField # | yes
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
   "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
   "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
-  "FieldColorA-SoftTopHat1"| tdf_from_expr | "sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )"
-  "FieldColorA-SoftTopHat2"| tdf_from_expr | "sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) )"
-  "FieldColorA-SoftTopHat" | tdf_from_expr | "amplitudeA * (FieldColorA-SoftTopHat1 + FieldColorA-SoftTopHat2 + step(t-t0)*(1.-step(t-t1)) )"
-#  "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
+# "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
+  "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
+#  "FieldColorB-STH" | tdf_from_expr | "amplitudeB * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 %
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
