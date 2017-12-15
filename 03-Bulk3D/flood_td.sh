@@ -30,7 +30,7 @@ MeshSizeX="0.23" # 0.20"
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-PulseShape="SoftTopHat" #Gaussian #SinSquared #TopHat #SoftTopHat: WARNING for this type of pulse, duration is defined by the double pulse delay, and set tauA=tauB=0e-15 
+PulseShape="STH" #Gaussian #SinSquared #TopHat #STH: SoftTopHat: WARNING for this type of pulse, duration is defined by the double pulse delay, and set tauA=tauB=0e-15 
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
