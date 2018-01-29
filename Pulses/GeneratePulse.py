@@ -23,6 +23,8 @@ from libKeldyshPulses import PulseSquaredSinTemporalShape
 from libDatabase      import ExportToTxt
 from libSPP           import *
 
+Header="[octopus-slabs: GeneratePulses.py] "
+
 ## Generates the required pulse envelope from spp-ext-theory/Keldysh/libKeldyshPulses and returns it in a file. 
 # Input parameters 
 # @param t (SI): time instants to prepare the pulse
@@ -36,7 +38,7 @@ from libSPP           import *
 # t (At. Units) | Envelope of the field #NOTE: field or vector potential? Difference? 
 def GeneratePulse(t, tau, PeakField, wavelength, CEP, t0, PulseDelay): #{{{
   Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.)
-  return Envelope
+  return t, Envelope
   #}}}
 
 # Read pulse data from command line
@@ -46,7 +48,7 @@ if(len(sys.argv)<6):
   print "    <Pulse duration> \ "
   print "    <Peak field amplitude (V/m)> \ "
   print "    <Laser wavelength (m)>"
-  print "Example: ./GeneratePulse.py 10e-15 9e9 800e-9 0. 0. 0."
+  print "Example: ./GeneratePulse.py 10e-15 9e9 800e-9 0. 0. 20e-15 "
   exit()
 
 #============ Manage the command line input =================
@@ -54,12 +56,21 @@ tau        = sys.argv[1]
 PeakField  = sys.argv[2]
 wavelength = sys.argv[3]
 CEP        = sys.argv[4]
-t0         = sys.argv[5]
-PulseDelay = sys.argv[6]
+#t0         = sys.argv[5]
+PulseDelay = sys.argv[5]
+ComputingT = sys.argv[6] #maximum time of computation
 
-t = np.arange(0., tmax, 200)
-Envelope = GeneratePulses(t, tau, PeakField, wavelength, CEP, t0, PulseDelay)
-OctopusReady = np.array([t, Envelope])
+tau = np.asfarray(tau); PeakField = np.asfarray(PeakField);   wavelength = np.asfarray(wavelength); 
+CEP = np.asfarray(CEP); PulseDelay = np.asfarray(PulseDelay); ComputingT = np.asfarray(ComputingT); 
+
+print Header+"Computing time = "+str(float(ComputingT))
+tmin = 0.
+tmax = float(ComputingT)
+t = np.arange(tmin, tmax, (tmax-tmin)/200.)
+#print t
+#exit()
+Envelope     = GeneratePulse(t, tau, PeakField, wavelength, CEP, 2.*tau, PulseDelay=0.)
+OctopusReady = np.transpose(Envelope)
 ExportToTxt(OctopusReady, "Pulses.dat")
 
 
