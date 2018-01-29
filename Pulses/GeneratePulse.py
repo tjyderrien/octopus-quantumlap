@@ -20,6 +20,8 @@
 # This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package. 
 
 from libKeldyshPulses import PulseSquaredSinTemporalShape
+from libDatabase      import ExportToTxt
+from libSPP           import *
 
 ## Generates the required pulse envelope from spp-ext-theory/Keldysh/libKeldyshPulses and returns it in a file. 
 # Input parameters 
@@ -28,10 +30,37 @@ from libKeldyshPulses import PulseSquaredSinTemporalShape
 # @param pulse duration (SI)
 # @param peak field amplitude (SI)
 # @param CEP (SI)
+# @param t0 (SI): time zero of the origin
+# @param PulseDelay (SI): temporal delay for this pulse (useful to generate several pulses)
 # Output
 # t (At. Units) | Envelope of the field #NOTE: field or vector potential? Difference? 
-def GeneratePulse(t, tau, PeakField, wavelength, CEP): #{{{
-  Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.):
+def GeneratePulse(t, tau, PeakField, wavelength, CEP, t0, PulseDelay): #{{{
+  Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.)
   return Envelope
   #}}}
+
+# Read pulse data from command line
+# =======================================================
+if(len(sys.argv)<6):
+  print "Usage: ./GeneratePulse.py           \ "
+  print "    <Pulse duration> \ "
+  print "    <Peak field amplitude (V/m)> \ "
+  print "    <Laser wavelength (m)>"
+  print "Example: ./GeneratePulse.py 10e-15 9e9 800e-9 0. 0. 0."
+  exit()
+
+#============ Manage the command line input =================
+tau        = sys.argv[1]
+PeakField  = sys.argv[2]
+wavelength = sys.argv[3]
+CEP        = sys.argv[4]
+t0         = sys.argv[5]
+PulseDelay = sys.argv[6]
+
+t = np.arange(0., tmax, 200)
+Envelope = GeneratePulses(t, tau, PeakField, wavelength, CEP, t0, PulseDelay)
+OctopusReady = np.array([t, Envelope])
+ExportToTxt(OctopusReady, "Pulses.dat")
+
+
 
