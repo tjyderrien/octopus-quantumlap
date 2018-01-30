@@ -65,8 +65,6 @@ BoxShape = parallelepiped
 # Using external file
 # XYZCoordinates = "Si.xyz" #input is in Bohr now
 
-
-
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
 ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
@@ -134,7 +132,8 @@ EfieldB = EfieldBsi / HartreePerBohr
 ## Pulse duration 
 tauA = tauAsi / TimeAUtoSI
 tauB = tauBsi / TimeAUtoSI
-t0 = max(tauA, tauB)
+# t0 = max(tauA, tauB) #useless to use tauB there
+t0 = tauA
 t0Gauss = 2.*t0
 GaussianRatio = 2.*sqrt(2. * ln(2.))
 sigmaTauA = tauA / GaussianRatio
@@ -179,7 +178,7 @@ tauRise = 2.*pi/omegaA
 # Thp = Tp/2
 # Tc = 50/au2fs
 # Td = Thp+Tc
-# A = amplitudeA
+Aa = amplitudeA
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
@@ -204,7 +203,7 @@ tR = tauRise
   "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
 #  "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 # "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
-  "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
+  "FieldColorA-STH"|tdf_from_expr|"Aa*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
 #  "FieldColorB-STH" | tdf_from_expr | "amplitudeB * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 %
 
