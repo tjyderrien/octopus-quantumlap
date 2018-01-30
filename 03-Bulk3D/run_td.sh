@@ -79,6 +79,18 @@ DefineParameters () {
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
+  
+# CONCEPT OF THE PULSE CAPTURE
+# NOTE: flood_td.sh generates the list of pulses we need. 
+# NOTE: run_td.sh addresses each of the requests to octopus/Pulses/python script who calls spp-extended-theory/Keldysh/libKeldyshPulses.py:PulseSquaredSinTemporalShape() to generates the envelope. 
+# NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
+# NOTE: Units are in atomic units. 
+# NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
+  ../Pulses/GeneratePulse.py ${tau1} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
+  mv Pulses.dat PulseA.dat
+  ../Pulses/GeneratePulse.py ${tau2} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
+  mv Pulses.dat PulseB.dat
+  
   echo "[Run_TD] Pulses generated."
   
   if [ ${CrossPolarization} == 1 ]; then
@@ -259,10 +271,12 @@ SubmitTheJob () {
   echo "Target: ${localPath}."
 #  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/ #induces an error: parameters were not replaced systematically
 # Good path is actually $( pwd ).
-  cp inp ${localPath}/
+  cp inp ${localPath}/ && echo "Octopus INP source successfully copied to destination."
+  cp PulseA.dat ${localPath}/ && echo "Successfully copied Pulse A to destination."
+  cp PulseB.dat ${localPath}/ && echo "Successfully copied Pulse B to destination."
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
-  cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/
+  cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
