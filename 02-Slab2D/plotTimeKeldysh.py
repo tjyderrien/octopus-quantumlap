@@ -479,7 +479,8 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax2,ymax2))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
-plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD #TODO: warn if polarization are not similar
+### Showing vector potential is only useful to observe shift with materials excitation. 
+# plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD #TODO: warn if polarization are not similar
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
@@ -518,7 +519,7 @@ if(QuantityOfInterest == "density"):
   if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-    plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/\tau$')
+    plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     plt.legend(loc=4)
