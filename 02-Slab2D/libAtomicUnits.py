@@ -37,7 +37,12 @@ def Volume_AU_to_SI(volume_AU):#{{{
 
 ## Converts time from AU to SI (seconds)
 def Time_AU_to_SI(time_AU):#{{{
-  return hbar / e / Hartree_Energy
+  return time_AU * hbar / e / Hartree_Energy
+#}}}
+
+## Converts time from SI to AU (?)
+def Time_SI_to_AU(time_SI):#{{{
+  return time_SI / (hbar / e / Hartree_Energy)
 #}}}
 
 ## Converts length from SI (meters) to AU (Bohr radius)
