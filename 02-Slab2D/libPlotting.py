@@ -41,8 +41,8 @@ def LoadRunOutputs(path):
   return geometry, Ne, laser, TotalCurrent, Energy
 
 ## Lists the available octopus runs, and build the table of results
-#  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/output_iter/'
-def ListAllOutput(path='*/*/output_iter/'): #{{{
+#  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
+def ListAllOutput(path='*/*/td.general/'): #{{{
   PlottingTable = np.empty((0,19))
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
