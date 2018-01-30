@@ -12,7 +12,7 @@ source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=16 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -247,7 +247,7 @@ SubmitTheJob () {
   if [ -e ${groundStatePath}-Save ]; then
           echo "[Copy] Source: ${groundStatePath}-Save"
           echo "[Copy] Target: ${groundStatePath}"
-          $OctopusSlabsSources/02-Slab2D/DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
+          # $OctopusSlabsSources/02-Slab2D/DuplicateGroundState.sh ${groundStatePath}-Save/ ${groundStatePath}/ $DryRunChain
   else
     echo "SAVE OF GROUND STATE DOES NOT EXIST."
     echo "Expected path: ${groundStatePath}-Save"
