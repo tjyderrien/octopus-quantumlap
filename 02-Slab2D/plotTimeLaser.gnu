@@ -5,7 +5,7 @@ set terminal postscript eps enhanced color font 'Helvetica, 24'
 
 set format "%g"
 
-#set xrange [:25]
+set xrange [:50]
 
 set xlabel 'Time t [fs]'
 set ylabel 'Vector field amplitude A(t) [a.u]'
