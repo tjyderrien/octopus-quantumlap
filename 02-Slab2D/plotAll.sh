@@ -42,8 +42,8 @@ do
 	# git add *.eps *.png
 	cd - > /dev/null
 done
-
-for folder in $( list_folders | grep 'output_iter' | grep -v 'td.' )
+# for each results folder where the code was started. #Assume that ./td.general was created. 
+for folder in $( list_folders | grep 'td.general' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -52,11 +52,10 @@ do
 	prevFolder=$( pwd )
         cd $folder
 	echo "** Building files for post-processed density..."
-        echo "** ENABLE ONLY IF NECESSARY. Very long.. (1h)"
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
-	echo "** Plotting nice figure for post-processed density for $(pwd)..."
-	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0
-        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1
+	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
+	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
  	# echo "** Generating list of TD-visual outputs..."

@@ -36,6 +36,7 @@ from libPlottingSettings import *
 from libPlotting import *
 from libKeldysh import *
 import libDatabase
+from libExcitationDatabase import *
 
 Header="[plotFinalQuantities] "
 
@@ -59,28 +60,22 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
     exit()
   
 # Capture the data
-path='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
-DatabaseName = 'Database.csv'
+# For histocal reasons, two locations are possilbe.
+path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
+path2='*/*/td.general/'
 
-print Header+"Attempting to load previous results..."
 try:
-  PlottingTable = loadtxt(DatabaseName, delimiter="\t")
-except:
-  PlottingTable = ListAllOutput(path)
-
-  print Header+"Save the table to a file..."
-  try:
-    libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-  except: 
-    print "** Error when writing the database.csv."
-    exit()
+  PlottingTable = GetExcitationDatabase(path1)
+  print Header+"** Info: capturing data from old PATH1."
+except: 
+  PlottingTable = GetExcitationDatabase(path2)
+  print Header+"** Info: capturing data from novel path PATH2."
 
 print PlottingTable
 
 PlottingTable = FilterDatabase(PlottingTable, 0, IndexTable['FieldInduced']) #removes all induced fields data
 
 runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(PlottingTable)
-
 
 print Header+"** Preparing the summary plots..."
 

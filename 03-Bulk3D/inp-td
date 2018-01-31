@@ -65,8 +65,6 @@ BoxShape = parallelepiped
 # Using external file
 # XYZCoordinates = "Si.xyz" #input is in Bohr now
 
-
-
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
 ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
@@ -134,7 +132,8 @@ EfieldB = EfieldBsi / HartreePerBohr
 ## Pulse duration 
 tauA = tauAsi / TimeAUtoSI
 tauB = tauBsi / TimeAUtoSI
-t0 = max(tauA, tauB)
+# t0 = max(tauA, tauB) #useless to use tauB there
+t0 = tauA
 t0Gauss = 2.*t0
 GaussianRatio = 2.*sqrt(2. * ln(2.))
 sigmaTauA = tauA / GaussianRatio
@@ -179,7 +178,7 @@ tauRise = 2.*pi/omegaA
 # Thp = Tp/2
 # Tc = 50/au2fs
 # Td = Thp+Tc
-# A = amplitudeA
+Aa = amplitudeA
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
