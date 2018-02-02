@@ -19,7 +19,7 @@
 ## @package GeneratePulse
 # This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package. 
 
-from libKeldyshPulses import PulseSquaredSinTemporalShape
+from libKeldyshPulses import PulseSmoothTopHatShape
 from libDatabase      import ExportToTxt
 from libSPP           import *
 from libAtomicUnits   import *
