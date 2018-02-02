@@ -37,8 +37,11 @@ Header="[octopus-slabs: GeneratePulses.py] "
 # @param PulseDelay (SI): temporal delay for this pulse (useful to generate several pulses)
 # Outputs:
 # t (At. Units) | Envelope of the field A(t)
-def GeneratePulse(t, tau, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.): #{{{
-  Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP, t0, PulseDelay)
+def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.): #{{{
+  # Tested and validated with octopus on Jan 30th 2018. 
+  #Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP, t0, PulseDelay)
+  # BUG: To be validated. 
+  Envelope, Field = PulseSmoothTopHatShape(t, tau, tauRise, PeakField, wavelength, CEP, t0, PulseDelay)
   # We obtain SI electric field envelope. We need to convert it to Vector potential envelope in Atomic Units. 
   # NOTE: Are envelope of the electric field and vector potential the same thing? E(t) = - 1/c * dA/dt 
   # NOTE: A=-i c E/omega <=> E = i A * omega / c
@@ -55,38 +58,42 @@ def GeneratePulse(t, tau, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.): 
 # =======================================================
 if(len(sys.argv)<6):
   print "Usage: ./GeneratePulse.py \ "
-  print "    <Pulse duration> \ "
+  print "    <Pulse duration (s)> \ "
+  print "    <Duration of the ramp (s)> \ "
   print "    <Peak field amplitude (V/m)> \ "
   print "    <Laser wavelength (m)> \ "
   print "    <CEP [multiples of Pi] > \ "
   print "    <Double pulse Delay (s) > \ "
   print "    <End of simulation time (s) > "
   
-  print "Example: ./GeneratePulse.py 10e-15 9e9 800e-9 0. 0. 20e-15 "
+  print "Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 "
   print "Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. "
   exit()
 
 #============ Manage the command line input =================
 tau        = sys.argv[1]
-PeakField  = sys.argv[2]
-wavelength = sys.argv[3]
-CEP        = sys.argv[4]
-PulseDelay = sys.argv[5]
-ComputingT = sys.argv[6] #maximum time of computation
+tauRise    = sys.argv[2]
+PeakField  = sys.argv[3]
+wavelength = sys.argv[4]
+CEP        = sys.argv[5]
+PulseDelay = sys.argv[6]
+ComputingT = sys.argv[7] #maximum time of computation
 
-tau = np.asfarray(tau); PeakField = np.asfarray(PeakField);   wavelength = np.asfarray(wavelength); 
-CEP = np.asfarray(CEP); PulseDelay = np.asfarray(PulseDelay); ComputingT = np.asfarray(ComputingT); 
+tau = np.asfarray(tau); tauRise = np.asfarray(tauRise); 
+PeakField = np.asfarray(PeakField);   wavelength = np.asfarray(wavelength); 
+CEP = np.asfarray(CEP); PulseDelay = np.asfarray(PulseDelay); 
+ComputingT = np.asfarray(ComputingT); 
 
 #print Header+"Pulse duration: "+str(tau)
 
-#print Header+"Computing time = "+str(float(ComputingT))
+print Header+"Computing time = "+str(float(ComputingT))
 tmin = 0.
 tmax = float(ComputingT)
 Number = 200
-t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1))
+t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()
-Envelope     = GeneratePulse(t, tau, PeakField, wavelength, CEP, tau, PulseDelay)
+Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP, tau, PulseDelay)
 OctopusReady = np.transpose(Envelope)
 
 #print OctopusReady
