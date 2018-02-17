@@ -13,8 +13,8 @@ source $OctopusSlabsSources/03-Bulk3D/functions.sh
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
 
-kPoints=16 # 8: convergence of density is fine, 24: convergence of currents is fine
-tauRise="5e-15" # SoftTopHat pulse rise time (in s)
+kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
+tauRise="2.666e-15" # SoftTopHat pulse rise time (in s) #Default: 2*pi/omega (1 cycle). 
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -88,9 +88,9 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  ../Pulses/GeneratePulse.py ${tau1} ${tauRise} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${tauRise} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
   mv Pulses.dat PulseA.dat
-  ../Pulses/GeneratePulse.py ${tau2} ${tauRise} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${tauRise} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."
