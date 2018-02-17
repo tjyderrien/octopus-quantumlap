@@ -33,8 +33,8 @@ do
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
 		${OctopusSlabsSources}/fixOutputFile.sh laser
-#		echo "Plotting density..."
-#               ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py
+		echo "Plotting density..."
+                gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 	fi
 	echo ""
 	echo "** NEXT FOLDER PLEASE :)"
