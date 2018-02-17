@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2017 T. J.-Y. Derrien
+# Copyright (C) 2013-2018 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ plotA=311; plotB=312; plotC=313;
 # plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
-SizeY = 15
+SizeY = 16
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
@@ -175,14 +175,21 @@ PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
 DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
-# Gaussian or SinSquared pulse? 
-PulseType_inp = LookUpStringInFile("../inp", "FieldColorA-SinSquared")
-if(PulseType_inp == ""):
-  print Header+"Assuming Gaussian pulse..."
+# Gaussian | SinSquared pulse | Soft Top Hat pulse?
+PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
+PulseType_value = PulseType_inp[49:] #this allows to have unique solution
+if("FieldColorA-Gaussian" in PulseType_value):
+  print Header+"** Info: Gaussian pulse detected..."
   PulseType="gaussian"
-else:
-  print Header+"Assuming Sin squared pulse..."
+elif ("FieldColorA-SinSquared" in PulseType_value):
+  print Header+"** Info: Squared Sinus pulse detected..."
   PulseType="SinSquared"
+elif ("FieldColorA-STH" in PulseType_value):
+  print Header+"** Info: Soft Top Hat pulse detected..."
+  PulseType="STH"
+else: 
+  print Header+"** Error: pulse type was not recognized."
+  exit()
 
 ##==== KELDYSH CALCULATION PULSE 1 ====
 ValenceBandMax = 5E28 
