@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2017 T. J.-Y. Derrien
@@ -40,7 +40,9 @@ def LookUpLatestLogFile(Filename): #{{{{
 #}}}
 
 ## Looks for a string in a file. 
+# Returns the full line where the element is found. 
 # If duplicate files are found, the most recent file is selected.
+# Stops as soon as first element is found, to avoid taking next lines
 def LookUpStringInFile(Filename, string): #{{{
   import glob
   newest = max(glob.iglob(Filename), key=os.path.getctime)

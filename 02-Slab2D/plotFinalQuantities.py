@@ -118,6 +118,7 @@ def plotEffectOfIntensity(PlottingTable):
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 2, IndexTable['PulseType']) #keeps only pulses of type STH (2)
 
   ## prints the current state of selection
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
