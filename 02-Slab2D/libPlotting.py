@@ -138,20 +138,24 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     ######## Identify the type of the pulse envelope 
 
     # Gaussian | SinSquared pulse | Soft Top Hat pulse?
-    PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
+    PulseType_inp   = LookUpStringInFile("../inp", "| \"FieldColorA-")
     PulseType_value = PulseType_inp[49:] #this allows to have unique solution
+    print Header+"** Debug info: PulseType_value = "+str(PulseType_value)
     if("FieldColorA-Gaussian" in PulseType_value):
       print Header+"** Info: Gaussian pulse detected..."
-      PulseType="gaussian"
+      PulseTypeName="gaussian"
     elif ("FieldColorA-SinSquared" in PulseType_value):
       print Header+"** Info: Squared Sinus pulse detected..."
-      PulseType="SinSquared"
+      PulseTypeName="SinSquared"
     elif ("FieldColorA-STH" in PulseType_value):
       print Header+"** Info: Soft Top Hat pulse detected..."
-      PulseType="STH"
+      PulseTypeName="STH"
     else:
       print Header+"** Error: pulse type was not recognized."
       exit()
+    print Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)
+    PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
+
 
 
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
@@ -333,7 +337,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI) ]
+	      float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI), PulseType ]
     
     print Header+"Stack contains:"
     print StackToAdd
@@ -392,7 +396,7 @@ def ExtractData(PlottingTable): #{{{
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi, PulseType = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -445,4 +449,6 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 #}}}
 
 IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18, 'Wpi': 19, 'PulseType': 20}
+
+PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2}
 
