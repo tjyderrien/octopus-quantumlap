@@ -229,7 +229,14 @@ elif(PulseType == "gaussian"):
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
   tmax =  2.*PulseDuration_SI + t0
-
+elif(PulseType == "STH"): 
+  t0   =  2.*PulseDuration_SI
+  tmin = -2.*PulseDuration_SI + t0
+  tmax =  2.*PulseDuration_SI + t0 #BUG
+else: 
+  print Header+"** Error: pulse type was not recognized. "
+  exit()
+  
 instants=np.arange(tmin,tmax,dtPrecision)
 
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 auto reading from octopus input file
