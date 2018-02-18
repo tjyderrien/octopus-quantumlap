@@ -571,9 +571,9 @@ if(QuantityOfInterest == "density"):
     print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
     print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
     print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
- 
-  timeKeldysh = instants
-  timeKeldyshB= instants
+  else: 
+    timeKeldysh  = instants
+    timeKeldyshB = instants
  
   if(PlottingMode=="doublepulse" and (PulseType!="STH")):
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
