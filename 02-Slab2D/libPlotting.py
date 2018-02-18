@@ -43,7 +43,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(path='*/*/td.general/'): #{{{
-  PlottingTable = np.empty((0,19))
+  PlottingTable = np.empty((0,20)) ##NOTE: how to define tau_pulse for 2 colors? 
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
@@ -314,7 +314,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(FinalEnergy_SI_final) ]
+	      float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI) ]
     
     print Header+"Stack contains:"
     print StackToAdd
@@ -364,14 +364,15 @@ def ExtractData(PlottingTable): #{{{
   Ne_final          =   PlottingTable[:,16]
   irreversibility   =   PlottingTable[:,17]
   Energy_max        =   PlottingTable[:,18]
+  Wpi               =   PlottingTable[:,19]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -423,5 +424,5 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18, 'Wpi': 19}
 
