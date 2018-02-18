@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2017 T. J.-Y. Derrien
+# Copyright (C) 2013-2018 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
 
 import libDatabase
+
+Header="[libDatabase] "
 
 def GetExcitationDatabase(path):
 #  path='*/*/td.general/'
