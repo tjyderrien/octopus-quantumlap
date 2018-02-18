@@ -20,9 +20,9 @@
 # Library of functions for collecting the generated octopus simulations from subfolders
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
 
-import libDatabase
+from libDatabase import *
 
-Header="[libDatabase] "
+#Header="[libDatabase] "
 
 def GetExcitationDatabase(path):
 #  path='*/*/td.general/'
