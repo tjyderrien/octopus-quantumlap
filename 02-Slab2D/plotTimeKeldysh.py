@@ -49,7 +49,7 @@ plotA=311; plotB=312; plotC=313;
 # plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
-SizeY = 16
+SizeY = 17
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
