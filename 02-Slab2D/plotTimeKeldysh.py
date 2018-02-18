@@ -567,7 +567,7 @@ if(QuantityOfInterest == "density"):
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
   ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
   
-  if(PulseType =! "STH"): #then we plot densities. 
+  if(PulseType != "STH"): #then we plot densities. 
     # Checking sizes of the data to plot. 
     if(len(timeKeldysh) != len(N_Gruzdev_SI)):
       print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
