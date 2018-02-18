@@ -553,10 +553,10 @@ if(QuantityOfInterest == "density"):
     plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
     if(PulseType == "STH"):
-      plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
+      plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r=', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-    plt.legend(loc=4)
+    plt.legend(loc=1)
     plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
@@ -577,16 +577,15 @@ if(QuantityOfInterest == "density"):
       timeKeldysh  = instants
       timeKeldyshB = instants
   
-    if(PlottingMode=="doublepulse"):
+    if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
       ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
     else: #single pulse case
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
-  elif(PulseType=="STH"): #if STH, we only plot w_PI. 
-    ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
-    #BUG: BI COLOR IS MISSING HERE. 
+  #elif(PulseType=="STH"): #if STH, we only plot w_PI. 
+    #ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
     
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
