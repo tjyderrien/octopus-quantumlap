@@ -20,9 +20,10 @@
 # Library of functions for collecting the generated octopus simulations from subfolders
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
 
-from libDatabase import *
+import libDatabase #have to separate to avoid conflicts
+from libPlotting import ListAllOutput
 
-#Header="[libDatabase] "
+Header="[libExcitationDatabase] "
 
 def GetExcitationDatabase(path):
 #  path='*/*/td.general/'
@@ -32,6 +33,7 @@ def GetExcitationDatabase(path):
   try:
     PlottingTable = loadtxt(DatabaseName, delimiter="\t")
   except:
+    print Header+"Not found. Rebuilding the index."
     PlottingTable = ListAllOutput(path)
 
     print Header+"Save the table to a file..."

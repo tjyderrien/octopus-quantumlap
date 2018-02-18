@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2017 T. J.-Y. Derrien
+# Copyright (C) 2013-2018 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
+  print Header+"Fetching all subfolders..."
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
     print Header+"** Info: entering folder: "+str(FolderName)
