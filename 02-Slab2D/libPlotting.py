@@ -43,7 +43,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(path='*/*/td.general/'): #{{{
-  PlottingTable = np.empty((0,20)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,21)) ##NOTE: how to define tau_pulse for 2 colors? 
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
@@ -135,6 +135,25 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
       print Header+"Info: Pulse 2 was not used. "
     #}}}
     
+    ######## Identify the type of the pulse envelope 
+
+    # Gaussian | SinSquared pulse | Soft Top Hat pulse?
+    PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
+    PulseType_value = PulseType_inp[49:] #this allows to have unique solution
+    if("FieldColorA-Gaussian" in PulseType_value):
+      print Header+"** Info: Gaussian pulse detected..."
+      PulseType="gaussian"
+    elif ("FieldColorA-SinSquared" in PulseType_value):
+      print Header+"** Info: Squared Sinus pulse detected..."
+      PulseType="SinSquared"
+    elif ("FieldColorA-STH" in PulseType_value):
+      print Header+"** Info: Soft Top Hat pulse detected..."
+      PulseType="STH"
+    else:
+      print Header+"** Error: pulse type was not recognized."
+      exit()
+
+
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
     FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
@@ -365,8 +384,9 @@ def ExtractData(PlottingTable): #{{{
   irreversibility   =   PlottingTable[:,17]
   Energy_max        =   PlottingTable[:,18]
   Wpi               =   PlottingTable[:,19]
+  PulseType         =   PlottingTable[:,20]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi, PulseType
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
@@ -424,5 +444,5 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18, 'Wpi': 19}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18, 'Wpi': 19, 'PulseType': 20}
 
