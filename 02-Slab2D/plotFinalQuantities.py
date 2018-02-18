@@ -35,7 +35,7 @@ import decimal
 from libPlottingSettings import *
 from libPlotting import *
 from libKeldysh import *
-import libDatabase
+from libDatabase import *
 from libExcitationDatabase import *
 
 Header="[plotFinalQuantities] "
@@ -64,10 +64,10 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/td.general/'
 
-try:
-  PlottingTable = GetExcitationDatabase(path1)
+PlottingTable = GetExcitationDatabase(path1)
+if(len(PlottingTable) > 1): 
   print Header+"** Info: capturing data from old PATH1."
-except: 
+else:
   PlottingTable = GetExcitationDatabase(path2)
   print Header+"** Info: capturing data from novel path PATH2."
 

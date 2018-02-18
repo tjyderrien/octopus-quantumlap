@@ -47,6 +47,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
+  print Header+"Fetching all subfolders..."
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
     print Header+"** Info: entering folder: "+str(FolderName)
