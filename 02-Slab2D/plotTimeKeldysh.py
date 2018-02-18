@@ -553,7 +553,7 @@ if(QuantityOfInterest == "density"):
     plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
     if(PulseType == "STH"):
-      plt.plot(timeNe, PeakWpi_Gruzdev, 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
+      plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     plt.legend(loc=4)
