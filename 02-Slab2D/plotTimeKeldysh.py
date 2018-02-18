@@ -585,7 +585,7 @@ if(QuantityOfInterest == "density"):
     else: #single pulse case
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
   elif(PulseType=="STH"): #if STH, we only plot w_PI. 
-    ax2.plot(timeKeldysh*unitx,  PeakWpi_Gruzdev, 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
+    ax2.plot(time*unitx,  PeakWpi_Gruzdev, 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
     #BUG: BI COLOR IS MISSING HERE. 
     
 elif (QuantityOfInterest == "number"):
