@@ -566,25 +566,28 @@ if(QuantityOfInterest == "density"):
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
   ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
-
-  if(len(timeKeldysh) != len(N_Gruzdev_SI)):
-    print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
-    print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
-    print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
-  else: 
-    timeKeldysh  = instants
-    timeKeldyshB = instants
- 
-  if(PlottingMode=="doublepulse" and (PulseType!="STH")):
-    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-    ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
-    #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
-  else: 
-    if(PulseType!="STH"):
+  
+  if(PulseType =! "STH"): #then we plot densities. 
+    # Checking sizes of the data to plot. 
+    if(len(timeKeldysh) != len(N_Gruzdev_SI)):
+      print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
+      print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
+      print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
+    else: 
+      timeKeldysh  = instants
+      timeKeldyshB = instants
+  
+    if(PlottingMode=="doublepulse"):
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+      ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+      #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
+    else: #single pulse case
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
-    elif(PulseType=="STH"):
-      ax2.plot(timeKeldysh*unitx,  PeakWpi_Gruzdev, 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
+  elif(PulseType=="STH"): #if STH, we only plot w_PI. 
+    ax2.plot(timeKeldysh*unitx,  PeakWpi_Gruzdev, 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
+    #BUG: BI COLOR IS MISSING HERE. 
+    
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
