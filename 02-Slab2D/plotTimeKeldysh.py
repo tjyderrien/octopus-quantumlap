@@ -547,7 +547,7 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  ax2.legend(loc=2)
+  ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
@@ -556,7 +556,7 @@ if(QuantityOfInterest == "density"):
       plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-    plt.legend(loc=2)
+    #plt.legend(loc=3)
     plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
