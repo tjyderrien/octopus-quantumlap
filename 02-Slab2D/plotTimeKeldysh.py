@@ -252,30 +252,48 @@ elif(PulseType == "gaussian"):
   IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(instants, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
   FieldEnvelope2     = Keldysh.IntensityToField(IntensityEnvelope2)
   #TODO: add double-gaussian-pulses here
+elif(PulseType == "STH"): 
+  #here, we don't compute the density but just output the W_PI, because there is not analytical solution for dNe/dt. 
+  #As a result, we only put one instant into the pulse to obtain a scalar at the peak intensity. 
+  IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0)
+  FieldEnvelope      = Keldysh.IntensityToField(IntensityEnvelope)
+  IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
+  FieldEnvelope2     = Keldysh.IntensityToField(IntensityEnvelope2)
+else: 
+  print Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized."
+  exit()
   
-## Computing final excited electron density for Pulse 1
-print Header+"Computing Keldysh for Pulse 1: "
-timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
+if(PulseType == "gaussian" or PulseType=="SinSquared"):
+# In that case, we do have analytical solutions for 1 color. 
+  ## Computing final excited electron density for Pulse 1
+  print Header+"Computing Keldysh for Pulse 1: "
+  timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
 
-## Computing final excited electron density for Pulse 2
-if(PlottingMode=="doublepulse"):
-  print Header+"Computing Keldysh for Pulse 2: "
-  try: 
-    timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
-  except: 
-    N_KeldyshB_SI = N_Keldysh_SI * 0e0
-    N_GruzdevB_SI = N_Gruzdev_SI * 0e0
+  ## Computing final excited electron density for Pulse 2
+  if(PlottingMode=="doublepulse"):
+    print Header+"Computing Keldysh for Pulse 2: "
+    try: 
+      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+    except: 
+      N_KeldyshB_SI = N_Keldysh_SI * 0e0
+      N_GruzdevB_SI = N_Gruzdev_SI * 0e0
 
-  ##==== KELDYSH CALCULATION FOR BOTH PULSES =====
-  print Header+"Preparing double pulse for Keldysh..."
-#   PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-#   PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
+    ##==== KELDYSH CALCULATION FOR BOTH PULSES =====
+    print Header+"Preparing double pulse for Keldysh..."
+  #   PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+  #   PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
 
-  if(wavelength_SI == wavelengthB_SI):
-#    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-    timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
-  else:
-    print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
+    if(wavelength_SI == wavelengthB_SI):
+  #    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
+      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+    else:
+      print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
+elif (PulseType == "STH"): 
+  # For this case, we only output the w_pi. 
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
+else: 
+  print Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse."
+  exit()
 
 ##==== Prepare plotting of N_EX (projection method)  ====
 timeNe = np.asfarray(Ne[:,1])
@@ -534,6 +552,8 @@ if(QuantityOfInterest == "density"):
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
+    if(PulseType == "STH"):
+      plt.plot(timeNe, PeakWpi_Gruzdev, 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     plt.legend(loc=4)
@@ -559,7 +579,7 @@ if(QuantityOfInterest == "density"):
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
     ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
-    ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$')
+    #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
   else: 
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
@@ -584,21 +604,21 @@ plt.xlabel('Time (fs)')
 # plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 
 ## ============ PLOTTING ENERGIES ======
-# ax3 = plt.subplot(plotC)
-# plt.xlim((xmin,xmax))
-# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
-# plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
-# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
+ax3 = plt.subplot(plotC)
+plt.xlim((xmin,xmax))
+plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
+plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
+plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
 
-# # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
-# plt.xlabel('Time (fs)')
-# plt.ylabel('Energy [Ha]')
-# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-# plt.legend(loc=2)
-# ## Plotting vertical bars for comparison A(t) and Ne(t)
-# if(PlotGrid==1):
-#   for xc in xposition:
-#     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
+# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
+plt.xlabel('Time (fs)')
+plt.ylabel('Energy [Ha]')
+plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+plt.legend(loc=2)
+## Plotting vertical bars for comparison A(t) and Ne(t)
+if(PlotGrid==1):
+  for xc in xposition:
+    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 # ax4 = plt.subplot(plotD)
