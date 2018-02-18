@@ -255,10 +255,10 @@ elif(PulseType == "gaussian"):
 elif(PulseType == "STH"): 
   #here, we don't compute the density but just output the W_PI, because there is not analytical solution for dNe/dt. 
   #As a result, we only put one instant into the pulse to obtain a scalar at the peak intensity. 
-  IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0)
-  FieldEnvelope      = Keldysh.IntensityToField(IntensityEnvelope)
-  IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
-  FieldEnvelope2     = Keldysh.IntensityToField(IntensityEnvelope2)
+  #IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0) #BUG: we just need the peak amplitude of the field
+  FieldEnvelope      = Efield_amplitude_SI #Keldysh.IntensityToField(IntensityEnvelope)
+  #IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
+  FieldEnvelope2     = Efield2_norm_SI #Keldysh.IntensityToField(IntensityEnvelope2)
 else: 
   print Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized."
   exit()
@@ -575,13 +575,16 @@ if(QuantityOfInterest == "density"):
   timeKeldysh = instants
   timeKeldyshB= instants
  
-  if(PlottingMode=="doublepulse"):
+  if(PlottingMode=="doublepulse" and (PulseType!="STH")):
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
     ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
     ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
     #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
   else: 
-    ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+    if(PulseType!="STH"):
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+    elif(PulseType=="STH"):
+      ax2.plot(timeKeldysh*unitx,  PeakWpi_Gruzdev, 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
 elif (QuantityOfInterest == "number"):
   plt.ylabel('Number of exc. electrons')
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
