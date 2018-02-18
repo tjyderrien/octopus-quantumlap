@@ -556,7 +556,7 @@ if(QuantityOfInterest == "density"):
       plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-    plt.legend(loc=1)
+    plt.legend(loc=2)
     plt.ylabel('$w_{PI}(t)$')
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
