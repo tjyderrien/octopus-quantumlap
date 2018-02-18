@@ -138,16 +138,17 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     ######## Identify the type of the pulse envelope 
 
     # Gaussian | SinSquared pulse | Soft Top Hat pulse?
-    PulseType_inp   = LookUpStringInFile("../inp", "| \"FieldColorA-")
-    PulseType_value = PulseType_inp[49:] #this allows to have unique solution
+#    del PulseType_inp, PulseType_value
+    PulseType_inp   = LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
+    PulseType_value = PulseType_inp[48:] #this allows to have unique solution
     print Header+"** Debug info: PulseType_value = "+str(PulseType_value)
-    if("FieldColorA-Gaussian" in PulseType_value):
+    if("Gaussian" in PulseType_value):
       print Header+"** Info: Gaussian pulse detected..."
       PulseTypeName="gaussian"
-    elif ("FieldColorA-SinSquared" in PulseType_value):
+    elif ("SinSquared" in PulseType_value):
       print Header+"** Info: Squared Sinus pulse detected..."
       PulseTypeName="SinSquared"
-    elif ("FieldColorA-STH" in PulseType_value):
+    elif ("STH" in PulseType_value):
       print Header+"** Info: Soft Top Hat pulse detected..."
       PulseTypeName="STH"
     else:
@@ -155,6 +156,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
       exit()
     print Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
+    del PulseType_inp, PulseType_value
 
 
 
