@@ -108,6 +108,7 @@ pplt.figure(figsize=(SizeX,SizeY))
 
 ## We change strategy: now we plot all the available data based on the number of parameters we have detected. The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
 def plotEffectOfIntensity(PlottingTable):
+  PlotVirtualExcitation = False
   print "#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
   PlottingSinglePulses = PlottingTable #get the full database
