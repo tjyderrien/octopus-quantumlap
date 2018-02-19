@@ -106,10 +106,11 @@ SizeY = 10.
 
 pplt.figure(figsize=(SizeX,SizeY))
 
-## We change strategy: now we plot all the available data based on the number of parameters we have detected. The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
-def plotEffectOfIntensity(PlottingTable):
+## We change strategy: now we plot all the available data based on the number of parameters we have detected. 
+# The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
+def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15):
   PlotVirtualExcitation = False
-  print "#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
+  print "#====== Plot: SINGLE PULSE, VARIOUS WAVELENGTHS, SAME PULSE DURATION, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
   PlottingSinglePulses = PlottingTable #get the full database
   PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
@@ -120,9 +121,10 @@ def plotEffectOfIntensity(PlottingTable):
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 2, IndexTable['PulseType']) #keeps only pulses of type STH (2)
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of type STH (2)
 
   ## prints the current state of selection
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
   # Simple pulse, single color
   pplt.figure()
@@ -186,7 +188,100 @@ def plotEffectOfIntensity(PlottingTable):
   ax12.legend(loc=4, borderaxespad=0.)
   
   # Saving the plot
-  ExportName = "EffectOfWavelength"
+  ExportName = "EffectOfWavelength"+"-"+pulseDuration+"fs"
+  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
+  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
+  print Header+"** Saved: Metaplot-SinglePulse-SingleColor-EffectOfWavelength.png."
+  #if(ShowFinalPlot==1):
+    #pplt.show()
+
+  del ax1, ax12, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
+  if(PlotVirtualExcitation): 
+    del ax2, ax22
+#}}}
+
+## We change strategy: now we plot all the available data based on the number of parameters we have detected. The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
+def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9):
+  PlotVirtualExcitation = False
+  print "#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
+  #Filter: double pulses, same wavelengths, same polarization
+  PlottingSinglePulses = PlottingTable #get the full database
+  PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+  #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 2, IndexTable['PulseType']) #keeps only pulses of type STH (2)
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
+
+  ## prints the current state of selection
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+
+  # Simple pulse, single color
+  pplt.figure()
+  #if(len(wavelength_uniq) == 1): #{{{ #single color simulations
+  # Complexity level: 1
+  
+  ax1 = pplt.subplot(plotA)
+  
+  pplt.title('Density as function of peak intensity')
+  # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
+  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  for pulse_value in pulses_uniq: #{{{
+    # select the corresponding wavelength in results
+    PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
+
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+
+    pplt.plot(FieldToIntensity(Efield1), Ne_final, 'or', label=r'$N_{exc}$, $\lambda=$'+str(round(pulse_value*1E15))+' fs')
+  #}}}
+  ax1.legend(loc=2, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
+  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
+  pplt.ylabel(r'Final exc. density (m$^{-3}$)')
+#  pplt.ylim((1E16,4.*5e28))
+  ax1.set_xscale('log')
+  ax1.set_yscale('log')
+  
+  ax12 = ax1.twinx()
+  for pulse_value in pulses_uniq: #{{{
+    # select the corresponding wavelength in results
+    PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
+
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+
+    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ro') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+  #}}}
+  ax12.set_yscale('log')
+  pplt.ylabel('$w_{PI}$ (m$^{-3}$.s$^{-1}$)')
+  if(PlotVirtualExcitation):
+    ax2 = pplt.subplot(plotB)
+    pplt.title('Virtual exc. factor')
+    pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
+    pplt.xlabel(r'Intensity (W/m$^2$)')
+    pplt.ylabel('Virtual exc. factor')
+    pplt.ylim((0,1))
+    ax2.set_xscale('log')
+    ax22 = ax2.twinx()
+    for pulse_value in pulses_uniq:
+      # select the corresponding wavelength in results
+      PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
+
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+      pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
+    pplt.ylabel('Adiabadicity factor')
+    #pplt.ylim((0,1))
+    ax22.set_yscale('log')
+      
+    # ax2.set_yscale("log")
+    ax2.legend(loc=2, borderaxespad=0.)
+    # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+    ax22.legend(loc=1, borderaxespad=0.)
+  ax12.legend(loc=4, borderaxespad=0.)
+  
+  # Saving the plot
+  ExportName = "EffectOfPulseDuration-"+str(pulse_value*1E15)+"fs"
   pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: Metaplot-SinglePulse-SingleColor-EffectOfWavelength.png."
@@ -211,7 +306,7 @@ def plotEffectOfCEP(PlottingTable):
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC. 
   #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0.
 
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
   # Complexity level: 2
 
@@ -292,7 +387,7 @@ def plotEffectOfFrozenXC(PlottingTable):
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq. 
   #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['CEP1']) #keeps only CEP=0. 
 
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
@@ -403,7 +498,7 @@ def EffectOfWavelength(PlottingTable):
   ## TODO: check if CEP could count at smaller wavelength. 
 
   print Header+"Available data: "
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
 
@@ -565,6 +660,7 @@ def EffectOfDoublePulse():
   #pplt.show()
 
 plotEffectOfIntensity(PlottingTable) #validated
+plotEffectOfIntensity_PulseDuration(PlottingTable) #validated
 #plotEffectOfCEP(PlottingTable)
 # plotEffectOfFrozenXC(PlottingTable)
 
