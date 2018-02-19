@@ -101,8 +101,8 @@ else: #if(EnableDoublePulseAnalysis==1):
   plotA=221; plotB=222; plotC=223; plotD=224;
 
 # Size of main canvas
-SizeX = 8.
-SizeY = 17.
+SizeX = 16.
+SizeY = 10.
 
 pplt.figure(figsize=(SizeX,SizeY))
 
