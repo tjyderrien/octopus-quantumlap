@@ -88,8 +88,9 @@ if(PlottingMode == "auto"):
     
     if(Efield2_SI > 1E0): #double pulse enabled
       PlottingMode="doublepulse" #priority 1
-    elif(Time_AU_to_SI(LastNexcLineArray[1]) > 100e-15 ): #latest time of simulation is longer than 100 fs
-    # elif(MoveIonClean == "yes"):
+    # elif(Time_AU_to_SI(LastNexcLineArray[1]) > 100e-15 ): #latest time of simulation is longer than 100 fs
+#TODO: nonthermalmelting is meaningful only if MoveIon=yes... 
+    elif(MoveIonClean == "yes"):
       PlottingMode="nonthermalmelting" #priority 2
     else: 
       PlottingMode="keldysh" #priority 3
