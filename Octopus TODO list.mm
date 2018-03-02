@@ -239,7 +239,7 @@
 </node>
 </node>
 </node>
-<node COLOR="#0033ff" CREATED="1494434475471" ID="ID_590409747" MODIFIED="1494434478707" POSITION="left" TEXT="Current distribution of data">
+<node COLOR="#0033ff" CREATED="1494434475471" ID="ID_590409747" MODIFIED="1519985251088" POSITION="left" TEXT="Available data results">
 <edge STYLE="sharp_bezier" WIDTH="8"/>
 <font NAME="SansSerif" SIZE="18"/>
 <node COLOR="#00b439" CREATED="1494434479144" ID="ID_833580574" MODIFIED="1494434480309" TEXT="Hydra">
@@ -287,6 +287,16 @@
 <node COLOR="#00b439" CREATED="1494434482145" ID="ID_957214941" MODIFIED="1494434484326" TEXT="EOS">
 <edge STYLE="bezier" WIDTH="thin"/>
 <font NAME="SansSerif" SIZE="16"/>
+</node>
+<node COLOR="#00b439" CREATED="1519985257713" ID="ID_1875309700" MODIFIED="1519985259939" TEXT="Tapes">
+<edge STYLE="bezier" WIDTH="thin"/>
+<font NAME="SansSerif" SIZE="16"/>
+<node COLOR="#990000" CREATED="1519985261741" ID="ID_1440872134" MODIFIED="1519985265517" TEXT="BeforeDracoCrash">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
+<node COLOR="#990000" CREATED="1519985265808" ID="ID_1315922745" MODIFIED="1519985269181" TEXT="AfterDracoCrash">
+<font NAME="SansSerif" SIZE="14"/>
+</node>
 </node>
 </node>
 </node>
