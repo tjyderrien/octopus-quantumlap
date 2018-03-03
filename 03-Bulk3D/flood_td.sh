@@ -16,8 +16,8 @@ echo "** This file uses run_td.sh."
 echo "** DRY-RUN: run_td.sh contains a dry-run for safety."
 
 echo "Note: In this file, you can define all laser pulses of the run you may like to submit."
-#TODO: develop of version for the ground state, with mesh and vacuum convergence. 
 
+## ========= COMMON PARTS =============
 # Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
@@ -30,7 +30,6 @@ MeshSizeX="0.23" # 0.20"
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-PulseShape="STH" #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
@@ -38,33 +37,6 @@ TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-pa
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
-# echo "Defining laser parameters..."
-# Laser parameters for KELDYSH
-# lambda1="3100e-9" #HAMED wavelength
-
-## ZHUKOV WAVELENGTHS
-lambda1="800e-9 1000e-9 1200e-9" # 1400e-9 1600e-9 1800e-9 2000e-9" #BICOLOR SEQUENCE
-lambda2="515e-9 700e-9 900e-9 1030e-9 1060e-9 1100e-9 1300e-9 1500e-9 1700e-9 1900e-9 2100e-9"
-# lambda2="800e-9"
-# lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
-# lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
-
-# Laser parameters for MERDJI
-# lambda1="3100e-9"
-# lambda2="1550e-9" #detuned 2.18: 1422e-9
-# lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
-
-# Field amplitude
-# Efield1="5e9"
-Efield1="9e9"
-# Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-# Efield2="0e9"
-Efield2="9e9"
-
-# Pulse duration
- # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau1="30e-15"
-tau2="30e-15"
 # Phase
 CEP1="0.0" #5 0.333333333 0.25 0.16666667" #will be multiplied by pi in script file
 CEP2="0.0" # 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
@@ -72,6 +44,40 @@ CEP2="0.0" # 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
 delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+
+## ========== ZHUKOV LASER PARAMETERS ============
+PulseShape="STH" #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
+
+lambda1="800e-9 1000e-9 1200e-9" # 1400e-9 1600e-9 1800e-9 2000e-9" #BICOLOR SEQUENCE
+# lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
+# lambda2="800e-9"
+lambda2="515e-9 700e-9 900e-9 1030e-9 1060e-9 1100e-9 1300e-9 1500e-9 1700e-9 1900e-9 2100e-9"
+# lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
+
+# Field amplitude
+Efield1="5e9" #ZHUKOV
+# Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield2="5e9"
+
+# Pulse duration
+tau1="20e-15"
+# tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
+tau2="20e-15"
+
+# ============ MERDJI LASER PARAMETERS =========
+# PulseShape="SinSquared" 
+
+# lambda1="3100e-9" #HAMED wavelength
+# lambda2="1550e-9" #detuned 2.18: 1422e-9
+# lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
+
+## Field amplitude
+# Efield1="9e9" #MERDJI
+# Efield2="9e9"
+
+## Pulse duration
+# tau1="30e-15"
+# tau2="30e-15"
 
 for iTheoryLevel in ${TheoryLevel};
 do
