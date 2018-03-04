@@ -20,7 +20,7 @@
 # Library of functions for collecting the generated octopus simulations from subfolders
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
 
-import libDatabase #have to separate to avoid conflicts
+from libDatabase import * 
 from libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
@@ -30,17 +30,19 @@ def GetExcitationDatabase(path):
   DatabaseName = 'Database.csv'
 
   print Header+"Attempting to load previous results..."
-  try:
-    PlottingTable = loadtxt(DatabaseName, delimiter="\t")
-  except:
-    print Header+"Not found. Rebuilding the index."
-    PlottingTable = ListAllOutput(path)
+  #try:
+  PlottingTable = loadtxt(DatabaseName, delimiter="\t")
+  print PlottingTable
+  print Header+"Success."
+  #except:
+    #print Header+"** Warning: Not found. Rebuilding the index."
+    #PlottingTable = ListAllOutput(path)
 
-    print Header+"Save the table to a file..."
-    try:
-      libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-    except:
-      print "** Error when writing the database.csv."
-      exit()
+    #print Header+"Save the table to a file..."
+    #try:
+      #libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+    #except:
+      #print "** Error when writing the database.csv."
+      #exit()
 
   return PlottingTable
