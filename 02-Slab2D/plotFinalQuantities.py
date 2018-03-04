@@ -23,7 +23,7 @@
 ## IMPORT LIBRARIES
 import numpy as np
 from numpy import genfromtxt, loadtxt, chararray
-# from scipy import interpolate
+#from scipy import interpolate
 import matplotlib.pyplot as pplt
 # from pylab import *
 import sys
@@ -33,6 +33,9 @@ import matplotlib as mp
 import matplotlib.pyplot as plt
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
+import mpl_toolkits.mplot3d as mplt 
+from mpl_toolkits.mplot3d import Axes3D
+from scipy.interpolate import interp2d
 
 # import libKeldysh as Keldysh
 #from libAtomicUnits import *
@@ -114,7 +117,7 @@ else: #if(EnableDoublePulseAnalysis==1):
 SizeX = 16.
 SizeY = 10.
 
-pplt.figure(figsize=(SizeX,SizeY))
+#pplt.figure(figsize=(SizeX,SizeY))
 
 ## We change strategy: now we plot all the available data based on the number of parameters we have detected. 
 # The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
@@ -405,7 +408,7 @@ def plotEffectOfFrozenXC(PlottingTable):
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
 
-
+  pplt.figure()
   ax1 = pplt.subplot(plotA)
   pplt.title('Final density as function of peak intensity')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
@@ -615,7 +618,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable):
   print Header+"Available data: "
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
-  plt.figure(figsize=(SizeX,SizeY)) #new figure
+  #plt.figure(figsize=(SizeX,SizeY)) #new figure
   DensityMax2D = np.empty((0,3)) #preparing the 2D plot
   #print DensityMax2D
   #ax1 = pplt.subplot(111)
@@ -639,7 +642,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable):
   # Stack is built. Export, show and plot on a heat map. 
   print "** Exporting the sub-plot2D: Ne_final(wavelength, Field)... Useful to visualize available data with GNUplot. "
   ExportToTxt(DensityMax2D, "Wavelength-Field-NeFinal.csv")
-  
+  plt.figure()
   #CS = plt.imshow(DensityMax2D, cmap=plt.cm.Blues) #WORKS, but data are too small (no interpolation)
   CS = plt.contourf(DensityMax2D, cmap=plt.cm.Blues) #WORKS, but there are degenerated data + not enough data for interpolation. 
   #CS = plt.contourf(1E9*np.transpose(DensityMax2D[:,0]),1E9*DensityMax2D[:,1],np.log10(DensityMax2D), cmap=plt.cm.RdBu_r) #WORKS
@@ -681,7 +684,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable, PulseD
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
-  
+  #plt.figure()
   print Header+"Total number of datasets: "+str(len(set(wavelength_uniq))*len(set(wavelength2_uniq)))
   for Color1 in wavelength_uniq: #selecting color1
     PlottingDoublePulses_SelectedColor1 = FilterDatabase(PlottingDoublePulses, Color1, IndexTable['wavelengths1'])
@@ -707,6 +710,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable, PulseD
       
       # If the size is big enough, let's make a plot.
       if(len(Ne_final) >= 2):
+        plt.figure()
         plt.title(r'$N_{\mbox{exc}}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
         CS = plt.contourf(DensityMax2D, cmap=plt.cm.Blues)
         plt.colorbar(CS)
@@ -725,7 +729,6 @@ def plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable, PulseD
 ##### 2D PLOTTING Density(wavelength1, wavelength2) for one single field value? 
 #Mode 2: fixed fields, same pulse durations, then plot Ne_final(Color1, Color2)
 def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, FieldStrength, PulseDuration=20e-15, Tolerance=0.01): #{{{
-  
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -757,32 +760,90 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
       
       print "Color1: "+str(Color1)+" m, Color2: "+str(Color2)+" m."
       if(len(Ne_final) >= 1):
-        ToBeAdded=np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
+        ToBeAdded=np.array([wavelengths1[0], wavelengths2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
         print ToBeAdded
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
-        #print "Cleaning..."
         del ToBeAdded
         
   # Stack is built. Export, show and plot on a heat map. 
   print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field)..."
   print "** Info: useful to visualize available data with GNUplot. "
   filename = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-NeFinal"
-  ExportToTxt(DensityMax2D, filename+".csv")
-      
+  
+  # Sorting the data before storing and plotting
+  DensityMax2Dsorted = DensityMax2D[np.lexsort((DensityMax2D[:,2], DensityMax2D[:,1], DensityMax2D[:,0]))]
+  #DensityMax2D.sort(axis=1) ##WARNING: THIS IS OUT OF CONTROL. DO NOT USE. 
+  
+  ExportToTxt(DensityMax2Dsorted, filename+".csv") #this is voluntarily unsorted to avoid damage
+  
+  #print "Sorted matrix?"
+  #print DensityMax2Dsorted
+  BrutX = 1E9*DensityMax2Dsorted[:,0]
+  BrutY = 1E9*DensityMax2Dsorted[:,1]
+  BrutZ = DensityMax2Dsorted[:,2]
+  print len(BrutX)
+  print len(BrutY)
+  print len(BrutZ)
+  
+  X=list(set(BrutX))
+  Y=list(BrutY) ##BUG: we have degeneracy, investigate why and remove the problem. 
+  Z=DensityMax2Dsorted
+  #print X
+  #print Y
+  
+  #print len(X)
+  #print len(Y)
+  YY, XX = np.meshgrid(X, Y)
+  #print np.shape(XX)
+  #print np.shape(YY)
+  #print np.shape(DensityMax2Dsorted)
+ 
+  #print DensityMax2Dsorted
+  #print np.shape(XX)
+  #DensityMax2DsortedShape = np.reshape(DensityMax2Dsorted, np.shape(XX))
+  
+  # Interpolation to smooth the picture and colorize it more softly
+  # BUG: function interp2d does not work! 
+  #MeshPrecision=50
+  #DensityMax2D_interp = interp2d(BrutX, BrutY, BrutZ)
+  #Xi = np.arange(np.min(BrutX), np.max(BrutX), (np.max(BrutX)-np.min(BrutX))/MeshPrecision)
+  #Yi = np.arange(np.min(BrutY), np.max(BrutY), (np.max(BrutY)-np.min(BrutY))/MeshPrecision)
+  #YYi, XXi = np.meshgrid(Xi, Yi)
+  ##print XXi
+  #BicolorNeFinal=DensityMax2D_interp(Xi, Yi)
+  
   # If the size is big enough, let's make a plot.
   if(len(DensityMax2D) >= 2):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
     plt.title(r'$N_{\mbox{exc}}(\lambda_1,\lambda_2)$, $E_{1,2}=$'+str(FieldStrength*1E-9)+' V/nm')
     plt.xlabel(r'Wavelength $\lambda_1$ (nm)')
     plt.ylabel(r'Wavelength $\lambda_2$ (nm)')
-    CS = plt.contourf(DensityMax2D, cmap=plt.cm.Blues)
-    plt.colorbar(CS)
+    #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
+    #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
+    #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS
+    #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+    #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+    CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues) #WORKS
+    
+    #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
+    #print np.shape(Xi), np.shape(Yi)
+    #print np.shape(XXi), np.shape(YYi)
+    #print np.shape(BicolorNeFinal)
+    
+    #CS = ax.scatter(XXi, YYi, BicolorNeFinal) #, cmap=plt.cm.Blues) #WORKS
+    
+    #CS = ax.plot_trisurf(Xi, Yi, BicolorNeFinal, cmap=plt.cm.Spectral)
+    
+    #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
+    #plt.colorbar(CS)
   
     plt.savefig(filename+'.eps')
     plt.savefig(filename+'.png')
-    if(ShowFinalPlot==1):
-      plt.show()
+    #if(ShowFinalPlot==1):
+    plt.show()
   
-  del DensityMax2D 
+  del DensityMax2D, DensityMax2Dsorted
 #}}}
 
 # VALID but some degeneracies !
