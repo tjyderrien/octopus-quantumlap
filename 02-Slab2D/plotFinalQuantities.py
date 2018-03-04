@@ -43,12 +43,12 @@ from scipy.interpolate import interp2d
 from libPlotting import *
 from libKeldysh import *
 from libDatabase import *
-from libExcitationDatabase import *
+import libExcitationDatabase
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
@@ -77,7 +77,7 @@ if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mo
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/td.general/'
 
-PlottingTable = GetExcitationDatabase(path2) #attempts to write a new DB. 
+PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #attempts to write a new DB. 
 #if(len(PlottingTable) > 1): 
   #print Header+"** Info: capturing data from old PATH1." #BUG: destroys the previous dataase! 
 #else:
@@ -711,7 +711,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable, PulseD
       # If the size is big enough, let's make a plot.
       if(len(Ne_final) >= 2):
         plt.figure()
-        plt.title(r'$N_{\mbox{exc}}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
+        plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
         CS = plt.contourf(DensityMax2D, cmap=plt.cm.Blues)
         plt.colorbar(CS)
       
@@ -816,7 +816,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   if(len(DensityMax2D) >= 2):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    plt.title(r'$N_{\mbox{exc}}(\lambda_1,\lambda_2)$, $E_{1,2}=$'+str(FieldStrength*1E-9)+' V/nm')
+    plt.title(r'$N_{exc}(\lambda_1,\lambda_2)$, $E_{1,2}=$'+str(FieldStrength*1E-9)+' V/nm')
     plt.xlabel(r'Wavelength $\lambda_1$ (nm)')
     plt.ylabel(r'Wavelength $\lambda_2$ (nm)')
     #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
@@ -840,8 +840,8 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   
     plt.savefig(filename+'.eps')
     plt.savefig(filename+'.png')
-    #if(ShowFinalPlot==1):
-    plt.show()
+    if(ShowFinalPlot==1):
+      plt.show()
   
   del DensityMax2D, DensityMax2Dsorted
 #}}}
