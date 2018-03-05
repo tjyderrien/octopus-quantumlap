@@ -534,8 +534,9 @@ plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
-ax12.yaxis.label.set_color(plot_current.get_color())
-ax12.spines["right"].set_edgecolor(plot_current.get_color())
+ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
+ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
+ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
