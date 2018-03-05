@@ -524,7 +524,7 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+plot_field = ax1.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
@@ -533,15 +533,15 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
-plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
+plot_current = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
 
 # Building the shared legend for subfig1
-plot1   = plot_field+plot_current
+plot1   = [plot_field, plot_current]
 labels1 = [l.get_label() for l in plot1]
-ax.legend(plots1, labels1, loc=0)
+ax.legend(plot1, labels1, loc=0)
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
