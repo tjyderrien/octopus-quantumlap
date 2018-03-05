@@ -541,7 +541,7 @@ ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics 
 # Building the shared legend for subfig1
 plot1   = [plot_field, plot_current]
 labels1 = [l.get_label() for l in plot1]
-ax.legend(plot1, labels1, loc=0)
+ax1.legend(plot1, labels1, loc=0)
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
