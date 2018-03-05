@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
 
+rc('mathtext', default='regular')
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'16'})
 ## for Palatino and other serif fonts use:
 rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'18'})
