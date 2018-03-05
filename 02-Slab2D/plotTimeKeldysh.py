@@ -622,7 +622,7 @@ plt.legend(loc=1)
 # Building the shared legend for subfig1
 plot2   = [plot_density, plot_wpi_av, plot_wpi_approx, plot_wpi_Gruzdev]
 labels2 = [l.get_label() for l in plot2]
-ax2.legend(plot2, labels2, loc=3)
+ax2.legend(plot2, labels2, loc=2)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
