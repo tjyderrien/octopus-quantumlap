@@ -469,8 +469,11 @@ elif(observable_proj.max() < ymax / 5.):
 elif(observable_proj.max() > ValenceBandMax):
   ymax=4.*ymax;
 # Managing stepwise maximum for Y2
-ymax2=5E0; ymax2value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
-ymax2valueMax = ymax2value.max()
+ymax2=5E0; 
+
+ymax11value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
+ymax11valueMax = ymax11value.max()
+ymax12valueMax = CurrentX.max()
 #if(ymax2valueMax < ymax2 / 100.):
   #ymax2 = ymax2 / 100.
 #elif(ymax2valueMax < ymax2 / 10.):
@@ -512,7 +515,7 @@ plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decima
 plt.ylabel('Field amplitude (a.u.)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
-plt.ylim((-ymax2valueMax,ymax2valueMax))
+plt.ylim((-ymax11valueMax,ymax11valueMax))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
 ### Showing vector potential is only useful to observe shift with materials excitation. 
@@ -527,6 +530,7 @@ plt.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A o
 #let's plot current in a second axis
 ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
+plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
