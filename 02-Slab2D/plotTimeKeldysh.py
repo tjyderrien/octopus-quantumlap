@@ -533,7 +533,7 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
-plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
+plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
@@ -567,18 +567,21 @@ if(QuantityOfInterest == "density"):
     plt.ylabel('Density exc. el. (a.u.)')
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
-  plt.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  ax2.legend(loc=3)
+  plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+  #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
-    plt.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-    plt.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
+    plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
+    plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b--', label=r'$\widetilde{w_{PI}}=N_{exc}/2\tau$')
     if(PulseType == "STH"):
-      plt.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
+      plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'r--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     #plt.legend(loc=3)
     plt.ylabel('$w_{PI}(t)$')
+    ax22.yaxis.label.set_color(plot_wpi_av.get_color()) #colorizes the label
+    ax22.spines["right"].set_edgecolor(plot_wpi_av.get_color()) #colorizes the axis
+    ax22.tick_params(axis='y', colors=plot_wpi_av.get_color()) #colorizes the tics and numbers
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
@@ -588,7 +591,8 @@ if(QuantityOfInterest == "density"):
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
   ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
   
-  if(PulseType != "STH"): #then we plot densities. 
+  ## If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
+  if(PulseType != "STH"): #then we plot performed predictions. 
     # Checking sizes of the data to plot. 
     if(len(timeKeldysh) != len(N_Gruzdev_SI)):
       print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
@@ -615,6 +619,10 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+# Building the shared legend for subfig1
+plot2   = [plot_density, plot_wpi_av, plot_wpi_approx, plot_wpi_Gruzdev]
+labels2 = [l.get_label() for l in plot2]
+ax2.legend(plot2, labels2, loc=3)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
