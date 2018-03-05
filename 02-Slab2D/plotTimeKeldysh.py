@@ -642,7 +642,7 @@ ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
 plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
-plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
