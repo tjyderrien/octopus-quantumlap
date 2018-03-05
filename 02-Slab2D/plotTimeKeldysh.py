@@ -469,7 +469,7 @@ elif(observable_proj.max() < ymax / 5.):
 elif(observable_proj.max() > ValenceBandMax):
   ymax=4.*ymax;
 # Managing stepwise maximum for Y2
-ymax2=5E0; ymax2value = (Efield_SI+Efield2_SI) #TODO: this is not optimum when not overlapping.  
+ymax2=5E0; ymax2value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
 ymax2valueMax = ymax2value.max()
 if(ymax2valueMax < ymax2 / 100.):
   ymax2 = ymax2 / 100.
