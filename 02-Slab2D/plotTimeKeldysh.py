@@ -533,7 +533,8 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
-plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
+plot_current, = plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
+ax12.yaxis.label.set_color(plot_current.get_color())
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
