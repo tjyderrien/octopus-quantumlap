@@ -142,6 +142,8 @@ Efield_X_AU =Efield_X/c_AU
 Efield_Y_AU =Efield_Y/c_AU
 Efield2_X_AU=Efield2_X/c_AU
 Efield2_Y_AU=Efield2_Y/c_AU
+Efield_X_SI  = Field_AU_to_SI(Efield_X_AU)
+Efield2_X_SI = Field_AU_to_SI(Efield2_X_AU)
 
 # E field amplitudes (in atomic units, positive real-valued)
 Efield_norm_AU  = np.sqrt(Efield_X_AU**2  + Efield_Y_AU**2) 
@@ -192,7 +194,7 @@ else:
   print Header+"** Error: pulse type was not recognized."
   exit()
 
-##==== KELDYSH CALCULATION PULSE 1 ====
+##==== KELDYSH CALCULATION PULSE 1 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
 ValenceBandMax = 5E28 
 dtPrecision = 1E-17
 order=50
@@ -205,7 +207,7 @@ PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
 print Header+"** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
 print Header+"** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
 
-##==== KELDYSH CALCULATION PULSE 2 ====
+##==== KELDYSH CALCULATION PULSE 2 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
 PeakIntensityB_SI = Keldysh.FieldToIntensity(np.max(Efield2_norm_SI))
 PeakFluenceB_SI = PeakIntensityB_SI * PulseDurationB_SI
 PeakFluenceBText=round(PeakFluenceB_SI*1E-4*1E3)
@@ -264,7 +266,7 @@ else:
   print Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized."
   exit()
   
-if(PulseType == "gaussian" or PulseType=="SinSquared"):
+if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
@@ -289,6 +291,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"):
       timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     else:
       print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
+#}}}
 elif (PulseType == "STH"): 
   # For this case, we only output the w_pi. 
   PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
@@ -315,7 +318,7 @@ CorrelationEnergy = np.asfarray(Energy[:,10]) #Hartree, correlation
 try:
   ElectronKineticEnergy = np.asfarray(Energy[:,11]) #Hartree, electron kinetic energy
 except:
-  ElectronKineticEnergy = 0. #not outputed before 2017 Nov 29th. 
+  ElectronKineticEnergy = 0. #NOTE: was not outputed before 2017 Nov 29th, and might be even wrong. 
 
 # Somehow checking the data integrity
 if(timeEnergies.size != ElectronEnergy.size):
@@ -352,7 +355,7 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 # Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
 
 ##TODO: Prepare the conductivity plots, also! 
-## Do not use FFT, see reasons in Numerical Receipes. 
+## Do not use FFT, see reasons in Numerical Recipes. 
 # print "** Conductivity"
 # Epsilon_maxSize = CurrentX_AU_FT.size
 # # print Efield_AU_FT.size
@@ -466,7 +469,7 @@ elif(observable_proj.max() < ymax / 5.):
 elif(observable_proj.max() > ValenceBandMax):
   ymax=4.*ymax;
 # Managing stepwise maximum for Y2
-ymax2=5E0; ymax2value = (Efield_norm_AU+Efield2_norm_AU)*c_AU #TODO: this is not optimum when not overlapping.  
+ymax2=5E0; ymax2value = (Efield_SI+Efield2_SI) #TODO: this is not optimum when not overlapping.  
 ymax2valueMax = ymax2value.max()
 if(ymax2valueMax < ymax2 / 100.):
   ymax2 = ymax2 / 100.
@@ -513,13 +516,16 @@ plt.ylim((-ymax2,ymax2))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
 ### Showing vector potential is only useful to observe shift with materials excitation. 
-# plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD #TODO: warn if polarization are not similar
+# plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD 
+#TODO: warn if polarization are not similar
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plt.plot(time[1:], (Efield_X_AU+Efield2_X_AU)*c_AU, 'k-', label=r"$c E(t)$")
+plt.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
+ax12 = ax1.twinx() #let's plot current in a second axis
+ax12.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
 
