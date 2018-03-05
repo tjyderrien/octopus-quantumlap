@@ -524,7 +524,9 @@ plt.ylim((-ymax2,ymax2))
 plt.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
-ax12 = ax1.twinx() #let's plot current in a second axis
+#let's plot current in a second axis
+ax12 = ax1.twinx()
+plt.xlim((xmin,xmax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plt.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$')
