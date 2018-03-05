@@ -512,7 +512,7 @@ ax1 = plt.subplot(plotA)
 plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
 #plt.xlabel('Time (fs)')
 # plt.ylabel('Vector potential (a.u.)')
-plt.ylabel('Field amplitude (a.u.)')
+plt.ylabel('Field amplitude (V/m)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax11valueMax,ymax11valueMax))
@@ -640,13 +640,14 @@ plt.xlabel('Time (fs)')
 ## ============ PLOTTING ENERGIES ======
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, ElectronEnergy, 'k-', label=r'$\xi_{el} (tot)$')
-plt.plot(timeNe, Energy_eV_to_Hartree(Egap_SI/e) * Nproj_AU, 'k--', label=r"$E_g \times N_{exc}$ [Ha]") #classical formula for electron gap transition 
-plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy,      'b--', label=r"$\xi_{ion}$")
+plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
+plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj, 'b-', label=r"$E_{gap} \times n_{exc}$ (eV)") #classical formula for electron gap transition 
+plot_energy_classical_potential, = ax3.plot(timeNe, 2. * h_bar * omega * observable_proj, 'b--', label=r"$2 h_bar*\omega \times n_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+#plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
-# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree,      'r-', label=r"$\xi_{Hartree}$")
+# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
-plt.ylabel('Energy [Ha]')
+plt.ylabel('Energy (eV)')
 plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)

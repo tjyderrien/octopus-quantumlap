@@ -48,12 +48,12 @@ import libExcitationDatabase
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-ShowFinalPlot              = 0
+ShowFinalPlot              = 1
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
@@ -848,18 +848,18 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 0) #validated
-#plotEffectOfIntensity(PlottingTable, 20e-15, 0) #BUG: difference may originate from RisingTime !!
+plotEffectOfIntensity(PlottingTable, 20e-15, 0) #BUG: difference may originate from RisingTime !!
 #plotEffectOfIntensity(PlottingTable, 30e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 40e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 50e-15, 0) #validated
-#plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
+plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
 #plotEffectOfWavelength_Tolerance(PlottingTable) #considers a tolerance to plot various fields
-#plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
+plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
 
 # Developing...
 #plotEffectOfCEP(PlottingTable)
 # plotEffectOfFrozenXC(PlottingTable)
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9) #possible to make it work for Zhukov !
+plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9) #VALID !!!! PRL !!!
 #plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable) #BUGGY
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
 #plotEffectOfDoublePulse_diffWavelengths(PlottingTable)
