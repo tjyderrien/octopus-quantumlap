@@ -667,7 +667,7 @@ if(EnableLogScale == 1):
   #ax2.legend(loc=4)
 #  ax3.set_yscale("log", nonposy='clip')
 #  ax3.legend(loc=4)
-else:
+#else:
 #  ax3.legend(loc=1)
   #ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=1, borderaxespad=0.)
 
