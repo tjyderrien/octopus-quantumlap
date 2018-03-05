@@ -579,9 +579,9 @@ if(QuantityOfInterest == "density"):
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     #plt.legend(loc=3)
     plt.ylabel('$w_{PI}(t)$')
-    ax22.yaxis.label.set_color(plot_wpi_av.get_color()) #colorizes the label
-    ax22.spines["right"].set_edgecolor(plot_wpi_av.get_color()) #colorizes the axis
-    ax22.tick_params(axis='y', colors=plot_wpi_av.get_color()) #colorizes the tics and numbers
+    ax22.yaxis.label.set_color(plot_wpi_approx.get_color()) #colorizes the label
+    ax22.spines["right"].set_edgecolor(plot_wpi_approx.get_color()) #colorizes the axis
+    ax22.tick_params(axis='y', colors=plot_wpi_approx.get_color()) #colorizes the tics and numbers
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
@@ -620,7 +620,7 @@ elif (QuantityOfInterest == "number"):
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 # Building the shared legend for subfig1
-plot2   = [plot_density, plot_wpi_av, plot_wpi_approx, plot_wpi_Gruzdev]
+plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
 labels2 = [l.get_label() for l in plot2]
 ax2.legend(plot2, labels2, loc=2)
 
