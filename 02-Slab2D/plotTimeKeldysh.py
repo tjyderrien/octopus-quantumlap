@@ -471,12 +471,12 @@ elif(observable_proj.max() > ValenceBandMax):
 # Managing stepwise maximum for Y2
 ymax2=5E0; ymax2value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
 ymax2valueMax = ymax2value.max()
-if(ymax2valueMax < ymax2 / 100.):
-  ymax2 = ymax2 / 100.
-elif(ymax2valueMax < ymax2 / 10.):
-  ymax2 = ymax2 / 10.
-elif(ymax2valueMax > ymax2):
-  ymax2=5.*ymax2;
+#if(ymax2valueMax < ymax2 / 100.):
+  #ymax2 = ymax2 / 100.
+#elif(ymax2valueMax < ymax2 / 10.):
+  #ymax2 = ymax2 / 10.
+#elif(ymax2valueMax > ymax2):
+  #ymax2=5.*ymax2;
 # Managing wpi plotting
 ymin_wpi = 1E40
 ymax_wpi = 1E50
@@ -512,7 +512,7 @@ plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decima
 plt.ylabel('Field amplitude (a.u.)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
-plt.ylim((-ymax2,ymax2))
+plt.ylim((-ymax2valueMax,ymax2valueMax))
 
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
 ### Showing vector potential is only useful to observe shift with materials excitation. 
