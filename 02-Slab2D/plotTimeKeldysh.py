@@ -617,7 +617,7 @@ elif (QuantityOfInterest == "number"):
   plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-plt.legend(loc=1)
+#plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 # Building the shared legend for subfig1
 plot2   = [plot_density, plot_wpi_av, plot_wpi_approx, plot_wpi_Gruzdev]
@@ -664,12 +664,12 @@ if(PlotGrid==1):
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
   ax22.set_yscale("log", nonposy='clip')
-  ax2.legend(loc=4)
+  #ax2.legend(loc=4)
 #  ax3.set_yscale("log", nonposy='clip')
 #  ax3.legend(loc=4)
 else:
 #  ax3.legend(loc=1)
-  ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=1, borderaxespad=0.)
+  #ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=1, borderaxespad=0.)
 
 ## ==== Writing final picture =====
 
