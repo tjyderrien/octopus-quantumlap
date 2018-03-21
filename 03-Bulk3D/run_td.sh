@@ -14,7 +14,7 @@ DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
 
 kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
-tauRise="2.666e-15" # SoftTopHat pulse rise time (in s) #Default: 2*pi/omega (1 cycle). 
+RiseCycle="3" #2.666e-15" # SoftTopHat pulse rise time (in s) #Default: 2*pi/omega (1 cycle). 
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -81,6 +81,7 @@ DefineParameters () {
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
+  tauRise=$( python_calc " float( ${RiseCycle} / (2.* 3.14 * 3E8 /${lambda1} ) ) "  )
   
 # CONCEPT OF THE PULSE CAPTURE
 # NOTE: flood_td.sh generates the list of pulses we need. 
@@ -142,7 +143,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
