@@ -50,6 +50,7 @@ def NonChirpedGaussianPulse(t, amplitude, wavelength, phase, duration, polarizat
 
 NonChirpedGaussianPulse = np.vectorize(NonChirpedGaussianPulse)
 
+## From [t, Pulse] table generates the figure of Pulse(t) in FigName file along with Title. 
 def PlotPulse(t, Pulse, FigName, Title): #{{
   # Prepare some figures of required pulse durations
   maxy=3.0; miny = -maxy
@@ -86,6 +87,7 @@ def printCurrentParameters(ParameterTable): #{{
   
 #}}
 
+## Extract from a 2x6 data array the parameters of two laser pulses
 def ExtractParameters(ParameterTable):#{{
   duration1, amplitude1, wavelength1, phase1, polarization1, delay1 = ParameterTable[0, :]
   duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ParameterTable[1, :]

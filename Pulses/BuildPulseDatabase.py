@@ -24,6 +24,7 @@ lengthunit=1e0
 
 ConditionOnInput = (len(sys.argv) != 12)
 
+## Captures the parameters input from the command line. 
 def getInput(): #{{
   if(ConditionOnInput):
     print "Usage: ./file.py <duration1 amplitude1 wavelength1 phase1 polarization1 delay1> <duration2 amplitude2 wavelength2 phase2 polarization2 delay2>"
@@ -45,55 +46,96 @@ def getInput(): #{{
 # TODO: Export the math function required to model the pulse. 
 # TODO: In a second stage, we can simply output the field map in complex space, and to introduce it directly to octopus. 
 
-ParameterTable = getInput()
-duration1, amplitude1, wavelength1, phase1, polarization1, delay1, duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ExtractParameters(ParameterTable)
+## Prepare 0D E(t) bicolor fields for a series of laser parameters. 
+def PrepareBiColorFields0D(): 
+  ParameterTable = getInput()
+  duration1, amplitude1, wavelength1, phase1, polarization1, delay1, duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ExtractParameters(ParameterTable)
+
+  print "** Preparing E(t) plots..."
+
+  #===================================================
+  print "| Plot E(t) for many carrier envelope phases"
+  #===================================================
+
+  phase2list = np.linspace(0e0, pi, 6)
+
+  for phase2 in phase2list:
+    FigName = str(1E9*float(wavelength1))+"nm-Phase"+str(phase1)+"+"+str(1E9*float(wavelength2))+"nm-Phase"+str(float(phase2)*180e0/pi)+"-Delay"+str(float(delay2)*1E12)+"ps"
+    FigTitle = "$\lambda_1=$"+str(1E9*wavelength1)+" nm, $\phi_1=$"+str(phase1*180e0/pi)+", \n $\lambda_2=$"+str(1E9*wavelength2)+" nm, $\phi_2=$"+str(phase2*180e0/pi)+", $\Delta t = $"+str(delay2*1E12)+" ps"
+
+    tmin = -4e0 * duration1
+    tmax = 4e0 * duration1
+
+    t = np.linspace(tmin, tmax, 10000)
+
+    Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
+    Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
+    Pulse = Pulse1+Pulse2
+
+    PlotPulse(t, Pulse, FigName, FigTitle)
+
+  #==============================================
+  print "| Preparing E(t) for many double pulse delays..."
+  #==============================================
+
+  phase2=phase1
+  delay2list = np.linspace(-2e0*duration1, 2e0*duration2, 6)
+
+  for delay2 in delay2list:
+    FigName = str(1E9*wavelength1)+"nm-Phase"+str(phase1)+"+"+str(1E9*wavelength2)+"nm-Phase"+str(phase2*180e0/pi)+"-Delay"+str(delay2*1E12)+"ps"
+    FigTitle = "$\lambda_1=$"+str(1E9*wavelength1)+" nm, $\phi_1=$"+str(phase1*180e0/pi)+", \n $\lambda_2=$"+str(1E9*wavelength2)+" nm, $\phi_2=$"+str(phase2*180e0/pi)+", $\Delta t = $"+str(delay2*1E12)+" ps"
+
+    tmin = -4e0 * duration1
+    tmax = 4e0 * duration1
+
+    t = np.linspace(tmin, tmax, 10000)
+
+    Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
+    Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
+    Pulse = Pulse1+Pulse2
+
+    PlotPulse(t, Pulse, FigName, FigTitle)
+
+# PrepareBiColorFields0D()
+
+#===========================================================================================
+print "Prepares E(t, wavelength2) figure for given 2-color fields amplitudes, phases, delay"
+#===========================================================================================
+
+wavelength1 = 800e-9
+duration1 = 30E-15; duration2 = duration1
+phase1 = 0E0; phase2 = 0E0
+amplitude1 = 5E9; amplitude2 = 5E9
+polarization1 = 0E0; polarization2 = polarization1; 
+delay1=0E0; delay2=0E0
+
+wavelength2 = np.linspace(300e-9, 2000e-9, 100)
+tmin = -1e0 * duration1
+tmax = 1e0 * duration1
+t = np.linspace(tmin, tmax, 10000)
+
+tt, wavelength22 = np.meshgrid(t, wavelength2)
+
+print np.shape(tt), np.shape(wavelength22)
 
 #exit()
+Pulse1 = NonChirpedGaussianPulse(tt, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
+Pulse2 = NonChirpedGaussianPulse(tt, amplitude2, wavelength22, phase2, duration2, polarization2, delay2)
+Pulse  = Pulse1+Pulse2
 
-print "** PLOTTING..."
+#print wavelength1, amplitude1, phase1
+filename="Bicolor-wavelength"+str(int(wavelength1*1E9))+"-Efield"+str(round(amplitude1*1E-9))+"Vnm-CEP"+str(int((phase1*180./pi)))
 
-#==============================================
-print "| Effect of the phase..."
-#==============================================
-
-phase2list = np.linspace(0e0, pi, 6)
-
-for phase2 in phase2list:
-  FigName = str(1E9*float(wavelength1))+"nm-Phase"+str(phase1)+"+"+str(1E9*float(wavelength2))+"nm-Phase"+str(float(phase2)*180e0/pi)+"-Delay"+str(float(delay2)*1E12)+"ps"
-  FigTitle = "$\lambda_1=$"+str(1E9*wavelength1)+" nm, $\phi_1=$"+str(phase1*180e0/pi)+", \n $\lambda_2=$"+str(1E9*wavelength2)+" nm, $\phi_2=$"+str(phase2*180e0/pi)+", $\Delta t = $"+str(delay2*1E12)+" ps"
-
-  tmin = -4e0 * duration1
-  tmax = 4e0 * duration1
-
-  t = np.linspace(tmin, tmax, 10000)
-
-  Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
-  Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
-  Pulse = Pulse1+Pulse2
-
-  PlotPulse(t, Pulse, FigName, FigTitle)
-
-#==============================================
-print "| Effect of the double pulse delay..."
-#==============================================
-
-phase2=phase1
-delay2list = np.linspace(-2e0*duration1, 2e0*duration2, 6)
-
-for delay2 in delay2list:
-  FigName = str(1E9*wavelength1)+"nm-Phase"+str(phase1)+"+"+str(1E9*wavelength2)+"nm-Phase"+str(phase2*180e0/pi)+"-Delay"+str(delay2*1E12)+"ps"
-  FigTitle = "$\lambda_1=$"+str(1E9*wavelength1)+" nm, $\phi_1=$"+str(phase1*180e0/pi)+", \n $\lambda_2=$"+str(1E9*wavelength2)+" nm, $\phi_2=$"+str(phase2*180e0/pi)+", $\Delta t = $"+str(delay2*1E12)+" ps"
-
-  tmin = -4e0 * duration1
-  tmax = 4e0 * duration1
-
-  t = np.linspace(tmin, tmax, 10000)
-
-  Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
-  Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
-  Pulse = Pulse1+Pulse2
-
-  PlotPulse(t, Pulse, FigName, FigTitle)
+plt.figure()
+plt.contourf(1E15*tt, 1E6*wavelength22, Pulse, cmap=plt.cm.RdBu_r) #plt.cm.Blues
+plt.xlabel(r'Time t (fs)')
+plt.ylabel(r'$\lambda_2$ (um)')
+plt.colorbar()
+plt.title(r"$\lambda_1=$ "+str(int(wavelength1*1E9))+" nm")
+print "Writing file: "+filename
+plt.savefig(filename+".eps")
+plt.savefig(filename+".png")
+plt.show()
 
 #def BuildSinglePulseDB(wavelengthMin, wavelengthMax, numpoints, phaseMin, phaseMax, amplitudeMin, amplitudeMax, durationMin, durationMax, polarization): #{{
   ## Prepare a number of plots and input lines for single pulse database
