@@ -1,5 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
+
+## @package libPulseGenerator
+# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for octopus. 
+# A routine provides the pulse envelope in an octopus:td_from_file-compatible format. 
 
 # IMPORT LIBRARIES
 import numpy as np

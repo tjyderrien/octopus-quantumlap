@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-from routines import *
+from libPulseGenerator import *
 
 lengthunit=1e0
 
