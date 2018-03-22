@@ -67,8 +67,8 @@ for phase2 in phase2list:
 
   t = np.linspace(tmin, tmax, 10000)
 
-  Pulse1 = NonChirpedPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
-  Pulse2 = NonChirpedPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
+  Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
+  Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
   Pulse = Pulse1+Pulse2
 
   PlotPulse(t, Pulse, FigName, FigTitle)
@@ -89,8 +89,8 @@ for delay2 in delay2list:
 
   t = np.linspace(tmin, tmax, 10000)
 
-  Pulse1 = NonChirpedPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
-  Pulse2 = NonChirpedPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
+  Pulse1 = NonChirpedGaussianPulse(t, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
+  Pulse2 = NonChirpedGaussianPulse(t, amplitude2, wavelength2, phase2, duration2, polarization2, delay2)
   Pulse = Pulse1+Pulse2
 
   PlotPulse(t, Pulse, FigName, FigTitle)

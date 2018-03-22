@@ -26,17 +26,18 @@ rc('font',**{'family':'serif','serif':['Palatino'], 'size':'16'})
 rc('text', usetex=True)
 mp.rcParams['legend.numpoints'] = 1
 
-# basic wave function
+## laser pulsation (SI system)
 def omega(wavelength):#{{{
   return 2.0*pi*c/wavelength
 #}}}
 
-def sigma(value): #{{
-  # normalization for gaussian thickness
+## normalization for gaussian width
+def sigma(value): #{{ 
   return value/(2e0*cmath.sqrt(2e0*cmath.log(2e0)))
 #}}
 
-def NonChirpedPulse(t, amplitude, wavelength, phase, duration, polarization, delay): #{{
+## 
+def NonChirpedGaussianPulse(t, amplitude, wavelength, phase, duration, polarization, delay): #{{
   # Input: 1:R, 2:R, 3:R, 4:R, 5:R, 6:string, 7:R)
   # Output: R
   # defines the general temporal form of a non-chirped laser pulse
@@ -47,7 +48,7 @@ def NonChirpedPulse(t, amplitude, wavelength, phase, duration, polarization, del
   return ElectricField
 #}}
 
-NonChirpedPulse = np.vectorize(NonChirpedPulse)
+NonChirpedGaussianPulse = np.vectorize(NonChirpedGaussianPulse)
 
 def PlotPulse(t, Pulse, FigName, Title): #{{
   # Prepare some figures of required pulse durations
