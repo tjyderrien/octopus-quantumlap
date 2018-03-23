@@ -1,5 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
+
+## @package libPulseGenerator
+# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for octopus. 
+# A routine provides the pulse envelope in an octopus:td_from_file-compatible format. 
 
 # IMPORT LIBRARIES
 import numpy as np
@@ -22,17 +26,18 @@ rc('font',**{'family':'serif','serif':['Palatino'], 'size':'16'})
 rc('text', usetex=True)
 mp.rcParams['legend.numpoints'] = 1
 
-# basic wave function
+## laser pulsation (SI system)
 def omega(wavelength):#{{{
   return 2.0*pi*c/wavelength
 #}}}
 
-def sigma(value): #{{
-  # normalization for gaussian thickness
+## normalization for gaussian width
+def sigma(value): #{{ 
   return value/(2e0*cmath.sqrt(2e0*cmath.log(2e0)))
 #}}
 
-def NonChirpedPulse(t, amplitude, wavelength, phase, duration, polarization, delay): #{{
+## 
+def NonChirpedGaussianPulse(t, amplitude, wavelength, phase, duration, polarization, delay): #{{
   # Input: 1:R, 2:R, 3:R, 4:R, 5:R, 6:string, 7:R)
   # Output: R
   # defines the general temporal form of a non-chirped laser pulse
@@ -43,8 +48,9 @@ def NonChirpedPulse(t, amplitude, wavelength, phase, duration, polarization, del
   return ElectricField
 #}}
 
-NonChirpedPulse = np.vectorize(NonChirpedPulse)
+NonChirpedGaussianPulse = np.vectorize(NonChirpedGaussianPulse)
 
+## From [t, Pulse] table generates the figure of Pulse(t) in FigName file along with Title. 
 def PlotPulse(t, Pulse, FigName, Title): #{{
   # Prepare some figures of required pulse durations
   maxy=3.0; miny = -maxy
@@ -81,6 +87,7 @@ def printCurrentParameters(ParameterTable): #{{
   
 #}}
 
+## Extract from a 2x6 data array the parameters of two laser pulses
 def ExtractParameters(ParameterTable):#{{
   duration1, amplitude1, wavelength1, phase1, polarization1, delay1 = ParameterTable[0, :]
   duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ParameterTable[1, :]

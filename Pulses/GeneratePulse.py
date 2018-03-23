@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ## @package GeneratePulse
-# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package. 
+# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for Octopus TD-DFT package.  
+# A routine provides the pulse envelope in the octopus:td_from_file-compatible format. 
+# See octopus-code.org. 
 
 from libKeldyshPulses import PulseSmoothTopHatShape
 from libDatabase      import ExportToTxt
