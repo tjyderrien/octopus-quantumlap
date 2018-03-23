@@ -92,7 +92,6 @@ runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP
 
 print Header+"** Preparing the summary plots..."
 
-
 #### =============== PLOTTING STARTS HERE ==================
 # The filtering will be done on the fly. Then we are sure of 
 # what we plot in each figure. 
@@ -602,6 +601,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable):
   #}}}
 
 ## Plots the N_exc(wavelength, field) (2D plot)
+# VALID, but of course interference of 2 waves is oscillating very much !
 def plotEffectOfWavelength_2dMap(PlottingTable):
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
@@ -669,59 +669,97 @@ def plotEffectOfWavelength_2dMap(PlottingTable):
 #}}}
 
 
-## Orgazing the complicated life of double-pulse plotting. 
-# Mode 1: fixed wavelengths, same pulse duration, then plot Ne_final(Efield1, Efield2)
-def plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable, PulseDuration=20e-15): #{{{
-  
-  print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS ====="
+# Plots Ne_final(Efield1, Efield2) for pulses of fixed wavelengths, same pulse duration, same CEP
+# THIS FIGURE IS THE ONE THAT CAN BE COMPARED WITH VLADIMIR ZHUKOV
+def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=400e-9, PulseDuration=20e-15): #{{{
+  print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
   PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
   PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 < 1 V/m to select double pulses.
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, float(0.), IndexTable['CrossPolarization']) #removes fields where Polarization1 != Polarization2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseDuration, IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
-  
+  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
+  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
-  
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
-  #plt.figure()
-  print Header+"Total number of datasets: "+str(len(set(wavelength_uniq))*len(set(wavelength2_uniq)))
-  for Color1 in wavelength_uniq: #selecting color1
-    PlottingDoublePulses_SelectedColor1 = FilterDatabase(PlottingDoublePulses, Color1, IndexTable['wavelengths1'])
-    for Color2 in wavelength2_uniq: #selecting color2
-      # Selecting Color 2
-      PlottingDoublePulses_SelectedColor2 = FilterDatabase(PlottingDoublePulses_SelectedColor1, Color2, IndexTable['wavelengths2'])
+  print Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq)))
+  exit()
+  
+  DensityMax2D = np.empty((0,3)) #preparing the 2D plot
+  for Efield1 in Efield1_uniq: #{{{ #selecting amplitude1
+    PlottingDoublePulses_SelectedField1 = FilterDatabase(PlottingDoublePulses, Efield1, IndexTable['Efield1'])
+    for Efield2 in Efield2_uniq: #{{{ #selecting amplitude2
+      # Selecting Field2
+      PlottingDoublePulses_SelectedField2 = FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2, IndexTable['wavelengths2'])
       
       # Constructing the density table
-      DensityMax2D = np.empty((0,3)) #preparing the 2D plot
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, W_pi, PulseType = ExtractData(PlottingDoublePulses_SelectedColor2)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, W_pi, PulseType = ExtractData(PlottingDoublePulses_SelectedField2)
       
-      print "Color1: "+str(Color1)+" m, Color2: "+str(Color2)+" m."
+      print "Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
       if(len(Ne_final) >= 1):
         ToBeAdded=np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
         print ToBeAdded
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
         print "Cleaning..."
         del ToBeAdded
-        # Stack is built. Export, show and plot on a heat map. 
-        print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field)..."
-        print "** Info: useful to visualize available data with GNUplot. "
-        ExportToTxt(DensityMax2D, "Wavelength1-"+str(round(Color1*1E9))+"-Wavelength2-"+str(round(Color2*1E9))+"-NeFinal.csv")
-      
-      # If the size is big enough, let's make a plot.
-      if(len(Ne_final) >= 2):
-        plt.figure()
-        plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
-        CS = plt.contourf(DensityMax2D, cmap=plt.cm.Blues)
-        plt.colorbar(CS)
-      
-        filename='Metaplot-DoublePulse-'+str(round(Color1*1E9))+'nm-'+str(round(Color2*1E9))+'nm'
-        plt.savefig(filename+'.eps')
-        plt.savefig(filename+'.png')
-        if(ShowFinalPlot==1):
-          plt.show()
-      
-      del DensityMax2D 
+    #}}}
+  #}}}
+  # Stack is built. Export, show and plot on a heat map. 
+  print "** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)..."
+  print "** Info: useful to visualize available data with GNUplot. "
+  filename = "Bicolor-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-NeFinalWithE1E2"
+  # Sorting the data before storing and plotting
+  DensityMax2Dsorted = DensityMax2D[np.lexsort((DensityMax2D[:,2], DensityMax2D[:,1], DensityMax2D[:,0]))]
+  
+  ExportToTxt(DensityMax2Dsorted, filename+".csv")
+  
+  BrutX = 1E-9*DensityMax2Dsorted[:,0]
+  BrutY = 1E-9*DensityMax2Dsorted[:,1]
+  BrutZ = DensityMax2Dsorted[:,2]
+  
+  print len(BrutX)
+  print len(BrutY)
+  print len(BrutZ)
+  X=list(set(BrutX))
+  Y=list(BrutY)
+  Z=DensityMax2Dsorted
+  YY, XX = np.meshgrid(X, Y)
+  
+  # If the size is big enough, let's make a plot.
+  if(len(DensityMax2D) >= 2):
+    plt.figure()
+    plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    plt.title(r'$N_{exc}(E_1,E_2;\lambda_1=$'+wavelength1*1E9+r" nm, $\lambda_2$="+str(wavelength2*1E9)+' nm')
+    plt.xlabel(r'E_1 (V/nm)')
+    plt.ylabel(r'E_2 (V/nm)')
+    #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
+    #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
+    #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS
+    #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+    #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+    CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues) #WORKS
+    
+    #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
+    #print np.shape(Xi), np.shape(Yi)
+    #print np.shape(XXi), np.shape(YYi)
+    #print np.shape(BicolorNeFinal)
+    
+    #CS = ax.scatter(XXi, YYi, BicolorNeFinal) #, cmap=plt.cm.Blues) #WORKS
+    
+    #CS = ax.plot_trisurf(Xi, Yi, BicolorNeFinal, cmap=plt.cm.Spectral)
+    
+    #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
+    #plt.colorbar(CS)
+  
+    plt.savefig(filename+'.eps')
+    plt.savefig(filename+'.png')
+    if(ShowFinalPlot==1):
+      plt.show()
+  
+  del DensityMax2D, DensityMax2Dsorted
 #}}}
   
 
@@ -763,6 +801,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
         ToBeAdded=np.array([wavelengths1[0], wavelengths2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
         print ToBeAdded
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
+        
         del ToBeAdded
         
   # Stack is built. Export, show and plot on a heat map. 
@@ -848,18 +887,22 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 0) #validated
-plotEffectOfIntensity(PlottingTable, 20e-15, 0) #BUG: difference may originate from RisingTime !!
 #plotEffectOfIntensity(PlottingTable, 30e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 40e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 50e-15, 0) #validated
-plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
-#plotEffectOfWavelength_Tolerance(PlottingTable) #considers a tolerance to plot various fields
-plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
 
-# Developing...
+# TYPICAL RUNS
+#plotEffectOfIntensity(PlottingTable, 20e-15, 0) #BUG: difference may originate from RisingTime !!
+#plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
+#plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
+#plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple
+#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9) #VALID, but don't apply to TOO LARGE wavelength sets
+
+# DEVELOPMENT RUNS
+#plotEffectOfWavelength_Tolerance(PlottingTable) #considers a tolerance to plot various fields
 #plotEffectOfCEP(PlottingTable)
 # plotEffectOfFrozenXC(PlottingTable)
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9) #VALID !!!! PRL !!!
+plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable)
 #plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable) #BUGGY
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
 #plotEffectOfDoublePulse_diffWavelengths(PlottingTable)
