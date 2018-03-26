@@ -158,8 +158,6 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
     del PulseType_inp, PulseType_value
 
-
-
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
     FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
@@ -318,6 +316,15 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
     Hartree        = np.asfarray(Energy[:,7]) #Hartree
     
+    # Extracting the FINAL shift current (!!!)
+    #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
+    TotalCurrent_size     = TotalCurrent.size
+    TotalCurrent_AU_final = TotalCurrent[TotalCurrent_size-1]
+    print "Final DC current: "+str(float(TotalCurrent_AU_final))+" a.u."
+    TotalCurrent_SI_final = TotalCurrent_AU_final
+    print "** Missing: Final DC current: "+str(float(0.*TotalCurrent_SI_final))+" S.I."
+    
+    # Extracting the total energy
     TotalEnergy_size = ElectronEnergy.size #TotalEnergy.size #TODO: to clean
     TotalEnergy_AU_final = ElectronEnergy[TotalEnergy_size-1] # TotalEnergy[TotalEnergy_size-1] #selects last value of energy
     FinalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
@@ -339,7 +346,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI), PulseType ]
+	      float(TotalCurrent_SI_final), float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI), PulseType ]
     
     print Header+"Stack contains:"
     print StackToAdd
@@ -370,35 +377,36 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
 # @param PlottingTable: array of floats containing the data to extract. 
 # /!\ The size of the table must match the one given in ListAllOutput()
 def ExtractData(PlottingTable): #{{{
-  runid             =   PlottingTable[:,0]
-  wavelengths1      =   PlottingTable[:,1]
-  pulses1           =   PlottingTable[:,2]
-  Efield1           =   PlottingTable[:,3]
-  CEP1              =   PlottingTable[:,4]
-  wavelengths2      =   PlottingTable[:,5]
-  pulses2           =   PlottingTable[:,6]
-  Efield2           =   PlottingTable[:,7]
-  CEP2              =   PlottingTable[:,8]
-  Delay             =   PlottingTable[:,9]
-  CrossPolarization =   PlottingTable[:,10]
-  TheoryLevel       =   PlottingTable[:,11]
-  FieldInduced      =   PlottingTable[:,12]
-  Functional        =   PlottingTable[:,13]
-  FreezeHXC         =   PlottingTable[:,14]
-  Ne_max            =   PlottingTable[:,15]
-  Ne_final          =   PlottingTable[:,16]
-  irreversibility   =   PlottingTable[:,17]
-  Energy_max        =   PlottingTable[:,18]
-  Wpi               =   PlottingTable[:,19]
-  PulseType         =   PlottingTable[:,20]
+  runid              =   PlottingTable[:,0]
+  wavelengths1       =   PlottingTable[:,1]
+  pulses1            =   PlottingTable[:,2]
+  Efield1            =   PlottingTable[:,3]
+  CEP1               =   PlottingTable[:,4]
+  wavelengths2       =   PlottingTable[:,5]
+  pulses2            =   PlottingTable[:,6]
+  Efield2            =   PlottingTable[:,7]
+  CEP2               =   PlottingTable[:,8]
+  Delay              =   PlottingTable[:,9]
+  CrossPolarization  =   PlottingTable[:,10]
+  TheoryLevel        =   PlottingTable[:,11]
+  FieldInduced       =   PlottingTable[:,12]
+  Functional         =   PlottingTable[:,13]
+  FreezeHXC          =   PlottingTable[:,14]
+  Ne_max             =   PlottingTable[:,15]
+  Ne_final           =   PlottingTable[:,16]
+  irreversibility    =   PlottingTable[:,17]
+  TotalCurrent_final =   PlottingTable[:,18]
+  Energy_max         =   PlottingTable[:,19]
+  Wpi                =   PlottingTable[:,20]
+  PulseType          =   PlottingTable[:,21]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi, PulseType
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, Energy_max, Wpi, PulseType = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -450,7 +458,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Energy_max': 18, 'Wpi': 19, 'PulseType': 20}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Current_final': 18, 'Energy_max': 19, 'Wpi': 20, 'PulseType': 21}
 
 PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2}
 
