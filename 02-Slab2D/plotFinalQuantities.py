@@ -671,7 +671,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable):
 
 # Plots Ne_final(Efield1, Efield2) for pulses of fixed wavelengths, same pulse duration, same CEP
 # THIS FIGURE IS THE ONE THAT CAN BE COMPARED WITH VLADIMIR ZHUKOV
-def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=400e-9, PulseDuration=20e-15): #{{{
+def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15): #{{{
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -761,12 +761,10 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   
   del DensityMax2D, DensityMax2Dsorted
 #}}}
-  
-
 
 ##### 2D PLOTTING Density(wavelength1, wavelength2) for one single field value? 
 #Mode 2: fixed fields, same pulse durations, then plot Ne_final(Color1, Color2)
-def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, FieldStrength, PulseDuration=20e-15, Tolerance=0.01): #{{{
+def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, FieldStrength, WhatToPlot, PulseDuration=20e-15, Tolerance=0.01): #{{{
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -786,7 +784,12 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
   
   print Header+"Total number of datasets: "+str(len(set(wavelength_uniq))*len(set(wavelength2_uniq)))
-  DensityMax2D = np.empty((0,3)) #preparing the 2D plot
+  
+  #preparing the 2D plot
+  DensityMax2D = np.empty((0,3))
+  CurrentMax2D = np.empty((0,3))
+  EnergyMax2D  = np.empty((0,3))
+  Wpi2D        = np.empty((0,3))
   for Color1 in wavelength_uniq: #selecting color1
     PlottingDoublePulses_SelectedColor1 = FilterDatabase(PlottingDoublePulses, Color1, IndexTable['wavelengths1'])
     for Color2 in wavelength2_uniq: #selecting color2
@@ -798,22 +801,52 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
       
       print "Color1: "+str(Color1)+" m, Color2: "+str(Color2)+" m."
       if(len(Ne_final) >= 1):
-        ToBeAdded=np.array([wavelengths1[0], wavelengths2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
-        print ToBeAdded
+        ToBeAdded        = np.array([wavelengths1[0], wavelengths2[0], Ne_final[0]])
+        ToBeAddedCurrent = np.array([wavelengths1[0], wavelengths2[0], TotalCurrent_final[0]])
+        ToBeAddedEnergy  = np.array([wavelengths1[0], wavelengths2[0], Energy_max[0]])
+        ToBeAddedWpi     = np.array([wavelengths1[0], wavelengths2[0], W_pi[0]])
+        print ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
-        
-        del ToBeAdded
+        CurrentMax2D=np.vstack((CurrentMax2D, ToBeAddedCurrent))
+        EnergyMax2D =np.vstack((EnergyMax2D, ToBeAddedEnergy))
+        Wpi2D       =np.vstack((Wpi2D, ToBeAddedWpi))
+        del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
         
   # Stack is built. Export, show and plot on a heat map. 
-  print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field)..."
+  print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field), TotalCurrent_Final(), Energy_max()..."
   print "** Info: useful to visualize available data with GNUplot. "
-  filename = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-NeFinal"
+  filename         = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-NeFinal"
+  filename_current = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-JeFinal"
+  filename_energy  = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-Energy"
+  filename_wpi     = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-Wpi"
   
   # Sorting the data before storing and plotting
   DensityMax2Dsorted = DensityMax2D[np.lexsort((DensityMax2D[:,2], DensityMax2D[:,1], DensityMax2D[:,0]))]
+  CurrentMax2Dsorted = CurrentMax2D[np.lexsort((CurrentMax2D[:,2], CurrentMax2D[:,1], CurrentMax2D[:,0]))]
+  EnergyMax2Dsorted  = EnergyMax2D[np.lexsort((EnergyMax2D[:,2], EnergyMax2D[:,1], EnergyMax2D[:,0]))]
+  Wpi2Dsorted        = Wpi2D[np.lexsort((Wpi2D[:,2], Wpi2D[:,1], Wpi2D[:,0]))]
   #DensityMax2D.sort(axis=1) ##WARNING: THIS IS OUT OF CONTROL. DO NOT USE. 
   
   ExportToTxt(DensityMax2Dsorted, filename+".csv") #this is voluntarily unsorted to avoid damage
+  ExportToTxt(CurrentMax2Dsorted, filename_current+".csv") #this is voluntarily unsorted to avoid damage
+  ExportToTxt(EnergyMax2Dsorted,  filename_energy+".csv") #this is voluntarily unsorted to avoid damage
+  ExportToTxt(Wpi2Dsorted,        filename_wpi+".csv") #this is voluntarily unsorted to avoid damage
+  
+  ## Lazy to build up a new function for that for now. 
+  if(WhatToPlot == 1): 
+      DensityMax2Dsorted = CurrentMax2Dsorted; 
+      filename = filename_current
+      QuantityTitle="Shift current $J_{end}(\lambda_1,\lambda_2)$"
+  elif(WhatToPlot == 2): 
+      DensityMax2Dsorted = EnergyMax2Dsorted
+      filename = filename_energy
+      QuantityTitle=r"Total energy $\xi_{end}(\lambda_1,\lambda_2)$"
+  elif(WhatToPlot == 3): 
+      DensityMax2Dsorted = Wpi2Dsorted
+      filename = filename_wpi
+      QuantityTitle=r"Excitation rate $w_{PI}(\lambda_1,\lambda_2)$"
+  else: 
+      QuantityTitle=r"Excited density $N_{exc}(\lambda_1,\lambda_2)$"
   
   #print "Sorted matrix?"
   #print DensityMax2Dsorted
@@ -855,7 +888,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   if(len(DensityMax2D) >= 2):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    plt.title(r'$N_{exc}(\lambda_1,\lambda_2)$, $E_{1,2}=$'+str(FieldStrength*1E-9)+' V/nm')
+    plt.title(QuantityTitle+', '+r'$E_{1,2}=$'+str(FieldStrength*1E-9)+' V/nm')
     plt.xlabel(r'Wavelength $\lambda_1$ (nm)')
     plt.ylabel(r'Wavelength $\lambda_2$ (nm)')
     #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
@@ -896,13 +929,20 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 #plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
 #plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
 #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple
-#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9) #VALID, but don't apply to TOO LARGE wavelength sets
+plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 0) #VALID, but don't apply to TOO LARGE wavelength sets
+plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 1) #VALID, but don't apply to TOO LARGE wavelength sets
+plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 2) #VALID, but don't apply to TOO LARGE wavelength sets
+plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 3) #VALID, but don't apply to TOO LARGE wavelength sets
 
 # DEVELOPMENT RUNS
 #plotEffectOfWavelength_Tolerance(PlottingTable) #considers a tolerance to plot various fields
 #plotEffectOfCEP(PlottingTable)
 # plotEffectOfFrozenXC(PlottingTable)
-plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable)
+
+# Zhukov bicolor plotting
+# plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15)
+# plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15)
+
 #plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable) #BUGGY
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
 #plotEffectOfDoublePulse_diffWavelengths(PlottingTable)
