@@ -159,7 +159,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     del PulseType_inp, PulseType_value
 
     # Identify the RiseTime of the pulse (useful for STH mode only)
-    if(PulseType == "STH"): 
+    if(PulseType == 2): 
       RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
