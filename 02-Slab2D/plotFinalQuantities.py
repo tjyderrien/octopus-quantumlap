@@ -53,7 +53,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-ShowFinalPlot              = 1
+ShowFinalPlot              = 0
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
@@ -88,7 +88,7 @@ print PlottingTable
 
 PlottingTable = FilterDatabase(PlottingTable, 0, IndexTable['FieldInduced']) #removes all induced fields data
 
-runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingTable)
+runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingTable)
 
 print Header+"** Preparing the summary plots..."
 
@@ -120,7 +120,7 @@ SizeY = 10.
 
 ## We change strategy: now we plot all the available data based on the number of parameters we have detected. 
 # The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
-def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0):
+def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0, RestrictWavelength1=1):
   PlotVirtualExcitation = False
   print "#====== Plot: SINGLE PULSE, VARIOUS WAVELENGTHS, SAME PULSE DURATION, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
@@ -128,12 +128,13 @@ def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0):
   PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
   PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
-  #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 2, IndexTable['PulseType']) #keeps only pulses of type STH (2)
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of type STH (2)
+  #TODO: add selection on the STH rising time! 
 
   ## prints the current state of selection
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
@@ -149,10 +150,13 @@ def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0):
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
   #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   for wavelength_value in wavelength_uniq: #{{{
-    # select the corresponding wavelength in results
-    PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+    if(RestrictWavelength1==0): 
+      # select the corresponding wavelength in results
+      PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps all wavelengths wavelenghts.
+    else:
+      PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm
 
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_wavelength)
 
     pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
   #}}}
@@ -167,11 +171,14 @@ def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0):
   ax12 = ax1.twinx()
   for wavelength_value in wavelength_uniq: #{{{
     # select the corresponding wavelength in results
-    PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+    if(RestrictWavelength1==0): 
+      PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+    else:
+      PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_wavelength)
 
-    pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'o') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+    pplt.plot(FieldToIntensity(Efield1), Ne_final/(2.*pulses1), 'o') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
   #}}}
   ax12.set_yscale('log')
   pplt.ylabel('$w_{PI}$ (m$^{-3}$.s$^{-1}$)')
@@ -188,7 +195,7 @@ def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0):
       # select the corresponding wavelength in results
       PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_wavelength)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_wavelength)
       pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
     pplt.ylabel('Adiabadicity factor')
     #pplt.ylim((0,1))
@@ -247,7 +254,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9):
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_pulses)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_pulses)
 
     pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}$, $\tau_1=$'+str(round(pulse_value*1E15))+r'fs, $\tau_2=$'+str(round(pulse_value*1E15))+'fs')
   #}}}
@@ -264,7 +271,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9):
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_pulses)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_pulses)
 
     pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'o') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
   #}}}
@@ -283,7 +290,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9):
       # select the corresponding wavelength in results
       PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
 
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_pulses)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_pulses)
       pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
     pplt.ylabel('Adiabadicity factor')
     #pplt.ylim((0,1))
@@ -334,7 +341,7 @@ def plotEffectOfCEP(PlottingTable):
     PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
     
     ## prints the current state of selection and stores the values of sweeped parameters
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP)
     
     pplt.plot(FieldToIntensity(Efield1), Ne_final, 'o', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
     
@@ -348,7 +355,7 @@ def plotEffectOfCEP(PlottingTable):
     print Efield1, CEP1_value
     
   #Adding axis of gammaKeldysh, but for all CEPs !!
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses)
   
   ax12 = ax1.twinx()
   
@@ -419,11 +426,11 @@ def plotEffectOfFrozenXC(PlottingTable):
   PlottingSinglePulses_CEP_NoFreezeHXC = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #select the non-frozen HXC
   PlottingSinglePulses_CEP_FreezeHXC = FilterDatabase(PlottingSinglePulses, 1, IndexTable['FreezeHXC']) #select the frozen HXC
   ## prints the current state of selection and stores the values of sweeped parameters
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), Ne_final, 'ow', label=r'$N_{exc}^{final}$') #, CEP='+str(round(CEP1_value*180./pi)))
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), Ne_final, 'ok', label=r'$N_{exc}^{final}$, FrozenHXC')#, CEP='+str(round(CEP1_value*180./pi)))
   
@@ -437,11 +444,11 @@ def plotEffectOfFrozenXC(PlottingTable):
   #Adding axis of gammaKeldysh
   ax12 = ax1.twinx()
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ow') #, label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ok') #, label=r'$N_{exc}/\tau$, FrozenHXC') #, I='+str(FieldToIntensity(Efield1_value))+r'
   
@@ -451,11 +458,11 @@ def plotEffectOfFrozenXC(PlottingTable):
   ax2 = pplt.subplot(plotB)
   pplt.title('Virtual excitation factor')
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ok', label='Virtual exc., FreezeHXC')
   
@@ -466,11 +473,11 @@ def plotEffectOfFrozenXC(PlottingTable):
   #adding the Keldysh adiabatic factor
   ax22 = ax2.twinx()
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiabaticity') #BUG: 2.56 must not be specified by hand here! 
   
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
   pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or') #, label='Adiabaticity') #BUG: 2.56 must not be specified by hand here! 
   
@@ -527,7 +534,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable):
     #print PlottingSinglePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
     ## prints the current state of selection and stores the values of sweeped parameters
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_Efield)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_Efield)
     
     #print Efield1_value
     # TODO: PUT here a select case which attributes a new color to a new field interval
@@ -557,7 +564,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable):
     #print PlottingSinglePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
     ## prints the current state of selection and stores the values of sweeped parameters
-    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_Efield)
+    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_Efield)
     
     #print Efield1_value
     # TODO: PUT here a select case which attributes a new color to a new field interval
@@ -630,7 +637,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable):
     PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
     for wavelength_value in wavelength_uniq:
       PlottingSinglePulses_Efield_wavelength = FilterDatabase(PlottingSinglePulses_Efield, wavelength_value, IndexTable['wavelengths1']) #select the local Efield
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingSinglePulses_Efield_wavelength)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_Efield_wavelength)
       
       if(len(Ne_final) > 0e0): #Filtering system is weird
         #DensityMax2D=np.vstack((DensityMax2D, [wavelengths1[0], Efield1[0], Ne_final[0]]))
@@ -684,17 +691,16 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
   print Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq)))
-  exit()
-  
+    
   DensityMax2D = np.empty((0,3)) #preparing the 2D plot
-  for Efield1 in Efield1_uniq: #{{{ #selecting amplitude1
-    PlottingDoublePulses_SelectedField1 = FilterDatabase(PlottingDoublePulses, Efield1, IndexTable['Efield1'])
-    for Efield2 in Efield2_uniq: #{{{ #selecting amplitude2
+  for Efield1_i in Efield1_uniq: #{{{ #selecting amplitude1
+    PlottingDoublePulses_SelectedField1 = FilterDatabase(PlottingDoublePulses, Efield1_i, IndexTable['Efield1'])
+    for Efield2_i in Efield2_uniq: #{{{ #selecting amplitude2
       # Selecting Field2
-      PlottingDoublePulses_SelectedField2 = FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2, IndexTable['wavelengths2'])
+      PlottingDoublePulses_SelectedField2 = FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2_i, IndexTable['wavelengths2'])
       
       # Constructing the density table
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingDoublePulses_SelectedField2)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingDoublePulses_SelectedField2)
       
       print "Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
       if(len(Ne_final) >= 1):
@@ -797,7 +803,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
       PlottingDoublePulses_SelectedColor2 = FilterDatabase(PlottingDoublePulses_SelectedColor1, Color2, IndexTable['wavelengths2'])
       
       # Constructing the density table
-      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType = ExtractData(PlottingDoublePulses_SelectedColor2)
+      runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingDoublePulses_SelectedColor2)
       
       print "Color1: "+str(Color1)+" m, Color2: "+str(Color2)+" m."
       if(len(Ne_final) >= 1):
@@ -920,6 +926,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 0) #validated
+plotEffectOfIntensity(PlottingTable, 20e-15, 1, 1) #validated
 #plotEffectOfIntensity(PlottingTable, 30e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 40e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 50e-15, 0) #validated
@@ -929,10 +936,10 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 #plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9) #BUG: still a problem of shifted results
 #plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 
 #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 0) #VALID, but don't apply to TOO LARGE wavelength sets
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 1) #VALID, but don't apply to TOO LARGE wavelength sets
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 2) #VALID, but don't apply to TOO LARGE wavelength sets
-plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 3) #VALID, but don't apply to TOO LARGE wavelength sets
+#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 0) #VALID, but don't apply to TOO LARGE wavelength sets
+#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 1) #VALID, but don't apply to TOO LARGE wavelength sets
+#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 2) #VALID, but don't apply to TOO LARGE wavelength sets
+#plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 3) #VALID, but don't apply to TOO LARGE wavelength sets
 
 # DEVELOPMENT RUNS
 #plotEffectOfWavelength_Tolerance(PlottingTable) #considers a tolerance to plot various fields
@@ -940,8 +947,8 @@ plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, 5E9, 3)
 # plotEffectOfFrozenXC(PlottingTable)
 
 # Zhukov bicolor plotting
-# plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15)
-# plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15)
+#plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15)
+#plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15)
 
 #plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable) #BUGGY
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
