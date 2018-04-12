@@ -43,7 +43,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(path='*/*/td.general/'): #{{{
-  PlottingTable = np.empty((0,21)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,22)) ##NOTE: how to define tau_pulse for 2 colors? 
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
@@ -318,11 +318,17 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     
     # Extracting the FINAL shift current (!!!)
     #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
-    TotalCurrent_size     = TotalCurrent.size
-    TotalCurrent_AU_final = TotalCurrent[TotalCurrent_size-1]
-    print "Final DC current: "+str(float(TotalCurrent_AU_final))+" a.u."
-    TotalCurrent_SI_final = TotalCurrent_AU_final
-    print "** Missing: Final DC current: "+str(float(0.*TotalCurrent_SI_final))+" S.I."
+    TotalCurrent_X_AU     = np.asfarray(TotalCurrent[:,2]) #atomic units
+    TotalCurrent_Y_AU     = np.asfarray(TotalCurrent[:,3]) #a. u.
+    TotalCurrent_Z_AU     = np.asfarray(TotalCurrent[:,4]) #a. u. 
+    TotalCurrent_size     = TotalCurrent_X_AU.size
+    TotalCurrent_X_AU_final = TotalCurrent_X_AU[TotalCurrent_size-1] 
+    TotalCurrent_Y_AU_final = TotalCurrent_Y_AU[TotalCurrent_size-1]
+    TotalCurrent_Z_AU_final = TotalCurrent_Z_AU[TotalCurrent_size-1]
+    print "******* WARNING: Here we neglect other polarization directions than X ! ******"
+    print "Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
+    TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
+    print "** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
     
     # Extracting the total energy
     TotalEnergy_size = ElectronEnergy.size #TotalEnergy.size #TODO: to clean
