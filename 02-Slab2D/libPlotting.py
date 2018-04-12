@@ -162,8 +162,11 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     if(PulseType == "STH"): 
       RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
-      RiseTime = int(RiseTime_name)
-      print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+      try: 
+        RiseTime = int(RiseTime_name)
+        print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+      except: 
+        RiseTime = 0
     else: 
       RiseTime = 0
     
