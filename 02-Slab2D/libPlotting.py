@@ -159,14 +159,13 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     del PulseType_inp, PulseType_value
 
     # Identify the RiseTime of the pulse (useful for STH mode only)
-    RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
-    RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
-    if(RiseTime_name == "/"): 
-        print Header+"Rise time was not provided..."
-        RiseTime = 0
+    if(PulseType == "STH"): 
+      RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
+      RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
+      RiseTime = int(RiseTime_name)
+      print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
     else: 
-        RiseTime = int(RiseTime_name)
-        print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+      RiseTime = 0
     
 
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
