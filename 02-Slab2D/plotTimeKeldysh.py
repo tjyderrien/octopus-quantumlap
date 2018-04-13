@@ -352,6 +352,8 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
+DiffCurrentX_AU=np.diff(CurrentX)
+HHG_AU=fft.fft(DiffCurrentX_AU)
 # Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
 
 
@@ -659,9 +661,9 @@ if(PlotGrid==1):
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
-plt.plot(np.abs(CurrentX_AU_FT), 'k-', label=r'$F[Jx](\omega)$')
-ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log", nonposx="clip")
+plt.plot(np.abs(HHG_AU[:1000]), '-', label=r'HHG$(\omega)$')
+# ax4.set_xscale("log", nonposx='clip')
+# ax4.set_yscale("log", nonposx="clip")
 plt.xlabel("Frequency (arb. u.)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 
