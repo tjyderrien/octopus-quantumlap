@@ -338,7 +338,7 @@ IonEnergy      = IonEnergy - IonEnergy.min()
 Hartree        = Hartree - Hartree.min()
 
 ##===== Prepare plotting of total_current ======
-ShrinkBy=3
+ShrinkBy=0
 
 timeCurrent=np.asfarray(TotalCurrent[:,1])
 # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
@@ -606,9 +606,9 @@ if(QuantityOfInterest == "density"):
       timeKeldyshB = instants
   
     if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI, 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI+N_GruzdevB_SI, 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+      ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
     else: #single pulse case
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
@@ -661,7 +661,7 @@ if(PlotGrid==1):
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
-plt.plot(np.abs(HHG_AU[:1000]), '-', label=r'HHG$(\omega)$')
+plt.plot(np.abs(HHG_AU[:200]), '-', label=r'HHG$(\omega)$')
 # ax4.set_xscale("log", nonposx='clip')
 # ax4.set_yscale("log", nonposx="clip")
 plt.xlabel("Frequency (arb. u.)")
