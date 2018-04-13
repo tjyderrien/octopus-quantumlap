@@ -271,7 +271,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
   timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print Header+"Computing Keldysh for Pulse 2: "
@@ -620,10 +620,11 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-# Building the shared legend for subfig1
-plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
-labels2 = [l.get_label() for l in plot2]
-ax2.legend(plot2, labels2, loc=2)
+if(PulseType == "STH"):
+    # Building the shared legend for subfig1 (if STH pulses)
+    plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
+    labels2 = [l.get_label() for l in plot2]
+    ax2.legend(plot2, labels2, loc=2)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
