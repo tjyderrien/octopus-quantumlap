@@ -658,9 +658,11 @@ if(PlotGrid==1):
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
-plt.plot(CurrentX_AU_FT, 'k-', label=r'$F[Jx](\omega)$')
+plt.plot(np.abs(CurrentX_AU_FT), 'k-', label=r'$F[Jx](\omega)$')
 ax4.set_xscale("log", nonposx='clip')
-
+ax4.set_yscale("log", nonposx="clip")
+plt.xlabel("Frequency (arb. u.)")
+plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
 
