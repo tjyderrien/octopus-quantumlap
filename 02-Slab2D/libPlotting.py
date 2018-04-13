@@ -43,7 +43,7 @@ def LoadRunOutputs(path):
 ## Lists the available octopus runs, and build the table of results
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(path='*/*/td.general/'): #{{{
-  PlottingTable = np.empty((0,22)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,23)) ##NOTE: how to define tau_pulse for 2 colors? 
   Header="[OctopusSlabs-libPlotting] "
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
