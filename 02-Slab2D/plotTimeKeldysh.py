@@ -44,9 +44,9 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 
 ## Plotting: parameters for controlling the canvas
 ## 3 canvas
-plotA=311; plotB=312; plotC=313;
+#plotA=311; plotB=312; plotC=313;
 ## 4 canvas
-# plotA=411; plotB=412; plotC=413; plotD=414
+plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 17
@@ -350,9 +350,10 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
 ##== Fourier transforms ==
-# Efield_AU_FT  =fft.rfft(Efield[:maxSize]/c_AU)
-# CurrentX_AU_FT=fft.rfft(CurrentX[:maxSize])
-# Conductivity_Freqs=fft.rfft(timeCurrent[:maxSize])
+# Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
+CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
+# Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
+
 
 ##TODO: Prepare the conductivity plots, also! 
 ## Do not use FFT, see reasons in Numerical Recipes. 
@@ -656,9 +657,10 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
-# ax4 = plt.subplot(plotD)
-# plt.plot(Conductivity_plotX, Conductivity_plotY, 'ko', label=r'$\sigma(\omega)$')
-# ax4.set_xscale("log", nonposx='clip')
+ax4 = plt.subplot(plotD)
+plt.plot(CurrentX_AU_FT, 'k-', label=r'$F[Jx](\omega)$')
+ax4.set_xscale("log", nonposx='clip')
+
 
 ## ======== Applying logscales...
 
