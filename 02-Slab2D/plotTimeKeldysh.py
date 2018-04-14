@@ -49,7 +49,7 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
-SizeY = 17
+SizeY = 20
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
@@ -64,6 +64,8 @@ EnableLogScale = 2 #1: yes, 2: auto from command line
 ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
+
+maxHHG = 200 #maximum number of samples to cut the spectrum with
 
 Header="[octopus-slabs] "
 
@@ -351,9 +353,13 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
-CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
+# CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 DiffCurrentX_AU=np.diff(CurrentX)
 HHG_AU=fft.fft(DiffCurrentX_AU)
+HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+# c_SI = Velocity_AU_to_SI(c_AU)
+HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
+HHG_AU_duration=1./HHG_AU_omega
 # Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
 
 
@@ -661,10 +667,10 @@ if(PlotGrid==1):
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
-plt.plot(np.abs(HHG_AU[:200]), '-', label=r'HHG$(\omega)$')
+plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG]), '-', label=r'HHG$(\omega)$')
 # ax4.set_xscale("log", nonposx='clip')
 # ax4.set_yscale("log", nonposx="clip")
-plt.xlabel("Frequency (arb. u.)")
+plt.xlabel("Harmonic order")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
