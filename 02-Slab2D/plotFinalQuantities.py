@@ -55,23 +55,8 @@ Header="[plotFinalQuantities] "
 
 ShowFinalPlot              = 0
 
-EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
-EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
-
 Density=5E28 #specific to Si
-
-if(EnableDoublePulseAnalysis==2 or EnableInducedFieldAnalysis==2): #automatic mode
-  try: 
-    EnableDoublePulseAnalysis = int(float(sys.argv[1]))
-    EnableInducedFieldAnalysis = int(float(sys.argv[2]))
-    print Header+"Input: Double pulse mode?"+str(EnableDoublePulseAnalysis)
-    print Header+"Input: Induced fields   ?"+str(EnableInducedFieldAnalysis)
-#    ShowFinalPlot = 0 #avoids problems with serial plotting 
-  except: 
-    print Header+"Usage: plotFinalQuantities.py DoublePulse? InducedFields? "
-    print Header+"Ex:    plotFinalQuantities.py 1 1"
-    exit()
-  
+ 
 # Capture the data
 # For histocal reasons, two locations are possilbe.
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
@@ -101,16 +86,16 @@ print Header+"** Preparing the summary plots..."
 # Observables:        {N_exc^max, N_exc^final, irreversibility, TotalCurrent_final, Energy_max, Energy_final}
 
 #### Plotting: parameters for controlling the canvas
-if(EnableDoublePulseAnalysis==0):
+# if(EnableDoublePulseAnalysis==0):
   # 2 plots
-  plotA=211; plotB=212; #plotC=313
-elif (wavelength_numbers > 1):
-  plotA=311; plotB=312; plotC=313;
-else: #if(EnableDoublePulseAnalysis==1):
+plotA=211; plotB=212; #plotC=313
+# elif (wavelength_numbers > 1):
+# plotA=311; plotB=312; plotC=313;
+# else: #if(EnableDoublePulseAnalysis==1):
 # 3 plots
 # plotA=311; plotB=312; plotC=313;
-  # 4 plots 
-  plotA=221; plotB=222; plotC=223; plotD=224;
+# 4 plots 
+# plotA=221; plotB=222; plotC=223; plotD=224;
 
 # Size of main canvas
 SizeX = 16.
