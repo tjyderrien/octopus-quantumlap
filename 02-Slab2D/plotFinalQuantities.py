@@ -53,7 +53,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-ShowFinalPlot              = 0
+ShowFinalPlot              = 1
 
 EnableDoublePulseAnalysis  = 2 #1: yes, 2: auto on command line
 EnableInducedFieldAnalysis = 2 #1: yes, 2: auto on command line
@@ -118,8 +118,7 @@ SizeY = 10.
 
 #pplt.figure(figsize=(SizeX,SizeY))
 
-## We change strategy: now we plot all the available data based on the number of parameters we have detected. 
-# The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
+## Plot Nexc(t, single tau, 1 line per wavelength)
 def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0, RestrictWavelength1=1):
   PlotVirtualExcitation = False
   print "#====== Plot: SINGLE PULSE, VARIOUS WAVELENGTHS, SAME PULSE DURATION, SAME POLARIZATIONS: final density as function of field ======"
@@ -220,7 +219,7 @@ def plotEffectOfIntensity(PlottingTable, pulseDuration=10e-15, ShowFinalPlot=0, 
     del ax2, ax22
 #}}}
 
-## We change strategy: now we plot all the available data based on the number of parameters we have detected. The input parameters will not define what we have to plot anymore. We prepare all the plots, which will simplify the understanding of this file. 
+## Plots N_exc(t; 1 plot per tau, single lambda)
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9):
   PlotVirtualExcitation = False
   print "#====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
@@ -697,12 +696,12 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
     PlottingDoublePulses_SelectedField1 = FilterDatabase(PlottingDoublePulses, Efield1_i, IndexTable['Efield1'])
     for Efield2_i in Efield2_uniq: #{{{ #selecting amplitude2
       # Selecting Field2
-      PlottingDoublePulses_SelectedField2 = FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2_i, IndexTable['wavelengths2'])
+      PlottingDoublePulses_SelectedField2 = FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2_i, IndexTable['Efield2'])
       
       # Constructing the density table
       runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingDoublePulses_SelectedField2)
       
-      print "Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
+      print Header+"Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
       if(len(Ne_final) >= 1):
         ToBeAdded=np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
         print ToBeAdded
@@ -735,12 +734,12 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   # If the size is big enough, let's make a plot.
   if(len(DensityMax2D) >= 2):
     plt.figure()
-    plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(Color1*1E9)+r'nm, $\lambda_2=$'+str(Color2*1E9)+'nm.')
+    #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    plt.title(r'$N_{exc}(E_1,E_2;\lambda_1=$'+wavelength1*1E9+r" nm, $\lambda_2$="+str(wavelength2*1E9)+' nm')
-    plt.xlabel(r'E_1 (V/nm)')
-    plt.ylabel(r'E_2 (V/nm)')
+    plt.title(r'$N_{exc}(E_1,E_2;\lambda_1=$'+str(wavelength1*1E9)+r" nm, $\lambda_2$="+str(wavelength2*1E9)+' nm')
+    plt.xlabel(r'$E_1$ (V/nm)')
+    plt.ylabel(r'$E_2$ (V/nm)')
     #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
     #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
     #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS
@@ -762,6 +761,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   
     plt.savefig(filename+'.eps')
     plt.savefig(filename+'.png')
+    print Header+"** Info: saved "+filename+"eps|png."
     if(ShowFinalPlot==1):
       plt.show()
   
@@ -926,7 +926,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 0) #validated
-plotEffectOfIntensity(PlottingTable, 20e-15, 1, 1) #validated
+#plotEffectOfIntensity(PlottingTable, 20e-15, 1, 1) #validated
 #plotEffectOfIntensity(PlottingTable, 30e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 40e-15, 0) #validated
 #plotEffectOfIntensity(PlottingTable, 50e-15, 0) #validated
@@ -947,8 +947,8 @@ plotEffectOfIntensity(PlottingTable, 20e-15, 1, 1) #validated
 # plotEffectOfFrozenXC(PlottingTable)
 
 # Zhukov bicolor plotting
-#plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15)
-#plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15)
+plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15)
+plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15)
 
 #plotEffectOfDoublePulse_Efield1_Efield2_batchAllColors(PlottingTable) #BUGGY
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
