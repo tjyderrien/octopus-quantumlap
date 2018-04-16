@@ -51,7 +51,7 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   omega_SI = 2.*pi*c_SI/wavelength
   omega_AU = 1./(Time_SI_to_AU(1./omega_SI))
   Env_E_AU = Field_SI_to_AU(Envelope) #Units from V/m to Atomic Units (eV/Bohr?). 
-  Env_A_AU = c_AU * Env_E_AU / omega_AU
+  Env_A_AU = c_AU * Env_E_AU / omega_AU #TODO: again very approximative! 
   t_AU = Time_SI_to_AU(t) #VALIDATED
   return t_AU, Env_A_AU, 0.*t_AU
   #}}}
@@ -61,7 +61,7 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
 if(len(sys.argv)<6):
   print "Usage: ./GeneratePulse.py \ "
   print "    <Pulse duration (s)> \ "
-  print "    <Duration of the ramp (s)> \ "
+  print "    <Ramp cycle number> \ "
   print "    <Peak field amplitude (V/m)> \ "
   print "    <Laser wavelength (m)> \ "
   print "    <CEP [multiples of Pi] > \ "
@@ -74,28 +74,40 @@ if(len(sys.argv)<6):
 
 #============ Manage the command line input =================
 tau        = sys.argv[1]
-tauRise    = sys.argv[2]
+RiseCycle  = sys.argv[2]
 PeakField  = sys.argv[3]
 wavelength = sys.argv[4]
 CEP        = sys.argv[5]
 PulseDelay = sys.argv[6]
 ComputingT = sys.argv[7] #maximum time of computation
 
-tau = np.asfarray(tau); tauRise = np.asfarray(tauRise); 
-PeakField = np.asfarray(PeakField);   wavelength = np.asfarray(wavelength); 
-CEP = np.asfarray(CEP); PulseDelay = np.asfarray(PulseDelay); 
+tau = np.asfarray(tau); 
+RiseCycle = np.asfarray(RiseCycle); 
+PeakField = np.asfarray(PeakField);   
+wavelength = np.asfarray(wavelength); 
+CEP = np.asfarray(CEP); 
+PulseDelay = np.asfarray(PulseDelay); 
 ComputingT = np.asfarray(ComputingT); 
+
+tauRise = RiseCycle / (2. * pi * c / wavelength)
 
 #print Header+"Pulse duration: "+str(tau)
 
 print Header+"Computing time = "+str(float(ComputingT))
 tmin = 0.
 tmax = float(ComputingT)
-Number = 200
+Number = 5000 #BUG: this was too small !
 t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()
 Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP, tau, PulseDelay)
+
+time, Ax, Ay = Envelope
+print time, Ax
+plt.figure()
+plt.plot(time, Ax)
+plt.show()
+
 OctopusReady = np.transpose(Envelope)
 
 #print OctopusReady
