@@ -81,7 +81,7 @@ DefineParameters () {
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
-  tauRise=$( python_calc " float( ${RiseCycle} / (2.* 3.14 * 3E8 /${lambda1} ) ) "  )
+  tauRise=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
   
 # CONCEPT OF THE PULSE CAPTURE
 # NOTE: flood_td.sh generates the list of pulses we need. 
@@ -89,9 +89,9 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${tauRise} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
   mv Pulses.dat PulseA.dat
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${tauRise} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."
