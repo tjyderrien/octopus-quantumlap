@@ -4,7 +4,7 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-FromScratch = yes
+# FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
 # UnitsXYZFiles = Angstrom
 # Debug = trace
@@ -173,7 +173,7 @@ px2 = cos(th2)
 py2 = sin(th2)
 
 # Duration of the rise is linked with laser wavelength
-tauRise = 2.*pi/omegaA
+tauRise = 2.*pi/omegaA #no longer true when input is from a file
 # Tp = tau1
 # Thp = Tp/2
 # Tc = 50/au2fs
@@ -207,6 +207,8 @@ tR = tauRise
 # "FieldColorB-STH" | tdf_from_expr | "amplitudeB * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
   "FieldColorA-STH" | tdf_from_file | "PulseA.dat"
   "FieldColorB-STH" | tdf_from_file | "PulseB.dat"
+  "FieldColorA-StH" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-StH" | tdf_from_file | "PulseB.dat"
 %
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
