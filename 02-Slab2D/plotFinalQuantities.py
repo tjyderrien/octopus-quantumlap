@@ -304,7 +304,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, S
 #}}}
 
 ## Single-pulse: Effects of CEP on excitation (for now), later: current and energy, and harmonic spectrum
-def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, PulseShape=2, ShowFinalPlot=0):
+def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, PulseShape=2, pulseRiseTime=0, ShowFinalPlot=0):
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -317,6 +317,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseShape, IndexTable['PulseType']) #keeps only non-frozen XC. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseRiseTime, IndexTable['RiseTime']) #removes fields where tau != pulseDuration
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
@@ -334,7 +335,8 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
     runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_CEP)
     
     #plot_field, = ax1.plot(FieldToIntensity(Efield1), Ne_final, '-', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
-    lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final]))
+    #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final]))
+    lists = sorted(itertools.izip(*[Efield1, Ne_final]))
     Intensity_sorted, Ne_final_sorted = list(itertools.izip(*lists))
     print Header+"Ready to plot: "
     #print "** Info: Sorting data..."
@@ -961,6 +963,16 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 #}}}
 
 ## Prepare all plots for single-color excitation with VP Zhukov
+PulseType  = 2 #STH
+wavelength = 800e-9
+RiseCycles = 0 #0: undefined, mixes everything. Basically, we must redefine all runs which had no well defined RiseCycle so far. 
+ShowPlot   = 1
+
+# Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
+plotEffectOfIntensity_CEP(PlottingTable, wavelength, 20e-15, PulseType, RiseCycles, ShowPlot) #but we have only 1 CEP, ... stupido. 
+plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot) #but we have only 1 CEP, ... stupido. 
+
+plotEffectOfRiseTime(PlottingTable, wavelength, 20e-15, PulseType, ShowPlot) #
 
 ## Prepare all plots for bicolor paper with V. Zhukov
 def plot_Zhukov_BicolorMaps():
@@ -978,9 +990,6 @@ def plot_Zhukov_BicolorMaps():
 ## Prepare all plots for shift current paper with A. Rubio
 #def plot_ShiftCurrent():
     
-# Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
-plotEffectOfIntensity_CEP(PlottingTable, 800e-9, 20e-15, 2, 1) #TODO: Pulse shape selection
-plotEffectOfIntensity_CEP(PlottingTable, 800e-9, 10e-15, 2, 1) #TODO: Pulse shape selection
 
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 1, 1, 1) #validated
