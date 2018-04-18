@@ -14,7 +14,6 @@ DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
 
 kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
-RiseCycle="3" #2.666e-15" # SoftTopHat pulse rise time (in s) #Default: 2*pi/omega (1 cycle). 
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -37,6 +36,8 @@ CrossPolarization=${17}
 TheoryLevel=${18}
 Functional=${19}
 FreezeXC=${20}
+RiseCycle=${21}
+
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
 
