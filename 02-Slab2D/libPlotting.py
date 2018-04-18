@@ -161,13 +161,21 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
     del PulseType_inp, PulseType_value
 
-    # Identify the RiseTime of the pulse (useful for STH mode only)
+    # Identify the RiseTime of the pulse (useful for STH and StH modes only)
     if(PulseType == 2): 
       RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
         RiseTime = int(RiseTime_name)
         print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+      except: 
+        RiseTime = 0
+    elif(PulseType == 3): 
+      RiseTime_position = FolderName.find("StH") #returns the position of STH chain in folder name
+      RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
+      try: 
+        RiseTime = int(RiseTime_name)
+        print Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s)."
       except: 
         RiseTime = 0
     else: 
