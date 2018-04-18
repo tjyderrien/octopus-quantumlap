@@ -137,7 +137,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     
     ######## Identify the type of the pulse envelope 
 
-    # Gaussian | SinSquared pulse | Soft Top Hat pulse?
+    # Gaussian | SinSquared pulse | bugged Soft Top Hat pulse (2) | Fixed STH (3) ?
 #    del PulseType_inp, PulseType_value
     PulseType_inp   = LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
     PulseType_value = PulseType_inp[48:] #this allows to have unique solution
@@ -149,8 +149,11 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
       print Header+"** Info: Squared Sinus pulse detected..."
       PulseTypeName="SinSquared"
     elif ("STH" in PulseType_value):
-      print Header+"** Info: Soft Top Hat pulse detected..."
+      print Header+"** Info: BUGGY Soft Top Hat pulse detected..."
       PulseTypeName="STH"
+    elif ("StH" in PulseType_value): #fixed STH 
+      print Header+"** Info: FIXED Soft Top Hat pulse detected..."
+      PulseTypeName="StH"
     else:
       print Header+"** Error: pulse type was not recognized."
       exit()
@@ -480,5 +483,10 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 
 IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Current_final': 18, 'Energy_max': 19, 'Wpi': 20, 'PulseType': 21, 'RiseTime':22}
 
-PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2}
+# For historical reasons, 
+# Gaussian is working but non-zero derivative in instant 0
+# SinSquared is working and physical. 
+# STH was not well controlled (stupid mistake)
+# StH was well controlled. 
+PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
 
