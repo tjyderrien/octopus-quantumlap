@@ -262,7 +262,7 @@ elif(PulseType == "gaussian"):
   IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(instants, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
   FieldEnvelope2     = Keldysh.IntensityToField(IntensityEnvelope2)
   #TODO: add double-gaussian-pulses here
-elif(PulseType == "STH"): 
+elif(PulseType == "STH" or PulseType=="StH"): 
   #here, we don't compute the density but just output the W_PI, because there is not analytical solution for dNe/dt. 
   #As a result, we only put one instant into the pulse to obtain a scalar at the peak intensity. 
   #IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0) #BUG: we just need the peak amplitude of the field
