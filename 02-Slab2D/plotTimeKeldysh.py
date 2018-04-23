@@ -299,7 +299,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
     else:
       print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
 #}}}
-elif (PulseType == "STH"): 
+elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
   PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
 else: 
@@ -587,7 +587,7 @@ if(QuantityOfInterest == "density"):
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     #plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    if("STH" in PulseType):
+    if("STH" in PulseType or "StH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
@@ -606,7 +606,7 @@ if(QuantityOfInterest == "density"):
   ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
   
   ## If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
-  if(PulseType != "STH"): #then we plot performed predictions. 
+  if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
     # Checking sizes of the data to plot. 
     if(len(timeKeldysh) != len(N_Gruzdev_SI)):
       print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
@@ -633,7 +633,7 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-if("STH" in PulseType):
+if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
