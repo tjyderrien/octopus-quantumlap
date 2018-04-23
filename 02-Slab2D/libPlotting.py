@@ -156,6 +156,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
       PulseTypeName="StH"
     else:
       print Header+"** Error: pulse type was not recognized."
+      print Header+"** Error PulseType_value = "+str(PulseType_value)
       exit()
     print Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
