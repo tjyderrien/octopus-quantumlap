@@ -238,7 +238,7 @@ elif(PulseType == "gaussian"):
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
   tmax =  2.*PulseDuration_SI + t0
-elif(PulseType == "STH"): 
+elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
   tmax =  2.*PulseDuration_SI + t0 #BUG
