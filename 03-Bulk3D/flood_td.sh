@@ -46,24 +46,35 @@ CEP2="0.0" # 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="STH" #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
-
-lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
+PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
+RiseCycle="1 2 3 4 5"
+# lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
 # lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
-lambda2="800e-9"
+# lambda2="800e-9"
 # lambda2="515e-9 700e-9 900e-9 1030e-9 1060e-9 1100e-9 1300e-9 1500e-9 1700e-9 1900e-9 2100e-9"
 # lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
 
 # Field amplitude
-Efield1="5e9" #ZHUKOV
-# Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield1="5E9" #"2E9 3E9 4E9" #ZHUKOV
+# Efield2="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+# Efield2="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 Efield2="0e0"
 # Efield2="5e9"
+
 
 # Pulse duration
 tau1="20e-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
 tau2="20e-15"
+
+lambda1="800e-9"
+lambda2="400e-9"
+# lambda2="1030e-9 1600e-9"
+
+# ============ SHIFT CURRENT LASER PARAMETERS =========
+#PulseShape="SinSquared"
+#lambda1="800e-9"
+#lambda2="1850e-9 1950e-9 2050e-9 2150e-9"
 
 # ============ MERDJI LASER PARAMETERS =========
 # PulseShape="SinSquared" 
@@ -107,6 +118,8 @@ do
           for iMeshSizeX in ${MeshSizeX}
           do
 		iMeshSizeZ=$iMeshSizeX
+           for iRiseCycle in ${RiseCycle}
+           do
 #           for iMeshSizeZ in ${MeshSizeZ}
 #           do 
             # Create the working folder
@@ -114,7 +127,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle}
 #           done
           done
 #          done
@@ -126,6 +139,7 @@ do
    done
   done
  done
+done
 done
 done
 done
