@@ -194,6 +194,7 @@ elif ("FieldColorA-STH" in PulseType_value):
   PulseType="STH"
 elif ("FieldColorA-StH" in PulseType_value):
   print Header+"** Info: Soft Top Hat pulse [corrected] detected..."
+  PulseType="StH"
 else: 
   print Header+"** Error: pulse type was not recognized."
   print Header+"** Error value: PulseType_value = "+str(PulseType_value)
