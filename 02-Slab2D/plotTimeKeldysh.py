@@ -194,6 +194,7 @@ elif ("FieldColorA-STH" in PulseType_value):
   PulseType="STH"
 else: 
   print Header+"** Error: pulse type was not recognized."
+  print Header+"** Error value: PulseType_value = "+str(PulseType_value)
   exit()
 
 ##==== KELDYSH CALCULATION PULSE 1 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
@@ -240,6 +241,7 @@ elif(PulseType == "STH"):
   tmax =  2.*PulseDuration_SI + t0 #BUG
 else: 
   print Header+"** Error: pulse type was not recognized. "
+  print Header+"** Error details: PulseType = "+str(PulseType)
   exit()
   
 instants=np.arange(tmin,tmax,dtPrecision)
