@@ -65,7 +65,7 @@ ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
-maxHHG = 200 #maximum number of samples to cut the spectrum with
+maxHHG = 3*200 #maximum number of samples to cut the spectrum with
 
 Header="[octopus-slabs] "
 
@@ -358,8 +358,8 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
-DiffCurrentX_AU=np.diff(CurrentX)
-HHG_AU=fft.fft(DiffCurrentX_AU)
+# DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
+HHG_AU=fft.fft(CurrentX)
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -586,7 +586,7 @@ if(QuantityOfInterest == "density"):
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     #plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    if(PulseType == "STH"):
+    if("STH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
   #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
@@ -632,7 +632,7 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-if(PulseType == "STH"):
+if("STH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
@@ -671,9 +671,10 @@ if(PlotGrid==1):
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
-plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG]), '-', label=r'HHG$(\omega)$')
+# plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 # ax4.set_xscale("log", nonposx='clip')
-# ax4.set_yscale("log", nonposx="clip")
+ax4.set_yscale("log", nonposx="clip")
 plt.xlabel("Harmonic order")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 
