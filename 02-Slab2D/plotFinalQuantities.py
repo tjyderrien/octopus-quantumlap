@@ -304,7 +304,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, S
 #}}}
 
 ## Single-pulse: Effects of CEP on excitation (for now), later: current and energy, and harmonic spectrum
-def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, PulseShape=2, pulseRiseTime=0, ShowFinalPlot=0):
+def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, PulseShape=3, pulseRiseTime=0, ShowFinalPlot=0):
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -612,7 +612,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable):
 
 ## Plots the N_exc(wavelength, field) (2D plot)
 # VALID, but of course interference of 2 waves is oscillating very much !
-def plotEffectOfWavelength_2dMap(PlottingTable):
+def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=2, RiseCycles=0, ShowPlot=0):
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -963,16 +963,18 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 #}}}
 
 ## Prepare all plots for single-color excitation with VP Zhukov
-PulseType  = 2 #STH
+PulseType  = 2 #STH: 2, StH: 3
 wavelength = 800e-9
 RiseCycles = 0 #0: undefined, mixes everything. Basically, we must redefine all runs which had no well defined RiseCycle so far. 
 ShowPlot   = 1
+
+plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, 2, 0, 1)
 
 # Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
 plotEffectOfIntensity_CEP(PlottingTable, wavelength, 20e-15, PulseType, RiseCycles, ShowPlot) #but we have only 1 CEP, ... stupido. 
 plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot) #but we have only 1 CEP, ... stupido. 
 
-plotEffectOfRiseTime(PlottingTable, wavelength, 20e-15, PulseType, ShowPlot) #
+#plotEffectOfRiseTime(PlottingTable, wavelength, 20e-15, PulseType, ShowPlot) #
 
 ## Prepare all plots for bicolor paper with V. Zhukov
 def plot_Zhukov_BicolorMaps():
