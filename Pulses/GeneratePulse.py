@@ -102,11 +102,11 @@ t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #exit()
 Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP, tau, PulseDelay)
 
-time, Ax, Ay = Envelope
-print time, Ax
-plt.figure()
-plt.plot(time, Ax)
-plt.show()
+# time, Ax, Ay = Envelope
+# print time, Ax
+# plt.figure()
+# plt.plot(time, Ax)
+# plt.show()
 
 OctopusReady = np.transpose(Envelope)
 
