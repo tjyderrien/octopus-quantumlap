@@ -89,7 +89,7 @@ CEP = np.asfarray(CEP);
 PulseDelay = np.asfarray(PulseDelay); 
 ComputingT = np.asfarray(ComputingT); 
 
-tauRise = RiseCycle / (2. * pi * c / wavelength)
+tauRise = 2. * pi * RiseCycle / (2. * pi * c / wavelength)
 
 #print Header+"Pulse duration: "+str(tau)
 
