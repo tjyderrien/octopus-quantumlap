@@ -25,9 +25,10 @@ from libKeldyshPulses import PulseSmoothTopHatShape
 from libDatabase      import ExportToTxt
 from libSPP           import *
 from libAtomicUnits   import *
+from scipy            import integrate
 
 Header="[octopus-slabs: GeneratePulses.py] "
-
+DebugMode = 0 #0: outputs the envelope of the field for octopus. 1: output the fields and plots. 
 ## Generates the required pulse envelope from spp-ext-theory/Keldysh/libKeldyshPulses and returns it in a file. 
 # Input parameters 
 # @param t (SI): time instants to prepare the pulse
@@ -50,10 +51,48 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   c_SI = c #libUnits
   omega_SI = 2.*pi*c_SI/wavelength
   omega_AU = 1./(Time_SI_to_AU(1./omega_SI))
-  Env_E_AU = Field_SI_to_AU(Envelope) #Units from V/m to Atomic Units (eV/Bohr?). 
-  Env_A_AU = c_AU * Env_E_AU / omega_AU #TODO: again very approximative! 
+  
+  # Still exact
+  Field_E_AU = Field_SI_to_AU(Field) #complex
+  Env_E_AU   = Field_SI_to_AU(Envelope) #Units from V/m to Atomic Units (eV/Bohr?).
   t_AU = Time_SI_to_AU(t) #VALIDATED
-  return t_AU, Env_A_AU, 0.*t_AU
+  
+  if(DebugMode == 0): #approximation with error on phase
+    # This approximation is inducing a quadrature in the thing. 
+    # This kills the resolution at the cycle. 
+    Field_A_AU_approx = 1j * c_AU * Field_E_AU / omega_AU  #approximative! #only for DEBUG
+    Env_A_AU_approx = np.sqrt(Field_A_AU_approx * np.conj(Field_A_AU_approx)) #might solve the problem
+    
+  elif(DebugMode == 3): #attempt to perform the integration directly
+  # This should be more exact
+  #PhaseShift=40./180. * pi
+    ##Field_A_AU = - c_AU * Field_E_AU.cumsum() #leads to a too high amplitude
+    Field_A_AU = - c_AU * integrate.cumtrapz(Field_E_AU, t_AU, initial=0) #should be done in atomic units!
+    #Field_A_AU = - c_AU * integrate.romb(Field_E_AU) #should be done in atomic units!
+    #Field_A_AU = Field_A_AU * np.exp(-1j*PhaseShift) #correcting the phase to obtain a more smooth envelope
+    Env_A_AU = np.sqrt(Field_A_AU * np.conj(Field_A_AU))
+  # Extraction of the envelope
+  
+  # Debug mode output
+  if(DebugMode==0): 
+    Output1 = t_AU
+    Output2 = Env_A_AU_approx #real-valued using the analytical approximation
+    #Output2 = Field_A_AU_approx #DEBUG PURPUSE ONLY
+  elif(DebugMode==1): #to solve the initial phase problem and the continuity of the field
+    Output1 = t_AU #[:len(t_AU)-1]
+    Output2 = Field_A_AU #complex-valued. ONLY FOR DEBUG ! Otherwise, it may send a sinusoidal ENVELOPE to octopus...
+  elif(DebugMode==2): #to solve the peak amplitude problem
+    Output1 = t_AU
+    Output2 = Field_E_AU #AU units, complex-valued (contains the phase)
+  elif(DebugMode==3): #We now check the envelope final shape without using the analytical approximation
+    Output1 = t_AU #[:len(t_AU)-1]
+    #Output2 = Field_A_AU.real #DEBUG PURPUSE ONLY #Env_A_AU.real #real-valued
+    Output2 = Env_A_AU.real #real-valued
+  else: 
+    print Header+"** ERROR: debug mode variable is undefined. "
+    exit()
+  
+  return Output1, Output2, 0.*t_AU #GOOD for octopus if Output is an envelope
   #}}}
 
 # Read pulse data from command line
@@ -89,24 +128,77 @@ CEP = np.asfarray(CEP);
 PulseDelay = np.asfarray(PulseDelay); 
 ComputingT = np.asfarray(ComputingT); 
 
-tauRise = 2. * pi * RiseCycle / (2. * pi * c / wavelength)
+omega = 2.*pi*c/wavelength
+
+tauRise = 2.*pi*RiseCycle / (omega)
+
+tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant zero !
+
+ComputingT_min = tauSafe+tauRise+tau+tauRise+tauSafe
+if(ComputingT_min > ComputingT):
+    print Header+"** Error: minimum computer time is too small. Use minimum: "+str(ComputingT_min)
+    exit()
+
 
 #print Header+"Pulse duration: "+str(tau)
 
 print Header+"Computing time = "+str(float(ComputingT))
 tmin = 0.
 tmax = float(ComputingT)
-Number = 5000 #BUG: this was too small !
+Number = 50000 #NOTE: better to put too many nodes here ! Better to have something bigger than octopus time steps. 
 t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()
-Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP, tau, PulseDelay)
+Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay)
 
-# time, Ax, Ay = Envelope
-# print time, Ax
-# plt.figure()
-# plt.plot(time, Ax)
-# plt.show()
+if(DebugMode==1):
+    time, Ax, Ay = Envelope
+    print time, Ax
+    plt.figure()
+    plt.plot(time, Ax/Ax.max(), label=r"Norm. $A(t)$")
+    differential = np.diff(Ax)
+    plt.plot(time[:len(time)-1], differential/differential.max(), label=r"Norm. $\partial A / \partial t$") #NOTE: this should be zero in instant 0 to avoid jumps in current! dA/dt should also be continuous. 
+    plt.legend()
+    plt.grid()
+    plt.show()
+    
+elif(DebugMode==2):
+    time, Ex, Ey = Envelope #AU
+    print time, Ex #complex-valued
+    
+    omega_AU = 1./(Time_SI_to_AU(1./omega))
+    
+    #Ax_cumsum  = -1.j * c_AU * Ex.cumsum() #AU, WARNING. cumsum is not applicable on a complex-valued quantity !!
+    Ax_quad    = - c_AU * integrate.cumtrapz(Ex, time) #AU 
+    Ax_approx  = c_AU * Ex / omega_AU #NOTE: modest analytical approximation
+    #Ax_peak   # has no meaning! 
+    
+    print np.shape(time)
+    
+    plt.figure()
+    plt.title(r"$\tau=$"+str(round(tau*1E15))+r" fs, $\tau_{rise}=$"+str(round(tauRise*1E15))+" fs.")
+    #print np.shape(Ax_approx)
+    plt.plot(time, np.abs(Ax_approx), label=r"$|A(t)|$ approx.")
+    plt.plot(time, Ax_approx.real, label=r"Re$(A(t))$")
+    #print np.shape(Ax_cumsum)
+    #plt.plot(time, Ax_cumsum,  label=r"$A(t)$ cumsum")
+    #print np.shape(Ax_quad)
+    plt.plot(time[:len(time)-1], np.abs(Ax_quad),  label=r"$|A(t)|$ quad")
+    plt.plot(time[:len(time)-1], Ax_quad.real,  label=r"Re$(A(t))$ quad")
+    #differential = np.diff(Ex)
+    #plt.plot(time[:len(time)-1], differential/differential.max(), label=r"Norm. $\partial A / \partial t$") #NOTE: this should be zero in instant 0 to avoid jumps in current! But should it be continuous? 
+    plt.legend()
+    plt.grid()
+    plt.show()    
+
+elif(DebugMode==0 or DebugMode==3):
+    time, Ax, Ay = Envelope
+    print Header+"** Info: Max value of Ax envelope= "+str(Ax.max())
+    plt.figure()
+    plt.plot(time, Ax, label=r"$A(t)$")
+    plt.legend()
+    plt.grid()
+    plt.show()
 
 OctopusReady = np.transpose(Envelope)
 
