@@ -53,30 +53,42 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   omega_AU = 1./(Time_SI_to_AU(1./omega_SI))
   
   # Still exact
+  print Header+"** Input: Peak field    E amplitude (SI): "+str(np.abs(Field).max())
+  print Header+"** Input: Peak envelope E amplitude (SI): "+str(np.abs(Envelope).max())
   Field_E_AU = Field_SI_to_AU(Field) #complex
   Env_E_AU   = Field_SI_to_AU(Envelope) #Units from V/m to Atomic Units (eV/Bohr?).
+  print Header+"** Converted: Peak field    E amplitude (at.u.): "+str(np.abs(Field_E_AU).max())
+  print Header+"** Converted: Peak envelope E amplitude (at.u.): "+str(np.abs(Env_E_AU).max())
   t_AU = Time_SI_to_AU(t) #VALIDATED
+  
+  Field_A_AU_approx = 1j * c_AU * Field_E_AU / omega_AU
+  Env_A_AU_approx = np.sqrt(Field_A_AU_approx * np.conj(Field_A_AU_approx)) #might solve the problem
   
   if(DebugMode == 0): #approximation with error on phase
     # This approximation is inducing a quadrature in the thing. 
     # This kills the resolution at the cycle. 
-    Field_A_AU_approx = 1j * c_AU * Field_E_AU / omega_AU  #approximative! #only for DEBUG
-    Env_A_AU_approx = np.sqrt(Field_A_AU_approx * np.conj(Field_A_AU_approx)) #might solve the problem
+    print Header+"** Converted with approximation: Vector field   A amplitude (at.u.): "+str(Field_A_AU_approx.min())+", "+str(Field_A_AU_approx.max())
+    print Header+"** Converted with approximation: Envelope field A amplitude (at.u.): "+str(np.abs(Env_A_AU_approx).max())
     
   elif(DebugMode == 3): #attempt to perform the integration directly
-  # This should be more exact
+  # This should be more exact IF WE WOULD HAVE A NUMERICAL INTEGRATION METHOD FOR COMPLEX INTEGRALS. 
   #PhaseShift=40./180. * pi
-    ##Field_A_AU = - c_AU * Field_E_AU.cumsum() #leads to a too high amplitude
-    Field_A_AU = - c_AU * integrate.cumtrapz(Field_E_AU, t_AU, initial=0) #should be done in atomic units!
+    Field_E_AU_real = Field_E_AU.real
+    print Header+"** Real part of E(t): Peak field E amplitude (at.u.): "+str(Field_E_AU_real.min())+", "+str(Field_E_AU_real.max())
+    #Field_A_AU = - c_AU * Field_E_AU_real.cumsum() #leads to a too high amplitude
+    Field_A_AU_real = - c_AU * integrate.cumtrapz(Field_E_AU_real, t_AU, initial=0) #should be done in atomic units, and using a real part
+    #Env_A_AU = np.sqrt(Field_A_AU * np.conj(Field_A_AU))
     #Field_A_AU = - c_AU * integrate.romb(Field_E_AU) #should be done in atomic units!
     #Field_A_AU = Field_A_AU * np.exp(-1j*PhaseShift) #correcting the phase to obtain a more smooth envelope
-    Env_A_AU = np.sqrt(Field_A_AU * np.conj(Field_A_AU))
+    print Header+"** Converted with integration: Vector field A amplitude (at.u.): "+str(Field_A_AU_real.min())+", "+str(Field_A_AU_real.max())
+    #print Header+"** Converted with integration: Envelope field A amplitude (at.u.): "+str(Field_A_AU_real.max())
+    
   # Extraction of the envelope
   
   # Debug mode output
   if(DebugMode==0): 
     Output1 = t_AU
-    Output2 = Env_A_AU_approx #real-valued using the analytical approximation
+    Output2 = Env_A_AU_approx.real #real-valued using the analytical approximation
     #Output2 = Field_A_AU_approx #DEBUG PURPUSE ONLY
   elif(DebugMode==1): #to solve the initial phase problem and the continuity of the field
     Output1 = t_AU #[:len(t_AU)-1]
@@ -87,7 +99,7 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   elif(DebugMode==3): #We now check the envelope final shape without using the analytical approximation
     Output1 = t_AU #[:len(t_AU)-1]
     #Output2 = Field_A_AU.real #DEBUG PURPUSE ONLY #Env_A_AU.real #real-valued
-    Output2 = Env_A_AU.real #real-valued
+    Output2 = Field_A_AU_real #real-valued
   else: 
     print Header+"** ERROR: debug mode variable is undefined. "
     exit()
@@ -191,7 +203,7 @@ elif(DebugMode==2):
     plt.grid()
     plt.show()    
 
-elif(DebugMode==0 or DebugMode==3):
+elif(DebugMode==3):
     time, Ax, Ay = Envelope
     print Header+"** Info: Max value of Ax envelope= "+str(Ax.max())
     plt.figure()
