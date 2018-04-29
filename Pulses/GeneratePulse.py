@@ -149,8 +149,10 @@ tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant 
 ComputingT_min = tauSafe+tauRise+tau+tauRise+tauSafe
 if(ComputingT_min > ComputingT):
     print Header+"** Error: minimum computer time is too small. Use minimum: "+str(ComputingT_min)
-    print Header+"** Warning: the value was rewritten to avoid computing for nothing."
-    ComputingT = ComputingT_min
+    print Header+"** TODO: replace the total value of computing time in inp as well."
+    exit()
+#    print Header+"** Warning: the value was rewritten to avoid computing for nothing."
+#    ComputingT = ComputingT_min
 
 
 #print Header+"Pulse duration: "+str(tau)
