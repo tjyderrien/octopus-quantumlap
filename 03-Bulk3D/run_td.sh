@@ -37,6 +37,7 @@ TheoryLevel=${18}
 Functional=${19}
 FreezeXC=${20}
 RiseCycle=${21}
+Mission=${22}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -282,6 +283,9 @@ SubmitTheJob () {
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
+
+  # Update the Submission script with the mission name
+  sed -i.bak s/-J[[:space:]]Mission/-J ${Mission}/g submit.sbatch
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
