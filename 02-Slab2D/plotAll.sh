@@ -23,7 +23,7 @@ do
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		gnuplot "${OctopuSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
+		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
@@ -37,13 +37,13 @@ do
                 gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 	fi
 	echo ""
-	echo "** NEXT FOLDER PLEASE :)"
+	echo "** NEXT FOLDER"
 	echo ""
 	# git add *.eps *.png
 	cd - > /dev/null
 done
 # for each results folder where the code was started. #Assume that ./td.general was created. 
-for folder in $( list_folders | grep 'td.general' )
+for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -67,15 +67,37 @@ do
 	cd $prevFolder > /dev/null
 done
 
+# plot results for HHG for SquaredSinus pulses
+for folder in $( list_folders | grep 'td.general' | grep 'SinSquared' )
+do
+        # HERE, the whole thing should be executed in background for each folder (1 thread / folder).
+        # then, processes may work on a different run, and hence produce all results at the same time
+        # without interfering.
+        echo "Found folder $folder"
+        prevFolder=$( pwd )
+        cd $folder
+        echo "** Building files for post-processed density..."
+        # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
+        echo "** Plotting the TD-HHG results... $(pwd)" 
+        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
+        echo ""
+
+        # echo "** Generating list of TD-visual outputs..."
+        # TODO : $OctopusSlabsSources/Video/buildFileList.sh #generated listoffiles.txt
+        # echo "td.0000000/" > listoffiles.txt
+        # echo "td.0007770/" >> listoffiles.txt
+        # screen -d -m $OctopusSlabsSources/Video/plotELF.sh
+
+        cd $prevFolder > /dev/null
+done
+
 # for folder in $( list_folders | grep -v 'lambda' ) 
 # do
 #  prevFolder=$( pwd )
 #  cd $folder
   echo "** Plotting nice figure for post-processed density for $(pwd)..."
-  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 0 0
-  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 0 1
-  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 1 0
-  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py 1 1
+  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
 #   cd $prevFolder > /dev/null
 # done 
 
