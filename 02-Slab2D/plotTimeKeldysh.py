@@ -38,6 +38,7 @@ from libPlotting import *
 
 
 ## Materials properties
+Z_at    = 2 #Number of atoms per unit cell
 Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
@@ -409,7 +410,7 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 # Calculation using quantum projections < phi_gs | phi(t) >
 #Nproj_AU = density #* CellVolume_AU 
 # Nproj_AU = Nproj_AU * CellVolume_AU #Should we really multiply by volume ?
-density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.)
+density_proj_AU = Z_at * Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.)
 # Calculation of particle number from charge density (octopus.output.density)
 # Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
 # Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
