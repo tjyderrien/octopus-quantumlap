@@ -45,9 +45,9 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 
 ## Plotting: parameters for controlling the canvas
 ## 3 canvas
-#plotA=311; plotB=312; plotC=313;
+plotA=311; plotB=312; plotC=313;
 ## 4 canvas
-plotA=411; plotB=412; plotC=413; plotD=414
+#plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 20
@@ -113,7 +113,6 @@ elif(sys.argv[3] == "1"):
 else:
   ShowFinalPlot = ShowFinalPlotDefault
   
-
 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
 # Treat the data generated with Octopus. 
@@ -671,14 +670,14 @@ if(PlotGrid==1):
   for xc in xposition:
     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
-## ============ PLOTTING FOURIER SPECTRA =========
-ax4 = plt.subplot(plotD)
-# plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-# ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log", nonposx="clip")
-plt.xlabel("Harmonic order")
-plt.ylabel("Harmonic ampl. (arb. u.)")
+### ============ PLOTTING FOURIER SPECTRA =========
+#ax4 = plt.subplot(plotD)
+## plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+#plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+## ax4.set_xscale("log", nonposx='clip')
+#ax4.set_yscale("log", nonposx="clip")
+#plt.xlabel("Harmonic order")
+#plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
 
