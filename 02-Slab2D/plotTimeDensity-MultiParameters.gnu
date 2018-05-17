@@ -20,11 +20,11 @@ set format "%g"
 set xrange [-5:50]
 
 set xlabel 'Time [fs]'
-set ylabel 'A(t) (a.u.)'
-set y2label 'Density N_e [a.u]'
+# set y2label 'A(t) (a.u.)'
+set ylabel 'Density N_e [a.u]'
 
 set ytics nomirror
-set y2tics nomirror
+# set y2tics nomirror
 
 set key right bottom
 
