@@ -460,7 +460,7 @@ omega = 2.*pi*c/wavelength_SI
 wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
 # wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #not good as depends on the final time
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI))
-wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / NumberOfTimeSteps 
+wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / (2.*NumberOfTimeSteps) #BUG? We should integrate n_exc^(TDDFT) instead. 
 wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
 wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
 wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI)
@@ -581,8 +581,9 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+  plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k-', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
-  if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
+  if(PlottingMode=="keldysh"): 
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     #plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
     plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
