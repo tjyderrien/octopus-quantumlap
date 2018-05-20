@@ -60,16 +60,18 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 
 # Field amplitude
 # Efield1="1E9" #"2E9 3E9 4E9" #ZHUKOV
-Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+# Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 # Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
-Efield2="0e0"
+Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+# Efield1="1E9 5E9 1E10"
+Efield2="0E0"
 # Efield2="5e9"
 
 
 # Pulse duration
-tau1="20e-15 10e-15"
+tau1="30E-15" #20e-15 10e-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="20e-15"
+tau2="20E-15"
 
 lambda1="800e-9"
 lambda2="400e-9"
