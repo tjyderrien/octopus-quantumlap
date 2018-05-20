@@ -5,6 +5,6 @@ python_calc () {
 }
 
 list_folders () {
-    find . -type d
+    find . -maxdepth 3 -mindepth 0 -type d
 }
 
