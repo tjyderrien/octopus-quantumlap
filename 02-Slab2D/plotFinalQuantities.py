@@ -54,7 +54,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-ShowFinalPlot              = 1
+ShowFinalPlot              = 0
 
 Density=5E28 #specific to Si
  
