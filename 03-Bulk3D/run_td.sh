@@ -282,11 +282,10 @@ SubmitTheJob () {
   cp PulseB.dat ${localPath}/ && echo "Successfully copied Pulse B to destination."
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
-  cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
-
+  
   # Update the Submission script with the mission name
-  sed -i.bak s/-J[[:space:]]Mission/-J ${Mission}/g submit.sbatch
-
+  # sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
+  cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   # Start the run
   if [ ${DryRun} == 0 ]; then
           cd ${localPath}
