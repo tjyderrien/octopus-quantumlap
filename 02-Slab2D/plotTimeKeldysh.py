@@ -555,7 +555,7 @@ ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics 
 # Building the shared legend for subfig1
 plot1   = [plot_field, plot_current]
 labels1 = [l.get_label() for l in plot1]
-ax1.legend(plot1, labels1, loc=2)
+ax1.legend(plot1, labels1, loc='best')
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
@@ -638,7 +638,7 @@ if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
-    ax2.legend(plot2, labels2, loc=2)
+    ax2.legend(plot2, labels2, loc='best')
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -664,8 +664,8 @@ plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * obse
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-plt.legend(loc=2)
+plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0.)
+plt.legend(loc='best')
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
