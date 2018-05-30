@@ -34,7 +34,12 @@ def LoadRunOutputs(path):
   geometry = path+"../Si.xyz" #static method
   Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
-  laser=np.genfromtxt(path+"../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
+  #NOTE: the laser file must be treated by a script because there is a bug there.  
+  try:
+      laser=np.genfromtxt(path+"../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
+  except: 
+      print "** Critical error: Laser file could not be retreaved. Stopping the database fetching..."
+      exit()
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
   TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
