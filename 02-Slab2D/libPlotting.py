@@ -61,7 +61,7 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     try:
 	 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
-	 print Header+"** Warning: This folder was jumped: "+str(FolderName)
+	 print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
 	 continue #could not load the files, so jump this run.
     
     # Collect the laser parameters
@@ -321,7 +321,12 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     print Header+"** Capturing the RUN ID of octopus on Draco..."
     runid=LookUpLatestLogFile(FolderName+"../")
     print Header+"LogFile="+str(runid)
-    
+    try:
+      int(runid)
+    except:
+      print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
+      continue
+  
     print Header+"** Importing simulation data..."
     
     # Catch the final excited electron density. 
