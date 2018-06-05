@@ -22,6 +22,7 @@
 
 import libDatabase 
 from libPlotting import ListAllOutput
+from numpy       import loadtxt
 
 Header="[libExcitationDatabase] "
 
@@ -39,10 +40,10 @@ def GetExcitationDatabase(path):
     PlottingTable = ListAllOutput(path)
 
     print Header+"Save the table to a file..."
-    try:
-      libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-    except:
-      print "** Error when writing the database.csv."
-      exit()
+    #try:
+    libDatabase.ExportToTxt(PlottingTable, DatabaseName)
+    #except:
+      #print "** Error when writing the database.csv."
+    exit()
 
   return PlottingTable
