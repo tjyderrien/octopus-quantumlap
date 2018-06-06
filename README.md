@@ -6,9 +6,16 @@ WARNING: the repository spp-extended-theory is necessary to run the routines. Do
 
 WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
 
-# Contents
+# Documentation
 
-List of folders
+dOxygen documentation is available in ./doc. Generate using generate.sh. 
+
+# Languages
+
+The routines are a combination of Python and Bash. 
+Of course, it may not be completely optimum. 
+
+# List of folders
 
 * Papers/: contains the future possible papers
 
@@ -20,4 +27,8 @@ List of folders
 
 * 01-Example given obtained from Umbierto
 
-* 02-Files coupling Umbiertos example with our custom samples. 
+* 02-Slab2D: examples of graphene, Si-H samples
+
+* 03-Bulk: everything you need to compute bulks. 
+
+* Samples: preparation of bulk and slabs samples. 
