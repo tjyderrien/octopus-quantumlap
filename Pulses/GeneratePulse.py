@@ -164,7 +164,7 @@ Number = 50000 #NOTE: better to put too many nodes here ! Better to have somethi
 t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()
-Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay)
+Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay+1E-15) #NOTE: we always add 1 fs to ensure a zero derivative at initial time
 
 if(DebugMode==1):
     time, Ax, Ay = Envelope
