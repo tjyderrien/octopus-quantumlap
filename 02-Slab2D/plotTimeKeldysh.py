@@ -644,7 +644,7 @@ if(QuantityOfInterest == "density"):
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
-  ax2.set_yscale('log')
+#  ax2.set_yscale('log')
   ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
