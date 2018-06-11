@@ -208,7 +208,7 @@ elif(DebugMode==2):
 
 elif(DebugMode==3):
     time, Ax, Ay = Envelope
-    print Header+"** Info: Max value of Ax envelope= "+str(Ax.max())
+    print Header+"** Info: Max value of Ax = "+str(Ax.max())
     plt.figure()
     plt.plot(time, Ax, label=r"$A(t)$")
     plt.legend()
