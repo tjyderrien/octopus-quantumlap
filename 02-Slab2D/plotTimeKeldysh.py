@@ -679,7 +679,8 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-if("STH" in PulseType or "StH" in PulseType):
+if(PlottingMode == "keldysh"):
+  if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_density_sat, plot_wpi_av, plot_wpi_moving, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
