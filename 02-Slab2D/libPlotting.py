@@ -36,9 +36,9 @@ def LoadRunOutputs(path):
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
-      laser=np.genfromtxt(path+"../td.general/laser", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
+      laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=9, loose=False, invalid_raise=True, filling_values=0.)
   except: 
-      print "** Critical error: Laser file could not be retrieved. Stopping the database fetching..."
+      print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching..."
       exit()
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
   TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
