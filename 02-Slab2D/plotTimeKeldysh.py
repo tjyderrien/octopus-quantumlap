@@ -24,7 +24,8 @@
 
 ## IMPORT LIBRARIES
 import numpy as np
-from numpy import genfromtxt, loadtxt, chararray, fft, heaviside
+from numpy import genfromtxt, loadtxt, chararray, fft
+from numpy import heaviside
 # from pylab import *
 import sys
 import decimal
