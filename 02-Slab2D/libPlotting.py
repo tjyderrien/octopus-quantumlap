@@ -28,6 +28,8 @@ from libString import *
 from libAtomicUnits import *
 import calculateVolume as Sample
 
+Header = "[libPlotting]"
+
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path):
