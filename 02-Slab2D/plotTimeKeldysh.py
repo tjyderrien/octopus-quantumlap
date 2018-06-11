@@ -24,11 +24,11 @@
 
 ## IMPORT LIBRARIES
 import numpy as np
-from numpy import genfromtxt, loadtxt, chararray, fft
+from numpy import genfromtxt, loadtxt, chararray, fft, heaviside
 # from pylab import *
 import sys
 import decimal
-
+from scipy import integrate
 import calculateVolume as Sample
 import libKeldysh as Keldysh
 from libAtomicUnits import *
@@ -435,7 +435,7 @@ Nnew = np.cumsum(NnewDerivDt)
 UnitTime = 1E15 #we show time in fs
 TimeAUtoSI = Time_AU_to_SI(1.)
 time = UnitTime * time * TimeAUtoSI
-timeNe = UnitTime * timeNe * TimeAUtoSI
+timeNe = UnitTime * timeNe * TimeAUtoSI #switching to fs
 
 timeCurrentdt = timeCurrent #* TimeAUtoSI
 timeCurrent=UnitTime * timeCurrent * TimeAUtoSI
@@ -458,24 +458,64 @@ else:
 
 ### Building up an instantaneous W_PI(t)
 omega = 2.*pi*c/wavelength_SI
-wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
+wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations makes it unclear
 # wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #not good as depends on the final time
-NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI))
-wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / (2.*NumberOfTimeSteps) #BUG? We should integrate n_exc^(TDDFT) instead. 
-wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
-wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
-wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI)
 
-print Header+"** Final value for <w_PI> = "+str(wPI_TDDFT_average[wPI_TDDFT_average.size-1])
-print Header+"** Final value for w_PI_approx = "+str(wPI_TDDFT_approx[wPI_TDDFT_approx.size-1])
+TimeStep_Ne = np.diff(timeNe/UnitTime) #SI, in seconds 
 
+## Defines the envelope of convolution to perform the moving averaging. 
+def averaging_step(t, omega, periods):
+#    omega = 2*pi*c/wavelength
+    return np.heaviside(t+periods*pi/omega,0.5) * (1.-np.heaviside(t-periods*pi/omega,.5))
+
+def runningMeanFast(x, N):
+    return np.convolve(x, np.ones((N,))/N)[(N-1):]   
+
+NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
+NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
+NumberOfSteps_PerCycle = int(2.*pi/omega/TimeStep_Ne[0])
+# print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
+print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
+print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
+wPI_TDDFT_average_global_t = wPI_TDDFT[:NumberOfTimeSteps-1] / (NumberOfTimeSteps_Ne) #BUG? We should integrate n_exc^(TDDFT) instead. 
+wPI_TDDFT_wild  = observable_proj / (2. * PulseDuration_SI) #NOTE: wild approximation, finally exact after the pulse. 
+# wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,averaging_step(timeNe/UnitTime,omega,1.), mode='valid')
+# wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,np.ones(wPI_TDDFT.size)/wPI_TDDFT.size, mode='valid')
+# wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,np.ones(NumberOfSteps_PerCycle)/NumberOfSteps_PerCycle, mode='valid')
+
+# N = NumberOfSteps_PerCycle
+# for n in np.linspace(0,wPI_TDDFT_average_instant.size-1,1):
+# k_index = np.linspace(0,
+#  wPI_TDDFT_nico = 1./NumberOfSteps_PerCycle * np.sum(wPI_TDDFT_average_instant[n-k],k=0, k=NumberOfSteps_PerCycle - 1) 
+
+def runningMean(x, N):
+    y = np.zeros((len(x),))
+    for ctr in range(len(x)):
+         y[ctr] = np.sum(x[ctr:(ctr+N)])
+    return y/N
+
+def runningMeanFast(x, N):
+    return np.convolve(x, np.ones((N,))/N)[(N-1):]
+
+wPI_TDDFT_moving = runningMean(wPI_TDDFT,NumberOfSteps_PerCycle)
+ 
+wPI_TDDFT_average_global = wPI_TDDFT_average_global_t.cumsum()
+# wPI_TDDFT_average = integrate.cumtrapz(wPI_TDDFT_average_instant, (timeNe[:NumberOfTimeSteps-1]/UnitTime))
+print Header+"** Final value for <w_PI>_2xtau = "+str(wPI_TDDFT_average_global[wPI_TDDFT_average_global.size-1])
+print Header+"** Final value for w_PI_wild ~ nexc_final / 2 tau = "+str(wPI_TDDFT_wild[wPI_TDDFT_wild.size-1])
+print Header+"** Some value for w_PI_moving = "+str(wPI_TDDFT_moving[(wPI_TDDFT_moving.size-1)/2])
+# print Header+"** Some value for w_PI_moving_nico = "+str(wPI_TDDFT_moving_nico[(wPI_TDDFT_moving_nico.size-1)/2])
+
+print Header+"** Size of w_PI moving averaging = "+str(wPI_TDDFT_moving.size)
+print Header+"** Number of time steps per laser cycle = "+str(NumberOfSteps_PerCycle)
+print Header+"** Value of the timestep_Ne = "+str(TimeStep_Ne[0])
 ### Converting fields from AU to SI
-
-print "TimeStep = "+str(dtCurrent)
+print "TimeStep (u.a.)= "+str(TimeStep)
+print "UnitTime = "+str(UnitTime)
 
 ## ================================== TIME FOR PLOTTING ====================
 # Managing stepwise maximum for Y1
-ymin=1E16; ymax=ValenceBandMax; #max for density plot
+ymin=0; ymax=ValenceBandMax; #max for density plot
 if(observable_proj.max() < ymax / 50.):
   ymax = ymax / 50.
 elif(observable_proj.max() < ymax / 5.):
@@ -582,25 +622,30 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k-', label=r'$\rho_{Si}$')
+  plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): 
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
-    #plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-    plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
+    # plot_wpi, = ax22.plot(timeNe[1:], wPI_TDDFT, 'b-+', label=r'$<w_{PI}^{proj}>(t)$') #virtual excitations makes it unclear
+    plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$')
+#     plot_wpi_av_inst,     = ax22.plot(timeNe[1:], wPI_TDDFT, 'g-', label=r'$w_{PI}^{inst}(t)$')
+#    plot_wpi_moving, = ax22.plot(timeNe, wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{convol}(t)$')
+    plot_wpi_moving, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{moving}(t)$')
+#     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
+    # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
     if("STH" in PulseType or "StH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
-  #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
     #plt.legend(loc=3)
-    plt.ylabel('$w_{PI}(t)$')
-    ax22.yaxis.label.set_color(plot_wpi_approx.get_color()) #colorizes the label
-    ax22.spines["right"].set_edgecolor(plot_wpi_approx.get_color()) #colorizes the axis
-    ax22.tick_params(axis='y', colors=plot_wpi_approx.get_color()) #colorizes the tics and numbers
+    plt.ylabel('$w_{PI}$')
+    ax22.yaxis.label.set_color(plot_wpi_av.get_color()) #colorizes the label
+    ax22.spines["right"].set_edgecolor(plot_wpi_av.get_color()) #colorizes the axis
+    ax22.tick_params(axis='y', colors=plot_wpi_av.get_color()) #colorizes the tics and numbers
   plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
-  #ax22.set_yscale('log')
+  ax2.set_yscale('log')
+  ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
@@ -636,7 +681,7 @@ elif (QuantityOfInterest == "number"):
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
+    plot2   = [plot_density, plot_density_sat, plot_wpi_av, plot_wpi_moving, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
     ax2.legend(plot2, labels2, loc='best')
 
