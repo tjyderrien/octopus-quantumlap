@@ -624,7 +624,7 @@ if(QuantityOfInterest == "density"):
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
-  if(PlottingMode=="keldysh"): 
+  if(PlottingMode=="keldysh"): #{{{
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     # plot_wpi, = ax22.plot(timeNe[1:], wPI_TDDFT, 'b-+', label=r'$<w_{PI}^{proj}>(t)$') #virtual excitations makes it unclear
     plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$')
@@ -641,11 +641,11 @@ if(QuantityOfInterest == "density"):
     ax22.yaxis.label.set_color(plot_wpi_av.get_color()) #colorizes the label
     ax22.spines["right"].set_edgecolor(plot_wpi_av.get_color()) #colorizes the axis
     ax22.tick_params(axis='y', colors=plot_wpi_av.get_color()) #colorizes the tics and numbers
-  plt.xlim((xmin,xmax))
+    plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
 #   plt.ylim((ymin_wpi,ymax_wpi))
-#  ax2.set_yscale('log')
-  ax22.set_yscale('log')
+    ax2.set_yscale('log')
+    ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
