@@ -60,7 +60,8 @@ Header="[plotFinalQuantities] "
 ShowFinalPlot              = 0
 
 Density=5E28 #specific to Si
- 
+Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+
 # Capture the data
 # For histocal reasons, two locations are possilbe.
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
@@ -357,7 +358,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     plotA = 211; plotB = 212
   else: 
     plotA = 111; plotB = 111
-    
+  
+  EnergyMin = 1e-5 #-1E-7
+  
   ax1 = pplt.subplot(plotA)
   #pplt.title('Density as function of peak intensity')
   
@@ -585,7 +588,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Intensity_sorted, Energy_max_sorted, pulses1_sorted = list(itertools.izip(*lists))
         #print Header+"Ready to plot: "
         
-        plot_field, = ax3.plot(Intensity_sorted, Energy_max_sorted-np.min(Energy_max_sorted), '-o', label=r'$\tau=$'+str(int(pulse_value*1E15))+" fs")
+        plot_field, = ax3.plot(Intensity_sorted, Energy_max_sorted-np.min(Energy_max_sorted)+EnergyMin, '-o', label=r'$\tau=$'+str(int(pulse_value*1E15))+" fs")
         plot3 += [plot_field]
     #}}}
     labels1 = [l.get_label() for l in plot3]
@@ -1083,17 +1086,17 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     lists = sorted(itertools.izip(*[wavelengths1, Ne_final, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
     wavelengths1_sorted, Ne_final_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     wavelengths1_sorted = np.multiply(1e9, wavelengths1_sorted)
-    
+    EnergyMin = 1e-5 #0e0 #1E-7 #shifting energies to avoid zero on logscale. 
     #print Efield1_value
     #TODO: PUT here a select case which attributes a new color to a new field interval
     if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
-      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted), '-r')
+      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted)+EnergyMin, '-or')
     if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
-      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted), '-b')
+      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted)+EnergyMin, '-ob')
     if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
-      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted), '-g')
+      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted)+EnergyMin, '-og')
     if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
-      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted), '-k')
+      ax2.plot(wavelengths1_sorted, Energy_max_sorted-np.min(Energy_max_sorted)+EnergyMin, '-ok')
     del PlottingSinglePulses_Efield
     
   #pplt.xlabel(r'Intensity (W/m$^2$)')
@@ -1122,27 +1125,40 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #print Efield1_value
     # TODO: PUT here a select case which attributes a new color to a new field interval
     if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
-      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '+r', label='Irreversibility')
-      ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--r', label='Adiabaticity')
+      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+r', label='Irreversibility')
+      #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--r', label='Adiabaticity')
     if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
-      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '+b', label='Irreversibility')
-      ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--b', label='Adiabaticity')
+      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+b', label='Irreversibility')
+      #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--b', label='Adiabaticity')
     if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
-      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '+g', label='Irreversibility')
-      ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--g', label='Adiabaticity')
+      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+g', label='Irreversibility')
+      #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--g', label='Adiabaticity')
     if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
-      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '+k', label='Irreversibility')
-      ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
+      ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+k', label='Irreversibility')
+      #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(2.56*e, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
     del PlottingSinglePulses_Efield
   
   
-  pplt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
+  pplt.ylabel(r'Irreversibility $\zeta$')
+  #pplt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
   ax2.set_yscale("log")
   ax22.set_yscale('log')
-  ax22.grid()
+  #ax22.grid()
   pplt.xlim((200.,2100.))
-
+  
+  ResonantWavelength = h*c/Egap_SI
+  print "** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm."
+  
+  ax1.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  
+  ax2.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
   #ax2.legend(loc=2, borderaxespad=0.)
   #ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   #ax22.legend(loc=1, borderaxespad=0.)
@@ -1540,7 +1556,7 @@ def plot_Zhukov_SingleColor():
     
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
     
-    ## NOT YET READY
+    ## READY
     plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot) 
     
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 10e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot)
