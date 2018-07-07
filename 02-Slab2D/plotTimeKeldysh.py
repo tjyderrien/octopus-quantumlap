@@ -46,9 +46,9 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 
 ## Plotting: parameters for controlling the canvas
 ## 3 canvas
-plotA=311; plotB=312; plotC=313;
+#plotA=311; plotB=312; plotC=313;
 ## 4 canvas
-#plotA=411; plotB=412; plotC=413; plotD=414
+plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 20
@@ -349,7 +349,6 @@ Hartree        = Hartree - Hartree.min()
 ShrinkBy=0
 
 timeCurrent=np.asfarray(TotalCurrent[:,1])
-# timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
 maxSize=timeCurrent.size-ShrinkBy
 
 CurrentX=np.asfarray(TotalCurrent[:,2])
@@ -361,10 +360,10 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(CurrentX)
+HHG_AU=fft.fft(Nproj_AU) #let's work directly on number of electrons
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
-HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
+HHG_AU_order=HHG_AU_omega*hbar/e #/(2.*pi*c/wavelength_SI)
 HHG_AU_duration=1./HHG_AU_omega
 # Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
 
@@ -536,8 +535,8 @@ ymax12valueMax = CurrentX.max()
 #elif(ymax2valueMax > ymax2):
   #ymax2=5.*ymax2;
 # Managing wpi plotting
-ymin_wpi = 1E40
-ymax_wpi = 1E50
+# ymin_wpi = 1E36
+# ymax_wpi = 1E50
 
 
 ### Defining plotting boundaries
@@ -628,24 +627,26 @@ if(QuantityOfInterest == "density"):
   if(PlottingMode=="keldysh"): #{{{
     ax22 = ax2.twinx() #let's plot instant w_PI (t)
     # plot_wpi, = ax22.plot(timeNe[1:], wPI_TDDFT, 'b-+', label=r'$<w_{PI}^{proj}>(t)$') #virtual excitations makes it unclear
-    plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$')
+    # plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$') #must be removed, as non physical. Only the final value can be plotted.  
 #     plot_wpi_av_inst,     = ax22.plot(timeNe[1:], wPI_TDDFT, 'g-', label=r'$w_{PI}^{inst}(t)$')
 #    plot_wpi_moving, = ax22.plot(timeNe, wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{convol}(t)$')
-    plot_wpi_moving, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{moving}(t)$')
+    plot_wpi_moving_pos, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],np.clip(wPI_TDDFT_moving,0.,None), 'b-', label=r'$w_{PI+}^{moving}(t)$')
+#    plot_wpi_moving_neg, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],-1.*np.clip(wPI_TDDFT_moving,None,0.), 'b--', label=r'$-w_{PI-}^{moving}(t)$') 
 #     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
     # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
+    ymin_wpi = 1e36; ymax_wpi = np.max(wPI_TDDFT_moving)
     if("STH" in PulseType or "StH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
     #plt.legend(loc=3)
     plt.ylabel('$w_{PI}$')
-    ax22.yaxis.label.set_color(plot_wpi_av.get_color()) #colorizes the label
-    ax22.spines["right"].set_edgecolor(plot_wpi_av.get_color()) #colorizes the axis
-    ax22.tick_params(axis='y', colors=plot_wpi_av.get_color()) #colorizes the tics and numbers
+    ax22.yaxis.label.set_color(plot_wpi_moving_pos.get_color()) #colorizes the label
+    ax22.spines["right"].set_edgecolor(plot_wpi_moving_pos.get_color()) #colorizes the axis
+    ax22.tick_params(axis='y', colors=plot_wpi_moving_pos.get_color()) #colorizes the tics and numbers
     plt.xlim((xmin,xmax))
 #  if(EnableLogScale==1): 
-#   plt.ylim((ymin_wpi,ymax_wpi))
-    ax2.set_yscale('log')
+    plt.ylim((ymin_wpi,ymax_wpi))
+    # ax2.set_yscale('log')
     ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
@@ -683,7 +684,7 @@ elif (QuantityOfInterest == "number"):
 if(PlottingMode == "keldysh"):
   if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density, plot_density_sat, plot_wpi_av, plot_wpi_moving, plot_wpi_Gruzdev] #plot_wpi_av
+    plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
     ax2.legend(plot2, labels2, loc='best')
 
@@ -719,13 +720,16 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ### ============ PLOTTING FOURIER SPECTRA =========
-#ax4 = plt.subplot(plotD)
-## plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-#plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+ax4 = plt.subplot(plotD)
+
+# Spectra for current FFT
+# plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\hbar \omega)$')
 ## ax4.set_xscale("log", nonposx='clip')
-#ax4.set_yscale("log", nonposx="clip")
-#plt.xlabel("Harmonic order")
-#plt.ylabel("Harmonic ampl. (arb. u.)")
+ax4.set_yscale("log") #, nonposx="clip")
+# plt.xlabel("Harmonic order")
+plt.xlabel("Energy (eV)")
+plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
 

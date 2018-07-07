@@ -1,7 +1,8 @@
 #!/bin/bash
+module load purge
 module load git
 module load gnuplot
-module load anaconda
+module load anaconda/2/5.2.0
 module list
 
 source $QuantumLaPsources/machines.env
@@ -16,7 +17,7 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ -e laser ]; then
+	if [ -e laser.tmp ]; then
 		echo "** Plotting laser..."
 		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeLaser.gnu"
                 gnuplot "${OctopusSlabsSources}/03-Bulk3D/plotPolarization.gnu"
@@ -54,8 +55,8 @@ do
 	echo "** Building files for post-processed density..."
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
-	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
-        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
+	${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+        ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
  	# echo "** Generating list of TD-visual outputs..."
