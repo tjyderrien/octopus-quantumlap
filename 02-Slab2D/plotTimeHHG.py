@@ -24,7 +24,7 @@
 
 ## IMPORT LIBRARIES
 import numpy as np
-from numpy import genfromtxt, loadtxt, chararray, fft
+from numpy import genfromtxt, loadtxt, chararray, fft, heaviside
 # from pylab import *
 import sys
 import decimal
@@ -347,7 +347,7 @@ Hartree        = Hartree - Hartree.min()
 ##===== Prepare plotting of total_current ======
 ShrinkBy=0
 
-timeCurrent=np.asfarray(TotalCurrent[:,1])
+timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.?
 # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
 maxSize=timeCurrent.size-ShrinkBy
 
@@ -356,11 +356,26 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
+print Header+"** Info: cleaning the current for HHG computation."
+omega = 2.*np.pi*c/wavelength_SI
+DampingTime = 2.*np.pi/omega #tau_rise
+timeCurrent_SI = timeCurrent * Time_AU_to_SI(1.)
+# FinalDampingInstant = timeCurrent[timeCurrent_SI.size] #tmax is very far in time, maybe in timesteps which were not computed !
+FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
+print Header+"** Info: HHG dampingTime: "+str(round(DampingTime*1E15))+" fs."
+print Header+"** Info: HHG final instant: "+str(round(FinalDampingInstant*1E15))+" fs."
+print Header+"** Info: omega = "+str(round(omega))
+
+# CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
+damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**2 * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
+damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
+CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
+
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(CurrentX)
+HHG_AU=fft.fft(CurrentX_HHG)
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -548,6 +563,7 @@ plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
+plot_current_damped, = ax12.plot(timeCurrent, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
@@ -674,8 +690,9 @@ if(PlotGrid==1):
 ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+plt.xticks(np.arange(1,30, step=2))
 # ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log", nonposx="clip")
+ax4.set_yscale("log")
 plt.xlabel("Harmonic order")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 
