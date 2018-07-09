@@ -107,6 +107,9 @@ BuildSample () {
     rm Si.xyz
     echo "[Info] Removed the previous sample file."
   fi
+  if [ -e Si.tmp ]; then
+    rm Si.tmp
+  fi
   echo "[Checking] AbsPath: $AbsPath"
   echo "[Info] Building the geometry input..."; echo ""
   $OctopusSlabsSources/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} >& geometry.in
@@ -120,8 +123,8 @@ BuildSample () {
   echo "# This line is a comment." >> Si.tmp
   cat Si.xyz >> Si.tmp #file Si.tmp is now ready for submission. 
   cat Si.tmp
-  rm Si.xyz
-  cp Si.tmp Si.xyz
+#   rm Si.xyz
+  mv Si.tmp Si.xyz
 
   # Define the missing parameters in input file (always in atomic units)
   sed -i.bak s/SizeOfTheBox/$SampleXY/g inp #number of layers
