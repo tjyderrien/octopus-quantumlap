@@ -120,7 +120,7 @@ BuildSample () {
   echo "# This line is a comment." >> Si.tmp
   cat Si.xyz >> Si.tmp
   cat Si.tmp
-  mv Si.tmp Si.xyz
+  cp Si.tmp Si.xyz
 
   # Define the missing parameters in input file (always in atomic units)
   sed -i.bak s/SizeOfTheBox/$SampleXY/g inp #number of layers
