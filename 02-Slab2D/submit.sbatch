@@ -5,7 +5,7 @@
 # Initial working directory:
 #SBATCH -D ./
 # Job Name:
-#SBATCH -J QuantumLaP
+#SBATCH -J Slabs-Si
 # Queue (Partition):
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
