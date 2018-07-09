@@ -65,7 +65,7 @@ ProcessArguments () { # Conversion factors
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${OctopusSlabsRuns}/02-Slabs/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName_SI}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-${TheoryLevelPath}${FunctionalPath}" #Mesh: stored in Bohr in the path. #Vacuum: stored in angstroms. 
+  export localPath="${OctopusSlabsRuns}/02-Slab2D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName_SI}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-${TheoryLevelPath}${FunctionalPath}" #Mesh: stored in Bohr in the path. #Vacuum: stored in angstroms. 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 

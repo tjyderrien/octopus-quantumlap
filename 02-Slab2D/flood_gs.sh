@@ -47,7 +47,7 @@ do
      # Prepare the ground state
      # Propagate the pulse in time!
      echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ} ${TheoryLevel} ${Functional}
+     $OctopusSlabsSources/02-Slab2D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ} ${TheoryLevel} ${Functional}
     done
    done
   done
