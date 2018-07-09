@@ -103,10 +103,13 @@ ReplaceInputFile () {
 
 BuildSample () {
   # Build the sample [Si.xyz is in SI (angstroms)]. 
-  if [ -e ${localPath}/Si.xyz ]; then
-    rm ${localPath}/Si.xyz
+  if [ -e Si.xyz ]; then
+    rm Si.xyz
+    echo "[Info] Removed the previous sample file."
   fi
-  $AbsPath/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $AbsPath/Samples/fhi2octopus.sh > ${localPath}/Si.xyz #Conversion to Bohrs
+  echo "[Checking] AbsPath: $AbsPath"
+  echo "[Info] Building the geometry input..."; echo ""
+  $OctopusSlabsSources/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $OctopusSlabsSources/Samples/fhi2octopus.sh > Si.xyz #Conversion to Bohrs
 
   # Add the number of lines at the beginning of the file
   numLines=$( wc -l ${localPath}/Si.xyz | awk '{ print $1 }' )
