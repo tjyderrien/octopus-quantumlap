@@ -118,8 +118,9 @@ BuildSample () {
 
   echo $numLines >> Si.tmp
   echo "# This line is a comment." >> Si.tmp
-  cat Si.xyz >> Si.tmp
+  cat Si.xyz >> Si.tmp #file Si.tmp is now ready for submission. 
   cat Si.tmp
+  rm Si.xyz
   cp Si.tmp Si.xyz
 
   # Define the missing parameters in input file (always in atomic units)
