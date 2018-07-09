@@ -10,7 +10,7 @@ kPoints=1
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
-source $QuantumLaPsources/03-Bulk3D/machines.env
+source $QuantumLaPsources/02-Slab2D/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
 # Renaming inputs (Input units: Angstroms)
