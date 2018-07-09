@@ -110,7 +110,7 @@ BuildSample () {
   echo "[Checking] AbsPath: $AbsPath"
   echo "[Info] Building the geometry input..."; echo ""
   $OctopusSlabsSources/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} >& geometry.in
-  $OctopusSlabsSources/Samples/fhi2octopus.sh > Si.xyz #Conversion to Bohrs
+  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in > Si.xyz #Conversion to Bohrs
 
   # Add the number of lines at the beginning of the file
 #   numLines=$( wc -l ${localPath}/Si.xyz | awk '{ print $1 }' )
