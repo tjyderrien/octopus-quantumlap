@@ -109,31 +109,50 @@ BuildSample () {
   fi
   echo "[Checking] AbsPath: $AbsPath"
   echo "[Info] Building the geometry input..."; echo ""
-  $OctopusSlabsSources/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} | $OctopusSlabsSources/Samples/fhi2octopus.sh > Si.xyz #Conversion to Bohrs
+  $OctopusSlabsSources/Samples/Si100-H/write-geom.py ${SampleLayers} ${SampleXY} >& geometry.in
+  $OctopusSlabsSources/Samples/fhi2octopus.sh > Si.xyz #Conversion to Bohrs
 
   # Add the number of lines at the beginning of the file
-  numLines=$( wc -l ${localPath}/Si.xyz | awk '{ print $1 }' )
+#   numLines=$( wc -l ${localPath}/Si.xyz | awk '{ print $1 }' )
+  numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
 
-  echo $numLines >> ${localPath}/Si.tmp
-  echo "# This line is a comment." >> ${localPath}/Si.tmp
-  cat ${localPath}/Si.xyz >> ${localPath}/Si.tmp
-  cat ${localPath}/Si.tmp
-  mv ${localPath}/Si.tmp ${localPath}/Si.xyz
+  echo $numLines >> Si.tmp
+  echo "# This line is a comment." >> Si.tmp
+  cat Si.xyz >> Si.tmp
+  cat Si.tmp
+  mv Si.tmp Si.xyz
 
   # Define the missing parameters in input file (always in atomic units)
-  sed -i.bak s/SizeOfTheBox/$SampleXY/g ${localPath}/inp #number of layers
-  sed -i.bak s/NumberOfBlocks/$SampleLayers/g ${localPath}/inp
-  sed -i.bak s/SizeOfVacuum_AU/$SizeOfVacuum_AU/g ${localPath}/inp
-  sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g ${localPath}/inp
-  sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g ${localPath}/inp
-  sed -i.bak s/kPointsValue/${kPoints}/g ${localPath}/inp
+  sed -i.bak s/SizeOfTheBox/$SampleXY/g inp #number of layers
+  sed -i.bak s/NumberOfBlocks/$SampleLayers/g inp
+  sed -i.bak s/SizeOfVacuum_AU/$SizeOfVacuum_AU/g inp
+  sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g inp
+  sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
+  sed -i.bak s/kPointsValue/${kPoints}/g inp
+  
+  if [ ${TheoryLevel} == "independent_particles" ]; then 
+      echo "Theory level: independent particles was added to the input file."
+      echo "Warning: maybe you meant TDFreezeHxc ? Warning: it is using the same ground state as usual."
+      echo "TheoryLevel = independent_particles" >> inp
+#      echo "TDFreezeHxc=yes" >> inp #THIS LEAD TO NEVER CONVERGE THE GS. 
+  fi
 }
 
 SubmitTheJob () {
-  cp ${basePath}/${SubmitScript} ${localPath}/
+  echo "== Copying the file in the submission folder... =="
+  echo "Source: ${OctopusSlabsRuns}."
+  echo "Target: ${localPath}."
+  
+  cp ${OctopusSlabsRuns}/02-Slab2D/inp ${localPath}/
+  cp ${OctopusSlabsRuns}/02-Slab2D/Si.xyz ${localPath}/
+  cp ${QuantumLaPsources}/02-Slab2D/${SubmitScript} ${localPath}/
+  
   if [ ${DryRun} == 0 ]; then
 	  cd ${localPath}
-	  ${SubmitCommand} ${SubmitScript}
+	  ${SubmitCommand} ${SubmitScript} > submit.log
+	  jobnumber=$( cat submit.log | awk '{ print $4 }')
+	  cp submit.log $jobnumber.log
+                  echo "[Submit] Job number: $jobnumber"
 	  cd -
   else
 	  echo "** DRY-RUN: Change value into the script to unlock the safety. **"
