@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set -e
+
+source $QuantumLaPsources/machines.env
+CheckComputerName
+
 echo "Massive job submitter for QuantumLaP."
 echo "WARNING: 1 job ~ 19,200 core-hours per job."
 echo "HANDLE WITH CARE."
@@ -18,10 +23,13 @@ MeshSizeX_SI="0.23" #Angstroms, octopus-recommended value
 MeshSizeZ_SI="0.18" #Convergence study showed that 0.18 is enough to compute the current.
 #MeshSizeZ_SI="0.10"
 
+TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
+Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+
 # Sample
 # SampleLayers="8 10" # 12 14 16 18 20"
 SampleLayers="6"
-SampleXY="4 6"
+SampleXY="4"
 # SampleXY="8 10 12 14 16 18 20"
 
 for iSampleLayers in ${SampleLayers}
@@ -39,7 +47,7 @@ do
      # Prepare the ground state
      # Propagate the pulse in time!
      echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ}
+     ./run_gs.sh ${iSampleLayers} ${iSampleXY} ${iVacuumSize} ${iMeshSizeX} ${iMeshSizeZ} ${TheoryLevel} ${Functional}
     done
    done
   done
