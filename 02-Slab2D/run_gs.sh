@@ -84,12 +84,12 @@ print_usage () {
 
 ReplaceInputFile () {
   # We would like to start the ground state
-  if [ -e ${localPath}/inp ]; then
+  if [ -e inp ]; then
 	  echo "Input file INP was renamed to .BAK..."
-	  mv ${localPath}/inp ${localPath}/inp.bak
+	  mv inp inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp ${basePath}/inp-gs ${localPath}/inp || exit
+  cp $OctopusSlabsSources/02-Slab2D/inp-gs inp || exit
   
   if [ ${Functional} == "TB09" ]; then
     echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
