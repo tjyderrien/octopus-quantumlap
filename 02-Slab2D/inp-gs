@@ -1,5 +1,6 @@
-# used with octopus svn revision 15009
-# used with 1188/2376 cpu cores (2376 cpu cores = 18*6 kpoints * 22 states) 
+# T.J.-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# QuantumLaP project
+# <derrien@fzu.cz>
 
 CalculationMode = gs
 ExperimentalFeatures=yes
@@ -20,8 +21,9 @@ Lvac = SizeOfVacuum_AU #Bohr, to be replace by script
 
 # Optimization
 PoissonFFTKernel = planar
+ParKPoints = auto
 # ParStates = auto
-# ParDomains = no #crashes if made per state only
+ParDomains = no #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
@@ -43,18 +45,17 @@ XYZCoordinates = "Si.xyz"
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9
 KPointsUseSymmetries = no
-ExtraStates = 32
+ExtraStates = 0
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
 
-MaximumIter=1000
-Mixing = 0.05
+MaximumIter=200
+# Mixing = 0.05
 
 ### OUTPUTS
-Output = dos
-OutputFormat = xyz
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk
 
-Output = density + potential + geometry
 #OutputFormat = cube #VisIt
-OutputFormat = vtk #+ netcdf #OpenDX, UCSF Chimera
+OutputFormat = vtk + netcdf #OpenDX, UCSF Chimera
