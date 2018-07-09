@@ -5,10 +5,13 @@
 set -e
 
 # ENABLE DRY RUN ? 
-DryRun=0
+DryRun=1
 kPoints=1
 
-source machines.env
+source $QuantumLaPsources/machines.env
+CheckComputerName
+source $QuantumLaPsources/03-Bulk3D/machines.env
+echo "[Checking] Variable basePath: $basePath"
 
 # Renaming inputs (Input units: Angstroms)
 SampleLayers=$1
@@ -16,6 +19,9 @@ SampleXY=$2
 VacuumSizeInput_SI=$3
 MeshSizeXInput_SI=$4
 MeshSizeZInput_SI=$5
+
+TheoryLevel=$6
+Functional=$7
 
 python_calc () {
     python -c "print ($@)"
@@ -36,10 +42,30 @@ ProcessArguments () { # Conversion factors
   SizeOfVacuumName_SI=$( python_calc "int(round( ${SizeOfVacuum_SI} ))" )
   MeshSizeX_SI=${MeshSizeXInput_SI} #0.23 #Angstrom
   MeshSizeZ_SI=${MeshSizeZInput_SI} #should be smaller, as we have a surface
+  
+  if [ ${TheoryLevel} == "independent_particles" ]; then
+    export TheoryLevelPath="-Indep_particles"
+  else
+    export TheoryLevelPath=""
+  fi
+
+  case "${Functional}" in
+    "TB09")
+      FunctionalPath="-TB09"
+      ;;
+    "LDA")
+      FunctionalPath=""
+      ;;
+    *)
+      echo "This functional was not planned. Modify run_td.sh."
+      exit 1
+      ;;
+  esac
+  
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${basePath}/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName_SI}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}" #Mesh: stored in Bohr in the path. #Vacuum: stored in angstroms. 
+  export localPath="${OctopusSlabsRuns}/02-Slabs/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-L${SizeOfVacuumName_SI}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-${TheoryLevelPath}${FunctionalPath}" #Mesh: stored in Bohr in the path. #Vacuum: stored in angstroms. 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -64,6 +90,15 @@ ReplaceInputFile () {
   fi
   echo "Input file INP was set to ground state."
   cp ${basePath}/inp-gs ${localPath}/inp || exit
+  
+  if [ ${Functional} == "TB09" ]; then
+    echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
+    echo "FilterPotentials = filter_none" >> inp
+  fi
+
+  if [ ${Functional} == "LDA" ]; then
+    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+  fi
 }
 
 BuildSample () {
