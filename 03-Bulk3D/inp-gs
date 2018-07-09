@@ -80,7 +80,7 @@ ExtraStates = 0
 
 # LCAOstart = lcao_simple #self-consistent starter
 
-MaximumIter=1000
+MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
