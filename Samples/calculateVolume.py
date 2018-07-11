@@ -108,14 +108,14 @@ def VolumeOfSupercell_Log(Filename): #{{{
 
 # Select the latest log file
 
-# Get the local content. 
-# dirlist = os.listdir(Folder)
-# from pprint import pprint
-# pprint(dirlist)
+    # Get the local content. 
+    # dirlist = os.listdir(Folder)
+    # from pprint import pprint
+    # pprint(dirlist)
 
-# Find there the latest LOG files.
-  import glob
-  newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getctime)
+    # Find there the latest LOG files.
+    import glob
+  newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
   print Header+"** Info: Opening LOG file:"+str(newest)
   #Open the log file
   searchfile = open(newest, "r")
