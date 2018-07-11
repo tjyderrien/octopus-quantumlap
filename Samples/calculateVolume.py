@@ -52,8 +52,14 @@ def VolumePerPoint_Log(Filename): #{{{
   # Search into this file the line with volume/cell
   for line in searchfile:
     if "volume/point" in line: 
-      result = line; 
-  VolPerPoint = float(result[62:75])
+      line.find(volume/point, start)
+      result = line[start:] #captures only the rhs of the matching string.  
+  print Header+"** Info: filtering the volume/point expression from LOGfile"
+  result_filtered = result.replace('volume/point','')
+  result_filtered = result_filtered.replace('=','')
+  result_filtered = result_filtered.replace('[b^3]','')
+  
+  VolPerPoint = float(result_filtered)
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
 #      volume = 0.
