@@ -52,7 +52,7 @@ def VolumePerPoint_Log(Filename): #{{{
   # Search into this file the line with volume/cell
   for line in searchfile:
     if 'volume/point' in line: 
-      line.find('volume/point', position_start)
+      position_start = line.find('volume/point')
       result = line;
       print Header+"** Debug info: "+str(result)
   print Header+"** Info: filtering the right hand side of the matching string: "+str(result)
