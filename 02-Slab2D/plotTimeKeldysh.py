@@ -183,7 +183,7 @@ DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
 
 # Gaussian | SinSquared pulse | Soft Top Hat pulse?
 PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
-PulseType_value = PulseType_inp[49:] #this allows to have unique solution
+PulseType_value = PulseType_inp[49:] #this allows to have unique solution. 
 if("FieldColorA-Gaussian" in PulseType_value):
   print Header+"** Info: Gaussian pulse detected..."
   PulseType="gaussian"
@@ -198,8 +198,10 @@ elif ("FieldColorA-StH" in PulseType_value):
   PulseType="StH"
 else: 
   print Header+"** Error: pulse type was not recognized."
+  print Header+"** Mitigation: we shall assume a Gaussian pulse [default value due to historical reasons.]"
   print Header+"** Error value: PulseType_value = "+str(PulseType_value)
-  exit()
+  PulseType="gaussian"
+  #exit()
 
 ##==== KELDYSH CALCULATION PULSE 1 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
 ValenceBandMax = 5E28 
