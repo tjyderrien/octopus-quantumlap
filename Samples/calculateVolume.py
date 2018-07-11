@@ -53,12 +53,12 @@ def VolumePerPoint_Log(Filename): #{{{
   for line in searchfile:
     if 'volume/point' in line: 
       position_start = line.find('volume/point')
-      result = line;
+      result = line[position_start:];
       print Header+"** Debug info: "+str(result)
   print Header+"** Info: filtering the right hand side of the matching string: "+str(result)
   result_filtered = result[position_start:]
   print Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered)
-  result_filtered = result.replace('volume/point','')
+  result_filtered = result_filtered.replace('volume/point','')
   result_filtered = result_filtered.replace('=','')
   result_filtered = result_filtered.replace('[b^3]','')
   
