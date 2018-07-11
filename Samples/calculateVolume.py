@@ -57,11 +57,10 @@ def VolumePerPoint_Log(Filename): #{{{
       print Header+"** Debug info: "+str(result)
   print Header+"** Info: filtering the right hand side of the matching string: "+str(result)
   result_filtered = result[position_start:]
-  print Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered)
   result_filtered = result_filtered.replace('volume/point','')
   result_filtered = result_filtered.replace('=','')
   result_filtered = result_filtered.replace('[b^3]','')
-  
+  print Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered)
   VolPerPoint = float(result_filtered)
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
