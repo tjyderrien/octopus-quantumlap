@@ -29,6 +29,8 @@ import os
 
 from libString import *
 
+Header = "[calculateVolume.py] "
+
 def VolumePerPoint_Log(Filename): #{{{
   """      Get the volume per point from the most recent log file
   """
