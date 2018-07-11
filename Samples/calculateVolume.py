@@ -122,7 +122,12 @@ def VolumeOfSupercell_Log(Filename): #{{{
   for line in searchfile:
     if "Cell volume" in line:
       result = line;
-  SuperCellVolume = float(result[15:35])
+  print Header+"** Info: Filtering the volume capture in LOG file."
+  result_filtered = result.replace('Cell volume', '')
+  result_filtered = result_filtered.replace('[b^3]','')
+  result_filtered = result_filtered.replace(' ', '')
+  print Header+"** Info: Filtered the volume capture."
+  SuperCellVolume = float(result_filtered) #BUG: fails on Cell volume =         90106.3068 [b^3]
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
 #      volume = 0.
