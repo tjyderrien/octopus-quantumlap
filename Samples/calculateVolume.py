@@ -44,7 +44,7 @@ def VolumePerPoint_Log(Filename): #{{{
 
 # Find there the latest LOG files.
   import glob
-  newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getctime)
+  newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
 
   #Open the log file
   searchfile = open(newest, "r") 
