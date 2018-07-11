@@ -102,24 +102,23 @@ def VolumeOfVacuum(Filename): #{{{
   
 #}}}
 
+## Get the total volume of the super cell from the most recent log file
+# 
 def VolumeOfSupercell_Log(Filename): #{{{
-  """      Get the total volume of the super cell from the most recent log file
-  """
+  # Select the latest log file
 
-# Select the latest log file
+  # Get the local content. 
+  # dirlist = os.listdir(Folder)
+  # from pprint import pprint
+  # pprint(dirlist)
 
-    # Get the local content. 
-    # dirlist = os.listdir(Folder)
-    # from pprint import pprint
-    # pprint(dirlist)
-
-    # Find there the latest LOG files.
-    import glob
+  # Find there the latest LOG files.
+  import glob
   newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
   print Header+"** Info: Opening LOG file:"+str(newest)
   #Open the log file
   searchfile = open(newest, "r")
-
+  
   # Search into this file the line with volume/cell
   for line in searchfile:
     if "Cell volume" in line:
