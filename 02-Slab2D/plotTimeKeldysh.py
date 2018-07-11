@@ -672,7 +672,7 @@ if(QuantityOfInterest == "density"):
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
     else: #single pulse case
-      ax2.plot(timeKeldysh*unitx,  Gruzdev_SI[:timeKeldysh.size] , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
   #elif(PulseType=="STH"): #if STH, we only plot w_PI. 
     #ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
     
