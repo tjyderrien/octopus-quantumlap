@@ -86,16 +86,16 @@ WhatToPlot2 = "Difference" #
 #elfvtk     = 'elf_rs.vtk'
 geometry    = 'geometry.vtk'
 
-ShowCaption = 0 
+ShowCaption = 2 #2 == auto: only for 1 direction 
 bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=-0.2 #
+OriginZ=0 #complete slab: 0.
 
 MaxValue=0.01
 MinValue=-MaxValue
-ZoomValue=1. 
+ZoomValue=1.5 #complete slab ~ 1.5 
 #1:Bulk #3:Slabs
 EnablePerspective=0
 
@@ -427,7 +427,7 @@ for i in range(0,len(indata)):
     #SetActivePlots(1)
     SetActiveWindow(2)
     #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
-    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, 0, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 3 ####
     #CloneWindow()
@@ -513,6 +513,6 @@ if(ExportVideo):
   
 quit()
 
-exit()
+# exit()
 
 ##################################################################
