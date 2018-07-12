@@ -67,6 +67,8 @@
 # All other time steps will be normalized to this one. 
 # import scipy.constants as phys
 
+from libPlotVideo import *
+
 ExportVideo = 0 #1: export an MPG file. 
 OldResult   = 1 #0: we will use "density" field, otherwise "Re" field. 
 
@@ -89,11 +91,11 @@ bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=0. #0.6788749999999979/BohrRadius
+OriginZ=-0.2 #
 
 MaxValue=0.01
 MinValue=-MaxValue
-ZoomValue=0.8*6. 
+ZoomValue=1. 
 #1:Bulk #3:Slabs
 EnablePerspective=0
 
@@ -136,7 +138,7 @@ import math, time
 import glob, os, shutil
 import subprocess
 from visit_utils import *
-from libPlotVideo import *
+# from libPlotVideo import *
 
 start_script = time.time()
 
