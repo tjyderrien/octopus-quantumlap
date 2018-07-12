@@ -68,6 +68,7 @@
 # import scipy.constants as phys
 
 ExportVideo = 0 #1: export an MPG file. 
+OldResult   = 1 #0: we will use "density" field, otherwise "Re" field. 
 
 inputdata = 'listoffiles.txt'
 outdir    = './'
@@ -381,14 +382,13 @@ for i in range(0,len(indata)):
     # We open all databases for the plots
     OpenDatabase(indensityGsVtk)
     
-    try: 
-      elfvar="density" #Old simulations: Re. 
-      DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
-      OpenDatabase(indensityvtk)
-    except:
-      elfvar="Re" #Old simulations: Re. 
-      DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
-      OpenDatabase(indensityvtk)
+    if(OldResult==0):
+        elfvar="density" #Old simulations: Re. 
+    else:
+        elfvar="Re"
+    print "** Warning: IF THIS FAILS, change ELFVAR in Python script."
+    DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
+    OpenDatabase(indensityvtk)
     DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
     # DefineScalarExpression("Difference", "Re") #-GroundStateData") #DEBUG
     DefineScalarExpression("Difference", "ExcitedStateData - GroundStateData") #Re: TD-data, GroundStateData: GS-density. This is the performed operation on the scalar data. 
