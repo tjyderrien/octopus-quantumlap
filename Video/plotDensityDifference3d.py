@@ -418,20 +418,20 @@ for i in range(0,len(indata)):
     SetActiveWindow(1)
     #SetActivePlots(0)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="Y", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, axis="Y", extreme=MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
     #plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     #SetActiveWindow(3)
-    #plot2Ddifference(inxyz, indensityvtk, axis="Z", extreme=MaxValue, caption=0)
+    #plot2Ddifference(inxyz, indensityvtk, "Z", MaxValue, caption=0)
     
     #### Window 4 ####
     ##SetActiveWindow(4)
