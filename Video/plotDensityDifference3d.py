@@ -467,7 +467,7 @@ for i in range(0,len(indata)):
 # End of the loop over the input files
 
 imgtend = time.time()
-subprocess.call(["clear", ""])
+#subprocess.call(["clear", ""])
 print "Creation of the images completed."
 
 if(ExportVideo):
