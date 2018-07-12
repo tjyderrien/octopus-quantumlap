@@ -67,6 +67,8 @@
 # All other time steps will be normalized to this one. 
 # import scipy.constants as phys
 
+ExportVideo = 0 #1: export an MPG file. 
+
 inputdata = 'listoffiles.txt'
 outdir    = './'
 
@@ -468,37 +470,38 @@ imgtend = time.time()
 subprocess.call(["clear", ""])
 print "Creation of the images completed."
 
-# Movie creation
-if (len(moviename)!=0):
-    vidtstart= time.time() 
-    input_pattern = outdir+savename+"%04d.png"
-    output_pattern = outdir+moviename
-    encoding.encode(input_pattern,output_pattern,fdup=int(moviespeed))
-    vidtend = time.time()
-
-
-# Reporting working time
-print "\n"
-print " *** Time statistics ***"
-if (len(indata)!=0):
-    print "Images creation time:"
-    print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
-    print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
-    if (molzoom>1.):
-        print ""
-        print "Additional time for creating the zooming:"
-        print("--- %s seconds ---" % (zoomtend-zoomtstr))
-    print ""
-print "Video creation time:"
-if (len(moviename)!=0):
-    print("--- %s seconds ---" % (vidtend - vidtstart))
-else:
-    print"--- Not Available ---"
-print ""
-print "Script total execution time:"
-print("--- %s seconds ---" % (time.time() - start_script))
-print ""
-
+if(ExportVideo):
+  # Movie creation
+  if (len(moviename)!=0):
+      vidtstart= time.time() 
+      input_pattern = outdir+savename+"%04d.png"
+      output_pattern = outdir+moviename
+      encoding.encode(input_pattern,output_pattern,fdup=int(moviespeed))
+      vidtend = time.time()
+  
+  
+  # Reporting working time
+  print "\n"
+  print " *** Time statistics ***"
+  if (len(indata)!=0):
+      print "Images creation time:"
+      print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
+      print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
+      if (molzoom>1.):
+          print ""
+          print "Additional time for creating the zooming:"
+          print("--- %s seconds ---" % (zoomtend-zoomtstr))
+      print ""
+  print "Video creation time:"
+  if (len(moviename)!=0):
+      print("--- %s seconds ---" % (vidtend - vidtstart))
+  else:
+      print"--- Not Available ---"
+  print ""
+  print "Script total execution time:"
+  print("--- %s seconds ---" % (time.time() - start_script))
+  print ""
+  
 quit()
 
 exit()
