@@ -68,6 +68,7 @@
 # import scipy.constants as phys
 
 ExportVideo = 0 #1: export an MPG file. 
+OldResult   = 1 #0: we will use "density" field, otherwise "Re" field. 
 
 inputdata = 'listoffiles.txt'
 outdir    = './'
@@ -381,8 +382,11 @@ for i in range(0,len(indata)):
     # We open all databases for the plots
     OpenDatabase(indensityGsVtk)
     
-    elfvar="density" #Old simulations: Re. 
-    print "** Warning: IF THIS FAILS, change ELFVAR to 'Re' in Python script."
+    if(OldResult==0):
+        elfvar="density" #Old simulations: Re. 
+    else:
+        elfvar="Re"
+    print "** Warning: IF THIS FAILS, change ELFVAR in Python script."
     DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
     OpenDatabase(indensityvtk)
     DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
