@@ -380,9 +380,15 @@ for i in range(0,len(indata)):
 
     # We open all databases for the plots
     OpenDatabase(indensityGsVtk)
-    elfvar="density" #Old simulations: Re. 
-    DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
-    OpenDatabase(indensityvtk)
+    
+    try: 
+      elfvar="density" #Old simulations: Re. 
+      DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
+      OpenDatabase(indensityvtk)
+    except:
+      elfvar="Re" #Old simulations: Re. 
+      DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
+      OpenDatabase(indensityvtk)
     DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
     # DefineScalarExpression("Difference", "Re") #-GroundStateData") #DEBUG
     DefineScalarExpression("Difference", "ExcitedStateData - GroundStateData") #Re: TD-data, GroundStateData: GS-density. This is the performed operation on the scalar data. 
