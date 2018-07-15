@@ -604,19 +604,19 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   SetView3D(View3DAtts)
   
   #Adding a label for the time step
-  try: 
-    l1s_delete = GetAnnotationObject()
-    l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
-    l1s_delete.Delete()
-    DeleteActiveAnnotationObjects()
-  except:
-    print "l1s removal failed."
+  #try: 
+    #l1s_delete = GetAnnotationObject()
+    #l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
+    #l1s_delete.Delete()
+    #DeleteActiveAnnotationObjects()
+  #except:
+  #print "l1s removal failed."
   l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
   
   DrawPlots()
   #l1s_delete = GetAnnotationObject(0)
-#  l1s.Delete() #Not helpful
+  l1s.Delete() #Not helpful
   #DeleteActiveAnnotationObjects()
   #}}}
