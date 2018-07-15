@@ -603,19 +603,44 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
 #  View3DAtts.perspective = 0
   SetView3D(View3DAtts)
   
+  AnnotationAtts = AnnotationAttributes()
+  AnnotationAtts.axes3D.xAxis.title.title = "x/a"
+  AnnotationAtts.axes3D.yAxis.title.title = "y/a"
+  AnnotationAtts.axes3D.zAxis.title.title = "z/a"
+  AnnotationAtts.axes3D.triadFlag = 0
+  AnnotationAtts.axes3D.bboxFlag = 0
+  AnnotationAtts.axes3D.tickLocation = AnnotationAtts.axes3D.Outside
+  AnnotationAtts.axesArray.axes.title.font.scale = 2  
+  AnnotationAtts.userInfoFlag = 0
+  AnnotationAtts.timeInfoFlag = 0
+  AnnotationAtts.legendInfoFlag = 0
+  SetAnnotationAttributes(AnnotationAtts) 
+
   #Adding a label for the time step
-  #try: 
-    #l1s_delete = GetAnnotationObject()
-    #l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
-    #l1s_delete.Delete()
-    #DeleteActiveAnnotationObjects()
-  #except:
-  #print "l1s removal failed."
-  l1s = CreateAnnotationObject("Text2D")
-  l1s.text = "step # "+step
+ # try: 
+  #  l1s_delete = GetAnnotationObject()
+  #  l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
+  #  l1s_delete.Delete()
+  #  DeleteActiveAnnotationObjects()
+  # except:
+  #  print "l1s removal failed. Trying by hand. "
+  l1s = CreateAnnotationObject("Text2D") #TODO only once
+  # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
+  l1s.text = "t="+step #TODO: we dont care about step, we need an absolute time (or step * dtOutput).
   l1s.position = (0.05, 0.05)
   
   DrawPlots()
+  
+  legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
+  legend1.active = 0
+  
+  legend = GetAnnotationObject(GetPlotList().GetPlots(1).plotName)
+  print legend
+  legend.xScale = 1.5
+  legend.yScale = legend.xScale
+  legend.drawTitle = 0
+  legend.numberFormat = "%# -1.1g"
+
   #l1s_delete = GetAnnotationObject(0)
   l1s.Delete() #Not helpful
   #DeleteActiveAnnotationObjects()
