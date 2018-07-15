@@ -47,11 +47,26 @@ def LoadRunOutputs(path):
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   return geometry, Ne, laser, TotalCurrent, Energy
 
-## Lists the available octopus runs, and build the table of results
+
+## Lists the octopus runs available on HDD, and complete the existing database.  
+# 0. Load the existing database. 
+# 1. List all the available runs
+# 2. For each run, check if it is already available in database by comparing the ID of the run. 
+# 3. If not available, we shall add it to the database. Otherwise, we pass to the next one. 
+# Keep care to not delete the already available database. 
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
-def ListAllOutput(path='*/*/td.general/'): #{{{
-  PlottingTable = np.empty((0,23)) ##NOTE: how to define tau_pulse for 2 colors? 
+def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
+  
+  #Load the existing database                                                                    # 1. Load the existing database
+  try: 
+    Database = np.loadtxt(DatabaseName, skiprows=0)
+    print Header+"** Info: the existing database was found. We will reuse the existing DB. "
+  except: 
+    print Header+"** Error: the existing database is empty. We will generate new DB. "
+    FromScratch = True
+
+  PlottingTable = np.empty((0,23)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders..."
@@ -61,13 +76,24 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
 
     # Import the quantities from the subfolders
     try:
-	 geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
+      geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
-	 print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
-	 continue #could not load the files, so jump this run.
+      print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
+      continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters
     filename             = FolderName+"../inp"
+    
+    # We can start by checking the RUN ID. If not available, no need to register this run... 
+    print Header+"** Capturing the RUN ID of octopus on Draco..."
+    runid=LookUpLatestLogFile(FolderName+"../")
+    print Header+"LogFile="+str(runid)
+    try:
+      int(runid)
+    except:
+      print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
+      continue
+    
     TheoryLevel          = 1 #default value
     ## Checking the theory level
     TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
@@ -320,15 +346,6 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     print Header+"Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
     print Header+"" 
     
-    print Header+"** Capturing the RUN ID of octopus on Draco..."
-    runid=LookUpLatestLogFile(FolderName+"../")
-    print Header+"LogFile="+str(runid)
-    try:
-      int(runid)
-    except:
-      print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
-      continue
-  
     print Header+"** Importing simulation data..."
     
     # Catch the final excited electron density. 
@@ -394,11 +411,23 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     print Header+"Stack contains:"
     print StackToAdd
     
-    try:
-      PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
-      print Header+"** Info: these data were added to the stack."
-    except:
-      Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
+    if(FromScratch): #We construct a new database from scratch
+      try:
+        PlottingTable = np.vstack(( PlottingTable, StackToAdd )) 
+        print Header+"** Info: these data were added to the stack."
+      except:
+        Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
+    else: #We only add the mising runs to the existing database
+      # We have to check if this runs is not already available in already existing Database. 
+      PreviousDB_ID = Database[IndexTable['runid'], :] #Should be result from loadtxt. 
+      if runid in PreviousDB_ID: #if this run was found in existing DB, we jump it. 
+          continue 
+      else: 
+        PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+        print Header+"** Info: these data were NEW and were ADDED to the stack."
+  
+    # PlottingTable only contains FRESH data. 
+    # Database contains the OLD data. 
     
     # Cleaning the guys before next loop
     #del time, A1x, A2x, timestepTable, Efield, Efield2, geometry, Ne, laser, TotalCurrent, Energy
@@ -412,7 +441,9 @@ def ListAllOutput(path='*/*/td.general/'): #{{{
     #del timeEnergies, ElectronEnergy, TotalEnergy, IonEnergy, Hartree
     
     #}}}
-  return PlottingTable
+  FreshData   = PlottingTable  
+  NewDatabase = np.vstack(( Database, PlottingTable ))  
+  return FreshData, NewDatabase
 #}}} #end of function
   
 

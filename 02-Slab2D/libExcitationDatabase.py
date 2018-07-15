@@ -26,24 +26,24 @@ from numpy       import loadtxt
 
 Header="[libExcitationDatabase] "
 
-def GetExcitationDatabase(path):
+## Calls for the construction of excitation database and manages exceptions. 
+def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv'):
 #  path='*/*/td.general/'
-  DatabaseName = 'Database.csv'
-
+  #DatabaseName = 'Database.csv'
+  FromScratch = False #always try to re-use the existing DB. 
   print Header+"Attempting to load previous results..."
   try:
-    PlottingTable = loadtxt(DatabaseName, delimiter="\t")
-    print PlottingTable
-    print Header+"Success."
+    print Header+"** Info: loading existing database. "
+    Database = np.loadtxt(DatabaseName, skiprows=0)
+    print Database
+    print Header+"** Info: Previous database was found. Attempting to complete it."
+    FromScratch=False
+    libPlotting.ListAllOutput(path, DatabaseName, FromScratch)
   except:
-    print Header+"** Warning: Not found. Rebuilding the index."
-    PlottingTable = ListAllOutput(path)
+    print Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch."
+    FromScratch = True
+    FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
 
-    print Header+"Save the table to a file..."
-    #try:
-    libDatabase.ExportToTxt(PlottingTable, DatabaseName)
-    #except:
-      #print "** Error when writing the database.csv."
-    exit()
-
-  return PlottingTable
+    print Header+"Save the table to a new file..."
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName)
+  return NewDatabase
