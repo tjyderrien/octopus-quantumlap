@@ -420,9 +420,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     else: #We only add the mising runs to the existing database
       # We have to check if this runs is not already available in already existing Database. 
       PreviousDB_ID = Database[IndexTable['runid'], :] #Should be result from loadtxt. 
-      if float(runid) in PreviousDB_ID: #if this run was found in existing DB, we jump it. 
-          continue #BUG: is this really working? 
-          print Header+"** Info: ALREADY EXISTING. jumped. ================="
+      print PreviousDB_ID
+      if runid in PreviousDB_ID: #if this run was found in existing DB, we jump it. 
+          print Header+"** Info: THIS WAS ALREADY EXISTING. Jumping it. ================="
+          continue
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         print Header+"** Info: these data were NEW and were ADDED to the stack."
