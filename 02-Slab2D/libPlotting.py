@@ -62,6 +62,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   try: 
     Database = np.loadtxt(DatabaseName, skiprows=0)
     print Header+"** Info: the existing database was found. We will reuse the existing DB. "
+    FromScratch = False
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
@@ -421,12 +422,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       # We have to check if this runs is not already available in already existing Database. 
       PreviousDB_ID = Database[IndexTable['runid'], :] #Should be result from loadtxt. 
       print PreviousDB_ID
-      if runid in PreviousDB_ID: #if this run was found in existing DB, we jump it. 
+      if runid in PreviousDB_ID: #if this run was found in existing DB, we jump it. This formulation was successfully tested separately. 
           print Header+"** Info: THIS WAS ALREADY EXISTING. Jumping it. ================="
           continue
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
-        print Header+"** Info: these data were NEW and were ADDED to the stack."
+        print Header+"** Info: t    hese data were NEW and were ADDED to the stack."
   
     # PlottingTable only contains FRESH data. 
     # Database contains the OLD data. 
