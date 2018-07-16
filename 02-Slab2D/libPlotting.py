@@ -70,10 +70,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   PlottingTable = np.empty((0,23)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
-  print Header+"Fetching all subfolders..."
+  print Header+"Fetching all subfolders...\n"
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
-    print Header+"** Info: entering folder: "+str(FolderName)
+    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
 
     # Import the quantities from the subfolders
     try:
@@ -151,7 +151,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI > 1.0):#{ #get the second pulse data
-      print "** Entering second pulse input."
+      print Header+"** Entering second pulse input."
       wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = float(wavelength2_inp[10:17])
 	 
@@ -360,10 +360,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     density_proj_SI_max           = density_proj_SI.max()
     density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
     
-    print "** Electron density analysis "
-    print "Final electron density = "+str(density_proj_SI_final)
-    print "Max.  electron density = "+str(density_proj_SI_max)
-    print "Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
+    print Header+"** Electron density analysis "
+    print Header+"Final electron density = "+str(density_proj_SI_final)
+    print Header+"Max.  electron density = "+str(density_proj_SI_max)
+    print Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
     ##==== Prepare plotting of energies ====
     timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
     ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
@@ -380,16 +380,16 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalCurrent_X_AU_final = TotalCurrent_X_AU[TotalCurrent_size-1] 
     TotalCurrent_Y_AU_final = TotalCurrent_Y_AU[TotalCurrent_size-1]
     TotalCurrent_Z_AU_final = TotalCurrent_Z_AU[TotalCurrent_size-1]
-    print "******* WARNING: Here we neglect other polarization directions than X ! ******"
-    print "Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
+    print Header+"******* WARNING: Here we neglect other polarization directions than X ! ******"
+    print Header+"Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
-    print "** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
+    print Header+"** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
     
     # Extracting the total energy
     TotalEnergy_size = ElectronEnergy.size #TotalEnergy.size #TODO: to clean
     TotalEnergy_AU_final = ElectronEnergy[TotalEnergy_size-1] # TotalEnergy[TotalEnergy_size-1] #selects last value of energy
     FinalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
-    print "Total energy (eV)     = "+str(FinalEnergy_SI_final)
+    print Header+"Total energy (eV)     = "+str(FinalEnergy_SI_final)
     # Append to the table
     # Structure: 
     # wavelength1, wavelength2, tau1, tau2, 
@@ -399,7 +399,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
     # One line is one octopus run. O_o
      
-    print "Checking integrity before adding to table..."
+    print Header+"Checking integrity before adding to table..."
        
     StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
 	      float(Efield_amplitude_SI), float(CEP1_SI), float(wavelength2_SI), 
