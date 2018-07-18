@@ -622,12 +622,16 @@ ax2 = plt.subplot(plotB)
 plt.xlim((xmin,xmax))
 plt.ylim((ymin,ymax))
 
+density_proj_damped_AU = Z_at * Nproj_AU_FFT / SampleCellVolume_AU
+density_proj_damped_SI = Density_AU_to_SI(density_proj_damped_AU)
+
 if(QuantityOfInterest == "density"):
   if(UnitSystem=="AU"):
     plt.ylabel('Density exc. el. (a.u.)')
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+  ax2.plot(timeNe, density_proj_damped_AU, 'r--') #TEMPORARY
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #{{{
