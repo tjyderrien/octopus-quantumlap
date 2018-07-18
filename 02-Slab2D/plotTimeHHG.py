@@ -356,25 +356,6 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
-def SignalDampR(timeCurrent, wavelength_SI = wavelength_SI, FinalDampingInstant = tmax): #{{{
-
-    omega = 2.*np.pi*c/wavelength_SI
-    DampingTime = 2.*np.pi/omega #tau_rise
-    timeCurrent_SI = timeCurrent * Time_AU_to_SI(1.)
-    
-    #FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
-    print Header+"** Info: HHG dampingTime: "+str(round(DampingTime*1E15))+" fs."
-    print Header+"** Info: HHG final instant: "+str(round(FinalDampingInstant*1E15))+" fs."
-    print Header+"** Info: omega = "+str(round(omega))
-
-    # CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
-    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**2 * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
-    damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
-    CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
-    return CurrentX_HHG
-#}}}
-
-
 print Header+"** Info: cleaning the current for HHG computation."
 CurrentX_HHG = SignalDampR(timeCurrent, wavelength_SI = wavelength_SI, FinalDampingInstant = tmax)
 

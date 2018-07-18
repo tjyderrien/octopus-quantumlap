@@ -420,16 +420,16 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
     else: #We only add the mising runs to the existing database
       # We have to check if this runs is not already available in already existing Database. 
-      PreviousDB_ID = Database[IndexTable['runid'], :] #Should be result from loadtxt. 
+      PreviousDB_ID = Database #Should be result from loadtxt. 
       #print PreviousDB_ID
-      if runid in PreviousDB_ID: #if this run was found in existing DB, we jump it. This formulation was successfully tested separately. 
+      if int(runid) in PreviousDB_ID: #if this run was found in existing DB, we jump it. This formulation was successfully tested separately. 
           print Header+"** Info: ============================ THIS RUN WAS ALREADY EXISTING IN DB. Jumping it. ================="
           continue
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         print Header+"** Info: these data were NEW and were ADDED to the stack."
   
-    # PlottingTable only contains FRESH data. 
+    # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
     # Cleaning the guys before next loop
@@ -545,3 +545,24 @@ IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1':
 # StH was well controlled. 
 PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
 
+## Damps a signal from FinalTimeDamping instant. 
+# @param timeCurrent: table of instants (at.u.)
+# @param wavelength_SI: fundamental wavelength of the signal
+# @param FinalDampingInstant: instant where to apply the damping
+def SignalDampR(timeCurrent, wavelength_SI, FinalDampingInstant): #{{{
+
+    omega = 2.*np.pi*c/wavelength_SI
+    DampingTime = 2.*np.pi/omega #tau_rise
+    timeCurrent_SI = timeCurrent * Time_AU_to_SI(1.)
+    
+    #FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
+    print Header+"** Info: HHG dampingTime: "+str(round(DampingTime*1E15))+" fs."
+    print Header+"** Info: HHG final instant: "+str(round(FinalDampingInstant*1E15))+" fs."
+    print Header+"** Info: omega = "+str(round(omega))
+
+    # CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
+    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**2 * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
+    damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
+    CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
+    return CurrentX_HHG
+#}}}
