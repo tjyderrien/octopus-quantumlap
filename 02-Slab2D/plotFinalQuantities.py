@@ -34,8 +34,11 @@ import matplotlib as mp
 import matplotlib.pyplot as plt
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
+import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as mplt 
 from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.tri as tri
+#from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
 from colorama import Fore
@@ -1244,7 +1247,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 
 # Plots Ne_final(Efield1, Efield2) for pulses of fixed wavelengths, same pulse duration, same CEP
 # THIS FIGURE IS THE ONE THAT CAN BE COMPARED WITH VLADIMIR ZHUKOV
-def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, WhatToPlot=0): #{{{
+def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0): #{{{
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -1254,6 +1257,9 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseDuration, IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
+  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
+  if(RiseCycles != 0): #0 selects all the possible types
+    PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseCycles, IndexTable['RiseTime']) # Selecting Rise Time
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
   print Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq)))
@@ -1286,13 +1292,14 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
         del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
     #}}}
   #}}}
+  PulseTypeName = np.asfarray(PulseType)
   # Stack is built. Export, show and plot on a heat map. 
   print "** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)..."
   print "** Info: useful to visualize available data with GNUplot. "
-  filename         = "Bicolor-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-NeFinalWithE1E2"
-  filename_current = "Bicolor-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-CurrentFinalWithE1E2"
-  filename_energy  = "Bicolor-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-EnergyFinalWithE1E2"
-  filename_wpi     = "Bicolor-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-WpiWithE1E2"
+  filename         = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-NeFinalWithE1E2"
+  filename_current = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-CurrentFinalWithE1E2"
+  filename_energy  = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-EnergyFinalWithE1E2"
+  filename_wpi     = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-WpiWithE1E2"
   # Sorting the data before storing and plotting
   DensityMax2Dsorted = DensityMax2D[np.lexsort((DensityMax2D[:,2], DensityMax2D[:,1], DensityMax2D[:,0]))]
   CurrentMax2Dsorted = CurrentMax2D[np.lexsort((CurrentMax2D[:,2], CurrentMax2D[:,1], CurrentMax2D[:,0]))]
@@ -1316,9 +1323,9 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   elif(WhatToPlot == 3): 
       DensityMax2Dsorted = WpiMax2Dsorted
       filename = filename_wpi
-      QuantityTitle=r'Excitation rate $w_{PI}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm.'
+      QuantityTitle=r'Excitation rate $w_{PI}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
   else: 
-      QuantityTitle=r'Excited density $N_{exc}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm.'
+      QuantityTitle=r'Excited density $N_{exc}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
   
   BrutX = 1E-9*DensityMax2Dsorted[:,0]
   BrutY = 1E-9*DensityMax2Dsorted[:,1]
@@ -1331,22 +1338,44 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   Y=list(BrutY)
   Z=DensityMax2Dsorted
   YY, XX = np.meshgrid(X, Y)
-  
   # If the size is big enough, let's make a plot.
   if(len(DensityMax2D) >= 2):
-    plt.figure()
+    triang = tri.Triangulation(BrutX, BrutY)
+    triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
+                             BrutY[triang.triangles].mean(axis=1))
+                    < 0.15)
+    refiner = tri.UniformTriRefiner(triang)
+    tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
+    #plt.figure()
     #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    plt.title(QuantityTitle)
+    #ax = fig.add_subplot(111, projection='3d')
+    #plt.gca().set_aspect('equal')
+    #plt.title(QuantityTitle)
     plt.xlabel(r'$E_1$ (V/nm)')
     plt.ylabel(r'$E_2$ (V/nm)')
     #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
     #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
-    #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS
+    #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
     #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
     #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
-    CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues) #WORKS
+    #try:
+    #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
+      #ax.view_init(90, 90)
+      #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
+    plt.triplot(triang, lw=0.1, color='black')
+    levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
+    #cmap = cm.get_cmaps(name='terrain', lut=None)
+    cmap = cm.get_cmap(name='Blues', lut=None)
+    plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+    #plt.tricontour(tri_refi, z_test_refi, levels=levels,
+            #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
+            #linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
+    plt.colorbar()
+    plt.tight_layout()
+    #except:
+      #CS = -1
+      #print Header+"** Warning: failed to produce one of the plots."
     
     #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
     #print np.shape(Xi), np.shape(Yi)
@@ -1555,8 +1584,10 @@ def plot_Zhukov_SingleColor():
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
-    
+    wavelength = 484e-9 #Resonant wavelength results
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
     ## READY
+    wavelength = 800e-9
     plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot) 
     
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 10e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot)
@@ -1572,19 +1603,41 @@ def plot_Zhukov_SingleColor():
 
 ## Prepare all plots for bicolor paper with V. Zhukov [1 Phys. Rev. Lett + 1 Phys. Rev. A]
 def plot_Zhukov_BicolorMaps():
-    ## Commensurable
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15, 0)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15, 1)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15, 2)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, 20e-15, 3)
-    ## Incommensurable
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15, 0)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15, 1)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15, 2)
-    plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, 20e-15, 3)
+    for tau in [20e-15, 30e-15]:
+        PulseType  = 3; RiseCycles = 2 #StH corrected. 
+        #PulseType  = 2;  RiseCycles = 0 #bugged STH. 
+        #RiseCycles = 2
+        ## Commensurable
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  0)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  1)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  2)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  3)
+        ## Incommensurable                                                                                  
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  0)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  1)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  2)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  3)
 
 ## Prepare all plots for shift current paper with A. Rubio
-#def plot_ShiftCurrent():
+def plot_ShiftCurrents():
+    for tau in [30e-15, 50e-15]:
+        PulseType  = 1  #SinSquared
+        RiseCycles = 0  #We dont care  
+        wavelength1 = 3100e-9
+        for wavelength2 in [1.55e-6]:
+            ## Commensurable
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  0)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  1)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  2)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  3)
+            ## Incommensurable                                                                                        
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  0)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  1)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  2)
+            plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  3)
+
+    
+    
     
 
 # VALID but some degeneracies !
@@ -1616,10 +1669,12 @@ def plot_Zhukov_BicolorMaps():
 
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
-plot_Zhukov_SingleColor()
+#plot_Zhukov_SingleColor()
 
 ## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps()
+plot_Zhukov_BicolorMaps()
+
+#plot_ShiftCurrents()
 
 print Header+"End of program."
 exit()
