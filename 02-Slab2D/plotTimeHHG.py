@@ -357,7 +357,7 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(timeCurrent, wavelength_SI = wavelength_SI, FinalDampingInstant = tmax)
+CurrentX_HHG = SignalDampR(timeCurrent, CurrentX,  wavelength_SI, tmax)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
