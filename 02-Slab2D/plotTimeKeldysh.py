@@ -31,6 +31,7 @@ import sys
 import decimal
 from scipy import integrate
 import calculateVolume as Sample
+
 import libKeldysh as Keldysh
 from libAtomicUnits import *
 from libPlottingSettings import *
@@ -358,11 +359,13 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
+Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax)
+
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(Nproj_AU) #let's work directly on number of electrons
+HHG_AU=fft.fft(Nproj_AU_FFT) #let's work directly on number of electrons
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega*hbar/e #/(2.*pi*c/wavelength_SI)
