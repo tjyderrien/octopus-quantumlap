@@ -359,7 +359,7 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
-Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax)
+Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax / 2.)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
