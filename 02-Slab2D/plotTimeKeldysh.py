@@ -170,13 +170,27 @@ print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_
 print Header+"== Getting input from octopus... =="
 print Header+" PULSE 1 ..."
 wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
-wavelength_SI        = float(wavelength_inp[10:17])
+# split it using = sign, take the rhs then split again. 
+wavelength_SI_tmp    = wavelength_inp.split("=")
+wavelength_SI_tmp2   = wavelength_SI_tmp[1]
+wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
+wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
+del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
+# print "============================================ DEBUG: wavlength_SI = "+str(wavelength_SI)
+# wavelength_SI        = float(wavelength_inp[10:20])
 PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
 PulseDuration_SI     = float(PulseDuration_inp[8:15])
 
 print Header+" PULSE 2 ..."
 wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB =")
-wavelengthB_SI       = float(wavelengthB_inp[10:17])
+wavelengthB_SI_tmp   = wavelengthB_inp.split("=")
+wavelengthB_SI_tmp2   = wavelengthB_SI_tmp[1]
+wavelengthB_SI_tmp3   = wavelengthB_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
+wavelengthB_SI        = float(wavelengthB_SI_tmp3[1]) #takes the left part of the chain
+# print "============================================ DEBUG: wavlength_SI = "+str(wavelengthB_SI)
+del wavelengthB_SI_tmp, wavelengthB_SI_tmp2, wavelengthB_SI_tmp3
+# wavelengthB_SI       = float(wavelengthB_inp[10:20])
+
 PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
 PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
 DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
@@ -241,7 +255,7 @@ if(PulseType == "SinSquared"):
 elif(PulseType == "gaussian"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
-  tmax =  2.*PulseDuration_SI + t0
+  tmax =  4.*PulseDuration_SI + t0
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
@@ -352,7 +366,7 @@ Hartree        = Hartree - Hartree.min()
 ShrinkBy=0
 
 timeCurrent=np.asfarray(TotalCurrent[:,1])
-maxSize=timeCurrent.size-ShrinkBy
+maxSize=timeNe.size-ShrinkBy
 
 CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
@@ -559,7 +573,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx/2. #PulseDuration_SI*unitx*2.;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -631,7 +645,7 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  ax2.plot(timeNe, density_proj_damped_AU, 'r--') #TEMPORARY
+#  ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #{{{
@@ -734,7 +748,7 @@ ax4 = plt.subplot(plotD)
 
 # Spectra for current FFT
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\hbar \omega)$')
+plt.plot(HHG_AU_order[:maxHHG], np.multiply(np.power(HHG_AU_order[:maxHHG],2.),np.power(np.abs(HHG_AU[:maxHHG]),2.)), '-', label=r'HHG$(\hbar \omega)$')
 ## ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log") #, nonposx="clip")
 plt.xlabel("Harmonic order")
