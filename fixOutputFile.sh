@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Cleans the laser file from octopus in case fields are overlapping.
-if [ -e $i.tmp ]; then
-	echo "$1.tmp already exists." >&2
-	exit 1
-fi
+# if [ -e $i.tmp ]; then
+#	echo "$1.tmp already exists." >&2
+#	exit 1
+# fi
 
 if [ -z $1 ]; then
 	echo "Usage: script.sh <File to be fixed>." >&2
@@ -13,5 +13,5 @@ if [ -z $1 ]; then
 fi
 
 
-mv $1 $1.tmp
-perl -pe 's/(?<!e)(-)/ $1/g' $1.tmp > $1
+# mv $1 $1.tmp
+perl -pe 's/(?<!e)(-)/ $1/g' $1 > $1.tmp
