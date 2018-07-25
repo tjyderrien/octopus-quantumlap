@@ -3,7 +3,7 @@
 reset
 
 nex='n_ex'
-light='laser'
+light='laser.tmp'
 
 
 set output 'ExcitedElectrons.eps'
