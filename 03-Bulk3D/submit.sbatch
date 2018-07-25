@@ -6,10 +6,10 @@
 #SBATCH -D ./
 # Job Name:
 #SBATCH -J QuantumLaP
-# Queue (Partition):
+# Queue (Partition): #general, mpsd (3 days), express, or short
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=4
+#SBATCH --nodes=8
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
