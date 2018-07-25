@@ -55,8 +55,8 @@ do
 	echo "** Building files for post-processed density..."
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
-	${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
-        ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
+	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+#        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
  	# echo "** Generating list of TD-visual outputs..."
@@ -81,7 +81,7 @@ do
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
         echo "** Plotting the TD-HHG results... $(pwd)" 
         screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 0 0
-        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
+#        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
         echo ""
 
         # echo "** Generating list of TD-visual outputs..."
