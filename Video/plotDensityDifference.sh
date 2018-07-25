@@ -1,3 +1,3 @@
 #!/bin/bash
-source $QuantumLaP/Video/loadModules.sh
-$RunVisit -cli -s $QuantumLaP/Video/plotDensityDifference.py
+source $QuantumLaPsources/Video/loadModules.sh
+$RunVisit -cli -s $QuantumLaPsources/Video/plotDensityDifference.py
