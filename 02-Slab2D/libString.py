@@ -34,8 +34,10 @@ def LookUpLatestLogFile(Filename): #{{{{
   print Header+"List of files: "+str(newest)
   # We shall split the path by slashes. 
   newest_splitted = newest.split("/")
+  print Header+"List of files: "+str(newest_splitted)
   newest_file = newest_splitted[len(newest_splitted)-1] #last element of the path is selected
-  result = [int(s) for s in newest.split(".") if s.isdigit()]
+  print Header+"List of files: "+str(newest_splitted)
+  result = [int(s) for s in newest_file.split(".") if s.isdigit()]
   print Header+"List of files: "+str(result)
   # For some folders, result was empty (?!)
   try:
