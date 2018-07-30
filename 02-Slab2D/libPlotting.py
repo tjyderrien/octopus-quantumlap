@@ -50,11 +50,15 @@ def LoadRunOutputs(path):
 ## Captures the value of a laser parameter in the Octopus input file located in "../inp".
 # Hence, localize yourself in td.general before using this function. 
 def GetParameterValueFromInputFile(string): #{{{
-    #Header="GetParameterValueFromInputFile: "
+    Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile("../inp", string)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
-    wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
+    try:
+        wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
+    except: 
+        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp2)
+        exit()
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
     wavelength_SI   = float(wavelength_SI_tmp3[1])
     return wavelength_SI
