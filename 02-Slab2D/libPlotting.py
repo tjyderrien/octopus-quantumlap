@@ -49,7 +49,7 @@ def LoadRunOutputs(path):
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
 # Hence, localize yourself in td.general before using this function. 
-def GetParameterValueFromInputFile(filepath="../inp", string): #{{{
+def GetParameterValueFromInputFile(filepath, string): #{{{
     Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile(filepath, string)
     print Header+str(wavelength_inp)
