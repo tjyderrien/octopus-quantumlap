@@ -28,6 +28,7 @@ from libDatabase import * #uses symbolic link
 
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{
+  Header = "[libString: LookUpLatestLogFile: ]"
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
   print Header+"List of files: "+str(newest)
