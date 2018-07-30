@@ -47,6 +47,17 @@ def LoadRunOutputs(path):
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   return geometry, Ne, laser, TotalCurrent, Energy
 
+## Captures the value of a laser parameter in the Octopus input file located in "../inp".
+# Hence, localize yourself in td.general before using this function. 
+def GetParameterValueFromInputFile(string): #{{{
+    wavelength_inp       = LookUpStringInFile("../inp", string)
+    # split it using = sign, take the rhs then split again. 
+    wavelength_SI_tmp    = wavelength_inp.split("=")
+    wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
+    wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
+    wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
+    return wavelength_SI
+#}}}
 
 ## Lists the octopus runs available on HDD, and complete the existing database.  
 # 0. Load the existing database. 

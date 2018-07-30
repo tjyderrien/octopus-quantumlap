@@ -193,27 +193,13 @@ def GetParameterValueFromInputFile(string): #{{{
     #del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
 ##}}}
 
-wavelength_SI = GetParameterValueFromInputFile("lambdaA =")
-
-# print "============================================ DEBUG: wavlength_SI = "+str(wavelength_SI)
-# wavelength_SI        = float(wavelength_inp[10:20])
-PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
-PulseDuration_SI     = float(PulseDuration_inp[8:15])
+wavelength_SI    = GetParameterValueFromInputFile("lambdaA = ")
+PulseDuration_SI = GetParameterValueFromInputFile("tauAsi = ")
 
 print Header+" PULSE 2 ..."
-wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB =")
-wavelengthB_SI_tmp   = wavelengthB_inp.split("=")
-wavelengthB_SI_tmp2   = wavelengthB_SI_tmp[1]
-wavelengthB_SI_tmp3   = wavelengthB_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-wavelengthB_SI        = float(wavelengthB_SI_tmp3[1]) #takes the left part of the chain
-# print "============================================ DEBUG: wavlength_SI = "+str(wavelengthB_SI)
-del wavelengthB_SI_tmp, wavelengthB_SI_tmp2, wavelengthB_SI_tmp3
-# wavelengthB_SI       = float(wavelengthB_inp[10:20])
-
-PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
-PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
-DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
-DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
+wavelengthB_SI      = GetParameterValueFromInputFile("lambdaB = ")
+PulseDurationB_SI   = GetParameterValueFromInputFile("tauBsi = ")
+DoublePulseDelay_SI = GetParameterValueFromInputFile("pulseDelaySI = ")
 
 # Gaussian | SinSquared pulse | Soft Top Hat pulse?
 PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
