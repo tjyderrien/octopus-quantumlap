@@ -57,7 +57,7 @@ def GetParameterValueFromInputFile(string): #{{{
     try:
         wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
     except: 
-        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp[1])
+        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp)
         exit()
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
     wavelength_SI   = float(wavelength_SI_tmp3[1])
