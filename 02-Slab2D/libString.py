@@ -28,10 +28,13 @@ from libDatabase import * #uses symbolic link
 
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{
-  Header = "[libString: LookUpLatestLogFile: ]"
+  Header = "[libString: LookUpLatestLogFile] "
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
   print Header+"List of files: "+str(newest)
+  # We shall split the path by slashes. 
+  newest_splitted = newest.split("/")
+  newest_file = newest_splitted[len(newest_splitted)-1] #last element of the path is selected
   result = [int(s) for s in newest.split(".") if s.isdigit()]
   print Header+"List of files: "+str(result)
   # For some folders, result was empty (?!)
