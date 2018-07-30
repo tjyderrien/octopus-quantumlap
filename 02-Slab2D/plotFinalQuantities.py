@@ -516,25 +516,29 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     TwoPhotonIntensityRegime_min = 0e0
     TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
     
-    OnePhotonIntensityRegime_min = 0e0
+    OnePhotonIntensityRegime_min = 1e12
     OnePhotonIntensityRegime_max = 1.3e15 #W/m2
     
     omega = 2.*np.pi*c/wavelengths1[0]
     NumberOfPhotons = Egap_SI / (hbar * omega)
     NumberOfPhotons_round = round(NumberOfPhotons,0)
-    print Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(round(NumberOfPhotons,0))
-    if(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
-        print Header+"** Info: fitting with 2-photon absortion..."
-        plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
-        plot1 += [plot_field]
-    elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
-        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
-        plot1 += [plot_field]
-        print Header+"** Info: fitting with 1-photon absortion..."
-    else: 
-        plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
-        plot1 += [plot_field]
-        print Header+"** Info: fitting with 3-photon absortion..."    
+    print Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(NumberOfPhotons_round)
+    
+    try:
+        if(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
+            print Header+"** Info: fitting with 2-photon absortion..."
+            plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
+            plot1 += [plot_field]
+        elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
+            print Header+"** Info: fitting with 1-photon absortion..."
+            plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
+            plot1 += [plot_field]
+        else: 
+            print Header+"** Info: fitting with 3-photon absortion..."    
+            plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
+            plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using N-photon absorption failed. "
     # NOTE: this is NOT 3-photon absorption regime, this is NON-PERTURBATIVE regime. Transition to tunneling. 
     
     print Header+"** Info: fitting the non-perturbative regime [DISABLED FOR NOW]..."
@@ -1619,7 +1623,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 #}}}
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B]
-def plot_Zhukov_SingleColor(): 
+def plot_Zhukov_SingleColor_LDA(): 
     PulseType  = 3 #STH: 2, StH: 3
     wavelength = 800e-9
     ShowPlot   = 0
@@ -1665,6 +1669,60 @@ def plot_Zhukov_SingleColor():
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
     ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
+
+def plot_Zhukov_SingleColor_TB09(): 
+    PulseType  = 3 #STH: 2, StH: 3
+    wavelength = 800e-9
+    ShowPlot   = 0
+    PlotWpiAxis = False
+    ## Plots effect of the STH Rise Time. We even found an incomplete computations thanks to this. Works super well, then. 
+    #RiseCycles = 0 #0: undefined, mixes everything. Basically, we must redefine all runs which had no well defined RiseCycle so far. 
+    #Efield     = 1E9
+    #plotEffectOfRiseTime(PlottingTable, wavelength, 20e-15, Efield, PulseType, ShowPlot)
+    
+    ## Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
+    RiseCycles = 2 #NOTE: a number different from 0 must be chosen before publication. 
+    #Efield     = 1E9
+    #plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot)
+    ##plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
+    #Efield     = 5E9 #NOTE: Saturation may prevent to see any difference. 
+    #plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot)
+    ##plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
+    
+    #NOTE: === LOCAL FILTERING
+    #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, IndexTable['pulses1'])
+    PlottingTable_filtered = PlottingTable
+    
+    ## Effect of intensity figures
+    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 20e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
+    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 10e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
+    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
+    
+    # Compute ionization probability, effect of the pulse duration
+    ShowPlot=1
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot)
+    
+    #This one construct the ionization probabilities! 
+    #wavelength = 483e-9 #Resonant wavelength results for LDA.
+    wavelength = 407.58e-9 #Resonant wavelength results for TB09. 
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot) #This one construct the ionization probabilities! 
+    exit()
+    #wavelength = 484e-9 #Resonant wavelength results for LDA.
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot) #This one construct the ionization probabilities! 
+    ## READY
+    wavelength = 800e-9
+    plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot) 
+    #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 10e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot)
+    #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 30e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot)
+    
+    ShowPlot=1
+    #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
+    plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 20e-15, 0., PulseType, RiseCycles, ShowPlot)
+    ### OLD STUFFS
+    #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
+    ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
+
+
 
 ## Prepare all plots for bicolor paper with V. Zhukov [1 Phys. Rev. Lett + 1 Phys. Rev. A]
 def plot_Zhukov_BicolorMaps():
@@ -1736,7 +1794,8 @@ def plot_ShiftCurrents():
 
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
-plot_Zhukov_SingleColor()
+#plot_Zhukov_SingleColor_LDA()
+plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
 #plot_Zhukov_BicolorMaps()

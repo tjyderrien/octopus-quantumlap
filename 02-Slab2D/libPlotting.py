@@ -106,8 +106,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # We can start by checking the RUN ID. If not available, no need to register this run... 
     print Header+"** Capturing the RUN ID of octopus on Draco..."
     runid=LookUpLatestLogFile(FolderName+"../")
-    print Header+"LogFile="+str(runid)
-    try:
+    print Header+"LogFile="+str(runid)+", folder = "+FolderName 
+    try: #there is quite much loss here, 30% maybe. 
       int(runid)
     except:
       print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
