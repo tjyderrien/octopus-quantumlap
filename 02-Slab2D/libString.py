@@ -30,7 +30,9 @@ from libDatabase import * #uses symbolic link
 def LookUpLatestLogFile(Filename): #{{{{
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
+  print Header+"List of files: "+str(newest)
   result = [int(s) for s in newest.split(".") if s.isdigit()]
+  print Header+"List of files: "+str(result)
   # For some folders, result was empty (?!)
   try:
     final = max(result)
