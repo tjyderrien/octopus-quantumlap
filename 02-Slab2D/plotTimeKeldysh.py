@@ -169,13 +169,32 @@ print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_
 ### Importing input from octopus 
 print Header+"== Getting input from octopus... =="
 print Header+" PULSE 1 ..."
-wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
-# split it using = sign, take the rhs then split again. 
-wavelength_SI_tmp    = wavelength_inp.split("=")
-wavelength_SI_tmp2   = wavelength_SI_tmp[1]
-wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
-del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
+
+
+
+## Captures the value of a laser parameter in the Octopus input file.
+def GetParameterValueFromInputFile(string): #{{{
+    wavelength_inp       = LookUpStringInFile("../inp", string)
+    # split it using = sign, take the rhs then split again. 
+    wavelength_SI_tmp    = wavelength_inp.split("=")
+    wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
+    wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
+    wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
+    del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
+#}}}
+
+#def LookUpLaserWavelength(string): #{{{
+    #wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
+    ## split it using = sign, take the rhs then split again. 
+    #wavelength_SI_tmp    = wavelength_inp.split("=")
+    #wavelength_SI_tmp2   = wavelength_SI_tmp[1]
+    #wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
+    #wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
+    #del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
+##}}}
+
+wavelength_SI = GetParameterValueFromInputFile("lambdaA =")
+
 # print "============================================ DEBUG: wavlength_SI = "+str(wavelength_SI)
 # wavelength_SI        = float(wavelength_inp[10:20])
 PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
