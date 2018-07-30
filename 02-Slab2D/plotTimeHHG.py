@@ -80,7 +80,7 @@ if(PlottingMode == "auto"):
 ## METHOD detection in input file
   else: #{{{
     filename = "../inp"
-    Efield2_inp = LookUpStringInFile(filename, "EfieldBsi =")
+    Efield2_inp = GetParameterValueFromInputFile("EfieldBsi = ")
     Efield2_SI  = float(Efield2_inp[11:15])
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
@@ -167,18 +167,19 @@ print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_
 ### Importing input from octopus 
 print Header+"== Getting input from octopus... =="
 print Header+" PULSE 1 ..."
-wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
-wavelength_SI        = float(wavelength_inp[10:17])
-PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
-PulseDuration_SI     = float(PulseDuration_inp[8:15])
+#wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
+wavelength_SI        = GetParameterValueFromInputFile("lambdaA = ")
+    #float(wavelength_inp[10:17])
+#PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
+PulseDuration_SI     = GetParameterValueFromInputFile("tauAsi = ")
 
 print Header+" PULSE 2 ..."
-wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB =")
-wavelengthB_SI       = float(wavelengthB_inp[10:17])
-PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
-PulseDurationB_SI    = float(PulseDurationB_inp[8:15])
-DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
-DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
+#wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB = ")
+wavelengthB_SI       = GetParameterValueFromInputFile("lambdaB = ")
+#PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
+PulseDurationB_SI    = GetParameterValueFromInputFile("tauBsi = ")
+#DoublePulseDelay_inp = LookUpStringInFile("../inp", "pulseDelaySI = ")
+DoublePulseDelay_SI  = GetParameterValueFromInputFile("pulseDelaySI = ")
 
 # Gaussian | SinSquared pulse | Soft Top Hat pulse?
 PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")

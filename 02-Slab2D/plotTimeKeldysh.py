@@ -83,8 +83,8 @@ if(PlottingMode == "auto"):
 ## METHOD detection in input file
   else: #{{{
     filename = "../inp"
-    Efield2_inp = LookUpStringInFile(filename, "EfieldBsi =")
-    Efield2_SI  = float(Efield2_inp[11:15])
+    #Efield2_inp = LookUpStringInFile(filename, "EfieldBsi = ")
+    Efield2_SI  = GetParameterValueFromInputFile("EfieldBsi = ")
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
@@ -169,32 +169,6 @@ print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_
 ### Importing input from octopus 
 print Header+"== Getting input from octopus... =="
 print Header+" PULSE 1 ..."
-
-
-
-## Captures the value of a laser parameter in the Octopus input file.
-def GetParameterValueFromInputFile(string): #{{{
-    Header="GetParameterValueFromInputFile: "
-    wavelength_inp       = LookUpStringInFile("../inp", string)
-    # split it using = sign, take the rhs then split again. 
-    # print Header+str(wavelength_inp)
-    wavelength_SI_tmp    = wavelength_inp.split("=")
-    wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
-    # print Header+str(wavelength_SI_tmp2)
-    wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    wavelength_SI   = float(wavelength_SI_tmp3[1])
-    return wavelength_SI
-#}}}
-
-#def LookUpLaserWavelength(string): #{{{
-    #wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
-    ## split it using = sign, take the rhs then split again. 
-    #wavelength_SI_tmp    = wavelength_inp.split("=")
-    #wavelength_SI_tmp2   = wavelength_SI_tmp[1]
-    #wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    #wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
-    #del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
-##}}}
 
 wavelength_SI    = GetParameterValueFromInputFile("lambdaA = ")
 PulseDuration_SI = GetParameterValueFromInputFile("tauAsi = ")

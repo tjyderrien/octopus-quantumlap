@@ -50,12 +50,13 @@ def LoadRunOutputs(path):
 ## Captures the value of a laser parameter in the Octopus input file located in "../inp".
 # Hence, localize yourself in td.general before using this function. 
 def GetParameterValueFromInputFile(string): #{{{
+    #Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile("../inp", string)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
     wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
+    wavelength_SI   = float(wavelength_SI_tmp3[1])
     return wavelength_SI
 #}}}
 
@@ -121,15 +122,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	 
     ##TODO: Getting k-grid value
     
-    wavelength_inp       = LookUpStringInFile(filename, "lambdaA =")
-    wavelength_SI        = float(wavelength_inp[10:17])
-    
-    PulseDuration_inp    = LookUpStringInFile(filename, "tauAsi = ")
-    PulseDuration_SI     = float(PulseDuration_inp[8:15])
+    wavelength_SI        = GetParameterValueFromInputFile("lambdaA = ")
+    PulseDuration_SI     = GetParameterValueFromInputFile("tauAsi = ")
+    DoublePulseDelay_SI  = GetParameterValueFromInputFile("pulseDelaySI = ")
 	 
-    DoublePulseDelay_inp = LookUpStringInFile(filename, "pulseDelaySI = ")
-    DoublePulseDelay_SI  = float(DoublePulseDelay_inp[15:22])
-    
     FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     try:
 	 FieldInduced_string = FieldInduced_inp[0]
@@ -159,16 +155,16 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     print Header+"** Info: CEP1: "+CEP1_inp[7:]
        
-    Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
-    Efield2_SI           = float(Efield2_inp[11:15]) #If non-zero, we enable double-pulse analysis. Else: disabled. 
+    #Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
+    Efield2_SI           = GetParameterValueFromInputFile("EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI > 1.0):#{ #get the second pulse data
       print Header+"** Entering second pulse input."
-      wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
-      wavelength2_SI        = float(wavelength2_inp[10:17])
+      #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
+      wavelength2_SI        = GetParameterValueFromInputFile("lambdaB = ")
 	 
-      PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
-      PulseDuration2_SI     = float(PulseDuration2_inp[8:15])
+      #PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
+      PulseDuration2_SI     = GetParameterValueFromInputFile("tauBsi = ")
       
       CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
       CEP2_SI               = eval(CEP2_inp[7:])

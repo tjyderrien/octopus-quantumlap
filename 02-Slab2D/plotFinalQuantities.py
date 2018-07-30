@@ -365,7 +365,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   EnergyMin = 1e-5 #-1E-7
   
   ax1 = pplt.subplot(plotA)
-  #pplt.title('Density as function of peak intensity')
+  pplt.title(r'$\lambda = $'+str(round(pulseWavelength*1E9))+' nm')
   
   plot1 = []
   for pulse_value in pulses_uniq: #{{{
@@ -395,6 +395,16 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #omega = 2.*np.pi*c/wavelengths1[0] #how come this value is taken outside, but not my n_photon quantity?
         ##n_photons #gets the number of photons in upper levels
         #return sigma_n * intensity**n_photons / (n_photons*hbar*omega) * pulses1_sorted[0]
+
+    ## 1-photon absorption fitting function
+    def OnePhotonAbsorption(intensity, sigma_n): 
+    #{{{
+      n=1; #wavelengths1=800e-9; #is captured by parental legacy
+      omega = 2.*np.pi*c/wavelengths1[0]
+      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelengths1[0], pulses1_sorted[0])
+      nexc_mpi = sigma_n * intensity**n / (n*hbar*omega) * pulses1_sorted[0]
+      return nexc_mpi
+    #}}}
     
     ## 2-photon absorption fitting function
     def TwoPhotonAbsorption(intensity, sigma_n): 
@@ -451,42 +461,80 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         return plot_field
     #}}}
     
-    TwoPhotonIntensityRegime_min = 0e0
-    TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
-    
-    print Header+"** Info: fitting the 2-photon absortion part..."
-    try: 
-        plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
-        plot1 += [plot_field]
-    except: 
-        print Header+"** Warning: 2-ph fitting of the data failed for tau="+str(pulse_value*1E15)+" fs."
+        ## Filters a part of the data and fit using the given function
+    def FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max): #TODO: pass function name in argument
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > OnePhotonIntensityRegime_min) and (Intensity_sorted_np < OnePhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > OnePhotonIntensityRegime_min) & (Intensity_sorted_np < OnePhotonIntensityRegime_max)]
         
-    # NOTE: this is NOT 3-photon absorption regime, this is NON-PERTURBATIVE regime. Transition to tunneling. 
-    ThreePhotonIntensityRegime_min = 1.3e15 
-    ThreePhotonIntensityRegime_max = 1.3e17 #W/m2
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > OnePhotonIntensityRegime_min) & (Intensity_sorted_np < OnePhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        OnePhotonAbsorption_params = curve_fit(OnePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(OnePhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_1PI = OnePhotonAbsorption(Intensity_sorted_mask, OnePhotonAbsorption_params[0])
+        #print Nexc_2PI
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_1PI, '--', label=r'Fit $\sigma_1=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+r', $\tau_1=$'+str(int(pulse_value*1E15))+'fs') #NOTE add value of sigma_1 here
+        del Nexc_1PI, OnePhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
+    
     ## ==== FITTING THE 3-photon ionization plot
-    def FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
+    def FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
     #{{{
         print Header+"** Info: Filtering the fitting region..."
         Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
         #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
-        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > ThreePhotonIntensityRegime_min) & (Intensity_sorted_np < ThreePhotonIntensityRegime_max)]
         
         Ne_final_sorted_np  = np.array(Ne_final_sorted)
-        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > ThreePhotonIntensityRegime_min) & (Intensity_sorted_np < ThreePhotonIntensityRegime_max)]
         print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
         
-        TwoPhotonAbsorption_params = curve_fit(ThreePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        ThreePhotonAbsorption_params = curve_fit(ThreePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
         #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0])
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(ThreePhotonAbsorption_params[0])
         
         print Header+"** Info: adding the fitted curve to the plot"
-        Nexc_2PI = ThreePhotonAbsorption(Intensity_sorted_mask, TwoPhotonAbsorption_params[0])
+        Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_2PI, '--', label=r'Fit $\sigma_3=$'+str(TwoPhotonAbsorption_params[0][0])+r', $\tau_1=$'+str(int(pulse_value*1E15))+'fs') #NOTE adds value of sigma_3 here
-        del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_3PI, '--', label=r'Fit $\sigma_3=$'+str(ThreePhotonAbsorption_params[0][0])+r', $\tau_1=$'+str(int(pulse_value*1E15))+'fs') #NOTE adds value of sigma_3 here
+        del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
+    
+    ThreePhotonIntensityRegime_min = 0e0
+    ThreePhotonIntensityRegime_max = 0e0 #W/m2
+    
+    TwoPhotonIntensityRegime_min = 0e0
+    TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+    
+    OnePhotonIntensityRegime_min = 0e0
+    OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+    
+    omega = 2.*np.pi*c/wavelengths1[0]
+    NumberOfPhotons = Egap_SI / (hbar * omega)
+    NumberOfPhotons_round = round(NumberOfPhotons,0)
+    print Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(round(NumberOfPhotons,0))
+    if(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
+        print Header+"** Info: fitting with 2-photon absortion..."
+        plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
+        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
+        plot1 += [plot_field]
+        print Header+"** Info: fitting with 1-photon absortion..."
+    else: 
+        plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
+        plot1 += [plot_field]
+        print Header+"** Info: fitting with 3-photon absortion..."    
+    # NOTE: this is NOT 3-photon absorption regime, this is NON-PERTURBATIVE regime. Transition to tunneling. 
     
     print Header+"** Info: fitting the non-perturbative regime [DISABLED FOR NOW]..."
     #try: 
@@ -1263,7 +1311,8 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
   print Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq)))
-    
+  
+  TotalField2D   = np.empty((0,3)) #preparing the 2D plot
   DensityMax2D = np.empty((0,3)) #preparing the 2D plot
   CurrentMax2D = np.empty((0,3)) #preparing the 2D plot
   EnergyMax2D  = np.empty((0,3)) #preparing the 2D plot
@@ -1279,54 +1328,68 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       
       print Header+"Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
       if(len(Ne_final) >= 1):
+        ToBeAddedField  =np.array([Efield1[0], Efield2[0], Efield1[0]+Efield2[0]]) #builds the total peak field
         ToBeAdded       =np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
         ToBeAddedCurrent=np.array([Efield1[0], Efield2[0], TotalCurrent_final[0]]) #BUG: removes some results, not clean enough!
         ToBeAddedEnergy =np.array([Efield1[0], Efield2[0], Energy_max[0]]) #BUG: removes some results, not clean enough!
         ToBeAddedWpi    =np.array([Efield1[0], Efield2[0], W_pi[0]]) #BUG: removes some results, not clean enough!
         print ToBeAdded
+        TotalField2D=np.vstack((TotalField2D, ToBeAddedField))
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
         CurrentMax2D=np.vstack((CurrentMax2D, ToBeAddedCurrent))
         EnergyMax2D =np.vstack((EnergyMax2D, ToBeAddedEnergy))
         WpiMax2D    =np.vstack((WpiMax2D   , ToBeAddedWpi))
         print "Cleaning..."
-        del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
+        del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi, ToBeAddedField
     #}}}
   #}}}
   PulseTypeName = np.asfarray(PulseType)
   # Stack is built. Export, show and plot on a heat map. 
   print "** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)..."
   print "** Info: useful to visualize available data with GNUplot. "
+  filename_field   = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-EPeakWithE1E2"
   filename         = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-NeFinalWithE1E2"
   filename_current = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-CurrentFinalWithE1E2"
   filename_energy  = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-EnergyFinalWithE1E2"
   filename_wpi     = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-WpiWithE1E2"
   # Sorting the data before storing and plotting
+  TotalField2Dsorted = TotalField2D[np.lexsort((TotalField2D[:,2], TotalField2D[:,1], TotalField2D[:,0]))]
   DensityMax2Dsorted = DensityMax2D[np.lexsort((DensityMax2D[:,2], DensityMax2D[:,1], DensityMax2D[:,0]))]
   CurrentMax2Dsorted = CurrentMax2D[np.lexsort((CurrentMax2D[:,2], CurrentMax2D[:,1], CurrentMax2D[:,0]))]
   EnergyMax2Dsorted  = EnergyMax2D[np.lexsort((EnergyMax2D[:,2], EnergyMax2D[:,1], EnergyMax2D[:,0]))]
   WpiMax2Dsorted     = WpiMax2D[np.lexsort((WpiMax2D[:,2], WpiMax2D[:,1], WpiMax2D[:,0]))]
   
+  
+  ## Lazy to build up a new function for that for now.
+  if(WhatToPlot == 0): 
+      QuantityTitle=r'$N_{exc}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+  elif(WhatToPlot == 4): 
+      DensityMax2Dsorted = TotalField2Dsorted; 
+      filename = filename_field
+      QuantityTitle=r"$E_{tot}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+  elif(WhatToPlot == 1): 
+      DensityMax2Dsorted = CurrentMax2Dsorted; 
+      filename = filename_current
+      QuantityTitle=r"$J_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+  elif(WhatToPlot == 2): 
+      DensityMax2Dsorted = EnergyMax2Dsorted
+      filename = filename_energy
+      QuantityTitle=r"$\xi_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+  elif(WhatToPlot == 3): 
+      DensityMax2Dsorted = WpiMax2Dsorted
+      filename = filename_wpi
+      QuantityTitle=r'$w_{PI}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+  else: 
+      print Header+"** plot_Zhukov_BicolorMaps: wrong request!"
+  
+  # Outputing the data to plot from outside
+  ExportToTxt(TotalField2Dsorted, filename+".csv")
   ExportToTxt(DensityMax2Dsorted, filename+".csv")
   ExportToTxt(CurrentMax2Dsorted, filename+".csv")
   ExportToTxt(EnergyMax2Dsorted, filename+".csv")
   ExportToTxt(WpiMax2Dsorted, filename+".csv")
   
-  ## Lazy to build up a new function for that for now. 
-  if(WhatToPlot == 1): 
-      DensityMax2Dsorted = CurrentMax2Dsorted; 
-      filename = filename_current
-      QuantityTitle=r"Shift current $J_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
-  elif(WhatToPlot == 2): 
-      DensityMax2Dsorted = EnergyMax2Dsorted
-      filename = filename_energy
-      QuantityTitle=r"Total energy $\xi_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
-  elif(WhatToPlot == 3): 
-      DensityMax2Dsorted = WpiMax2Dsorted
-      filename = filename_wpi
-      QuantityTitle=r'Excitation rate $w_{PI}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
-  else: 
-      QuantityTitle=r'Excited density $N_{exc}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
-  
+  # Shaping the tables
   BrutX = 1E-9*DensityMax2Dsorted[:,0]
   BrutY = 1E-9*DensityMax2Dsorted[:,1]
   BrutZ = DensityMax2Dsorted[:,2]
@@ -1339,43 +1402,43 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   Z=DensityMax2Dsorted
   YY, XX = np.meshgrid(X, Y)
   # If the size is big enough, let's make a plot.
-  if(len(DensityMax2D) >= 2):
-    triang = tri.Triangulation(BrutX, BrutY)
-    triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
-                             BrutY[triang.triangles].mean(axis=1))
-                    < 0.15)
-    refiner = tri.UniformTriRefiner(triang)
-    tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
-    #plt.figure()
-    #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
-    fig = plt.figure()
-    #ax = fig.add_subplot(111, projection='3d')
-    #plt.gca().set_aspect('equal')
-    #plt.title(QuantityTitle)
-    plt.xlabel(r'$E_1$ (V/nm)')
-    plt.ylabel(r'$E_2$ (V/nm)')
-    #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
-    #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
-    #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
-    #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
-    #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
-    #try:
-    #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
-      #ax.view_init(90, 90)
-      #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
-    plt.triplot(triang, lw=0.1, color='black')
-    levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
-    #cmap = cm.get_cmaps(name='terrain', lut=None)
-    cmap = cm.get_cmap(name='Blues', lut=None)
-    plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
-    #plt.tricontour(tri_refi, z_test_refi, levels=levels,
-            #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
-            #linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
-    plt.colorbar()
-    plt.tight_layout()
-    #except:
-      #CS = -1
-      #print Header+"** Warning: failed to produce one of the plots."
+  if(len(DensityMax2D) >= 2): #{{{
+    try:
+        triang = tri.Triangulation(BrutX, BrutY)
+        triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
+                                BrutY[triang.triangles].mean(axis=1))
+                        < 0.15)
+        refiner = tri.UniformTriRefiner(triang)
+        tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
+        #plt.figure()
+        #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
+        fig = plt.figure()
+        #ax = fig.add_subplot(111, projection='3d')
+        #plt.gca().set_aspect('equal')
+        plt.title(QuantityTitle)
+        plt.xlabel(r'$E_1$ (V/nm)')
+        plt.ylabel(r'$E_2$ (V/nm)')
+        #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
+        #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
+        #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
+        #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+        #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+        #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
+        #ax.view_init(90, 90)
+        #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
+        plt.triplot(triang, lw=0.1, color='black')
+        levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
+        #cmap = cm.get_cmaps(name='terrain', lut=None)
+        cmap = cm.get_cmap(name='Blues', lut=None)
+        plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+        #plt.tricontour(tri_refi, z_test_refi, levels=levels,
+                #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
+                #linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
+        plt.colorbar()
+        plt.tight_layout()
+    except:
+        #CS = -1
+        print Header+"** Warning: failed to produce one of the plots."
     
     #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
     #print np.shape(Xi), np.shape(Yi)
@@ -1584,14 +1647,15 @@ def plot_Zhukov_SingleColor():
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
-    wavelength = 484e-9 #Resonant wavelength results
+    wavelength = 483e-9 #Resonant wavelength results for LDA.
+    #wavelength = 407e-9 #Resonant wavelength results for TB09. 
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
+    wavelength = 484e-9 #Resonant wavelength results for LDA.
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, False, ShowPlot) #This one construct the ionization probabilities! 
     ## READY
     wavelength = 800e-9
     plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot) 
-    
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 10e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot)
-    
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 30e-15, 0., False, wavelength, PulseType, RiseCycles, ShowPlot)
     
     ShowPlot=1
@@ -1604,19 +1668,21 @@ def plot_Zhukov_SingleColor():
 ## Prepare all plots for bicolor paper with V. Zhukov [1 Phys. Rev. Lett + 1 Phys. Rev. A]
 def plot_Zhukov_BicolorMaps():
     for tau in [20e-15, 30e-15]:
-        PulseType  = 3; RiseCycles = 2 #StH corrected. 
-        #PulseType  = 2;  RiseCycles = 0 #bugged STH. 
-        #RiseCycles = 2
+        #PulseType  = 3; RiseCycles = 2 #StH corrected. 
+        PulseType  = 2;  RiseCycles = 0 #bugged STH. 
+        
         ## Commensurable
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  0)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  1)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  2)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  3)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  4)
         ## Incommensurable                                                                                  
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  0)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  1)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  2)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  3)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  4)
 
 ## Prepare all plots for shift current paper with A. Rubio
 def plot_ShiftCurrents():
@@ -1669,11 +1735,12 @@ def plot_ShiftCurrents():
 
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
-#plot_Zhukov_SingleColor()
+plot_Zhukov_SingleColor()
 
 ## Zhukov bicolor plotting
-plot_Zhukov_BicolorMaps()
+#plot_Zhukov_BicolorMaps()
 
+## Rubio shift current plotting
 #plot_ShiftCurrents()
 
 print Header+"End of program."
