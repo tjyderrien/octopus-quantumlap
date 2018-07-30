@@ -174,13 +174,16 @@ print Header+" PULSE 1 ..."
 
 ## Captures the value of a laser parameter in the Octopus input file.
 def GetParameterValueFromInputFile(string): #{{{
+    Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile("../inp", string)
     # split it using = sign, take the rhs then split again. 
+    # print Header+str(wavelength_inp)
     wavelength_SI_tmp    = wavelength_inp.split("=")
     wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
+    # print Header+str(wavelength_SI_tmp2)
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    wavelength_SI        = float(wavelength_SI_tmp3[1]) #takes the left part of the chain
-    del wavelength_SI_tmp, wavelength_SI_tmp2, wavelength_SI_tmp3
+    wavelength_SI   = float(wavelength_SI_tmp3[1])
+    return wavelength_SI
 #}}}
 
 #def LookUpLaserWavelength(string): #{{{
