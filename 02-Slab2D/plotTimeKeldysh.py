@@ -632,7 +632,7 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
+  #ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #{{{
