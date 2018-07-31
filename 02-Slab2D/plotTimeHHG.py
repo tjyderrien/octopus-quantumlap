@@ -80,8 +80,8 @@ if(PlottingMode == "auto"):
 ## METHOD detection in input file
   else: #{{{
     filename = "../inp"
-    Efield2_inp = GetParameterValueFromInputFile(filename, "EfieldBsi = ")
-    Efield2_SI  = float(Efield2_inp[11:15])
+    Efield2_SI = GetParameterValueFromInputFile(filename, "EfieldBsi = ")
+    #Efield2_SI  = float(Efield2_inp[11:15])
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
