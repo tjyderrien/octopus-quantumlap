@@ -241,7 +241,7 @@ elif(PulseType == "gaussian"):
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0
-  tmax =  2.*PulseDuration_SI + t0 #BUG
+  tmax =  2.*PulseDuration_SI + t0
 else: 
   print Header+"** Error: pulse type was not recognized. "
   print Header+"** Error details: PulseType = "+str(PulseType)
@@ -340,22 +340,20 @@ if(timeEnergies.size != ElectronEnergy.size):
 
 # Normalizing to 0
 ElectronEnergy = ElectronEnergy - ElectronEnergy.min()
-TotalEnergy    = TotalEnergy - TotalEnergy.min()
-IonEnergy      = IonEnergy - IonEnergy.min()
-Hartree        = Hartree - Hartree.min()
+TotalEnergy    = TotalEnergy    - TotalEnergy.min()
+IonEnergy      = IonEnergy      - IonEnergy.min()
+Hartree        = Hartree        - Hartree.min()
 
 ##===== Prepare plotting of total_current ======
 ShrinkBy=0
 
-timeCurrent=np.asfarray(TotalCurrent[:,1])
 maxSize=timeNe.size-ShrinkBy
+Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax ) #damps the signal to avoid discontinuity in FFT. 
 
-CurrentX=np.asfarray(TotalCurrent[:,2])
+timeCurrent=np.asfarray(TotalCurrent[:,1])
+CurrentX   =np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
-
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
-
-Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax / 2.)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
