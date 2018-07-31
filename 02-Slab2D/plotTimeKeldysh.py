@@ -68,7 +68,7 @@ ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
-maxHHG = 3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 1000 #maximum number of samples to cut the spectrum with
 
 Header="[octopus-slabs] "
 
@@ -348,7 +348,7 @@ Hartree        = Hartree        - Hartree.min()
 ShrinkBy=0
 
 maxSize=timeNe.size-ShrinkBy
-Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax ) #damps the signal to avoid discontinuity in FFT. 
+Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax / 3. ) #damps the signal to avoid discontinuity in FFT. 
 
 timeCurrent=np.asfarray(TotalCurrent[:,1])
 CurrentX   =np.asfarray(TotalCurrent[:,2])
@@ -359,9 +359,14 @@ print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(Nproj_AU_FFT) #let's work directly on number of electrons
+
+## Routines Thibault
+# HHG_AU=fft.rfft(Nproj_AU_FFT) #let's work directly on number of electrons
+# HHG_AU_omega=2.*pi*fft.rfftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.)) 
+# Routines Nico
+HHG_AU      =fft.fft(Nproj_AU_FFT) 
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
-# c_SI = Velocity_AU_to_SI(c_AU)
+# Common routines
 HHG_AU_energy = HHG_AU_omega*hbar/e  #eV
 HHG_AU_order=HHG_AU_omega / (2.*pi*c/wavelength_SI)
 HHG_AU_duration=1./HHG_AU_omega
@@ -728,13 +733,17 @@ if(PlotGrid==1):
 ### ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
 
-# Spectra for current FFT
+# Spectra for excited density FFT
+
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-plt.plot(HHG_AU_order[:maxHHG], np.multiply(np.power(HHG_AU_order[:maxHHG],2.),np.power(np.abs(HHG_AU[:maxHHG]),2.)), '-', label=r'HHG$(\hbar \omega)$')
-## ax4.set_xscale("log", nonposx='clip')
+# plt.plot(HHG_AU_energy[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+# plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.) * np.abs(HHG_AU[:maxHHG])**2., '-', label=r'HHG$(\hbar \omega)$')
+plt.plot(HHG_AU_energy[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.) * np.abs(HHG_AU[:maxHHG])**2., '-', label=r'HHG$(\hbar \omega)$')
+# plt.xticks(np.arange(1,30, step=2))
+ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log") #, nonposx="clip")
-plt.xlabel("Harmonic order")
-#plt.xlabel("Energy (eV)")
+# plt.xlabel("Harmonic order")
+plt.xlabel("Energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
