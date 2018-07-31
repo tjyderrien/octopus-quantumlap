@@ -84,7 +84,7 @@ if(PlottingMode == "auto"):
   else: #{{{
     filename = "../inp"
     #Efield2_inp = LookUpStringInFile(filename, "EfieldBsi = ")
-    Efield2_SI  = GetParameterValueFromInputFile("EfieldBsi = ")
+    Efield2_SI  = GetParameterValueFromInputFile(filename, "EfieldBsi = ")
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
@@ -170,13 +170,13 @@ print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_
 print Header+"== Getting input from octopus... =="
 print Header+" PULSE 1 ..."
 
-wavelength_SI    = GetParameterValueFromInputFile("lambdaA = ")
-PulseDuration_SI = GetParameterValueFromInputFile("tauAsi = ")
+wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
+PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 
 print Header+" PULSE 2 ..."
-wavelengthB_SI      = GetParameterValueFromInputFile("lambdaB = ")
-PulseDurationB_SI   = GetParameterValueFromInputFile("tauBsi = ")
-DoublePulseDelay_SI = GetParameterValueFromInputFile("pulseDelaySI = ")
+wavelengthB_SI      = GetParameterValueFromInputFile(filename, "lambdaB = ")
+PulseDurationB_SI   = GetParameterValueFromInputFile(filename, "tauBsi = ")
+DoublePulseDelay_SI = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
 
 # Gaussian | SinSquared pulse | Soft Top Hat pulse?
 PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
