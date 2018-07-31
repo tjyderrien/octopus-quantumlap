@@ -47,9 +47,9 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 
 ## Plotting: parameters for controlling the canvas
 ## 3 canvas
-#plotA=311; plotB=312; plotC=313;
+plotA=311; plotB=312; plotC=313;
 ## 4 canvas
-plotA=411; plotB=412; plotC=413; plotD=414
+#plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
 SizeY = 20
@@ -731,20 +731,17 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ### ============ PLOTTING FOURIER SPECTRA =========
-ax4 = plt.subplot(plotD)
+#ax4 = plt.subplot(plotD)
 
-# Spectra for excited density FFT
+## Spectra for current FFT
+## plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+#plt.plot(HHG_AU_order[:maxHHG], np.multiply(np.power(HHG_AU_order[:maxHHG],2.),np.power(np.abs(HHG_AU[:maxHHG]),2.)), '-', label=r'HHG$(\hbar \omega)$')
+### ax4.set_xscale("log", nonposx='clip')
+#ax4.set_yscale("log") #, nonposx="clip")
+#plt.xlabel("Harmonic order")
+##plt.xlabel("Energy (eV)")
+#plt.ylabel("Harmonic ampl. (arb. u.)")
 
-# plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-# plt.plot(HHG_AU_energy[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-# plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.) * np.abs(HHG_AU[:maxHHG])**2., '-', label=r'HHG$(\hbar \omega)$')
-plt.plot(HHG_AU_energy[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.) * np.abs(HHG_AU[:maxHHG])**2., '-', label=r'HHG$(\hbar \omega)$')
-# plt.xticks(np.arange(1,30, step=2))
-ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log") #, nonposx="clip")
-# plt.xlabel("Harmonic order")
-plt.xlabel("Energy (eV)")
-plt.ylabel("Harmonic ampl. (arb. u.)")
 
 ## ======== Applying logscales...
 
