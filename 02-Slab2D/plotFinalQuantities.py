@@ -63,8 +63,7 @@ Header="[plotFinalQuantities] "
 ShowFinalPlot              = 0
 
 Density=5E28 #specific to Si #TODO: compute automatically? 
-Egap_SI = 3.04*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
-
+Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 
 # Capture the data
 # For histocal reasons, two locations are possilbe.
