@@ -409,7 +409,8 @@ print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
 # Calculation using quantum projections < phi_gs | phi(t) >
 #Nproj_AU = density #* CellVolume_AU 
 # Nproj_AU = Nproj_AU * CellVolume_AU #Should we really multiply by volume ?
-density_proj_AU = Z_at * Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.)
+density_proj_AU = Z_at * Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.) #BUG: why do we need this factor 2? 
+density_proj_AU = Nproj_AU / SampleCellVolume_AU #This is now a density (at.u.)
 # Calculation of particle number from charge density (octopus.output.density)
 # Npost_AU = NePost * CellVolume_AU #NOW, it's a number of electrons. :)
 # Npost_2in_AU = NePostSquaredInside * CellVolume_AU #Same
@@ -616,7 +617,8 @@ ax2 = plt.subplot(plotB)
 plt.xlim((xmin,xmax))
 plt.ylim((ymin,ymax))
 
-density_proj_damped_AU = Z_at * Nproj_AU_FFT / SampleCellVolume_AU
+#density_proj_damped_AU = Z_at * Nproj_AU_FFT / SampleCellVolume_AU #TODO: why do we have a problem of factor 2? Spin?
+density_proj_damped_AU = Nproj_AU_FFT / SampleCellVolume_AU
 density_proj_damped_SI = Density_AU_to_SI(density_proj_damped_AU)
 
 if(QuantityOfInterest == "density"):
@@ -625,7 +627,7 @@ if(QuantityOfInterest == "density"):
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-#  ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
+  ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
   if(PlottingMode=="keldysh"): #{{{
