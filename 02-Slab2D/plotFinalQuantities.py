@@ -1728,8 +1728,8 @@ def plot_Zhukov_SingleColor_TB09():
 ## Prepare all plots for bicolor paper with V. Zhukov [1 Phys. Rev. Lett + 1 Phys. Rev. A]
 def plot_Zhukov_BicolorMaps():
     for tau in [20e-15, 30e-15]:
-        #PulseType  = 3; RiseCycles = 2 #StH corrected. 
-        PulseType  = 2;  RiseCycles = 0 #bugged STH. 
+        PulseType  = 3; RiseCycles = 2 #StH corrected. 
+        #PulseType  = 2;  RiseCycles = 0 #bugged STH. 
         
         ## Commensurable
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  0)
