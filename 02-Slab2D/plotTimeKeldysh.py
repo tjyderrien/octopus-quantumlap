@@ -542,7 +542,7 @@ elif(observable_proj.max() > ValenceBandMax):
 ymax2=5E0; 
 
 ymax11value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
-ymax11valueMax = ymax11value.max()
+ymax11valueMax = ymax11value.max()*1E-9
 ymax12valueMax = CurrentX.max()
 #if(ymax2valueMax < ymax2 / 100.):
   #ymax2 = ymax2 / 100.
@@ -569,7 +569,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.66 #PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.5 #PulseDuration_SI*unitx*2.;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -582,7 +582,7 @@ ax1 = plt.subplot(plotA)
 plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$") #, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
 #plt.xlabel('Time (fs)')
 # plt.ylabel('Vector potential (a.u.)')
-plt.ylabel('Field amplitude (V/m)')
+plt.ylabel('Field amplitude (V/nm)')
 # plt.xlim((0, time.max()))
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax11valueMax,ymax11valueMax))
@@ -594,14 +594,14 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
 ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
-plt.ylabel(r'$J(t)$')
+plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
@@ -611,7 +611,7 @@ ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics 
 # Building the shared legend for subfig1
 plot1   = [plot_field, plot_current]
 labels1 = [l.get_label() for l in plot1]
-ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha)
+# ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha) #NOTE: plot is clear enough, no caption is necessary. 
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
@@ -641,7 +641,7 @@ if(QuantityOfInterest == "density"):
     plt.ylabel('Density exc. el. (a.u.)')
   elif(UnitSystem=="SI"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
-  plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+  plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_{exc}^{tddft}(t)$')
   #ax2.plot(timeNe, density_proj_damped_SI, 'r--') #TEMPORARY
   plot_density_sat, = ax2.plot(timeNe, ValenceBandMax*np.ones(np.shape(timeNe)), 'k--', label=r'$\rho_{Si}$')
   #ax2.legend(loc=3)
@@ -651,7 +651,7 @@ if(QuantityOfInterest == "density"):
     # plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$') #must be removed, as non physical. Only the final value can be plotted.  
 #     plot_wpi_av_inst,     = ax22.plot(timeNe[1:], wPI_TDDFT, 'g-', label=r'$w_{PI}^{inst}(t)$')
 #    plot_wpi_moving, = ax22.plot(timeNe, wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{convol}(t)$')
-    plot_wpi_moving_pos, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],np.clip(wPI_TDDFT_moving,0.,None), 'b-', label=r'$w_{PI+}^{moving}(t)$')
+    plot_wpi_moving_pos, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],np.clip(wPI_TDDFT_moving,0.,None), 'b-', label=r'$\tilde{w}_{PI}^{tddft}(t)$')
 #    plot_wpi_moving_neg, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],-1.*np.clip(wPI_TDDFT_moving,None,0.), 'b--', label=r'$-w_{PI-}^{moving}(t)$') 
 #     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
     # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
@@ -660,7 +660,7 @@ if(QuantityOfInterest == "density"):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
     #plt.legend(loc=3)
-    plt.ylabel('$w_{PI}$')
+    plt.ylabel('$w_{PI}$ [m$^{-3}$ s$^{-1}$]')
     ax22.yaxis.label.set_color(plot_wpi_moving_pos.get_color()) #colorizes the label
     ax22.spines["right"].set_edgecolor(plot_wpi_moving_pos.get_color()) #colorizes the axis
     ax22.tick_params(axis='y', colors=plot_wpi_moving_pos.get_color()) #colorizes the tics and numbers
@@ -702,12 +702,6 @@ elif (QuantityOfInterest == "number"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-if(PlottingMode == "keldysh"):
-  if("STH" in PulseType or "StH" in PulseType):
-    # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
-    labels2 = [l.get_label() for l in plot2]
-    ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=framealpha)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -715,6 +709,13 @@ if(PlotGrid==1):
     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
 # plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
+
+if(PlottingMode == "keldysh"):
+  if("STH" in PulseType or "StH" in PulseType):
+    # Building the shared legend for subfig1 (if STH pulses)
+    plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
+    labels2 = [l.get_label() for l in plot2]
+    ax22.legend(plot2, labels2, loc='lower right', fancybox=True, framealpha=framealpha, ncol=2)
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
@@ -725,16 +726,16 @@ plt.xlabel('Time (fs)')
 ## ============ PLOTTING ENERGIES ======
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
-plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
-plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
-plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (t)$')
+plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$") #classical formula for electron gap transition 
+plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='best', fancybox=True, framealpha=framealpha)
+plt.legend(loc='lower right', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
