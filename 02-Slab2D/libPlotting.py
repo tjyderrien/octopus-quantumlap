@@ -420,7 +420,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(TotalCurrent_SI_final), float(FinalEnergy_SI_final), float(0.5*density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime ]
+	      float(TotalCurrent_SI_final), float(FinalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime ]
     
     print Header+"Stack contains:"
     print StackToAdd

@@ -483,12 +483,12 @@ def runningMeanFast(x, N):
 
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
-NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
 print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
 wPI_TDDFT_average_global_t = wPI_TDDFT[:NumberOfTimeSteps-1] / (NumberOfTimeSteps_Ne) #BUG? We should integrate n_exc^(TDDFT) instead. 
-wPI_TDDFT_wild  = observable_proj / (2. * PulseDuration_SI) #NOTE: wild approximation, finally exact after the pulse. 
+wPI_TDDFT_wild  = observable_proj / (PulseDuration_SI) #NOTE: wild approximation, finally exact after the pulse. 
 # wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,averaging_step(timeNe/UnitTime,omega,1.), mode='valid')
 # wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,np.ones(wPI_TDDFT.size)/wPI_TDDFT.size, mode='valid')
 # wPI_TDDFT_moving  = np.convolve(wPI_TDDFT,np.ones(NumberOfSteps_PerCycle)/NumberOfSteps_PerCycle, mode='valid')
@@ -511,8 +511,8 @@ wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle)
  
 wPI_TDDFT_average_global = wPI_TDDFT_average_global_t.cumsum()
 # wPI_TDDFT_average = integrate.cumtrapz(wPI_TDDFT_average_instant, (timeNe[:NumberOfTimeSteps-1]/UnitTime))
-print Header+"** Final value for <w_PI>_2xtau = "+str(wPI_TDDFT_average_global[wPI_TDDFT_average_global.size-1])
-print Header+"** Final value for w_PI_wild ~ nexc_final / 2 tau = "+str(wPI_TDDFT_wild[wPI_TDDFT_wild.size-1])
+print Header+"** Final value for <w_PI>_tau = "+str(wPI_TDDFT_average_global[wPI_TDDFT_average_global.size-1])
+print Header+"** Final value for w_PI_wild ~ nexc_final / tau = "+str(wPI_TDDFT_wild[wPI_TDDFT_wild.size-1])
 print Header+"** Some value for w_PI_moving = "+str(wPI_TDDFT_moving[(wPI_TDDFT_moving.size-1)/2])
 # print Header+"** Some value for w_PI_moving_nico = "+str(wPI_TDDFT_moving_nico[(wPI_TDDFT_moving_nico.size-1)/2])
 
@@ -651,7 +651,7 @@ if(QuantityOfInterest == "density"):
     # plot_wpi_av,     = ax22.plot(timeNe[1:], wPI_TDDFT_average_global, 'b-', label=r'$<w_{PI}>_{2\tau}$') #must be removed, as non physical. Only the final value can be plotted.  
 #     plot_wpi_av_inst,     = ax22.plot(timeNe[1:], wPI_TDDFT, 'g-', label=r'$w_{PI}^{inst}(t)$')
 #    plot_wpi_moving, = ax22.plot(timeNe, wPI_TDDFT_moving, 'r-', label=r'$w_{PI}^{convol}(t)$')
-    plot_wpi_moving_pos, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],np.clip(wPI_TDDFT_moving,0.,None), 'b-', label=r'$\tilde{w}_{PI}^{tddft}(t)$')
+    plot_wpi_moving_pos, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],np.clip(wPI_TDDFT_moving,0.,None), 'b-', label=r'$w_{PI}^{tddft}(t)$')
 #    plot_wpi_moving_neg, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],-1.*np.clip(wPI_TDDFT_moving,None,0.), 'b--', label=r'$-w_{PI-}^{moving}(t)$') 
 #     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
     # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
@@ -660,7 +660,7 @@ if(QuantityOfInterest == "density"):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
     #plt.legend(loc=3)
-    plt.ylabel('$w_{PI}$ [m$^{-3}$ s$^{-1}$]')
+    plt.ylabel('$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
     ax22.yaxis.label.set_color(plot_wpi_moving_pos.get_color()) #colorizes the label
     ax22.spines["right"].set_edgecolor(plot_wpi_moving_pos.get_color()) #colorizes the axis
     ax22.tick_params(axis='y', colors=plot_wpi_moving_pos.get_color()) #colorizes the tics and numbers
@@ -727,8 +727,8 @@ plt.xlabel('Time (fs)')
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (t)$')
-plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$") #classical formula for electron gap transition 
-plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
+plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
