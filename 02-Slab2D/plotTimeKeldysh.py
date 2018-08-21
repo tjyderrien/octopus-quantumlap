@@ -41,7 +41,7 @@ from libPlotting import *
 
 ## Materials properties
 # Z_at    = 2 #Number of atoms per unit cell #This may be misleading!!!
-Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+Egap_SI = 2.56*e #3.04*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
@@ -51,13 +51,16 @@ plotA=311; plotB=312; plotC=313;
 ## 4 canvas
 #plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
-SizeX = 10
-SizeY = 20
+SizeX = 8
+SizeY = 12
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
-## Position of the captions
+## Position of the captions #OBSELETE
 CaptionX = 1.00
 CaptionY = 1.00
+
+## Transparency of the captions
+framealpha = 1
 
 ## User choices
 UnitSystem="SI" #Defines the system unit for the observables. Time will remain in SI. 
@@ -479,7 +482,7 @@ def runningMeanFast(x, N):
 
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
-NumberOfSteps_PerCycle = int(2.*pi/omega/TimeStep_Ne[0])
+NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
 print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
@@ -503,7 +506,7 @@ def runningMean(x, N):
 def runningMeanFast(x, N):
     return np.convolve(x, np.ones((N,))/N)[(N-1):]
 
-wPI_TDDFT_moving = runningMean(wPI_TDDFT,NumberOfSteps_PerCycle)
+wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle)
  
 wPI_TDDFT_average_global = wPI_TDDFT_average_global_t.cumsum()
 # wPI_TDDFT_average = integrate.cumtrapz(wPI_TDDFT_average_instant, (timeNe[:NumberOfTimeSteps-1]/UnitTime))
@@ -522,8 +525,14 @@ print "UnitTime = "+str(UnitTime)
 ## ================================== TIME FOR PLOTTING ====================
 # Managing stepwise maximum for Y1
 ymin=0; ymax=ValenceBandMax; #max for density plot
-if(observable_proj.max() < ymax / 50.):
+if(observable_proj.max() < ymax / 100.):
+  ymax = ymax / 100.
+elif(observable_proj.max() < ymax / 50):
   ymax = ymax / 50.
+elif(observable_proj.max() < ymax / 25):
+  ymax = ymax / 25.
+elif(observable_proj.max() < ymax / 10):
+  ymax = ymax / 10.
 elif(observable_proj.max() < ymax / 5.):
   ymax = ymax / 5.
 elif(observable_proj.max() > ValenceBandMax):
@@ -559,7 +568,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx/2. #PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.66 #PulseDuration_SI*unitx*2.;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -569,7 +578,7 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 
 ## Plotting electric field
-plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
+plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$") #, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
 #plt.xlabel('Time (fs)')
 # plt.ylabel('Vector potential (a.u.)')
 plt.ylabel('Field amplitude (V/m)')
@@ -601,7 +610,7 @@ ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics 
 # Building the shared legend for subfig1
 plot1   = [plot_field, plot_current]
 labels1 = [l.get_label() for l in plot1]
-ax1.legend(plot1, labels1, loc='best')
+ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha)
 
 # wavelength_SI is now automatic
 wavelength_AU = length_SI_to_AU(wavelength_SI)
@@ -697,7 +706,7 @@ if(PlottingMode == "keldysh"):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
-    ax2.legend(plot2, labels2, loc='best')
+    ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=framealpha)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
@@ -723,8 +732,8 @@ plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * obse
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0.)
-plt.legend(loc='best')
+# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
+plt.legend(loc='best', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
@@ -756,7 +765,7 @@ if(EnableLogScale == 1):
   #ax2.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=1, borderaxespad=0.)
 
 ## ==== Writing final picture =====
-
+plt.tight_layout()
 filename='KeldyshAnalysis-'+PlottingMode
 if(EnableLogScale==1): 
   filename=filename+"-LogScale"
