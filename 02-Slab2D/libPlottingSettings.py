@@ -21,13 +21,21 @@
 ## Define settings for matplotlib
 import matplotlib as mp
 import matplotlib.pyplot as plt
-from matplotlib import rc
+from matplotlib import rc, rcParams
 from matplotlib.legend_handler import HandlerLine2D
 
 rc('mathtext', default='regular')
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
-## for Palatino and other serif fonts use:
-rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'14'})
-rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=False)
+rcParams['font.family']='serif'
+rcParams['font.size']  = 14
+rcParams['font.serif'] =['Times-Roman', 'Bitstream Charter', 'Palatino', 'DejaVu Serif']
+
+# rcParams['font.family']     = 'sans-serif'
+# rcParams['font.sans-serif'] = ['phvl8a'] #, 'Helvetica', 'DejaVu Sans']
+#['cmtt10'] is failling on negative signs. 
+
+# rc('font',**{'family':'sans-serif','sans-serif':['cm'], 'size':'14'})
+# for Palatino and other serif fonts use:
+# rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'14'})
 mp.rcParams['legend.numpoints'] = 1
 
