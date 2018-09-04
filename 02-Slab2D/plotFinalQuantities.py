@@ -1831,11 +1831,11 @@ def plot_ShiftCurrents():
 
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
-#plot_Zhukov_SingleColor_LDA()
-plot_Zhukov_SingleColor_TB09()
+# plot_Zhukov_SingleColor_LDA()
+# plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps()
+plot_Zhukov_BicolorMaps() #LDA gap
 
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
