@@ -484,9 +484,7 @@ def runningMeanFast(x, N):
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
 
-NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
-
-# NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 
 def runningMean(x, N):
     y = np.zeros((len(x),))
@@ -501,7 +499,6 @@ def runningMeanFast(x, N):
 Nexc_TDDFT_moving = runningMean(observable_proj, NumberOfSteps_PerCycle) #NEW VERSION
 wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/np.diff(timeNe/UnitTime)
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
-
 
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
