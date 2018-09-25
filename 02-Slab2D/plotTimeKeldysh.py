@@ -484,7 +484,7 @@ def runningMeanFast(x, N):
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
 
-NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+NumberOfSteps_PerCycle = int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 
 def runningMean(x, N):
     y = np.zeros((len(x),))
@@ -503,12 +503,22 @@ def DerivativeFirstOrder_SecondOrderAccuracy(u, dt):
     u_t = np.zeros((u.size-1))
     #dt  = np.diff(t)
     for i in np.arange(1,u.size-2):
-        u_t[i] = 0.5*(u[i+1]-u[u-1])/dt
+        u_t[i] = 0.5*(u[i+1]-u[i-1])/dt
+    return u_t
+
+## Computes derivative of first order with a 4th order precision
+def DerivativeFirstOrder_FourthOrderAccuracy(u, dt):
+    u_t = np.zeros((u.size-3))
+    #dt  = np.diff(t)
+    for i in np.arange(1,u.size-4):
+        u_t[i] = (u[i+2]-u[i-2])/dt/4.
     return u_t
 
 dt_deriv = np.diff(timeNe/UnitTime)
+# Manual filtering: if dNexc/Nexc < 1E-2, we set Wpi = 0. 
 wPI_TDDFT_moving  = DerivativeFirstOrder_SecondOrderAccuracy(Nexc_TDDFT_moving, dt_deriv[0])
-wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv #not precise enough
+# wPI_TDDFT_moving  = Nexc_TDDFT_moving/dt_deriv
+# wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
 
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
