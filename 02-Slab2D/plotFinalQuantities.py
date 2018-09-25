@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2018 T. J.-Y. Derrien
+# Copyright (C) 2016-2018 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -566,6 +566,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     
   #}}}
     
+  #print Header+"Adding the adjusted coefficients to check our fitting law."
+  
+    
   print Header+"Generating comparison with Keldysh-Gruzdev model..." ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
@@ -574,7 +577,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   Efield1_Keldysh     = np.power(10., Efield1_Keldysh_log)
   print Efield1_Keldysh
   PeakWpi_Gruzdev     = GenerateKeldyshDatabase(Egap_SI, meff, pulseWavelength, Efield1_Keldysh, order)
-  
+  PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI, meff, pulseWavelength, Efield1_Keldysh), 1E0,1E43)
   pplt.xlabel(r'Peak intensity (W/m$^2$)')
   pplt.ylabel(r'Final exc. density (m$^{-3}$)')
 #  pplt.ylim((1E16,4.*5e28))
@@ -598,6 +601,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         plot1 += [plot121]
     #}}}
     plot122, = ax12.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gruzdev, 'k-', label=r'$w_{PI}$ [Gruzdev], $\lambda=$'+str(round(pulseWavelength*1E9))+' nm')
+    plot1    += [plot122]
+    plot123, = ax12.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, 'k--', label=r'$w_{tunnel}$ [Keldysh(1964)], $\lambda=$'+str(round(pulseWavelength*1E9))+' nm')
     plot1    += [plot122]
     #ax12.set_yscale('log')
     #ax12.legend(loc='best', fancybox=True, framealpha=0)
