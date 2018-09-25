@@ -496,7 +496,18 @@ def runningMeanFast(x, N):
 
 # We shall apply the moving mean BEFORE conversion to Wpi. 
 Nexc_TDDFT_moving = runningMean(observable_proj, NumberOfSteps_PerCycle) #NEW VERSION
-wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/np.diff(timeNe/UnitTime)
+
+## Computes derivative of first order with a second order precision
+def DerivativeFirstOrder_SecondOrderAccuracy(u, dt):
+    u_t = np.zeros((u.size-1))
+    #dt  = np.diff(t)
+    for i in np.arange(1,u.size-2):
+        u_t[i] = 0.5*(u[i+1]-u[u-1])/dt
+    return u_t
+
+dt_deriv = np.diff(timeNe/UnitTime)
+wPI_TDDFT_moving  = DerivativeFirstOrder_SecondOrderAccuracy(Nexc_TDDFT_moving, dt_deriv[0])
+wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv #not precise enough
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
 
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
