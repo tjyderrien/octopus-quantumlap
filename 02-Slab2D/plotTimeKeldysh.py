@@ -483,7 +483,10 @@ def runningMeanFast(x, N):
 
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
-NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+
+NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+
+# NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 
 def runningMean(x, N):
     y = np.zeros((len(x),))
@@ -510,6 +513,7 @@ wPI_TDDFT_moving  = DerivativeFirstOrder_SecondOrderAccuracy(Nexc_TDDFT_moving, 
 wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv #not precise enough
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
 
+>>>>>>> 3db6020d9a04a1572f316a94c92315a811959e1b
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
 print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
@@ -543,7 +547,9 @@ print "UnitTime = "+str(UnitTime)
 ## ================================== TIME FOR PLOTTING ====================
 # Managing stepwise maximum for Y1
 ymin=0; ymax=ValenceBandMax; #max for density plot
-if(observable_proj.max() < ymax / 100.):
+if(observable_proj.max() < ymax / 1000.):
+  ymax = ymax / 1000.
+elif(observable_proj.max() < ymax / 100.):
   ymax = ymax / 100.
 elif(observable_proj.max() < ymax / 50):
   ymax = ymax / 50.
@@ -672,7 +678,7 @@ if(QuantityOfInterest == "density"):
 #    plot_wpi_moving_neg, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],-1.*np.clip(wPI_TDDFT_moving,None,0.), 'b--', label=r'$-w_{PI-}^{moving}(t)$') 
 #     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
     # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    ymin_wpi = 1e36; ymax_wpi = np.max(wPI_TDDFT_moving)
+    ymin_wpi = 1e30; ymax_wpi = np.max(wPI_TDDFT_moving)
     if("STH" in PulseType or "StH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
@@ -732,7 +738,7 @@ if(PlottingMode == "keldysh"):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
-    ax22.legend(plot2, labels2, loc='lower right', fancybox=True, framealpha=framealpha, ncol=2)
+    ax22.legend(plot2, labels2, loc='best', fancybox=True, framealpha=framealpha, ncol=2)
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
@@ -752,7 +758,7 @@ plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * obse
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='lower right', fancybox=True, framealpha=framealpha)
+plt.legend(loc='best', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
