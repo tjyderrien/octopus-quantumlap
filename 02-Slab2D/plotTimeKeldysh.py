@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2018 T. J.-Y. Derrien
+# Copyright (C) 2016-2018 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -483,7 +483,26 @@ def runningMeanFast(x, N):
 
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
+
 NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+
+# NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+
+def runningMean(x, N):
+    y = np.zeros((len(x),))
+    for ctr in range(len(x)):
+         y[ctr] = np.sum(x[ctr:(ctr+N)])
+    return y/N
+
+def runningMeanFast(x, N):
+    return np.convolve(x, np.ones((N,))/N)[(N-1):]
+
+# We shall apply the moving mean BEFORE conversion to Wpi. 
+Nexc_TDDFT_moving = runningMean(observable_proj, NumberOfSteps_PerCycle) #NEW VERSION
+wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/np.diff(timeNe/UnitTime)
+#wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
+
+>>>>>>> 3db6020d9a04a1572f316a94c92315a811959e1b
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
 print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
@@ -498,16 +517,7 @@ wPI_TDDFT_wild  = observable_proj / (PulseDuration_SI) #NOTE: wild approximation
 # k_index = np.linspace(0,
 #  wPI_TDDFT_nico = 1./NumberOfSteps_PerCycle * np.sum(wPI_TDDFT_average_instant[n-k],k=0, k=NumberOfSteps_PerCycle - 1) 
 
-def runningMean(x, N):
-    y = np.zeros((len(x),))
-    for ctr in range(len(x)):
-         y[ctr] = np.sum(x[ctr:(ctr+N)])
-    return y/N
 
-def runningMeanFast(x, N):
-    return np.convolve(x, np.ones((N,))/N)[(N-1):]
-
-wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle)
  
 wPI_TDDFT_average_global = wPI_TDDFT_average_global_t.cumsum()
 # wPI_TDDFT_average = integrate.cumtrapz(wPI_TDDFT_average_instant, (timeNe[:NumberOfTimeSteps-1]/UnitTime))
