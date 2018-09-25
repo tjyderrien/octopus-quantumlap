@@ -502,7 +502,7 @@ Nexc_TDDFT_moving = runningMean(observable_proj, NumberOfSteps_PerCycle) #NEW VE
 wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/np.diff(timeNe/UnitTime)
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
 
->>>>>>> 3db6020d9a04a1572f316a94c92315a811959e1b
+
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
 print Header+"** Shape of N_exc_AU: "+str(observable_proj.size)
 print Header+"** Shape of wpi_TDDFT: "+str(wPI_TDDFT.size)
