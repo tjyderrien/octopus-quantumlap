@@ -644,23 +644,24 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   
 
   #Adding a label for the time step
-  try: 
-   l1s_list = GetAnnotationObjectNames()
-   print "** Damn annotation object list names: "
-   print l1s_list
-   l1s = GetAnnotationObject()
+  #try: 
+  l1s_list = GetAnnotationObjectNames()
+  print "** Damn annotation object list names: "
+  print l1s_list
+   #l1s = GetAnnotationObject(0)
   #  l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
   #  l1s_delete.Delete()
   #  DeleteActiveAnnotationObjects()
-  except:
-    print "l1s removal failed. Trying by hand. "
+  #except:
+    #print "l1s removal failed. Trying by hand. "
   if (axis=="X"):
     l1s = CreateAnnotationObject("Text2D") #TODO only once
+    print l1s
     # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
     l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
     l1s.position = (0.05, 0.05)
   
-  print l1s
+    
   DrawPlots() #saves the plots, right? 
     
   legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
