@@ -626,9 +626,9 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     View3DAtts.focus = (-0.21, -0.21, -0.21)
     View3DAtts.viewUp = (-0.18, -0.011, 0.98)
     View3DAtts.imagePan = (OriginX, OriginZ)
-    AnnotationAtts.axes3D.xAxis.label.visible = 0
-    AnnotationAtts.axes3D.yAxis.label.visible = 0
-    AnnotationAtts.axes3D.zAxis.label.visible = 0
+    AnnotationAtts.axes3D.xAxis.label.visible = 1
+    AnnotationAtts.axes3D.yAxis.label.visible = 1
+    AnnotationAtts.axes3D.zAxis.label.visible = 1
     AnnotationAtts.axes3D.xAxis.title.visible = 0
     AnnotationAtts.axes3D.yAxis.title.visible = 0
     AnnotationAtts.axes3D.zAxis.title.visible = 0
