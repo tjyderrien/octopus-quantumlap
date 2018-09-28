@@ -3,7 +3,7 @@
 
 ##################################################################################
 ## Copyright (C) 2016 M. Compostella, M. Rampp, H. Appel
-## Modified by TJY Derrien, July 2016
+## Modified by TJY Derrien, July 2016 - September 2018
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -98,6 +98,10 @@ MinValue=-MaxValue
 ZoomValue=1.5 #complete slab ~ 1.5 
 #1:Bulk #3:Slabs
 EnablePerspective=0
+
+dt_AU = 0.25 #au
+dt_SI = dt_AU * 2.41888433e-17
+dt = 1E15 * dt_SI #timesteps in fs
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -378,7 +382,7 @@ for i in range(0,len(indata)):
     #inefx = activepath+maxe_x
     #inefy = activepath+maxe_y
     #inefz = activepath+maxe_z
-    step = activepath[len(activepath)-8:len(activepath)-1]
+    step = activepath[len(activepath)-8:len(activepath)-1]*dt
 #    print "Step = "+step
 
     # We open all databases for the plots

@@ -1,6 +1,6 @@
 ##################################################################################
 ## Copyright (C) 2016 M. Compostella, M. Rampp, H. Appel
-## Modified by TJY Derrien, July 2016
+## Modified by TJY Derrien, July 2016 - September 2018
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
