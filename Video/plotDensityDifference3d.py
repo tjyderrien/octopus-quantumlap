@@ -382,7 +382,7 @@ for i in range(0,len(indata)):
     #inefx = activepath+maxe_x
     #inefy = activepath+maxe_y
     #inefz = activepath+maxe_z
-    step = float(activepath[len(activepath)-8:len(activepath)-1])*dt
+    step = str(float(activepath[len(activepath)-8:len(activepath)-1])*dt)
 #    print "Step = "+step
 
     # We open all databases for the plots
