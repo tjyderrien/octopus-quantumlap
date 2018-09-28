@@ -648,14 +648,14 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   print l1s_list
   #Adding a label for the time step
   try: 
-    l1s = GetAnnotationObject(0)
-    if("Text2D" in l1s):
-        l1s.Delete()
+    l1s = GetAnnotationObject(l1s_list[0])
+    #if("Text2D" in l1s):
+        #l1s.Delete()
   #  l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
   #  l1s_delete.Delete()
   #  DeleteActiveAnnotationObjects()
   except:
-    print "List of annotated objects: "
+    print "Exception: List of annotated objects: "
     print l1s_list
   if (axis=="X"):
     l1s = CreateAnnotationObject("Text2D") #TODO only once
