@@ -598,17 +598,17 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     View3DAtts.viewNormal = (0, -1, 0)
     View3DAtts.viewUp = (0, 0, 1)
     View3DAtts.imagePan = (OriginY, OriginZ)
-    AnnotationAtts.axes3D.xAxis.label.visible = 1
+    AnnotationAtts.axes3D.xAxis.label.visible = 0
     AnnotationAtts.axes3D.yAxis.label.visible = 0
-    AnnotationAtts.axes3D.zAxis.label.visible = 1
+    AnnotationAtts.axes3D.zAxis.label.visible = 0
     
   elif (axis=="Y"):
     View3DAtts.viewNormal = (1, 0, 0)
     View3DAtts.viewUp = (0, 0, 1)
     View3DAtts.imagePan = (OriginX, OriginZ)
     AnnotationAtts.axes3D.xAxis.label.visible = 0
-    AnnotationAtts.axes3D.yAxis.label.visible = 1
-    AnnotationAtts.axes3D.zAxis.label.visible = 1
+    AnnotationAtts.axes3D.yAxis.label.visible = 0
+    AnnotationAtts.axes3D.zAxis.label.visible = 0
 
 
   elif (axis=="3D"):
