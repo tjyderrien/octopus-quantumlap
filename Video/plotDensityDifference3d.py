@@ -95,7 +95,7 @@ OriginZ=0 #complete slab: 0.
 
 MaxValue=0.01
 MinValue=-MaxValue
-ZoomValue=1.5 #complete slab ~ 1.5 
+ZoomValue=3 #complete slab ~ 1.5
 #1:Bulk #3:Slabs
 EnablePerspective=0
 
