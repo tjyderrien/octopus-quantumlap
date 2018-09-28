@@ -484,9 +484,7 @@ def runningMeanFast(x, N):
 NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI)) #TODO: check if used later
 NumberOfTimeSteps_Ne = int(2.*PulseDuration_SI/(TimeStep_Ne[0]))
 
-NumberOfSteps_PerCycle = 1 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
-
-# NumberOfSteps_PerCycle = 2 * int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
+NumberOfSteps_PerCycle = int(2.*pi/omega/TimeStep_Ne[0]) #Averaging on 2 periods for more smoothness
 
 def runningMean(x, N):
     y = np.zeros((len(x),))
@@ -505,12 +503,22 @@ def DerivativeFirstOrder_SecondOrderAccuracy(u, dt):
     u_t = np.zeros((u.size-1))
     #dt  = np.diff(t)
     for i in np.arange(1,u.size-2):
-        u_t[i] = 0.5*(u[i+1]-u[u-1])/dt
+        u_t[i] = 0.5*(u[i+1]-u[i-1])/dt
+    return u_t
+
+## Computes derivative of first order with a 4th order precision
+def DerivativeFirstOrder_FourthOrderAccuracy(u, dt):
+    u_t = np.zeros((u.size-3))
+    #dt  = np.diff(t)
+    for i in np.arange(1,u.size-4):
+        u_t[i] = (u[i+2]-u[i-2])/dt/4.
     return u_t
 
 dt_deriv = np.diff(timeNe/UnitTime)
+# Manual filtering: if dNexc/Nexc < 1E-2, we set Wpi = 0. 
 wPI_TDDFT_moving  = DerivativeFirstOrder_SecondOrderAccuracy(Nexc_TDDFT_moving, dt_deriv[0])
-wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv #not precise enough
+# wPI_TDDFT_moving  = Nexc_TDDFT_moving/dt_deriv
+# wPI_TDDFT_moving  = np.diff(Nexc_TDDFT_moving)/dt_deriv
 #wPI_TDDFT_moving = runningMean(wPI_TDDFT, NumberOfSteps_PerCycle) #ANCIENT VERSION
 
 # print Header+"** Number of time steps for Nexc: "+str(NumberOfTimeSteps_Ne)
@@ -677,7 +685,8 @@ if(QuantityOfInterest == "density"):
 #    plot_wpi_moving_neg, = ax22.plot(timeNe[0:wPI_TDDFT_moving.size],-1.*np.clip(wPI_TDDFT_moving,None,0.), 'b--', label=r'$-w_{PI-}^{moving}(t)$') 
 #     plot_wpi_moving_nico, = ax22.plot(timeNe[0:wPI_TDDFT_moving_nico.size], wPI_TDDFT_moving_nico, 'g--', label=r'$w_{PI}^{moving}(t)$')
     # plot_wpi_wild, = ax22.plot(timeNe, wPI_TDDFT_wild, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    ymin_wpi = 1e30; ymax_wpi = np.max(wPI_TDDFT_moving)
+    # ymin_wpi = 1e30; 
+    ymax_wpi = np.max(wPI_TDDFT_moving); ymin_wpi = 0e0; #-ymax_wpi
     if("STH" in PulseType or "StH" in PulseType):
       plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
@@ -690,7 +699,7 @@ if(QuantityOfInterest == "density"):
 #  if(EnableLogScale==1): 
     plt.ylim((ymin_wpi,ymax_wpi))
     # ax2.set_yscale('log')
-    ax22.set_yscale('log')
+#    ax22.set_yscale('log')
 #  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
   ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
@@ -737,7 +746,7 @@ if(PlottingMode == "keldysh"):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
-    ax22.legend(plot2, labels2, loc='best', fancybox=True, framealpha=framealpha, ncol=2)
+    ax22.legend(plot2, labels2, loc='upper right', fancybox=True, framealpha=framealpha, ncol=2)
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
