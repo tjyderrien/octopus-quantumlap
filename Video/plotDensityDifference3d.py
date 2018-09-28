@@ -91,11 +91,11 @@ bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=2.5 #complete slab: 0, just the top: 2.5
+OriginZ=-0.25 #complete slab: 0, just the top: -0.25
 
 MaxValue=0.01
 MinValue=-MaxValue
-ZoomValue=3 #complete slab ~ 1.5
+ZoomValue=2.3 #complete slab ~ 1.5, #just the top: 2.3
 #1:Bulk #3:Slabs
 EnablePerspective=0
 

@@ -661,7 +661,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     print l1s
     # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
     l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
-    l1s.position = (0.05, 0.05)
+    l1s.position = (0.05, 0.95)
   
     
   DrawPlots() #saves the plots, right? 
