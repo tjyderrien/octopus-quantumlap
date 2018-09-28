@@ -659,7 +659,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   DrawPlots()
   
   legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
-  legend1.active = 0
+  legend1.active = caption
   
   legend = GetAnnotationObject(GetPlotList().GetPlots(1).plotName)
   print legend
