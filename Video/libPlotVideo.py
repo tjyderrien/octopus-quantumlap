@@ -581,28 +581,6 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   View3DAtts.shear = (0, 0, 1)
   View3DAtts.windowValid = 1
   
-  if (axis=="X"):
-    View3DAtts.viewNormal = (0, -1, 0)
-    View3DAtts.viewUp = (0, 0, 1)
-    View3DAtts.imagePan = (OriginY, OriginZ)
-    
-  elif (axis=="Y"):
-    View3DAtts.viewNormal = (1, 0, 0)
-    View3DAtts.viewUp = (0, 0, 1)
-    View3DAtts.imagePan = (OriginX, OriginZ)
-
-  elif (axis=="3D"):
-    View3DAtts.viewNormal = (0.95, -0.04, 0.18)
-    View3DAtts.focus = (-0.21, -0.21, -0.21)
-    View3DAtts.viewUp = (-0.18, -0.011, 0.98)
-    View3DAtts.imagePan = (OriginX, OriginZ)
-  
-#  if(zoomPicture != 1.0):
-#    View3DAtts.imagePan = (0.0211978, -0.240702)
-#  View3DAtts.imageZoom = 9.13208
-#  View3DAtts.perspective = 0
-  SetView3D(View3DAtts)
-  
   AnnotationAtts = AnnotationAttributes()
   AnnotationAtts.axes3D.xAxis.title.title = "x/a"
   AnnotationAtts.axes3D.yAxis.title.title = "y/a"
@@ -614,7 +592,41 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   AnnotationAtts.userInfoFlag = 0
   AnnotationAtts.timeInfoFlag = 0
   AnnotationAtts.legendInfoFlag = 0
+  
+  if (axis=="X"):
+    View3DAtts.viewNormal = (0, -1, 0)
+    View3DAtts.viewUp = (0, 0, 1)
+    View3DAtts.imagePan = (OriginY, OriginZ)
+    AnnotationAtts.axes3D.xAxis.label.visible = 1
+    AnnotationAtts.axes3D.yAxis.label.visible = 0
+    AnnotationAtts.axes3D.zAxis.label.visible = 1
+    
+  elif (axis=="Y"):
+    View3DAtts.viewNormal = (1, 0, 0)
+    View3DAtts.viewUp = (0, 0, 1)
+    View3DAtts.imagePan = (OriginX, OriginZ)
+    AnnotationAtts.axes3D.xAxis.label.visible = 0
+    AnnotationAtts.axes3D.yAxis.label.visible = 1
+    AnnotationAtts.axes3D.zAxis.label.visible = 1
+
+  elif (axis=="3D"):
+    View3DAtts.viewNormal = (0.95, -0.04, 0.18)
+    View3DAtts.focus = (-0.21, -0.21, -0.21)
+    View3DAtts.viewUp = (-0.18, -0.011, 0.98)
+    View3DAtts.imagePan = (OriginX, OriginZ)
+    AnnotationAtts.axes3D.xAxis.label.visible = 1
+    AnnotationAtts.axes3D.yAxis.label.visible = 1
+    AnnotationAtts.axes3D.zAxis.label.visible = 0
+  
+#  if(zoomPicture != 1.0):
+#    View3DAtts.imagePan = (0.0211978, -0.240702)
+#  View3DAtts.imageZoom = 9.13208
+#  View3DAtts.perspective = 0
+
+  # Finally applying the changes
   SetAnnotationAttributes(AnnotationAtts) 
+  SetView3D(View3DAtts)
+  
 
   #Adding a label for the time step
  # try: 
