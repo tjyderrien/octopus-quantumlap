@@ -70,7 +70,7 @@
 from libPlotVideo import *
 
 ExportVideo = 0 #1: export an MPG file. 
-OldResult   = 1 #0: we will use "density" field, otherwise "Re" field. 
+OldResult   = 1 #0: we will use total "density" field, otherwise "Re" field. 
 
 inputdata = 'listoffiles.txt'
 outdir    = './'
@@ -91,7 +91,7 @@ bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=0 #complete slab: 0.
+OriginZ=2.5 #complete slab: 0, just the top: 2.5
 
 MaxValue=0.01
 MinValue=-MaxValue
