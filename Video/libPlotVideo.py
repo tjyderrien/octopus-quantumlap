@@ -644,8 +644,11 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   
 
   #Adding a label for the time step
- # try: 
-  #  l1s_delete = GetAnnotationObject()
+ try: 
+   l1s_list = GetAnnotationObjectNames()
+   print "** Damn annotation object list names: "
+   print l1s_list
+   l1s = GetAnnotationObject()
   #  l1s.Delete()# #NOTE: does not help... Removes the caption totally. 
   #  l1s_delete.Delete()
   #  DeleteActiveAnnotationObjects()
@@ -657,6 +660,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
     l1s.position = (0.05, 0.05)
   
+  print l1s
   DrawPlots() #saves the plots, right? 
     
   legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
@@ -670,6 +674,6 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   legend.numberFormat = "%# -1.1g"
 
   #l1s_delete = GetAnnotationObject(0)
-  #l1s.Delete() #Not helpful
+  l1s.Delete() #Not helpful
   #DeleteActiveAnnotationObjects()
   #}}}
