@@ -656,6 +656,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     #print "l1s removal failed. Trying by hand. "
   if (axis=="X"):
     l1s = CreateAnnotationObject("Text2D") #TODO only once
+    print "Annotation Object"
     print l1s
     # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
     l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
@@ -675,6 +676,6 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   legend.numberFormat = "%# -1.1g"
 
   #l1s_delete = GetAnnotationObject(0)
-  l1s.Delete() #Not helpful
+  #l1s.Delete() #Not helpful
   #DeleteActiveAnnotationObjects()
   #}}}
