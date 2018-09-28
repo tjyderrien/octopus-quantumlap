@@ -585,6 +585,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   AnnotationAtts.axes3D.xAxis.title.title = "x/a"
   AnnotationAtts.axes3D.yAxis.title.title = "y/a"
   AnnotationAtts.axes3D.zAxis.title.title = "z/a"
+  AnnotationAtts.axes3D.xAxis.label.font.scale = 2
   AnnotationAtts.axes3D.triadFlag = 0
   AnnotationAtts.axes3D.bboxFlag = 0
   AnnotationAtts.axes3D.tickLocation = AnnotationAtts.axes3D.Outside
@@ -609,13 +610,14 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     AnnotationAtts.axes3D.yAxis.label.visible = 1
     AnnotationAtts.axes3D.zAxis.label.visible = 1
 
+
   elif (axis=="3D"):
     View3DAtts.viewNormal = (0.95, -0.04, 0.18)
     View3DAtts.focus = (-0.21, -0.21, -0.21)
     View3DAtts.viewUp = (-0.18, -0.011, 0.98)
     View3DAtts.imagePan = (OriginX, OriginZ)
-    AnnotationAtts.axes3D.xAxis.label.visible = 1
-    AnnotationAtts.axes3D.yAxis.label.visible = 1
+    AnnotationAtts.axes3D.xAxis.label.visible = 0
+    AnnotationAtts.axes3D.yAxis.label.visible = 0
     AnnotationAtts.axes3D.zAxis.label.visible = 0
   
 #  if(zoomPicture != 1.0):
