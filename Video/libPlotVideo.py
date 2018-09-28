@@ -658,10 +658,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     l1s.position = (0.05, 0.05)
   
   DrawPlots() #saves the plots, right? 
-  
-  if (axis=="X"):
-      l1s.text = ""
-  
+    
   legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
   legend1.active = 1
   
