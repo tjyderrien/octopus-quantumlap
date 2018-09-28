@@ -651,12 +651,16 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   #  DeleteActiveAnnotationObjects()
   # except:
   #  print "l1s removal failed. Trying by hand. "
-  l1s = CreateAnnotationObject("Text2D") #TODO only once
-  # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
-  l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
-  l1s.position = (0.05, 0.05)
+  if (axis=="X"):
+    l1s = CreateAnnotationObject("Text2D") #TODO only once
+    # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
+    l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
+    l1s.position = (0.05, 0.05)
   
-  DrawPlots()
+  DrawPlots() #saves the plots, right? 
+  
+  if (axis=="X"):
+      l1s.text = ""
   
   legend1 = GetAnnotationObject(GetPlotList().GetPlots(0).plotName)
   legend1.active = 1
