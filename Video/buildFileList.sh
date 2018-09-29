@@ -8,15 +8,22 @@ echo "   How to use: Use the output listoffiles.txt for the input of plotDensity
 
 LocalPath=$( pwd )
 
-list_folders | awk 'BEGIN {FS="./"} { print $2 }' > listoffiles.tmp
+# Maybe construct the list of files which contain density.vtk only. 
+
+list_folders_with_vtk () {
+ find -name 'density.vtk'
+}
+
+# list_folder_with_vtk 
+list_folders_with_vtk | awk 'BEGIN {FS="/"} { print $2 }' > listoffiles.tmp
 sort -g listoffiles.tmp > listoffiles.tmp2
-# cat listoffiles.tmp2 > listoffiles.tmp3
 awk --assign localpath="${LocalPath}" '{ print localpath"/"$1 }' listoffiles.tmp2 > listoffiles.tmp3
-tail -n+2 listoffiles.tmp3 > listoffiles_long.txt
+# tail -n+2 listoffiles.tmp3 > listoffiles_long.txt
+cp listoffiles.tmp3 listoffiles_long.txt
 rm listoffiles.tmp listoffiles.tmp2 listoffiles.tmp3
 
 echo "** Building a SHORT VERSION for pratical purposes..."
-head -n1 listoffiles_long.txt > listoffiles_short.txt
+head -n1 listoffiles_long.txt  > listoffiles_short.txt
 tail -n1 listoffiles_long.txt >> listoffiles_short.txt
 
 echo ""
@@ -38,7 +45,6 @@ echo "   Building current XYZ profile..."
 awk '{ print $1, $2, $3, $4, $5 }' total_current > current.tmp
 tail -n+5 current.tmp > current.txt
 echo ""
-
 
 cd - > /dev/null
 
