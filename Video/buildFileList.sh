@@ -11,7 +11,7 @@ LocalPath=$( pwd )
 # Maybe construct the list of files which contain density.vtk only. 
 
 list_folders_with_vtk () {
- find -name 'density.vtk'
+ find -name 'geometry.vtk'
 }
 
 # list_folder_with_vtk 
