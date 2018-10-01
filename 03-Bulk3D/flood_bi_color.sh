@@ -60,11 +60,13 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 
 # Field amplitude
 # Efield1="1E9" #"2E9 3E9 4E9" #ZHUKOV
-# Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-# Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
+# Efield1="1E8 5E8 1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield1="2E8 3E8 4E8 6E8 7E8 8E8 9E8" #1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 # Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
-Efield1="1E9 5E9"
-Efield2="1E8 5E8 1E9 5E9"
+# Efield1="1E9 5E9"
+# Efield2="1E8 5E8 1E9 5E9"
+Efield2="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
+# Efield2="1E8 5E8 1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10"
 # Efield2="0E0"
 
 
@@ -76,7 +78,7 @@ tau2="30E-15"
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 lambda1="800e-9"
 # lambda2="400e-9"
-lambda2="1030e-9 1600e-9"
+lambda2="1600e-9 1030e-9"
 
 # ============ SHIFT CURRENT LASER PARAMETERS =========
 #PulseShape="SinSquared"
