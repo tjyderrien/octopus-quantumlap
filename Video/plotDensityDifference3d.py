@@ -69,7 +69,7 @@
 
 from libPlotVideo import *
 
-ExportVideo = 0 #1: export an MPG file. 
+ExportVideo = 1 #1: export an MPG file. 
 OldResult   = 1 #0: we will use total "density" field, otherwise "Re" field. 
 
 inputdata = 'listoffiles.txt'
@@ -93,7 +93,7 @@ OriginX=0.
 OriginY=0.
 OriginZ=-0.25 #complete slab: 0, just the top: -0.25
 
-MaxValue=0.01
+MaxValue=8E-5 #0.01 is good for saturated case (9 V/nm). 
 MinValue=-MaxValue
 ZoomValue=2.3 #complete slab ~ 1.5, #just the top: 2.3
 #1:Bulk #3:Slabs
