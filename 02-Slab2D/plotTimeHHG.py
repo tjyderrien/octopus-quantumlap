@@ -358,7 +358,7 @@ CurrentX=np.asfarray(TotalCurrent[:,2])
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(timeCurrent, CurrentX,  wavelength_SI, tmax)
+CurrentX_HHG = SignalDampR(timeCurrent, CurrentX,  wavelength_SI, tmax/3.)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -678,7 +678,7 @@ if(PlotGrid==1):
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
+plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")

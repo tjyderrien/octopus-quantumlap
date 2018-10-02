@@ -19,23 +19,23 @@ do
 	cd $folder
 	if [ -e laser.tmp ]; then
 		echo "** Plotting laser..."
-		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeLaser.gnu"
-                gnuplot "${OctopusSlabsSources}/03-Bulk3D/plotPolarization.gnu"
+		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeLaser.gnu"
+                screen -d -m gnuplot "${OctopusSlabsSources}/03-Bulk3D/plotPolarization.gnu"
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
+		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
+		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
 	fi
 	if [ -e n_ex ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
 		${OctopusSlabsSources}/fixOutputFile.sh laser
 		echo "Plotting density..."
-                gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
+                screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 	fi
 	echo ""
 	echo "** NEXT FOLDER"
@@ -98,7 +98,7 @@ done
 #  prevFolder=$( pwd )
 #  cd $folder
   echo "** Plotting nice figure for post-processed density for $(pwd)..."
-  screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+  ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
 #   cd $prevFolder > /dev/null
 # done 
 
