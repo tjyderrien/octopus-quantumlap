@@ -757,7 +757,7 @@ plt.xlabel('Time (fs)')
 ## ============ PLOTTING ENERGIES ======
 
 ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
-IntraBandEnergy_diff = CurrentX * Efield_X_AU #Current is in a.u.
+IntraBandEnergy_diff = CurrentX * Efield_X_AU[:CurrentX.size] #Current is in a.u.
 IntraBandEnergy      = IntraBandEnergy_diff.cumsum() * dtCurrent
 InterBandEnergy      = Egap_SI * observable_proj * SuperCellVolume_SI
 
