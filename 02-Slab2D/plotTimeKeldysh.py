@@ -768,20 +768,22 @@ print Header+"Time Current: "+str(timeCurrent.size)
 Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
 
-ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
-
-print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(IntraBandEnergy)
-IntraBandEnergy_diff = np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. 
-IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
-InterBandEnergy      = Egap_SI * observable_proj * SuperCellVolume_SI
+ExcessEnergy         = (2. * hbar * omega - Egap_SI)* observable_proj * SuperCellVolume_SI
+# print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
+IntraBandEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u.
+# print Header+"Checking sizes: "+str(IntraBandEnergy_diff.size)+" "+str(dtCurrent.size) 
+IntraBandEnergy_AU      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
+IntraBandEnergy         = Energy_Hartree_to_eV(IntraBandEnergy_AU)
+# print Header+"Checking sizes: "+str(timeCurrent.size)+" "+str(IntraBandEnergy.size)
+InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (t)$')
-plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
-plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+# plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
+# plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--', label=r"$\xi(t) interband$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-plot_energy_IntraBandEnergy, = ax3.plot(timeNe, IntraBandEnergy, 'r--', label=r"$\xi(t) intraband$")
+plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, IntraBandEnergy, 'r--', label=r"$\xi(t) intraband$")
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--', label=r"$\xi(t) excess$")
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
