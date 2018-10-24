@@ -446,7 +446,7 @@ UnitTime = 1E15 #we show time in fs
 TimeAUtoSI = Time_AU_to_SI(1.)
 time = UnitTime * time * TimeAUtoSI
 timeNe = UnitTime * timeNe * TimeAUtoSI #switching to fs
-
+dtNe   = timeNe[1]-timeNe[0]
 timeCurrentdt = timeCurrent #* TimeAUtoSI
 timeCurrent=UnitTime * timeCurrent * TimeAUtoSI
 dtCurrent = timeCurrentdt[1]-timeCurrentdt[0]
@@ -756,8 +756,13 @@ plt.xlabel('Time (fs)')
 
 ## ============ PLOTTING ENERGIES ======
 
+print Header+"dt Ne: "+str(dtNe)
+print Header+"Time Ne (size): "+str(timeNe.size)
+print Header+"dt current: "+str(dtCurrent)
+print Header+"Time Current: "+str(timeCurrent.size)
+
 ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
-IntraBandEnergy_diff = CurrentX * Efield_X_AU #Current is in a.u.
+IntraBandEnergy_diff = CurrentX * Efield_X_AU[:CurrentX.size] #Current is in a.u.
 IntraBandEnergy      = IntraBandEnergy_diff.cumsum() * dtCurrent
 InterBandEnergy      = Egap_SI * observable_proj * SuperCellVolume_SI
 
