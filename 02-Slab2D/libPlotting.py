@@ -384,6 +384,14 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
     Hartree        = np.asfarray(Energy[:,7]) #Hartree
     
+    # Normalizing the database energies
+    
+    # Normalizing to 0
+    ElectronEnergy = ElectronEnergy - ElectronEnergy.min()
+    TotalEnergy    = TotalEnergy    - TotalEnergy.min()
+    IonEnergy      = IonEnergy      - IonEnergy.min()
+    Hartree        = Hartree        - Hartree.min()
+    
     # Extracting the FINAL shift current (!!!)
     #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
     TotalCurrent_X_AU     = np.asfarray(TotalCurrent[:,2]) #atomic units

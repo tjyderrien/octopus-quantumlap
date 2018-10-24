@@ -44,6 +44,8 @@ from scipy.optimize import curve_fit
 from colorama import Fore
 from colorama import Style
 
+from math import ceil
+
 # import libKeldysh as Keldysh
 #from libAtomicUnits import *
 #from libPlottingSettings import *
@@ -108,7 +110,7 @@ plotA=211; plotB=212; #plotC=313
 
 # Size of main canvas
 GoldNumber = ((1.+np.sqrt(5.))/2.)
-SizeX = 8.
+SizeX = 16.
 SizeY = SizeX / GoldNumber
 
 #pplt.figure(figsize=(SizeX,SizeY))
@@ -524,8 +526,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     OnePhotonIntensityRegime_max = 1.3e15 #W/m2
     
     omega = 2.*np.pi*c/wavelengths1[0]
-    NumberOfPhotons = Egap_SI / (hbar * omega)
-    NumberOfPhotons_round = round(NumberOfPhotons,0)
+    NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
+    print NumberOfPhotons
+    NumberOfPhotons_round = np.ceil(NumberOfPhotons)
     print Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(NumberOfPhotons_round)
     
     # Here we attempt to fit the excitation coefficient in the multiphotonic regime. 
@@ -1084,7 +1087,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # Complexity level: 2
   
   pplt.figure(figsize=(SizeX,SizeY)) #new figure
-  plotA=211; plotB=212
+  plotA=121; plotB=122
   
   ax1 = pplt.subplot(plotA)
   plot1 = [] #np.empty((0,0))
@@ -1297,9 +1300,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       return epsilon
   
   ## Computes the free carrier energy contained in the volume <SampleVolume>.  
-  def EnergyFromFreeCarrierAbsorption(pulseDuration, wavelengths1_sorted, Efield, Ne_final_sorted, SampleVolume=2 * 5E28**-1):
-    # dEnergy/dt = alpha * intensity
-    # Energy ~ alpha * intensity * tau
+  def EnergyFromFreeCarrierAbsorption(pulseDuration, wavelengths1_sorted, Efield, Ne_final_sorted, w_PI_sorted, Egap_SI = 2.56*e, SampleVolume=2 * 5E28**-1):
+    # dEnergy/dt = alpha * intensity + ( n har omega - Egap ) x sigma_n I^n
+    # where we approach sigma_n I^n by pulse-averaged w_PI 
+    # Energy ~ alpha * intensity + ( n har omega - Egap ) x w_PI * tau
     omega   = np.divide(2. * np.pi * c, wavelengths1_sorted)
     #print Header+"omega: "+str(omega) #Valid
     nu = 1.1e-15 ** -1 #Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
@@ -1310,10 +1314,18 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     Epsilon = epsilon_Si0 - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega))
+    #NumberOfPhotons = Egap_SI / (hbar * omega)
+    NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
+    print NumberOfPhotons
+    #NumberOfPhotons_round = np.round(NumberOfPhotons,0)
+    NumberOfPhotons_round = np.ceil(NumberOfPhotons)
     print Header+"sqrt(Epsilon): "+str(np.min(np.sqrt(Epsilon)))+", "+str(np.max(np.sqrt(Epsilon))) #Valid
-    alpha   = np.multiply(2.* omega/c, np.imag(np.sqrt(Epsilon)))
-    EnergyFreeCarrier = np.multiply(pulseDuration, np.multiply(alpha, np.multiply(0.5 * c * epsilon_0, np.multiply(Efield, Efield))))*SampleVolume / e
-    print Header+"FcrEnergy (eV): "+str(np.min(EnergyFreeCarrier))+", "+str(np.max(EnergyFreeCarrier))
+    alpha                = np.multiply(2.* omega/c, np.imag(np.sqrt(Epsilon))) #valid
+    EnergyExcess         = np.multiply(NumberOfPhotons_round * hbar * omega - Egap_SI, w_PI_sorted) * SampleVolume * pulseDuration / e #result in eV
+    EnergyBremsstrahlung = np.multiply(alpha, np.multiply(0.5 * c * epsilon_0, np.multiply(Efield, Efield)) ) * SampleVolume * pulseDuration / e
+    print Header+"FcrEnergy (eV): "+str(np.min(EnergyBremsstrahlung))+", "+str(np.max(EnergyBremsstrahlung))
+    print Header+"Excess energy (n hbar omega - Egap) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess))
+    EnergyFreeCarrier    = EnergyExcess + EnergyBremsstrahlung
     return EnergyFreeCarrier
 
   if(PlotFreeCarrierAbsorption):
@@ -1329,29 +1341,29 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         ## prints the current state of selection and stores the values of sweeped parameters
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime, FinalTime = ExtractData(PlottingSinglePulses_Efield)
         
-        lists = sorted(itertools.izip(*[wavelengths1, Ne_final, Energy_max, irreversibility])) #NOTE: Ne_max makes more sense than Ne_final
-        wavelengths1_sorted, Ne_final_sorted, Energy_max_sorted, irreversibility_sorted = list(itertools.izip(*lists))
+        lists = sorted(itertools.izip(*[wavelengths1, Ne_final, W_pi, Energy_max, irreversibility])) #NOTE: Ne_max makes more sense than Ne_final
+        wavelengths1_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted, irreversibility_sorted = list(itertools.izip(*lists))
         wavelengths1_sorted_show = np.multiply(1e9, wavelengths1_sorted)
         
         #print Efield1_value
         if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
             print Header+"Found field 0.1 V/nm"
-            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted), '--r', label='Free carrier absorption')
+            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI), '--+r', label='Free carrier absorption')
             #ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+r', label='Irreversibility')
             #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--r', label='Adiabaticity')
         if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
             print Header+"Found field 1.0 V/nm"
-            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted), '--b', label='Free carrier absorption')
+            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI), '--+b', label='Free carrier absorption')
             #ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+b', label='Irreversibility')
             #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--b', label='Adiabaticity')
         if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
             print Header+"Found field 5 V/nm"
-            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted), '--g', label='Free carrier absorption')
+            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI), '--+g', label='Free carrier absorption')
             #ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+g', label='Irreversibility')
             #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--g', label='Adiabaticity')
         if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
             print Header+"Found field 10 V/nm"
-            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted), '--k', label='Free carrier absorption')
+            ax2.plot(wavelengths1_sorted_show, EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI), '--+k', label='Free carrier absorption')
             #ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+k', label='Irreversibility')
             #ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
         del PlottingSinglePulses_Efield
@@ -1866,7 +1878,7 @@ def plot_Zhukov_SingleColor_TB09():
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
     # Compute ionization probability, effect of the pulse duration
-    ShowPlot=1
+    #ShowPlot=1
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI)
     
     #This one construct the ionization probabilities! 
@@ -1885,7 +1897,7 @@ def plot_Zhukov_SingleColor_TB09():
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI)
-    plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI)
+    #plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI)
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
     ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
