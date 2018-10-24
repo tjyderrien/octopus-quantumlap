@@ -764,13 +764,13 @@ print Header+"Time Current: "+str(timeCurrent.size)
 # Current ouputs every 10 iterations. 
 # Field outputs completely at the beginning. 
 # One has to interpolate the field to reach the precision of the current. 
-
-Efield_X_AU_f   = InterpolatedUnivariateSpline(time, Efield_X_AU)
+Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
 
+
 ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
-IntraBandEnergy_diff = CurrentX * Efield_X_AU_interp #Current is in a.u.
-IntraBandEnergy      = IntraBandEnergy_diff.cumsum() * dtCurrent
+IntraBandEnergy_diff = np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. 
+IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
 InterBandEnergy      = Egap_SI * observable_proj * SuperCellVolume_SI
 
 ax3 = plt.subplot(plotC)
