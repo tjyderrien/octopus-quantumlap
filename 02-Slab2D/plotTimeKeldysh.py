@@ -768,8 +768,9 @@ print Header+"Time Current: "+str(timeCurrent.size)
 Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
 
-
 ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
+
+print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(IntraBandEnergy)
 IntraBandEnergy_diff = np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. 
 IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
 InterBandEnergy      = Egap_SI * observable_proj * SuperCellVolume_SI
