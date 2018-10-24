@@ -765,7 +765,7 @@ print Header+"Time Current: "+str(timeCurrent.size)
 # Field outputs completely at the beginning. 
 # One has to interpolate the field to reach the precision of the current. 
 
-Efield_X_AU_f   = InterpolatedUnivariateSpline(time, Efield_X_AU)
+Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
 
 ExcessEnergy         = 2. * hbar * omega * observable_proj * SuperCellVolume_SI
