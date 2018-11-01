@@ -8,7 +8,7 @@ set terminal postscript eps enhanced color font 'Helvetica, 24' size 15cm,8cm
 path="/ptmp/tjyderri/octopus-slabs.data/03-Bulk3D/Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/"
 filename='n_ex'
 
-field="1E9" #5E9 #1E10
+field="1E10" #5E9 #1E10
 pulse10="10e-15"
 pulse20="20e-15"
 pulse30="30E-15"
