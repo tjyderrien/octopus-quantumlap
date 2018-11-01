@@ -678,8 +678,14 @@ if(PlotGrid==1):
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
-plt.plot(HHG_AU_order[:maxHHG], np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$') #normalization in amplitude
+Xaxis = HHG_AU_order[:maxHHG]
+Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
+plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
+
+filename = "HHG-Spectrum"
+ExportToTxt(Yaxis, filename+".csv")
+
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")
 plt.xlabel("Harmonic order")
