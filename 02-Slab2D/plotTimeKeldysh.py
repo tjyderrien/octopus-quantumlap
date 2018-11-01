@@ -770,6 +770,7 @@ Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU[np.arange(1,len(Efield_X_AU),10)]
 
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
+print Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons)
 
 ExcessEnergy         = (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
@@ -790,9 +791,10 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--', label=r"$E_{gap}*N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, IntraBandEnergy, 'r--', label=r"$\int dt' J(t').E(t')$")
-plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--', label=r"$(n \hbar \omega - E_{gap})\times N_{exc}$")
+plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--', label=r"$($"+str(int(NumberOfPhotons))+r"$\hbar \omega - E_{gap})\times N_{exc}$")
+plot_energy_diff,            = ax3.plot(timeCurrent, IntraBandEnergy-Energy_Hartree_to_eV(ElectronEnergy), 'r--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
 
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
@@ -800,7 +802,7 @@ plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--', label=r"
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='best', fancybox=True, framealpha=framealpha)
+# plt.legend(loc='best', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
