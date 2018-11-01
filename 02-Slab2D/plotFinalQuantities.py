@@ -1483,7 +1483,11 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 
 # Plots Ne_final(Efield1, Efield2) for pulses of fixed wavelengths, same pulse duration, same CEP
 # THIS FIGURE IS THE ONE THAT CAN BE COMPARED WITH VLADIMIR ZHUKOV
-def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e): #{{{
+def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e, RemoveTunneling=True): #{{{
+                                                                                                                                                                                                                
+  gammaLimit = 1E0
+  meff = 0.2226
+  
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -1494,6 +1498,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
+  
   if(RiseCycles != 0): #0 selects all the possible types
     PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseCycles, IndexTable['RiseTime']) # Selecting Rise Time
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
@@ -1515,20 +1520,34 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime, FinalTime = ExtractData(PlottingDoublePulses_SelectedField2)
       
       print Header+"Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m."
-      if(len(Ne_final) >= 1):
-        ToBeAddedField  =np.array([Efield1[0], Efield2[0], np.power(Efield1[0]+Efield2[0],2)]) #builds the total peak squared field
-        ToBeAdded       =np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
-        ToBeAddedCurrent=np.array([Efield1[0], Efield2[0], TotalCurrent_final[0]]) #BUG: removes some results, not clean enough!
-        ToBeAddedEnergy =np.array([Efield1[0], Efield2[0], Energy_max[0]]) #BUG: removes some results, not clean enough!
-        ToBeAddedWpi    =np.array([Efield1[0], Efield2[0], W_pi[0]]) #BUG: removes some results, not clean enough!
-        print ToBeAdded
-        TotalField2D=np.vstack((TotalField2D, ToBeAddedField))
-        DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
-        CurrentMax2D=np.vstack((CurrentMax2D, ToBeAddedCurrent))
-        EnergyMax2D =np.vstack((EnergyMax2D, ToBeAddedEnergy))
-        WpiMax2D    =np.vstack((WpiMax2D   , ToBeAddedWpi))
-        print "Cleaning..."
-        del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi, ToBeAddedField
+      
+      
+      if(len(Ne_final) >= 1): 
+        Field1_gamma = gammaKeldysh(Egap_SI, meff, Efield1[0], wavelengths1[0])
+        Field2_gamma = gammaKeldysh(Egap_SI, meff, Efield2[0], wavelengths2[0])
+      
+        # Tests if regime is tunneling
+        if(RemoveTunneling): 
+            Field1_Multiphoton = (Field1_gamma > gammaLimit)
+            Field2_Multiphoton = (Field2_gamma > gammaLimit)
+        else: #we dont check
+            Field1_Multiphoton = True
+            Field2_Multiphoton = True
+      
+        if(Field1_Multiphoton and Field2_Multiphoton): #We filter single-pulses in tunneling regime
+            ToBeAddedField  =np.array([Efield1[0], Efield2[0], np.power(Efield1[0]+Efield2[0],2)]) #builds the total peak squared field
+            ToBeAdded       =np.array([Efield1[0], Efield2[0], Ne_final[0]]) #BUG: removes some results, not clean enough!
+            ToBeAddedCurrent=np.array([Efield1[0], Efield2[0], TotalCurrent_final[0]]) #BUG: removes some results, not clean enough!
+            ToBeAddedEnergy =np.array([Efield1[0], Efield2[0], Energy_max[0]]) #BUG: removes some results, not clean enough!
+            ToBeAddedWpi    =np.array([Efield1[0], Efield2[0], W_pi[0]]) #BUG: removes some results, not clean enough!
+            print ToBeAdded
+            TotalField2D=np.vstack((TotalField2D, ToBeAddedField))
+            DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
+            CurrentMax2D=np.vstack((CurrentMax2D, ToBeAddedCurrent))
+            EnergyMax2D =np.vstack((EnergyMax2D, ToBeAddedEnergy))
+            WpiMax2D    =np.vstack((WpiMax2D   , ToBeAddedWpi))
+            print "Cleaning..."
+            del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi, ToBeAddedField
     #}}}
   #}}}
   PulseTypeName = np.asfarray(PulseType)
@@ -1549,23 +1568,23 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   
   ## Lazy to build up a new function for that for now.
   if(WhatToPlot == 0): 
-      QuantityTitle=r'$N_{exc}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+      QuantityTitle=r'$N_{exc}$ (m$^{-3}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
   elif(WhatToPlot == 4): 
       DensityMax2Dsorted = TotalField2Dsorted; 
       filename = filename_field
-      QuantityTitle=r"$E_{tot}^2(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+      QuantityTitle=r"$E_{tot}^2$ (V/nm)$^2$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
   elif(WhatToPlot == 1): 
       DensityMax2Dsorted = CurrentMax2Dsorted; 
       filename = filename_current
-      QuantityTitle=r"$J_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+      QuantityTitle=r"$J_{end}$ (at.u.), $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
   elif(WhatToPlot == 2): 
       DensityMax2Dsorted = EnergyMax2Dsorted
       filename = filename_energy
-      QuantityTitle=r"$\xi_{end}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
+      QuantityTitle=r"$\xi_{end}$ (eV), $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
   elif(WhatToPlot == 3): 
       DensityMax2Dsorted = WpiMax2Dsorted
       filename = filename_wpi
-      QuantityTitle=r'$w_{PI}(E_1,E_2)$, $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+      QuantityTitle=r'$w_{PI}$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
   else: 
       print Header+"** plot_Zhukov_BicolorMaps: wrong request!"
   
@@ -1918,6 +1937,7 @@ def plot_Zhukov_BicolorMaps():
         PulseType  = 3; RiseCycles = 2 #StH corrected. 
         #PulseType  = 2;  RiseCycles = 0 #bugged STH. 
         
+        ### These runs are separatly SUB-band gap, but jointly ABOVE band gap. 
         ## Commensurable
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  0)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  1)
@@ -1931,8 +1951,10 @@ def plot_Zhukov_BicolorMaps():
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  3)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  4)
         
-    # We now filter the Fields amplitude to address regime of Keldysh parameter lower than 1.
-    PlottingTable_Filtered = PlottingTable
+        # We now filter the Fields amplitude to address regime of Keldysh parameter lower than 1.
+        #PlottingTable_Filtered = PlottingTable
+        RemoveTunneling = FilterDatabaseRemove(PlottingTable, tau, IndexTable['pulses1'])
+    
 
 ## Prepare all plots for shift current paper with A. Rubio
 def plot_ShiftCurrents():
@@ -1986,16 +2008,11 @@ def plot_ShiftCurrents():
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
 
-plot_Zhukov_SingleColor_LDA()
-# plot_Zhukov_SingleColor_TB09()
-
-
-
-# plot_Zhukov_SingleColor_LDA()
+#plot_Zhukov_SingleColor_LDA()
 # plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps() #LDA gap
+plot_Zhukov_BicolorMaps() #LDA gap
 
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
