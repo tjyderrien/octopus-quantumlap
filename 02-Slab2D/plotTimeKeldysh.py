@@ -766,9 +766,12 @@ print Header+"Time Current: "+str(timeCurrent.size)
 # One has to interpolate the field to reach the precision of the current. 
 
 Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
-Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
+#Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
+Efield_X_AU_interp = Efield_X_AU[np.arange(1,len(Efield_X_AU),10)]
 
-ExcessEnergy         = (2. * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
+NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
+
+ExcessEnergy         = (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
 IntraBandEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
 # print Header+"Checking sizes: "+str(IntraBandEnergy_diff.size)+" "+str(dtCurrent.size) 
