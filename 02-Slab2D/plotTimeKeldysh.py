@@ -772,9 +772,25 @@ Efield_X_AU_interp = Efield_X_AU[np.arange(1,len(Efield_X_AU),10)]
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
 print Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons)
 
+nu = 1.1e-15 ** -1
+
+omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
+
+epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant 
+# Here we have to make an educated choice. 
+#Epsilon = epsilon_Si0 #valence band contribution, no transition
+Epsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+#Epsilon = epsilon_Si0 - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #complete dielectric function
+# the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
+
+
+DrudeEnergy          = SuperCellVolume_SI / e * 4.*np.pi / c * Epsilon.imag / (np.sqrt(Epsilon)).real
+TotalDrudeEnergy     = (NumberOfPhotons * hbar * omega ) * observable_proj * SuperCellVolume_SI / e + DrudeEnergy
+
 ExcessEnergy         = (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
 IntraBandEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
+DrudeEnergy          = SuperCellVolume_SI * 4. * np.pi / c * 
 # print Header+"Checking sizes: "+str(IntraBandEnergy_diff.size)+" "+str(dtCurrent.size) 
 ## if we integrate in time
 IntraBandEnergy_AU      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
@@ -785,15 +801,17 @@ IntraBandEnergy         = Energy_Hartree_to_eV(IntraBandEnergy_AU)
 InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
 
+
+
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (t)$')
 
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, IntraBandEnergy, 'r--', label=r"$\int dt' J(t').E(t')$")
-plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--', label=r"$($"+str(int(NumberOfPhotons))+r"$\hbar \omega - E_{gap})\times N_{exc}$")
+plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--',      label=r"$($"+str(int(NumberOfPhotons))+r"$\hbar \omega - E_{gap})\times N_{exc}$")
 plot_energy_diff,            = ax3.plot(timeCurrent, IntraBandEnergy-Energy_Hartree_to_eV(ElectronEnergy), 'r--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
 
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
