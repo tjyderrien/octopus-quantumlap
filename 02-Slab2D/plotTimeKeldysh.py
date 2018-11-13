@@ -688,7 +688,7 @@ if(QuantityOfInterest == "density"):
     # ymin_wpi = 1e30; 
     ymax_wpi = np.max(wPI_TDDFT_moving); ymin_wpi = 0e0; #-ymax_wpi
     if("STH" in PulseType or "StH" in PulseType):
-      plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
+      plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Keldysh]') #NOTE: shows the peak value of w_pi 
   # if(EnableLogScale==1): 
     #plt.legend(loc=3)
     plt.ylabel('$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
@@ -784,19 +784,18 @@ Epsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.di
 # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
 
 
-DrudeEnergy          = SuperCellVolume_SI / e * 4.*np.pi / c * Epsilon.imag / (np.sqrt(Epsilon)).real * PeakIntensity_SI
-TotalDrudeEnergy     = (NumberOfPhotons * hbar * omega ) * observable_proj * SuperCellVolume_SI / e + DrudeEnergy
+DrudeEnergy          = SuperCellVolume_SI / e * 4.*np.pi / c * Epsilon.imag / (np.sqrt(Epsilon)).real * PeakIntensity_SI * PulseDuration_SI
+ExcessEnergy         = (NumberOfPhotons * hbar * omega ) * observable_proj * SuperCellVolume_SI / e 
+TotalDrudeEnergy     = ExcessEnergy + DrudeEnergy
 
-ExcessEnergy         = (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
+AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
-IntraBandEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
+TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
 
-# print Header+"Checking sizes: "+str(IntraBandEnergy_diff.size)+" "+str(dtCurrent.size) 
 ## if we integrate in time
-IntraBandEnergy_AU      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent)
+TotalEnergyPoynting_AU      = np.multiply(np.cumsum(TotalEnergy_diff),  dtCurrent)
 ## if we dont integrate in time
-# IntraBandEnergy_AU      = IntraBandEnergy_diff
-IntraBandEnergy         = Energy_Hartree_to_eV(IntraBandEnergy_AU)
+TotalEnergyPoynting         = Energy_Hartree_to_eV(TotalEnergyPoynting_AU)
 # print Header+"Checking sizes: "+str(timeCurrent.size)+" "+str(IntraBandEnergy.size)
 InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
@@ -810,10 +809,10 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, IntraBandEnergy, 'r-', label=r"$\int dt' J(t').E(t')$")
-plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'r--', label=r"Drude model, $\nu^{-1}=1.1$ fs")
-plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'g--',      label=str(int(NumberOfPhotons))+r"$\hbar \omega \times N_{exc}$")
-plot_energy_diff,            = ax3.plot(timeCurrent, IntraBandEnergy-Energy_Hartree_to_eV(ElectronEnergy), 'k--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
+plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
+plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"Est. w/ Drude model, $\nu^{-1}=1.1$ fs")
+plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'r--',      label=str(int(NumberOfPhotons))+r"$\hbar \omega \times N_{exc}$")
+plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_Hartree_to_eV(ElectronEnergy), 'b--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
 
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
