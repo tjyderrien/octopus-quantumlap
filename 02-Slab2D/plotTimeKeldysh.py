@@ -820,7 +820,7 @@ plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='best', fancybox=True, framealpha=framealpha)
+plt.legend(loc='upper left', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
