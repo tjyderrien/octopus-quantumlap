@@ -810,7 +810,7 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
-plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"Est. w/ Drude model, $\nu^{-1}=1.1$ fs")
+plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"Drude est., $\nu^{-1}=1.1$ fs")
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'r--',      label=str(int(NumberOfPhotons))+r"$\hbar \omega \times N_{exc}$")
 plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_Hartree_to_eV(ElectronEnergy), 'b--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
 
