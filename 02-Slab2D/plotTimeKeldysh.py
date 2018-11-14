@@ -767,6 +767,8 @@ print Header+"Time Current: "+str(timeCurrent.size)
 
 Efield_X_AU_f   = InterpolatedUnivariateSpline(time[1:], Efield_X_AU)
 Efield_X_AU_interp = Efield_X_AU_f(timeCurrent)
+Efield_X_AU_interp_Ne = Efield_X_AU_f(timeNe)
+Efield_X_SI_interp_Ne = Field_AU_to_SI(Efield_X_AU_interp_Ne)
 # Efield_X_AU_interp = Efield_X_AU[np.arange(1,len(Efield_X_AU),10)]
 
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
@@ -778,15 +780,14 @@ omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
 
 epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant 
 # Here we have to make an educated choice. 
-#Epsilon = epsilon_Si0 #valence band contribution, no transition
-Epsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-#Epsilon = epsilon_Si0 - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #complete dielectric function
+#Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
 # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
 
 
-DrudeEnergy          = SuperCellVolume_SI / e * 4.*np.pi / c * Epsilon.imag / (np.sqrt(Epsilon)).real * PeakIntensity_SI * PulseDuration_SI
-ExcessEnergy         = (NumberOfPhotons * hbar * omega ) * observable_proj * SuperCellVolume_SI / e 
-TotalDrudeEnergy     = ExcessEnergy + DrudeEnergy
+DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
+ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
+TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
 
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
@@ -810,8 +811,8 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
-plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"$\xi_{Drude}$, $\nu^{-1}=1.1$ fs")
-plot_energy_ExcessEnergy,    = ax3.plot(timeNe, ExcessEnergy,    'r--',      label=str(int(NumberOfPhotons))+r"$\hbar \omega \times N_{exc}$")
+plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
+plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
 plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_Hartree_to_eV(ElectronEnergy), 'b--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
 
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
