@@ -279,7 +279,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
   timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
+  #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print Header+"Computing Keldysh for Pulse 2: "
@@ -622,9 +622,10 @@ if(QuantityOfInterest == "density"):
       timeKeldyshB = instants
   
     if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+      print "Disabled for now."
+      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+      #ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
     else: #single pulse case
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
