@@ -386,11 +386,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     # Normalizing the database energies
     
-    # Normalizing to 0
-    ElectronEnergy = ElectronEnergy - ElectronEnergy.min()
-    TotalEnergy    = TotalEnergy    - TotalEnergy.min()
-    IonEnergy      = IonEnergy      - IonEnergy.min()
-    Hartree        = Hartree        - Hartree.min()
+    # We capture the energy increase due to the laser field. 
+    # But there exist cases where the oscillations of the energy 
+    # are larger than the energy amplitude. Therefore, lets just remove the initial value. 
+    ElectronEnergy = ElectronEnergy - ElectronEnergy[0]
+    TotalEnergy    = TotalEnergy    - TotalEnergy[0]
+    IonEnergy      = IonEnergy      - IonEnergy[0]
+    Hartree        = Hartree        - Hartree[0]
     
     # Extracting the FINAL shift current (!!!)
     #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
