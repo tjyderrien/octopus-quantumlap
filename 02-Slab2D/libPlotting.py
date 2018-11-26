@@ -571,15 +571,15 @@ IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1':
 PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
 
 ## Damps a signal from FinalTimeDamping instant. 
-# @param timeCurrent: table of instants (at.u.)
+# @param timeCurrent: table of instants (SI)
 # @param CurrentX: signal to be processed
 # @param wavelength_SI: fundamental wavelength of the signal
-# @param FinalDampingInstant: instant where to apply the damping
+# @param FinalDampingInstant: instant (SI) where to apply the damping
 def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 
     omega = 2.*np.pi*c/wavelength_SI
     DampingTime = 2.*np.pi/omega #tau_rise
-    timeCurrent_SI = timeCurrent * Time_AU_to_SI(1.)
+    timeCurrent_SI = timeCurrent #* Time_AU_to_SI(1.)
     
     #FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
     print Header+"** Info: HHG dampingTime: "+str(round(DampingTime*1E15))+" fs."
