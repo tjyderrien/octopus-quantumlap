@@ -351,11 +351,12 @@ ShrinkBy=0
 timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
 # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
 maxSize=timeCurrent.size-ShrinkBy
-tMaxSimulation = timeCurrent[maxSize-3]
+tMaxSimulation = timeCurrent[maxSize-1] #this is simulation was has already run
 CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
+print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation)
 
 print Header+"** Info: cleaning the current for HHG computation."
 CurrentX_HHG = SignalDampR(time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2.*time_AU_to_SI(tMaxSimulation)/3.)
