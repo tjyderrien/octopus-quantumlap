@@ -356,15 +356,17 @@ ShrinkBy=0
 timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
 # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
 maxSize=timeCurrent.size-ShrinkBy
-tMaxSimulation = timeCurrent[maxSize-1] #this is simulation was has already run
+tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
+tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
-print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation)
+print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU)
+print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2.*time_AU_to_SI(tMaxSimulation)/3.)
+CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, tMaxSimulation_SI)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
