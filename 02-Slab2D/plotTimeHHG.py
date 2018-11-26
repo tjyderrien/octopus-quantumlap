@@ -702,7 +702,7 @@ ax4.set_yscale("log")
 plt.xlabel("Photon energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 ax4.axvline(x=h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-")  #omega1
-ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--") #omega2
+ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="-") #omega2
 
 #omega1 + omega2
 ax4.axvline(x=h*c/e/wavelengthB_SI+h*c/e/wavelength_SI, color='g', linewidth=0.5, linestyle="-.") #omega2
