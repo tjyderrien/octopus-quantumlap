@@ -278,7 +278,12 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
-  timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
+  try: 
+    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
+  except:
+    N_Keldysh_SI = FieldEnvelope * 0e0
+    N_Gruzdev_SI = FieldEnvelope * 0e0
+    timeKeldysh  = FieldEnvelope * 0e0
   #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
