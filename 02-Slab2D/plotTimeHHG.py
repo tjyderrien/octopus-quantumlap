@@ -43,13 +43,15 @@ meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (201
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
+plotA=211; plotD=212
 ## 3 canvas
 #plotA=311; plotB=312; plotC=313;
 ## 4 canvas
-plotA=411; plotB=412; plotC=413; plotD=414
+# plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
 SizeX = 10
-SizeY = 20
+GoldenNumber=(1.+np.sqrt(5.))/2.
+SizeY = SizeX/GoldenNumber
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
 
 ## Position of the captions
@@ -535,7 +537,7 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 
 ## Plotting electric field
-plt.title(r"$\lambda=$"+str(wavelength_SI*1E9)+" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+" W/cm$^2$, delay="+str(float(DoublePulseDelay_SI*1E15))+" fs")
+plt.title(r"$\lambda_1=$"+str(wavelength_SI*1E9)+r" nm, $I_0=$"+str('%.2E' % decimal.Decimal(PeakIntensityText))+r" W/cm$^2$, $\lambda_2=$"+str(round(wavelengthB_SI*1E9,0))+r" nm, $\Delta t=$"+str(float(DoublePulseDelay_SI*1E15))+" fs")
 #plt.xlabel('Time (fs)')
 # plt.ylabel('Vector potential (a.u.)')
 plt.ylabel('Field amplitude (V/m)')
@@ -584,17 +586,17 @@ if(PlotGrid==1):
 #plt.legend(loc=4) # Simple caption inside picture. 
 
 ### Plotting density evolution
-ax2 = plt.subplot(plotB)
+# ax2 = plt.subplot(plotB)
 # plt.xlim((0,unitx*timePost.max()))
-plt.xlim((xmin,xmax))
-plt.ylim((ymin,ymax))
+# plt.xlim((xmin,xmax))
+# plt.ylim((ymin,ymax))
 
-if(QuantityOfInterest == "density"):
-  if(UnitSystem=="AU"):
-    plt.ylabel('Density exc. el. (a.u.)')
-  elif(UnitSystem=="SI"):
-    plt.ylabel(r'Density exc. el. (m$^{-3}$)')
-  plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
+# if(QuantityOfInterest == "density"):
+#   if(UnitSystem=="AU"):
+#     plt.ylabel('Density exc. el. (a.u.)')
+#   elif(UnitSystem=="SI"):
+#     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
+#   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   #ax2.legend(loc=3)
   #if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
     #ax22 = ax2.twinx() #let's plot instant w_PI (t)
@@ -647,42 +649,42 @@ if(QuantityOfInterest == "density"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-  if("STH" in PulseType or "StH" in PulseType):
+#  if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density] #, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
-    labels2 = [l.get_label() for l in plot2]
-    ax2.legend(plot2, labels2, loc=2)
+#    plot2   = [plot_density] #, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
+#    labels2 = [l.get_label() for l in plot2]
+#    ax2.legend(plot2, labels2, loc=2)
 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
-if(PlotGrid==1):
-  for xc in xposition:
-    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
+# if(PlotGrid==1):
+#   for xc in xposition:
+#    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 # plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
 # plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
-plt.xlabel('Time (fs)')
+# plt.xlabel('Time (fs)')
 # plt.ylabel('Density (a.u.)')
 # plt.legend(loc=2)
 # plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
 
 ## ============ PLOTTING ENERGIES ======
-ax3 = plt.subplot(plotC)
-plt.xlim((xmin,xmax))
-plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
+# ax3 = plt.subplot(plotC)
+# plt.xlim((xmin,xmax))
+# plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
 # plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
-plt.xlabel('Time (fs)')
-plt.ylabel('Energy (eV)')
-plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-plt.legend(loc=2)
+# plt.xlabel('Time (fs)')
+# plt.ylabel('Energy (eV)')
+# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
+# plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
-if(PlotGrid==1):
-  for xc in xposition:
-    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
+# if(PlotGrid==1):
+#   for xc in xposition:
+#     plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
 
 ## ============ PLOTTING FOURIER SPECTRA =========
 ax4 = plt.subplot(plotD)
@@ -701,20 +703,20 @@ ax4.set_yscale("log")
 # plt.xlabel("Harmonic order")
 plt.xlabel("Photon energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
-ax4.axvline(x=h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-")  #omega1
-ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="-") #omega2
+ax4.axvline(x=h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-", label=r"$\omega_1$")  #omega1
+ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="-", label=r"$\omega_2$")
 
 #omega1 + omega2
-ax4.axvline(x=h*c/e/wavelengthB_SI+h*c/e/wavelength_SI, color='g', linewidth=0.5, linestyle="-.") #omega2
+ax4.axvline(x=h*c/e/wavelengthB_SI+h*c/e/wavelength_SI, color='g', linewidth=0.5, linestyle="-.", label=r"$\omega_1+\omega_2$")
 #omega1 - omega2
-ax4.axvline(x=h*c/e/wavelengthB_SI-h*c/e/wavelength_SI, color='k', linewidth=0.5, linestyle="-.")
+ax4.axvline(x=np.abs(h*c/e/wavelengthB_SI-h*c/e/wavelength_SI), color='k', linewidth=0.5, linestyle="-.", label=r"$\left|\omega_1-\omega_2\right|$")
 
 #2omega1
-ax4.axvline(x=2*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--")  #omega1
+ax4.axvline(x=2*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$2\omega_1$")  #omega1
 #2omega2
-ax4.axvline(x=2*h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--")  #omega2
+ax4.axvline(x=2*h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--", label=r"$2\omega_2$")  #omega2
 ## ======== Applying logscales...
-
+ax4.legend(loc="best")
 if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
   ax22.set_yscale("log", nonposy='clip')
