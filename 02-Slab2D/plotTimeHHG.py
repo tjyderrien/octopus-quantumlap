@@ -460,18 +460,18 @@ else:
   print "** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py."
   exit()
 
-### Building up an instantaneous W_PI(t)
-omega = 2.*pi*c/wavelength_SI
-wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
-# wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #not good as depends on the final time
-NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI))
-wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / NumberOfTimeSteps 
-wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
-wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
-wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI)
+#### Building up an instantaneous W_PI(t)
+#omega = 2.*pi*c/wavelength_SI
+#wPI_TDDFT = np.diff(observable_proj)/np.diff(timeNe/UnitTime) #virtual excitations make it unclear
+## wPI_TDDFT_average = wPI_TDDFT.cumsum() / timeNe[1:].size #not good as depends on the final time
+#NumberOfTimeSteps = int(2.*PulseDuration_SI/(TimeStep*TimeAUtoSI))
+#wPI_TDDFT_average = wPI_TDDFT[:NumberOfTimeSteps-1] / NumberOfTimeSteps 
+#wPI_TDDFT_cos     = np.exp( -1.j*omega * timeNe[1:]  )
+#wPI_TDDFT_env     = wPI_TDDFT * wPI_TDDFT_cos 
+#wPI_TDDFT_approx  = observable_proj / (2. * PulseDuration_SI)
 
-print Header+"** Final value for <w_PI> = "+str(wPI_TDDFT_average[wPI_TDDFT_average.size-1])
-print Header+"** Final value for w_PI_approx = "+str(wPI_TDDFT_approx[wPI_TDDFT_approx.size-1])
+#print Header+"** Final value for <w_PI> = "+str(wPI_TDDFT_average[wPI_TDDFT_average.size-1])
+#print Header+"** Final value for w_PI_approx = "+str(wPI_TDDFT_approx[wPI_TDDFT_approx.size-1])
 
 ### Converting fields from AU to SI
 
@@ -588,60 +588,60 @@ if(QuantityOfInterest == "density"):
     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
   #ax2.legend(loc=3)
-  if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
-    ax22 = ax2.twinx() #let's plot instant w_PI (t)
-    #plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-    plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    if("STH" in PulseType or "StH" in PulseType):
-      plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
-  # if(EnableLogScale==1): 
-  #  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-    #plt.legend(loc=3)
-    plt.ylabel('$w_{PI}(t)$')
-    ax22.yaxis.label.set_color(plot_wpi_approx.get_color()) #colorizes the label
-    ax22.spines["right"].set_edgecolor(plot_wpi_approx.get_color()) #colorizes the axis
-    ax22.tick_params(axis='y', colors=plot_wpi_approx.get_color()) #colorizes the tics and numbers
-  plt.xlim((xmin,xmax))
-#  if(EnableLogScale==1): 
-#   plt.ylim((ymin_wpi,ymax_wpi))
-  #ax22.set_yscale('log')
-#  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-#  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
-  ## when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
-  ## TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
+  #if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
+    #ax22 = ax2.twinx() #let's plot instant w_PI (t)
+    ##plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
+    #plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
+    #if("STH" in PulseType or "StH" in PulseType):
+      #plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
+  ## if(EnableLogScale==1): 
+  ##  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
+    ##plt.legend(loc=3)
+    #plt.ylabel('$w_{PI}(t)$')
+    #ax22.yaxis.label.set_color(plot_wpi_approx.get_color()) #colorizes the label
+    #ax22.spines["right"].set_edgecolor(plot_wpi_approx.get_color()) #colorizes the axis
+    #ax22.tick_params(axis='y', colors=plot_wpi_approx.get_color()) #colorizes the tics and numbers
+  #plt.xlim((xmin,xmax))
+##  if(EnableLogScale==1): 
+##   plt.ylim((ymin_wpi,ymax_wpi))
+  ##ax22.set_yscale('log')
+##  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
+##  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
+  ### when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
+  ### TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
   
-  ## If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
+  ### If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
   if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
-    # Checking sizes of the data to plot. 
-    if(len(timeKeldysh) != len(N_Gruzdev_SI)):
-      print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
-      print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
-      print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
-    else: 
-      timeKeldysh  = instants
-      timeKeldyshB = instants
+    ## Checking sizes of the data to plot. 
+    #if(len(timeKeldysh) != len(N_Gruzdev_SI)):
+      #print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
+      #print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
+      #print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
+    #else: 
+      #timeKeldysh  = instants
+      #timeKeldyshB = instants
   
-    if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
-      print "Disabled for now."
+    #if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
+      #print "Disabled for now."
       #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
       #ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
       #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
-    else: #single pulse case
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+    #else: #single pulse case
+      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
   #elif(PulseType=="STH"): #if STH, we only plot w_PI. 
     #ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
     
-elif (QuantityOfInterest == "number"):
-  plt.ylabel('Number of exc. electrons')
-  plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
+#elif (QuantityOfInterest == "number"):
+  #plt.ylabel('Number of exc. electrons')
+  #plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
 
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
+    plot2   = [plot_density] #, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
     ax2.legend(plot2, labels2, loc=2)
 
