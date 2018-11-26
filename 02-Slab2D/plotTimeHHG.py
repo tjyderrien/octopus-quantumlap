@@ -278,7 +278,12 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
-  timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
+  try: 
+    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
+  except:
+    N_Keldysh_SI = FieldEnvelope * 0e0
+    N_Gruzdev_SI = FieldEnvelope * 0e0
+    timeKeldysh  = FieldEnvelope * 0e0
   #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
@@ -351,15 +356,17 @@ ShrinkBy=0
 timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
 # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
 maxSize=timeCurrent.size-ShrinkBy
-tMaxSimulation = timeCurrent[maxSize-1] #this is simulation was has already run
+tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
+tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
 
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
-print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation)
+print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU)
+print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2.*time_AU_to_SI(tMaxSimulation)/3.)
+CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, tMaxSimulation_SI)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -612,7 +619,7 @@ if(QuantityOfInterest == "density"):
   ### TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
   
   ### If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
-  if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
+# if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
     ## Checking sizes of the data to plot. 
     #if(len(timeKeldysh) != len(N_Gruzdev_SI)):
       #print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
@@ -640,7 +647,7 @@ if(QuantityOfInterest == "density"):
 #  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
 #plt.legend(loc=1)
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-if("STH" in PulseType or "StH" in PulseType):
+  if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
     plot2   = [plot_density] #, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
@@ -663,8 +670,8 @@ plt.xlabel('Time (fs)')
 ax3 = plt.subplot(plotC)
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
-plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
-plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
+# plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
+# plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")

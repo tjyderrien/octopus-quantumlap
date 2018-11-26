@@ -578,7 +578,7 @@ PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
 def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 
     omega = 2.*np.pi*c/wavelength_SI
-    DampingTime = 2.*np.pi/omega #tau_rise
+    DampingTime = 6.*np.pi/omega #tau_rise
     timeCurrent_SI = timeCurrent #* Time_AU_to_SI(1.)
     
     #FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
