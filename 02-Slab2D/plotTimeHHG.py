@@ -681,7 +681,7 @@ if(PlotGrid==1):
 ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
-Xaxis = HHG_AU_omega[:maxHHG]/e #energy of the harmonics
+Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
 Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
