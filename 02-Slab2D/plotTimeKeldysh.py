@@ -789,7 +789,7 @@ TotalEnergyPoynting         = Energy_Hartree_to_eV(TotalEnergyPoynting_AU)
 InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
 
-FitDrudeModel(n_exc, meff, nu):
+def FitDrudeModel(n_exc, nu):
     omega       = n_exc * e**2 / (m_e * meff * epsilon_0)
     omega_p2    = np.multiply(n_exc, e**2 / m_e / meff / epsilon_0)
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
@@ -807,8 +807,9 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 plot3+=[plot_energy_IntraBandEnergy]
 
-# #TODO No, finally, let's fit it automatically. 
-FitDrudeModel_parameters = curve_fit(FitDrudeModel, nu, Energy_Hartree_to_eV(ElectronEnergy[np.size(ElectronEnergy)-1]))
+# #TODO Lets try to adjust nu automatically. 
+# This function should provide nu, but integration on t may be missing.
+FitDrudeModel_parameters = curve_fit(FitDrudeModel, observable_proj, Energy_Hartree_to_eV(ElectronEnergy[np.size(ElectronEnergy)-1]))
 # We have to minimize ElectronEnergy - 
 print Header+"FITTING DRUDE MODEL."
 print FitDrudeModel_parameters
@@ -816,7 +817,7 @@ print FitDrudeModel_parameters
 nu_t = np.power([0.5e-15, 1.0e-15, 1.5e-15, 2e-15], -1)
 for nu in nu_t:
     #Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-    Epsilon = FitDrudeModel(observable_proj, meff, nu)
+    Epsilon = FitDrudeModel(observable_proj, nu)
         #1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
     DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
