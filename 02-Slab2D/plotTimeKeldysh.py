@@ -796,7 +796,6 @@ def FitDrudeModel(n_exc, nu):
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
 
-
 ax3 = plt.subplot(plotC)
 plot3 = []
 plt.xlim((xmin,xmax))
@@ -808,9 +807,11 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 plot3+=[plot_energy_IntraBandEnergy]
 
-# #TODO Lets try to adjust nu automatically. 
+n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+
+# Lets try to adjust nu automatically. 
 # This function should provide nu, but integration on t may be missing.
-FitDrudeModel_parameters = curve_fit(FitDrudeModel, observable_proj, Energy_Hartree_to_eV(ElectronEnergy[np.size(ElectronEnergy)-1]))
+FitDrudeModel_parameters = curve_fit(FitDrudeModel, n_exc_interp(timeCurrent), Energy_Hartree_to_eV(ElectronEnergy)) #BUG: SIZES ARE DIFFERENT. 
 # We have to minimize ElectronEnergy - 
 print Header+"FITTING DRUDE MODEL."
 print FitDrudeModel_parameters
