@@ -599,7 +599,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.5 #PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.66 #PulseDuration_SI*unitx*2.;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -744,9 +744,9 @@ if(PlotGrid==1):
 if(PlottingMode == "keldysh"):
   if("STH" in PulseType or "StH" in PulseType):
     # Building the shared legend for subfig1 (if STH pulses)
-    plot2   = [plot_density, plot_density_sat, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
+    plot2   = [plot_density, plot_wpi_moving_pos, plot_wpi_Gruzdev] #plot_wpi_av
     labels2 = [l.get_label() for l in plot2]
-    ax22.legend(plot2, labels2, loc='upper right', fancybox=True, framealpha=framealpha, ncol=2)
+    ax22.legend(plot2, labels2, loc='upper right', fancybox=True, framealpha=framealpha, ncol=1)
 
 # plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
 plt.xlabel('Time (fs)')
@@ -774,7 +774,7 @@ Efield_X_SI_interp_Ne = Field_AU_to_SI(Efield_X_AU_interp_Ne)
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
 print Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons)
 
-nu = 1.1e-15 ** -1
+nu = 0.5e-15**-1
 
 omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
 
@@ -821,7 +821,7 @@ plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='upper left', fancybox=True, framealpha=framealpha)
+plt.legend(loc='upper right', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
