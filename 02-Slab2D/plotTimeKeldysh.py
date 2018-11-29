@@ -774,21 +774,9 @@ Efield_X_SI_interp_Ne = Field_AU_to_SI(Efield_X_AU_interp_Ne)
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
 print Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons)
 
-nu = 0.5e-15**-1
-
 omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
-
 epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant 
-# Here we have to make an educated choice. 
-#Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-# the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
-
-
-DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
 ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
-TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
-
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
 TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
@@ -803,7 +791,11 @@ InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 
 
 
+
+
+
 ax3 = plt.subplot(plotC)
+plot3 = []
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el}^{tddft} (t)$')
 
@@ -811,17 +803,28 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
-plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, 'k-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
+plot3+=[plot_energy_IntraBandEnergy]
+# Here we have to make an educated choice. 
+nu_t = np.power([0.5e-15, 1.0e-15, 1.5e-15, 2e-15], -1)
+for nu in nu_t:
+    #Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+    Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+    # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
+    DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
+    TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
+    plot_energy_Drude,           = ax3.plot(timeNe, TotalDrudeEnergy, '-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
+    plot3 += [plot_energy_Drude]
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
+plot3+=[plot_energy_ExcessEnergy]
 plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_Hartree_to_eV(ElectronEnergy), 'b--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
-
+plot3+=[plot_energy_diff]
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
-
+labels3 = [l.get_label() for l in plot3]
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-plt.legend(loc='upper right', fancybox=True, framealpha=framealpha)
+ax3.legend(plot3, labels3, loc='upper right', fancybox=True, framealpha=framealpha)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
