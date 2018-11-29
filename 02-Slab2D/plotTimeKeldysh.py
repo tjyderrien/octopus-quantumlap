@@ -807,13 +807,13 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 plot3+=[plot_energy_IntraBandEnergy]
 
-n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+#n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
 
 # Lets try to adjust nu automatically. 
 # This function should provide nu, but integration on t may be missing.
-FitDrudeModel_parameters = curve_fit(FitDrudeModel, n_exc_interp(timeCurrent), Energy_Hartree_to_eV(ElectronEnergy)) #BUG: SIZES ARE DIFFERENT. 
+#FitDrudeModel_parameters = curve_fit(FitDrudeModel, n_exc_interp(timeCurrent), Energy_Hartree_to_eV(ElectronEnergy)) #BUG: SIZES ARE DIFFERENT. 
 # We have to minimize ElectronEnergy - 
-print Header+"FITTING DRUDE MODEL."
+#print Header+"FITTING DRUDE MODEL."
 print FitDrudeModel_parameters
 # This is to plot many collision frequencies
 nu_t = np.power([0.5e-15, 1.0e-15, 1.5e-15, 2e-15], -1)
