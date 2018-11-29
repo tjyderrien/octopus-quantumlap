@@ -32,6 +32,7 @@ import decimal
 from scipy import integrate
 import calculateVolume as Sample
 from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.optimize import curve_fit
 import libKeldysh as Keldysh
 from libAtomicUnits import *
 from libPlottingSettings import *
