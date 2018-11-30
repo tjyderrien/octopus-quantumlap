@@ -814,7 +814,7 @@ plot3+=[plot_energy_IntraBandEnergy]
 #FitDrudeModel_parameters = curve_fit(FitDrudeModel, n_exc_interp(timeCurrent), Energy_Hartree_to_eV(ElectronEnergy)) #BUG: SIZES ARE DIFFERENT. 
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print FitDrudeModel_parameters
+#print FitDrudeModel_parameters
 # This is to plot many collision frequencies
 nu_t = np.power([0.5e-15, 1.0e-15, 1.5e-15, 2e-15], -1)
 for nu in nu_t:
