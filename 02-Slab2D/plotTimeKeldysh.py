@@ -795,8 +795,15 @@ def FitDrudeModel(n_exc, nu):
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
 
+# We shall introduce here the function of energy(density)
 def FitDrudeModelReal(n_exc, nu):
-    return np.real(FitDrudeModel(n_exc,nu))
+    Epsilon = FitDrudeModel(n_exc, nu)
+        #1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+    # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
+    DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
+    TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
+    
+    return TotalDrudeEnergy
 
 ax3 = plt.subplot(plotC)
 plot3 = []
@@ -832,11 +839,12 @@ else:
   ColorFit=''
 for nu in nu_t:
     #Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-    Epsilon = FitDrudeModel(observable_proj, nu)
-        #1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-    # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
-    DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
-    TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
+    #Epsilon = FitDrudeModel(observable_proj, nu)
+        ##1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
+    ## the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
+    #DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
+    #TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
+    TotalDrudeEnergy     = FitDrudeModelReal(observable_proj,nu)
     plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),2))+" fs")
     plot3 += [plot_energy_Drude]
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
