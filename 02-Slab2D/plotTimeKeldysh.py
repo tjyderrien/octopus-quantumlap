@@ -775,7 +775,7 @@ Efield_X_SI_interp_Ne = Field_AU_to_SI(Efield_X_AU_interp_Ne)
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
 print Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons)
 
-omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
+# omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
 epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant 
 ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
@@ -790,8 +790,7 @@ TotalEnergyPoynting         = Energy_Hartree_to_eV(TotalEnergyPoynting_AU)
 InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
 
-def FitDrudeModel(n_exc, nu):
-    omega       = n_exc * e**2 / (m_e * meff * epsilon_0)
+def FitDrudeModel(n_exc, nu, meff):
     omega_p2    = np.multiply(n_exc, e**2 / m_e / meff / epsilon_0)
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
@@ -815,16 +814,23 @@ plot3+=[plot_energy_IntraBandEnergy]
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
 #print FitDrudeModel_parameters
+# print FitDrudeModel_parameters
 # This is to plot many collision frequencies
-nu_t = np.power([0.5e-15, 1.0e-15, 1.5e-15, 2e-15], -1)
+nu_t = np.power(np.multiply([0.57], 1e-15), -1)
+
+# nu_t = [2.6e-15**-1]
+if(len(nu_t)==1): 
+  ColorFit='k'
+else: 
+  ColorFit=''
 for nu in nu_t:
     #Epsilon = epsilon_Si0 #valence band contribution, no transitionEPSILEpsilon = 1. - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
-    Epsilon = FitDrudeModel(observable_proj, nu)
+    Epsilon = FitDrudeModel(observable_proj, nu, meff)
         #1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
     DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
     TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
-    plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, '-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
+    plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
     plot3 += [plot_energy_Drude]
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
 plot3+=[plot_energy_ExcessEnergy]
