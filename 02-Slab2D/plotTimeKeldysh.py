@@ -833,7 +833,7 @@ ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_
 FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print np.divide(1.,FitDrudeModel_parameters)
+print np.divide(1.,FitDrudeModel_parameters[0])
 # nu_t = FitDrudeModel_parameters[0]
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
