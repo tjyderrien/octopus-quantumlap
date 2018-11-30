@@ -795,6 +795,9 @@ def FitDrudeModel(n_exc, nu):
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
 
+def FitDrudeModelReal(n_exc, nu):
+    return np.real(FitDrudeModel(n_exc,nu))
+
 ax3 = plt.subplot(plotC)
 plot3 = []
 plt.xlim((xmin,xmax))
@@ -806,15 +809,19 @@ plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Ha
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 plot3+=[plot_energy_IntraBandEnergy]
 
-#n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
-
+n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+n_exc_i = n_exc_interp(timeCurrent)
 # FITTING DRUDE MODEL AUTOMATICALLY?
 # This function should provide nu, but integration on t may be missing.
-FitDrudeModel_parameters = curve_fit(FitDrudeModel, n_exc_interp(timeCurrent), Energy_Hartree_to_eV(ElectronEnergy)) #BUG: SIZES ARE DIFFERENT. 
+try: 
+  FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, n_exc_i, Energy_Hartree_to_eV(ElectronEnergy), bounds=(1E13,1E16))
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print FitDrudeModel_parameters
-
+  print np.divide(1.,FitDrudeModel_parameters)
+  nu_t = FitDrudeModel_parameters[0]
+except: 
+  nu_t = []
+  print Header+"** WARNING: auto-fit of collision frequency failed."
 # FITTING MANUALLY
 #nu_t = np.power(np.multiply([0.57], 1e-15), -1)
 # nu_t = [2.6e-15**-1]
@@ -830,7 +837,7 @@ for nu in nu_t:
     # the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
     DrudeEnergy          = SuperCellVolume_SI / e * epsilon_0 * omega * Epsilon.imag * np.multiply(Efield_X_SI_interp_Ne, Efield_X_SI_interp_Ne)
     TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
-    plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),1))+" fs")
+    plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),2))+" fs")
     plot3 += [plot_energy_Drude]
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
 plot3+=[plot_energy_ExcessEnergy]
