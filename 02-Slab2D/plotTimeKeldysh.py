@@ -47,6 +47,13 @@ Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
+FigureName='Fig9c' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
+
+Figs_Legend={'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
+Figs_Xmax={'Fig2a': 0.5, 'Fig2b': 0.5, 'Fig6a': 0.66, 'Fig6b': 0.5, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
+Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
+
+
 ## Plotting: parameters for controlling the canvas
 ## 3 canvas
 plotA=311; plotB=312; plotC=313;
@@ -585,7 +592,6 @@ ymax12valueMax = CurrentX.max()
 # ymin_wpi = 1E36
 # ymax_wpi = 1E50
 
-
 ### Defining plotting boundaries
 if(PlottingMode=="nonthermalmelting"):
   xmin=0.; xmax=500.; unitx=1E15
@@ -600,7 +606,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx*0.66 #PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx*Figs_Xmax[FigureName] #PulseDuration_SI*unitx*2.;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -809,32 +815,34 @@ ax3 = plt.subplot(plotC)
 plot3 = []
 plt.xlim((xmin,xmax))
 plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el}^{tddft} (t)$')
-
+plot3+=[plot_energy_electron]
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 plot3+=[plot_energy_IntraBandEnergy]
 
+# Add samples to n_exc_interp? 
 n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
 n_exc_i = n_exc_interp(timeCurrent)
 # FITTING DRUDE MODEL AUTOMATICALLY?
 # This function should provide nu, but integration on t may be missing.
-try: 
-  FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, n_exc_i, Energy_Hartree_to_eV(ElectronEnergy), bounds=(1E13,1E16))
+# try:
+# Or rather decrease precision over Energy? 
+ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
+FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-  print np.divide(1.,FitDrudeModel_parameters)
-  nu_t = FitDrudeModel_parameters[0]
-except: 
-  nu_t = []
-  print Header+"** WARNING: auto-fit of collision frequency failed."
+print np.divide(1.,FitDrudeModel_parameters)
+# nu_t = FitDrudeModel_parameters[0]
+# except: 
+#  print Header+"** WARNING: auto-fit of collision frequency failed."
 # FITTING MANUALLY
-#nu_t = np.power(np.multiply([0.57], 1e-15), -1)
-# nu_t = [2.6e-15**-1]
+# nu_t = np.power(np.multiply([0.5, 1, 5, 10, 20], 1e-15), -1)
+nu_t = np.power(np.multiply([Figs_CollTime[FigureName]], 1e-15),-1)
 
 if(len(nu_t)==1): 
-  ColorFit='k'
+  ColorFit='g'
 else: 
   ColorFit=''
 for nu in nu_t:
@@ -846,10 +854,11 @@ for nu in nu_t:
     #TotalDrudeEnergy     = np.multiply(np.cumsum(DrudeEnergy), dt_deriv[0])+ExcessEnergy
     TotalDrudeEnergy     = FitDrudeModelReal(observable_proj,nu)
     plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),2))+" fs")
-    plot3 += [plot_energy_Drude]
+    if(Figs_CollTime[FigureName] != 0E0): 
+      plot3 += [plot_energy_Drude]
 plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
 plot3+=[plot_energy_ExcessEnergy]
-plot_energy_diff,            = ax3.plot(timeCurrent, TotalEnergyPoynting-Energy_Hartree_to_eV(ElectronEnergy), 'b--', label=r"$\int dt' J(t').E(t')-\xi_{el}$")
+plot_energy_diff,            = ax3.plot(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)-TotalEnergyPoynting, 'b--', label=r"$\xi_{\mathrm{el}}^{\mathrm{tddft}} - \int dt' J(t').E(t')$")
 plot3+=[plot_energy_diff]
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 labels3 = [l.get_label() for l in plot3]
@@ -857,7 +866,8 @@ labels3 = [l.get_label() for l in plot3]
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-ax3.legend(plot3, labels3, loc='upper right', fancybox=True, framealpha=framealpha)
+
+ax3.legend(plot3, labels3, loc=Figs_Legend[FigureName], fancybox=True, framealpha=framealpha) 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
