@@ -64,8 +64,8 @@ Efield1="5E9" #MERDJI
 Efield2="0e0" #"9e9"
 
 ## Pulse duration
-tau1="30e-15"
-tau2="30e-15"
+tau1="50e-15"
+tau2="50e-15"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file

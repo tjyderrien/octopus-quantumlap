@@ -5,11 +5,11 @@
 # Initial working directory:
 #SBATCH -D ./
 # Job Name:
-#SBATCH -J QuantumLaP
+#SBATCH -J Merdji
 # Queue (Partition): #general, mpsd (3 days), express, or short
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=1
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
@@ -19,7 +19,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=00:05:00
+#SBATCH --time=24:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 pwd >> $OctopusSlabsRuns/LastRuns.log
