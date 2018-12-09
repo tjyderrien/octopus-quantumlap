@@ -93,9 +93,9 @@ OriginX=0.
 OriginY=0.
 OriginZ=-0.25 #complete slab: 0, just the top: -0.25
 
-MaxValue=8E-5 #0.01 is good for saturated case (9 V/nm). 
+MaxValue=0.01 #8e-5 good for 1 V/nm. 0.01 is good for saturated case (9 V/nm). 
 MinValue=-MaxValue
-ZoomValue=2.3 #complete slab ~ 1.5, #just the top: 2.3
+ZoomValue=1.5 #2.3 #complete slab ~ 1.5, #just the top: 2.3
 #1:Bulk #3:Slabs
 EnablePerspective=0
 

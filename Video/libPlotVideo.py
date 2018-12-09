@@ -596,7 +596,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   AnnotationAtts.axes3D.bboxFlag = 0
   AnnotationAtts.userInfoFlag = 0
   AnnotationAtts.timeInfoFlag = 0
-  AnnotationAtts.legendInfoFlag = 0
+  AnnotationAtts.legendInfoFlag = 1
   
   if (axis=="X"):
     View3DAtts.viewNormal = (0, -1, 0)
