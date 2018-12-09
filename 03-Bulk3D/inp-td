@@ -4,7 +4,7 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-FromScratch = yes
+# FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
 # UnitsXYZFiles = Angstrom
 # Debug = trace
@@ -237,13 +237,13 @@ TDExpOrder = 16
 # omega
 # PESMask2PEnlargeFactor = pi/Spacing/sqrt(2*EM)
 
-TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
+TDOutput = energy + laser + total_current + n_excited_el #multipoles
 # Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF DATA.
 #OutputFormat = cube #VisIt
-OutputFormat = vtk + xyz +  netcdf #OpenDX, UCSF Chimera
+OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
 OutputInterval = 10
-RestartWriteInterval = 50
+RestartWriteInterval = 2000
 TDOutputComputeInterval = 10
 
 # Absorbing boundary
