@@ -9,6 +9,7 @@
 #SBATCH -J remotevis
 #SBATCH --partition=viz
 #SBATCH --constraint="gpu"
+#SBATCH --gres=gpu:1
 # --- do not change the following four parameters
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -16,9 +17,10 @@
 #SBATCH --mem=127000
 # ---
 #SBATCH --mail-type=none
-# --- session duration, up to 24h2#SBATCH --time=01:00:00
+#SBATCH --mail-user=derrien@fzu.cz
+# --- session duration, up to 24h
 #SBATCH --time=10:00:00
-module load remotevis
 
+module load remotevis
 srun ${REMOTEVIS_HOME}/slurm/vis_session
 
