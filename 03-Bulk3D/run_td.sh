@@ -288,8 +288,9 @@ SubmitTheJob () {
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   
   # Update the Submission script with the mission name
-  # sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
+  sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
+
   # Start the run
   if [ ${DryRun} == 0 ]; then
           cd ${localPath}
