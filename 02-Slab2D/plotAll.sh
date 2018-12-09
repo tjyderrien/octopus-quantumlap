@@ -2,7 +2,7 @@
 module load purge
 module load git
 module load gnuplot
-module load anaconda/2/5.2.0
+module load anaconda/2/5.1
 module list
 
 source $QuantumLaPsources/machines.env
@@ -69,7 +69,7 @@ do
 done
 
 # plot results for HHG for SquaredSinus pulses
-for folder in $( list_folders | grep 'td.general' | grep 'SinSquared' )
+for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
 do
         # HERE, the whole thing should be executed in background for each folder (1 thread / folder).
         # then, processes may work on a different run, and hence produce all results at the same time
