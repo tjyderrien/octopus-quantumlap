@@ -838,8 +838,13 @@ print np.divide(1.,FitDrudeModel_parameters[0])
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
 # FITTING MANUALLY
-# nu_t = np.power(np.multiply([0.5, 1, 5, 10, 20], 1e-15), -1)
-nu_t = np.power(np.multiply([Figs_CollTime[FigureName]], 1e-15),-1)
+nu_t_opt = 0.01
+nu_t = np.power(np.multiply(np.add([0, 0.5, 1, 5, 10, 20],nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0, 1, 2, 3, 4, 5], nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0, 0.2, 0.4, 0.6, 0.8, 1], nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0.0, 0.05, 0.1, 0.15, 0.2], nu_t_opt), 1e-15), -1)
+# AUTOMATIC PLOTTING FOR THE PAPER
+# nu_t = np.power(np.multiply([Figs_CollTime[FigureName]], 1e-15),-1)
 
 if(len(nu_t)==1): 
   ColorFit='g'
