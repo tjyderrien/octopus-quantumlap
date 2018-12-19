@@ -243,7 +243,7 @@ TDOutput = energy + laser + total_current + n_excited_el #multipoles
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
 OutputInterval = 10
-RestartWriteInterval = 2000
+RestartWriteInterval = 500
 TDOutputComputeInterval = 10
 
 # Absorbing boundary
