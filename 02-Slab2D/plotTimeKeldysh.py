@@ -175,8 +175,8 @@ print Header+"** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI 
 EfieldAB_X_AU = Efield_X_AU + Efield2_X_AU
 EfieldAB_Y_AU = Efield_Y_AU + Efield2_Y_AU
 EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) 
-EfieldAB_amplitude_SI = np.max(abs(Field_AU_to_SI(EfieldAB_amplitude_AU)))
-print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_SI / 1E9)+" V/nm."
+EfieldAB_amplitude_SI = abs(Field_AU_to_SI(EfieldAB_amplitude_AU))
+print Header+"** Info: Electric field 1+2: amplitude = "+str(np.max(EfieldAB_amplitude_SI) / 1E9)+" V/nm."
  
 ### Importing input from octopus 
 print Header+"== Getting input from octopus... =="
@@ -601,7 +601,7 @@ if(PlottingMode=="nonthermalmelting"):
 #  ymax2=5E0; #max for field plot
   PlotGrid=0
 elif(PlottingMode=="doublepulse"):
-  xmin=0.; xmax=60.; unitx=1E15
+  xmin=0.; unitx=1E15; xmx
 #  ymin=1E16; ymax=4.*5E28; 
 #  ymax2=5E0;
   PlotGrid=1 
@@ -793,7 +793,7 @@ TotalEnergyPoynting_AU      = np.multiply(np.cumsum(TotalEnergy_diff),  dtCurren
 ## if we dont integrate in time
 TotalEnergyPoynting         = Energy_Hartree_to_eV(TotalEnergyPoynting_AU)
 # print Header+"Checking sizes: "+str(timeCurrent.size)+" "+str(IntraBandEnergy.size)
-InterBandEnergy      = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
+InterBandEnergy             = Egap_SI/e * observable_proj * SuperCellVolume_SI #SI, eV
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
 
 def FitDrudeModel(n_exc, nu):
@@ -838,7 +838,12 @@ print np.divide(1.,FitDrudeModel_parameters[0])
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
 # FITTING MANUALLY
-# nu_t = np.power(np.multiply([0.5, 1, 5, 10, 20], 1e-15), -1)
+nu_t_opt = 6
+# nu_t = np.power(np.multiply(np.add([0, 0.5, 1, 5, 10, 20],nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0, 1, 2, 3, 4, 5], nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0, 0.2, 0.4, 0.6, 0.8, 1], nu_t_opt), 1e-15), -1)
+# nu_t = np.power(np.multiply(np.add([0.0, 0.05, 0.1, 0.15, 0.2], nu_t_opt), 1e-15), -1)
+# AUTOMATIC PLOTTING FOR THE PAPER
 nu_t = np.power(np.multiply([Figs_CollTime[FigureName]], 1e-15),-1)
 
 if(len(nu_t)==1): 

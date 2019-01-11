@@ -20,9 +20,23 @@ backup_StH_fixed() {
  tar -cvf $filename --exclude='*.obf' $( list_folders | grep 'StH' )
 }
 
-backup_eps() {
+backup_eps_StH() {
  DATE=`date +%Y-%m-%d`
  echo "== Saving the EPS files" 
  filename=$DATE-StH-AllEPS.tar
  tar -cvf $filename $( find . -name "*.eps" | grep 'StH' | grep 'eps' )
+}
+
+backup_eps_SinSquared() {
+ DATE=`date +%Y-%m-%d`
+ echo "== Saving the EPS files for SinSquared runs"
+ filename=$DATE-SinSquared-AllEPS.tar 
+ tar -cvf $filename $( find . -name "*.eps" | grep 'SinSquared' )
+}
+
+backup_SinSquared() {
+  DATE=`date +%Y-%m-%d`
+  echo "== Saving the SinSquared pulses."
+  filename=$DATE-SinSquared-Pulses.tar
+  tar -cvf $filename --exclude='*.obf' $( list_folders | grep 'SinSquared' -i )
 }
