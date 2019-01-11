@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+#-*- coding: utf-8 -*-
+
+# Copyright (C) 2018 T.J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+## @package MachineLearning
+# This package tries to make use of artificial intelligence to predict the properties of bicolor interaction for many parameters as a function of the intput parameters. We will train an AI with the several thousands theoretical data we have to make the magic happen. 
+# https://scikit-learn.org/stable/tutorial/statistical_inference/settings.html
+
+#from sklearn import datasets
+#iris = datasets.load_iris()
+#data = iris.data
+#print(data.shape)
+
+from sklearn import linear_model
+import numpy as np
+
+dataset_full = np.loadtxt("Database-LDA.csv")
+dataset_in = dataset_full[:,[1,2,3,4,5,6,7,8]] 
+dataset_out = dataset_full[:,15] #NeMax
+
+print("=== Shapes ===")
+print(np.shape(dataset_in))
+print(np.shape(dataset_out))
+
+print("==== Learning ===")
+reg = linear_model.Lasso(alpha=1E-10)
+reg.fit(dataset_in,dataset_out)
+
+print("=== Prediction ===")
+lambda1=800e-9
+tau1=30e-15
+Efield1=0E0
+CEP1=0E0
+lambda2=400e-9
+tau2=30e-15
+Efield2=0E0
+CEP2=0E0
+#print(np.shape(dataset_in))
+print(reg.predict([[lambda1, tau1, Efield1, CEP1, lambda2, tau2, Efield2, CEP2]]))
+#exit()
+#print(reg.coef_)
+##print(reg.intercept_)
+
