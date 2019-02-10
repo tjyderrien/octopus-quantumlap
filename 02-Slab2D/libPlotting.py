@@ -282,7 +282,20 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     else:
       FreezeHXC = 0
       print Header+"Info: TDFreezeHXC not found."
-      
+    
+    # Captures if MoveIon was enabled. 
+    MoveIon = 0
+    try: 
+      MoveIonString = LookUpStringInFile(filename, "MoveIons")
+      print Header+"Info: MoveIon_string: "+str(MoveIonString)
+    except:
+      print Header+"Info: MoveIon was not found in the input file."
+    if("yes" in MoveIonString):
+      MoveIon=1
+    else:
+      MoveIon=0
+      print Header+"Info: MoveIon was not found in the input file."
+    
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
 	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
@@ -428,7 +441,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(Efield_amplitude_SI), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_amplitude_SI), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), 
+	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), float(MoveIon),
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
 	      float(TotalCurrent_SI_final), float(FinalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1]) ]
 
@@ -493,23 +506,24 @@ def ExtractData(PlottingTable): #{{{
   FieldInduced       =   PlottingTable[:,12]
   Functional         =   PlottingTable[:,13]
   FreezeHXC          =   PlottingTable[:,14]
-  Ne_max             =   PlottingTable[:,15]
-  Ne_final           =   PlottingTable[:,16]
-  irreversibility    =   PlottingTable[:,17]
-  TotalCurrent_final =   PlottingTable[:,18]
-  Energy_max         =   PlottingTable[:,19]
-  Wpi                =   PlottingTable[:,20]
-  PulseType          =   PlottingTable[:,21]
-  RiseTime           =   PlottingTable[:,22]
-  FinalTime          =   PlottingTable[:,23]
+  MoveIon            =   PlottingTable[:,15]
+  Ne_max             =   PlottingTable[:,16]
+  Ne_final           =   PlottingTable[:,17]
+  irreversibility    =   PlottingTable[:,18]
+  TotalCurrent_final =   PlottingTable[:,19]
+  Energy_max         =   PlottingTable[:,20]
+  Wpi                =   PlottingTable[:,21]
+  PulseType          =   PlottingTable[:,22]
+  RiseTime           =   PlottingTable[:,23]
+  FinalTime          =   PlottingTable[:,24]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -523,6 +537,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   TheoryLevel_uniq       = list(set(TheoryLevel))
   Functional_uniq        = list(set(Functional))
   FreezeHXC_uniq         = list(set(FreezeHXC))
+  MoveIon_uniq           = list(set(MoveIon))
   CrossPolarization_uniq = list(set(CrossPolarization))
   CEP1_uniq              = list(set(CEP1))
   CEP2_uniq              = list(set(CEP2))
@@ -548,6 +563,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "** Induced Fields          = "+str(len(FieldInduced_uniq))
   print "** Functionals             = "+str(len(Functional_uniq))
   print "** FreezeHXC               = "+str(len(FreezeHXC_uniq))
+  print "** MoveIon                 = "+str(len(MoveIon_uniq))
   
   print "=== COUPLING EFFECTS ==="
   print "** Delays             size = "+str(len(Delay_uniq))
@@ -561,7 +577,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'Ne_max': 15, 'Ne_final': 16, 'irreversibility': 17, 'Current_final': 18, 'Energy_max': 19, 'Wpi': 20, 'PulseType': 21, 'RiseTime':22}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'MoveIon': 15, 'Ne_max': 16, 'Ne_final': 17, 'irreversibility': 18, 'Current_final': 19, 'Energy_max': 20, 'Wpi': 21, 'PulseType': 22, 'RiseTime': 23}
 
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0
