@@ -83,9 +83,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,24))
+    Database = np.empty((0,25))
 
-  PlottingTable = np.empty((0,24)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,25)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
