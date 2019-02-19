@@ -596,16 +596,34 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
-    
-    ThreePhotonIntensityRegime_min = 0e0
-    ThreePhotonIntensityRegime_max = 0e0 #W/m2
-    
-    TwoPhotonIntensityRegime_min = 0e0
-    TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
-    
-    OnePhotonIntensityRegime_min = 1e12
-    OnePhotonIntensityRegime_max = 1.3e15 #W/m2
-    
+    if(pulseWavelength==800e-9): 
+        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_max = 0e0 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 0e0
+        TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+        
+        OnePhotonIntensityRegime_min = 1e12
+        OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+    elif(pulseWavelength==1600e-9): 
+        ThreePhotonIntensityRegime_min = 5.3E13
+        ThreePhotonIntensityRegime_max = 1.3E15 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 5.4E15
+        TwoPhotonIntensityRegime_max = 1.3E17 #W/m2
+        
+        OnePhotonIntensityRegime_min = 0E0
+        OnePhotonIntensityRegime_max = 1.3E17 #W/m2
+    else: 
+        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_max = 0e0 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 0e0
+        TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+        
+        OnePhotonIntensityRegime_min = 1e12
+        OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+        
     omega = 2.*np.pi*c/wavelengths1[0]
     NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
     print NumberOfPhotons
@@ -698,8 +716,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       plot2 += [plot21]
   #}}}
   
-  for meff_Keldysh in [meff_Waroquiers_LDA]:
-    PeakWpi_Gruzdev     = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order)
+  if(pulseWavelength==800e-9): 
+    EffectiveMassList=[0.025, 0.05] #, meff_Waroquiers_LDA]
+  elif(pulseWavelength==1600e-9):
+    EffectiveMassList=[meff_Waroquiers_LDA]
+  else: 
+    EffectiveMassList=[0.01, 0.025, 0.05, 0.1, meff_Waroquiers_LDA]
+  for meff_Keldysh in EffectiveMassList:
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order)
     gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1)
     #ax2x2 = ax2.twiny()
     # We need to plot values of intensities for which gamma=0.1, 1, 3, 5, 10.
@@ -711,21 +735,32 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     plot22, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gruzdev, '--', label=r'$w_{\mathrm{PI}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot22]
     
+  Egap_SI_Tunnel = 0.51*e; #Egap_SI #direct band gap for LDA. Indirect requires phonons!
   
-  Egap_SI_Tunnel = Egap_SI #direct band gap for LDA. Indirect requires phonons!
+  if(pulseWavelength  == 800e-9): 
+    EffectiveMassList=[1.0] #, meff_Waroquiers_LDA]
+    EnableStarkEffect=True
+  elif(pulseWavelength==1600e-9):
+    EffectiveMassList=[meff_Waroquiers_LDA]
+  else: 
+    EffectiveMassList=[meff_Waroquiers_LDA]
   
-  for meff_Tunnel in [0.1, meff_Waroquiers_LDA, 0.5, 1.0]: #meff_Waroquiers_LDA, meff_VeryHighField]: 
+  for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
-    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E36,1E46)
-    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, label=r'$w_{\mathrm{TI}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E36,1E46)
+    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, label=r'$w_{\mathrm{TI}}^{d}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    plot2    += [plot23]
+    
+    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E36,1E46)
+    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
   #}}}
   
   # Interpolation of a joint law of photoionization
-  PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
+  #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
-  plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
-  plot2    += [plot23]
+  #plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
+  #plot2    += [plot23]
   
   labels2 = [l.get_label() for l in plot2]
   ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1)
@@ -1900,7 +1935,6 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   WpiMax2Dsorted     = WpiMax2D[np.lexsort((WpiMax2D[:,2], WpiMax2D[:,1], WpiMax2D[:,0]))]
   
   del TotalField2D, DensityMax2D, CurrentMax2D, EnergyMax2D, WpiMax2D
-
   
   ## Lazy to build up a new function for that for now.
   if(WhatToPlot == BicolorE1E2plotDictionnary['Nexc']): 
@@ -1922,9 +1956,9 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       QuantityTitle=r"$\xi_{end}$ (eV), $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
       ExportToTxt(EnergyMax2Dsorted, filename+".csv")
   elif(WhatToPlot == BicolorE1E2plotDictionnary['Wpi']): 
-      DensityMax2Dsorted = WpiMax2Dsorted
+      DensityMax2Dsorted = np.log10(WpiMax2Dsorted)
       filename = filename_wpi
-      QuantityTitle=r'$w_{PI}$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+      QuantityTitle=r'$\log_{10}(w_{PI})$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
       ExportToTxt(WpiMax2Dsorted, filename+".csv")
   else: 
       print Header+"** plot_Zhukov_BicolorMaps: wrong request!"
@@ -1938,6 +1972,9 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename)
   
   del DensityMax2Dsorted
+  
+  print "=== CONSTRUCTING the Zhukov maps from the bicolor Keldysh he provided."
+  
 #}}}
 
 ##### 2D PLOTTING Density(wavelength1, wavelength2) for one single field value? 
@@ -2279,6 +2316,12 @@ def plot_Zhukov_BicolorMaps():
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  2)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  3)
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  4)
+        
+        ## Generate the tables from Zhukov files and plot them
+        #VZ_generateWpiTables(
+        #plot_VZ_Bicolor()
+        
+        
         
         ## Commensurable
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
