@@ -1,6 +1,21 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
+# Copyright (C) 2013-2018 T. J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 ## @package libPulseGenerator
 # This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for octopus. 
 # A routine provides the pulse envelope in an octopus:td_from_file-compatible format. 
@@ -66,10 +81,12 @@ def PlotPulse(t, Pulse, FigName, Title): #{{
   #plt.plot(t, Pulse2, label='Pulse 2')
   #plt.title(Title)
   plt.legend(loc=2)
+  plt.tight_layout()
   plt.savefig(str(FigName)+'.eps')
   #plt.show()
 #}}
 
+## Print unrolled parameter list from a Parameter Table. 
 def printCurrentParameters(ParameterTable): #{{
   duration1, amplitude1, wavelength1, phase1, polarization1, delay1 = ParameterTable[0, :]
   duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ParameterTable[1, :]
@@ -87,7 +104,7 @@ def printCurrentParameters(ParameterTable): #{{
   
 #}}
 
-## Extract from a 2x6 data array the parameters of two laser pulses
+## Extracts from a 2x6 data array the parameters of two laser pulses
 def ExtractParameters(ParameterTable):#{{
   duration1, amplitude1, wavelength1, phase1, polarization1, delay1 = ParameterTable[0, :]
   duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ParameterTable[1, :]
