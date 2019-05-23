@@ -1,5 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #-*- coding: utf-8 -*-
+
+# Copyright (C) 2013-2018 T. J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from libPulseGenerator import *
 
@@ -101,13 +116,13 @@ def PrepareBiColorFields0D():
 # X is sequentially: 
 # - wavelength2
 # - amplitude2
-def PrepareBiColorFields0D_Batch():
+def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   #===========================================================================================
   print "Prepares E(t, wavelength2) figure for given 2-color fields amplitudes, phases, delay"
   #===========================================================================================
 
-  wavelength1 = 800e-9
-  duration1 = 30E-15; duration2 = duration1
+  #wavelength1 = 3100e-9
+  duration1 = 50E-15; duration2 = duration1
   phase1 = 0E0; phase2 = 0E0
   amplitude1 = 5E9; amplitude2 = 5E9
   polarization1 = 0E0; polarization2 = polarization1; 
@@ -149,7 +164,7 @@ def PrepareBiColorFields0D_Batch():
   
   LogAmplitude2 = np.linspace(0., 10., 100)
   amplitude2    = np.power(10., LogAmplitude2)
-  wavelength2   = wavelength1 / 2. #1030e-9
+  wavelength2   = wavelength1 * 2. #1030e-9
   
   tt, amplitude22 = np.meshgrid(t, amplitude2)
   
@@ -242,4 +257,10 @@ def PrepareBiColorFields0D_Batch():
 ##}}
 
 # PrepareBiColorFields0D()
-PrepareBiColorFields0D_Batch()
+PrepareBiColorFields0D_Batch(800e-9)
+
+PrepareBiColorFields0D_Batch(3100e-9)
+
+PrepareBiColorFields0D_Batch(1500e-9)
+
+PrepareBiColorFields0D_Batch(400e-9)

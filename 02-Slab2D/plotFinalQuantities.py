@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2018 T. J.-Y. Derrien
+# Copyright (C) 2016-2019 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ from matplotlib.legend_handler import HandlerLine2D
 import matplotlib.cm as cm
 import mpl_toolkits.mplot3d as mplt 
 from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.tri as tri
+
 #from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
@@ -67,7 +67,7 @@ ShowFinalPlot              = 0
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3}
 
 Density=5E28 #specific to Si #TODO: compute automatically? 
-ListOfInterestingGammas = [0.10, 0.2, 2]
+
 #Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 
 # Capture the data
@@ -121,73 +121,6 @@ SizeY = 8.
 
 #pplt.figure(figsize=(SizeX,SizeY))
 
-def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename): #{{{
-  print len(BrutX)
-  print len(BrutY)
-  print len(BrutZ)
-  X=list(set(BrutX))
-  Y=list(BrutY)
-  #Z=DensityMax2Dsorted
-  YY, XX = np.meshgrid(X, Y)
-  # If the size is big enough, let's make a plot.
-  #if(len(DensityMax2D) >= 2): #{{{
-  if(len(BrutZ) >= 2): #{{{
-      try:
-          triang = tri.Triangulation(BrutX, BrutY)
-          triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
-                                  BrutY[triang.triangles].mean(axis=1))
-                          < 0.15)
-          refiner = tri.UniformTriRefiner(triang)
-          tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
-          plt.figure()
-          #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
-          fig = plt.figure()
-          #ax = fig.add_subplot(111, projection='3d')
-          #plt.gca().set_aspect('equal')
-          plt.title(QuantityTitle)
-          plt.xlabel(r'$E_1$ (V/nm)')
-          plt.ylabel(r'$E_2$ (V/nm)')
-          #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
-          #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
-          #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
-          #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
-          #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
-          #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
-          #ax.view_init(90, 90)
-          #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
-          plt.triplot(triang, lw=0.1, color='grey')
-          levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
-          #cmap = cm.get_cmaps(name='terrain', lut=None)
-          cmap = cm.get_cmap(name='Blues', lut=None)
-          plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
-          #plt.tricontour(tri_refi, z_test_refi, levels=levels,
-                  #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
-                  #linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
-          plt.colorbar()
-          plt.tight_layout()
-      except:
-          #CS = -1
-          print Header+"** Warning: failed to produce one of the plots."
-      
-      #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
-      #print np.shape(Xi), np.shape(Yi)
-      #print np.shape(XXi), np.shape(YYi)
-      #print np.shape(BicolorNeFinal)
-      
-      #CS = ax.scatter(XXi, YYi, BicolorNeFinal) #, cmap=plt.cm.Blues) #WORKS
-      
-      #CS = ax.plot_trisurf(Xi, Yi, BicolorNeFinal, cmap=plt.cm.Spectral)
-      
-      #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
-      #plt.colorbar(CS)
-  
-      plt.savefig(filename+'.eps')
-      plt.savefig(filename+'.png')
-      print Header+"** Info: saved "+filename+"eps|png."
-      if(ShowFinalPlot==1):
-        plt.show()
-#}}}
-  
 
 ## Plot Nexc(t, single tau, 1 line per wavelength)
 def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e):
@@ -407,15 +340,18 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 #}}}
 
 ## Plots N_exc(t; 1 plot per tau, single lambda)
-def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0):
+def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0):
   PlotVirtualExcitation = False
   PlotEnergy = True
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. 
   
+  Ntotal=5.0E28 
   meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
   meff = 1.0 #meff_Waroquiers_LDA #0.14 #used to adjust the w_PI model 
   meff_Tunnel = 1.0 #meff_Waroquiers_LDA #fits well if using INDIRECT band gap. 
+  
+  
   print "====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
   #Filter: double pulses, same wavelengths, same polarization
   PlottingSinglePulses = PlottingTable #get the full database
@@ -430,6 +366,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1'])
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseCycles, IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions. 
 
   ## prints the current state of selection
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
@@ -502,6 +439,50 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     def ThreePhotonAbsorption(intensity, sigma_n): 
     #{{{
       n=3; #wavelength=800e-9; tau_FWHM=20e-15; 
+      omega = 2.*np.pi*c/wavelengths1[0]
+      tau_FWHM = pulses1_sorted[0]
+      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelength, tau_FWHM)
+      nexc_mpi = sigma_n * intensity**n / (n*hbar*omega) * tau_FWHM
+      return nexc_mpi
+    #}}}
+    
+    ## 4-photon absorption fitting function
+    def FourPhotonAbsorption(intensity, sigma_n): 
+    #{{{
+      n=4; #wavelength=800e-9; tau_FWHM=20e-15; 
+      omega = 2.*np.pi*c/wavelengths1[0]
+      tau_FWHM = pulses1_sorted[0]
+      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelength, tau_FWHM)
+      nexc_mpi = sigma_n * intensity**n / (n*hbar*omega) * tau_FWHM
+      return nexc_mpi
+    #}}}
+    
+    ## 5-photon absorption fitting function
+    def FivePhotonAbsorption(intensity, sigma_n): 
+    #{{{
+      n=5; #wavelength=800e-9; tau_FWHM=20e-15; 
+      omega = 2.*np.pi*c/wavelengths1[0]
+      tau_FWHM = pulses1_sorted[0]
+      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelength, tau_FWHM)
+      nexc_mpi = sigma_n * intensity**n / (n*hbar*omega) * tau_FWHM
+      return nexc_mpi
+    #}}}
+    
+    ## 6-photon absorption fitting function
+    def SixPhotonAbsorption(intensity, sigma_n): 
+    #{{{
+      n=6; #wavelength=800e-9; tau_FWHM=20e-15; 
+      omega = 2.*np.pi*c/wavelengths1[0]
+      tau_FWHM = pulses1_sorted[0]
+      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelength, tau_FWHM)
+      nexc_mpi = sigma_n * intensity**n / (n*hbar*omega) * tau_FWHM
+      return nexc_mpi
+    #}}}
+    
+    ## 7-photon absorption fitting function
+    def SixPhotonAbsorption(intensity, sigma_n): 
+    #{{{
+      n=7; #wavelength=800e-9; tau_FWHM=20e-15; 
       omega = 2.*np.pi*c/wavelengths1[0]
       tau_FWHM = pulses1_sorted[0]
       #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelength, tau_FWHM)
@@ -592,20 +573,211 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_3PI, '--', label=r'Fit $\sigma_3=$'+str(ThreePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_3PI, '--', label=r'Fit $\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
     
-    ThreePhotonIntensityRegime_min = 0e0
-    ThreePhotonIntensityRegime_max = 0e0 #W/m2
+    def FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > FourPhotonIntensityRegime_min) & (Intensity_sorted_np < FourPhotonIntensityRegime_max)]
+        
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FourPhotonIntensityRegime_min) & (Intensity_sorted_np < FourPhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        FourPhotonAbsorption_params = curve_fit(FourPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FourPhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
+        #print Nexc_2PI
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_4PI, '--', label=r'Fit $\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        del Nexc_4PI, FourPhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
     
-    TwoPhotonIntensityRegime_min = 0e0
-    TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+    def FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > FivePhotonIntensityRegime_min) & (Intensity_sorted_np < FivePhotonIntensityRegime_max)]
+        
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FivePhotonIntensityRegime_min) & (Intensity_sorted_np < FivePhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        FivePhotonAbsorption_params = curve_fit(FivePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FivePhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_5PI = FivePhotonAbsorption(Intensity_sorted_mask, FivePhotonAbsorption_params[0])
+        #print Nexc_2PI
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_5PI, '--', label=r'Fit $\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        del Nexc_5PI, FivePhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
     
-    OnePhotonIntensityRegime_min = 1e12
-    OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+    def FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > SixPhotonIntensityRegime_min) & (Intensity_sorted_np < SixPhotonIntensityRegime_max)]
+        
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SixPhotonIntensityRegime_min) & (Intensity_sorted_np < SixPhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        SixPhotonAbsorption_params = curve_fit(SixPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SixPhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_6PI = SixPhotonAbsorption(Intensity_sorted_mask, SixPhotonAbsorption_params[0])
+        #print Nexc_2PI
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_6PI, '--', label=r'Fit $\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        del Nexc_6PI, SixPhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
     
+    def FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > SevenPhotonIntensityRegime_min) & (Intensity_sorted_np < SevenPhotonIntensityRegime_max)]
+        
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SevenPhotonIntensityRegime_min) & (Intensity_sorted_np < SevenPhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        SevenPhotonAbsorption_params = curve_fit(SevenPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SevenPhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_7PI = SevenPhotonAbsorption(Intensity_sorted_mask, SevenPhotonAbsorption_params[0])
+        #print Nexc_2PI
+        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_7PI, '--', label=r'Fit $\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        del Nexc_7PI, SevenPhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
+    
+    #NOTE: the photon number does NOT change monotoneously with increasing intensity
+    #TODO: one has to code a fitting method that sweeps intensity, but accepts ANY number of photons on each interval. 
+    #NOTE: Maybe use the computed error to accept or reject each fitting? One can try all numbers of photons on each interval. 
+    
+    if(pulseWavelength==800e-9): 
+        SevenPhotonIntensityRegime_min = 0e0
+        SevenPhotonIntensityRegime_max  = 0E0
+        
+        SixPhotonIntensityRegime_min = 0e0
+        SixPhotonIntensityRegime_max  = 0E0
+        
+        FivePhotonIntensityRegime_min = 0e0
+        FivePhotonIntensityRegime_max  = 0E0
+        
+        FourPhotonIntensityRegime_min = 0e0
+        FourPhotonIntensityRegime_max = 0e0 #W/m2
+        
+        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_max = 0e0 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 0e0
+        TwoPhotonIntensityRegime_max = 1.4e15 #W/m2
+        
+        OnePhotonIntensityRegime_min = 1.4e15
+        OnePhotonIntensityRegime_max = 1.4e17 #W/m2
+        
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
+        
+        
+    elif(pulseWavelength==1600e-9): 
+        
+        SevenPhotonIntensityRegime_min = 0e0
+        SevenPhotonIntensityRegime_max  = 0E0
+        
+        SixPhotonIntensityRegime_min = 0e0
+        SixPhotonIntensityRegime_max  = 0E0
+        
+        FivePhotonIntensityRegime_min = 0e0
+        FivePhotonIntensityRegime_max  = 0E0
+        
+        FourPhotonIntensityRegime_min = 1.1E14
+        FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+        
+        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_max  = 0e0
+        
+        TwoPhotonIntensityRegime_min = 1.4E15
+        TwoPhotonIntensityRegime_max = 3.2E16
+        
+        OnePhotonIntensityRegime_min = 3.2E16
+        OnePhotonIntensityRegime_max = 1.6E17
+        
+        #TwoPhotonIntensityRegime_min = 3.4E15
+        #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
+        
+        #OnePhotonIntensityRegime_min = 4.7E16
+        #OnePhotonIntensityRegime_max = 1.3E17 #W/m2
+        
+        ListOfInterestingGammas = [0.20, 1.0, 5.]
+        
+    elif(pulseWavelength==3200e-9): 
+        
+        SevenPhotonIntensityRegime_min = 0E0 #2.1E14
+        SevenPhotonIntensityRegime_max = 0E0 #1.3E15
+        
+        SixPhotonIntensityRegime_min = 0E0
+        SixPhotonIntensityRegime_max = 0E0
+        
+        FivePhotonIntensityRegime_min = 2.1E14
+        FivePhotonIntensityRegime_max = 1.3E15
+        
+        FourPhotonIntensityRegime_min = 0e0
+        FourPhotonIntensityRegime_max  = 0E0
+        
+        ThreePhotonIntensityRegime_min = 1.6E15
+        ThreePhotonIntensityRegime_max = 3.6E15 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 3.61E15
+        TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+        
+        OnePhotonIntensityRegime_min = 3.41E16
+        OnePhotonIntensityRegime_max = 7.3E16 #W/m2
+        
+        ListOfInterestingGammas = [0.10, 1.0, 5.]
+    else: 
+        SevenPhotonIntensityRegime_min = 0e0
+        SevenPhotonIntensityRegime_max  = 0E0
+        
+        SixPhotonIntensityRegime_min = 0e0
+        SixPhotonIntensityRegime_max  = 0E0
+        
+        FivePhotonIntensityRegime_min = 0e0
+        FivePhotonIntensityRegime_max  = 0E0 
+        
+        FourPhotonIntensityRegime_min = 0e0
+        FourPhotonIntensityRegime_max  = 1.1E14
+        
+        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_max = 0e0 #W/m2
+        
+        TwoPhotonIntensityRegime_min = 0e0
+        TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+        
+        OnePhotonIntensityRegime_min = 1e12
+        OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+        
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
+        
     omega = 2.*np.pi*c/wavelengths1[0]
     NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
     print NumberOfPhotons
@@ -613,36 +785,87 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     print Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(NumberOfPhotons_round)
     
     # Here we attempt to fit the excitation coefficient in the multiphotonic regime. 
-    # Hence, it depends on the number of photons required for overcoming the band gap. 
-    # But actually, tunneling effect only depends on the intensity. Therefore it could look like
+    # Hence, it depends on the number of photons required for overcoming the direct band gap energy. 
+    # NOTE: we employ only ONE band gap energy here, despite there is a full band structure to consider. 
+    # Note that tunneling effect only depends on the intensity. Therefore it could look like
     # 1-photon-absorption. 
+    
     try:
+        #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case. 
         #plotMe = (pulse_value == 20E-15)
-        if(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
-            print Header+"** Info: fitting with 2-photon absortion..."
-            plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
-            plot1 += [plot_field]
-        elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
-            print Header+"** Info: fitting with 1-photon absortion..."
-            plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
-            plot1 += [plot_field]
-        else: 
-            print Header+"** Info: fitting with 3-photon absortion..."    
-            plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
-            plot1 += [plot_field]
+        #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
+        print Header+"** Info: fitting with 7-photon absortion..."
+        plot_field = FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 7, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max)
+        plot1 += [plot_field]
     except: 
-        print Header+"** Fit using N-photon absorption failed. "
+        print Header+"** Fit using 7-photon absorption failed. "
+    
+    try:
+        #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case. 
+        #plotMe = (pulse_value == 20E-15)
+        #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
+        print Header+"** Info: fitting with 6-photon absortion..."
+        plot_field = FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 6, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 6-photon absorption failed. "
+    
+    try:
+        #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case. 
+        #plotMe = (pulse_value == 20E-15)
+        #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
+        print Header+"** Info: fitting with 5-photon absortion..."
+        plot_field = FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 5, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 5-photon absorption failed. "
+        
+    try:
+        #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case. 
+        #plotMe = (pulse_value == 20E-15)
+        #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
+        print Header+"** Info: fitting with 4-photon absortion..."
+        plot_field = FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 4, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 4-photon absorption failed. "
+    try:
+    #elif(NumberOfPhotons_round >= 3 and NumberOfPhotons_round < 4):
+        print Header+"** Info: fitting with 3-photon absortion..."    
+        plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 3-photon absorption failed. "
+    try:
+    #elif(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
+        print Header+"** Info: fitting with 2-photon absortion..."
+        plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 2-photon absorption failed. "
+    try:
+    #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
+        print Header+"** Info: fitting with 1-photon absortion..."
+        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
+        plot1 += [plot_field]
+    except: 
+        print Header+"** Fit using 1-photon absorption failed. "
+        #else: 
+            #print Header+"** Warning: could not fit anything, surely because you are using the 2-band vision! :) "
+            
+    #except: 
+        #print Header+"** Fit using N-photon absorption failed. "
     # NOTE: this is NOT 3-photon absorption regime, this is NON-PERTURBATIVE regime. Transition to tunneling. 
     
     print Header+"** Info: fitting the non-perturbative regime..."
     TunnelingIntensityRegime_min = 2E15 #TwoPhotonIntensityRegime_max #1e12
     TunnelingIntensityRegime_max = 2E17  #1.3e15 #W/m2
-    try:
-        print Header+"** Info: fitting the tunneling rate..."
-        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, TunnelingIntensityRegime_min, TunnelingIntensityRegime_max)
-        plot1 += [plot_field]
-    except: 
-        print Header+"** Fit using tunneling rate failed. "
+    #try:
+        #print Header+"** Info: fitting the tunneling rate..."
+        #plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, TunnelingIntensityRegime_min, TunnelingIntensityRegime_max)
+        #plot1 += [plot_field]
+    #except: 
+        #print Header+"** Fit using tunneling rate failed. "
     #try: 
         #plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
         #plot1 += [plot_field]
@@ -669,7 +892,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #print Header+"Adding the adjusted coefficients to check our fitting law."
   
   ax2 = pplt.subplot(plotB)
-  pplt.title(r'$\lambda = $'+str(round(pulseWavelength*1E9))+' nm')
+  pplt.title(r'$\lambda = $'+str(round(pulseWavelength*1E9))+r' nm, $n=\frac{E_g}{\hbar \omega}=$'+str(round(NumberOfPhotons_round)))
   print Header+"Generating comparison with Keldysh-Gruzdev model..." ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
@@ -694,12 +917,23 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(itertools.izip(*lists))
       
-      plot21, = ax2.loglog(Intensity_sorted, np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+'o-', label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{(tddft)}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+      plot21, = ax2.loglog(Intensity_sorted, np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+'^', label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{(tddft)}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       plot2 += [plot21]
   #}}}
   
-  for meff_Keldysh in [meff_Waroquiers_LDA]:
-    PeakWpi_Gruzdev     = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order)
+  if(pulseWavelength==800e-9): 
+    EffectiveMassList=[0.05]
+    #EffectiveMassList=[meff_Waroquiers_LDA, 1.] #, meff_Waroquiers_LDA]
+  elif(pulseWavelength==1600e-9):
+    EffectiveMassList=[meff_Waroquiers_LDA]
+  elif(pulseWavelength==3200e-9):
+    EffectiveMassList=[0.025] #, meff_Waroquiers_LDA]
+  else: 
+    EffectiveMassList=[0.01, 0.025, 0.05, 0.1, meff_Waroquiers_LDA]
+  for meff_Keldysh in EffectiveMassList: #{{{
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order)
+    
+    #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh, order, 1.)
     gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1)
     #ax2x2 = ax2.twiny()
     # We need to plot values of intensities for which gamma=0.1, 1, 3, 5, 10.
@@ -707,25 +941,56 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #omega = 2.*np.pi * c / wavelength
         #Ipeak = meff*m_e*Egap_SI*omega**2*c*epsilon_0 / (2. * e**2 * gamma ** 2)
         #return Ipeak
+        
+    ## GRUZDEV    
     ## NOTE: Gruzdev treak consists in plotting (external_field, w_pi[internal_field]).      
-    plot22, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gruzdev, '--', label=r'$w_{\mathrm{PI}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot22, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot22]
+  #}}}  
+  ## ZHUKOV
+  PathPrefix="/home/hilase/Documents/spp-extended-theory/Keldysh/"
+  PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix)
+  try: 
+      plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Zhukov, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.')
+      plot2    += [plot23]
+  except: 
+      print Header+"** Warning: no data available from VP Zhukov for this wavelength."
+      
+    ## GULLEY 
+    #plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gulley, '-.', label=r'$w_{\mathrm{PI}}^{\mathrm{Gu.}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    #plot2    += [plot23]
     
+  ## TUNNELING SECTION
   
   Egap_SI_Tunnel = Egap_SI #direct band gap for LDA. Indirect requires phonons!
   
-  for meff_Tunnel in [0.1, meff_Waroquiers_LDA, 0.5, 1.0]: #meff_Waroquiers_LDA, meff_VeryHighField]: 
+  if(pulseWavelength  == 800e-9): 
+    EffectiveMassList=[1.0] #, meff_Waroquiers_LDA]
+    EnableStarkEffect=False
+  elif(pulseWavelength==1600e-9):
+    EffectiveMassList=[meff_Waroquiers_LDA]
+  elif(pulseWavelength==3200e-9):
+    EffectiveMassList=[meff_Waroquiers_LDA, 1.0]
+  else: 
+    EffectiveMassList=[meff_Waroquiers_LDA]
+  
+  for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
-    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E36,1E46)
-    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, label=r'$w_{\mathrm{TI}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,1E46)
+    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, '--', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
+    
+    ## TUNNELING WITH INDIRECT BAND GAP.
+    PeakWpi_Tunneling_i   = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,1E46)
+    #plot24, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling_i, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    #plot2    += [plot24]
   #}}}
   
   # Interpolation of a joint law of photoionization
-  PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
+  #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
-  plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
-  plot2    += [plot23]
+  #plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
+  #plot2    += [plot23]
   
   labels2 = [l.get_label() for l in plot2]
   ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1)
@@ -1271,7 +1536,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 100)
             wavelengths1_Keldysh_show = np.multiply(1E9, wavelengths1_Keldysh)
             PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order)
+            #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order, 1.)
             #PeakWpi_Gruzdev_Indirect = GenerateKeldyshDatabase(Egap_SI_indirect, meff, wavelengths1_Keldysh, Efield1_value, order)
+            
             PeakWpi_Tunneling_Direct = np.clip(KeldyshTunnelingLimit(Egap_SI, meff_Tunnel, wavelengths1_Keldysh, Efield1_value, False), 1E36, 1E46)
             #PeakWpi_Tunneling_Indirect = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, wavelengths1_Keldysh, Efield1_value), 1E36, 1E46)
             #PeakWpi_Gruzdev=
@@ -1289,6 +1556,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             
             plot_field, = ax1.plot(wavelengths1_Keldysh_show, PeakWpi_Gruzdev, '--'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             plot1 += [plot_field]
+            
+            #plot_field, = ax1.plot(wavelengths1_Keldysh_show, PeakWpi_Gulley, '-.'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gulley], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+            #plot1 += [plot_field]
             
             #plot_field, = ax1.plot(wavelengths1_Keldysh_show, PeakWpi_Tunneling_Direct, '.-'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{TI}}^{\mathrm{(d)}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             #plot1 += [plot_field]
@@ -1900,7 +2170,6 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   WpiMax2Dsorted     = WpiMax2D[np.lexsort((WpiMax2D[:,2], WpiMax2D[:,1], WpiMax2D[:,0]))]
   
   del TotalField2D, DensityMax2D, CurrentMax2D, EnergyMax2D, WpiMax2D
-
   
   ## Lazy to build up a new function for that for now.
   if(WhatToPlot == BicolorE1E2plotDictionnary['Nexc']): 
@@ -1922,9 +2191,9 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       QuantityTitle=r"$\xi_{end}$ (eV), $(\lambda_1, \lambda_2) = $("+str(wavelength1*1E9)+", "+str(wavelength2*1E9)+") nm."
       ExportToTxt(EnergyMax2Dsorted, filename+".csv")
   elif(WhatToPlot == BicolorE1E2plotDictionnary['Wpi']): 
-      DensityMax2Dsorted = WpiMax2Dsorted
+      DensityMax2Dsorted = np.log10(WpiMax2Dsorted)
       filename = filename_wpi
-      QuantityTitle=r'$w_{PI}$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
+      QuantityTitle=r'$\log_{10}(w_{PI})$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(wavelength1*1E9)+', '+str(wavelength2*1E9)+') nm'
       ExportToTxt(WpiMax2Dsorted, filename+".csv")
   else: 
       print Header+"** plot_Zhukov_BicolorMaps: wrong request!"
@@ -1935,9 +2204,12 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   BrutY = 1E-9*DensityMax2Dsorted[:,1]
   BrutZ = DensityMax2Dsorted[:,2]
   
-  plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename)
+  plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot)
   
   del DensityMax2Dsorted
+  
+  print "=== CONSTRUCTING the Zhukov maps from the bicolor Keldysh he provided."
+  
 #}}}
 
 ##### 2D PLOTTING Density(wavelength1, wavelength2) for one single field value? 
@@ -2176,9 +2448,9 @@ def plot_Zhukov_SingleColor_LDA():
     
     ## RESONANT ABSORPTION - not published, not understood
     wavelength = 483e-9 #Resonant wavelength results for LDA.
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
     wavelength = 484e-9 #Resonant wavelength results for LDA.
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
     
     ## READY
     wavelength = 800e-9
@@ -2196,14 +2468,15 @@ def plot_Zhukov_SingleColor_LDA():
     ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
     
     ## MID-IR: Preparation of the mid-IR experiment: measuring the cross section absorption in mid-IR
-    #wavelength = 1600e-9
     PulseType = 3 #StH, yes?
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 1600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
+    #wavelength = 1600e-9
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 1600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
     
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 2200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes? 
+    # Some data are available for 2200 nm, but they are very sparse (not priority)
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 2200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes? 
     
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 2600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
-    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 2600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
 
 def plot_Zhukov_SingleColor_TB09():
     Egap_SI = 3.04*e
@@ -2272,31 +2545,50 @@ def plot_Zhukov_BicolorMaps():
         #Bicolor_plotEffectOfCEP(PlottingTable, 1030e-9, tau, 9E9, 515e-9, tau, 9E9, PulseType, RiseCycles)
         #exit()
         
+        # DONE: 800+1600
+        # TODO: 1030+515, 800+400
+        # TODO: 800+1030
+        
         ### These runs are separatly SUB-band gap, but jointly ABOVE band gap. 
-        ## Commensurable
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  0)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  1)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  2)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  3)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1600e-9, tau, PulseType, RiseCycles,  4)
+        ## Commensurable 800+1600
+        wavelength1 = 800e-9; wavelength2 = 1600e-9
+        CEP1=0.; CEP2=0.; Egap=2.56*e; meff=0.2226; 
+        
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  0)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  1)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  2)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  3)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  4)
+        
+        ## Generate the tables from Zhukov files and plot them
+        #VPZ_Wpi2D(wavelength1, wavelength2, 4E9, 2E9)
+        
+        #VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
+        #plot_VZ_Bicolor()
         
         ## Commensurable
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  1)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  2)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  3)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 1030e-9, 515e-9, tau, PulseType, RiseCycles,  4)
+        wavelength1 = 1030e-9; wavelength2 = 515e-9
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  1)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  2)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  3)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  4)
+        #VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
         
+        #VPZ_Wpi2D(wavelength1, wavelength2, 0.8E10, 1E10)
         
-        ## Incommensurable                                                                                  
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  0)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  1)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  2)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  3)
-        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, 800e-9, 1030e-9, tau, PulseType, RiseCycles,  4)
+        ## Incommensurable
+        wavelength1 = 800e-9 
+        wavelength2 = 1030e-9; 
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  0)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  1)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  2)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  3)
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  4)
+        
+        #VPZ_Wpi2D(wavelength1, wavelength2, 0.8E10, 1E10)
         
         # How to plot absorbed energy as function of the CEP2. 
-    
 
 ## Prepare all plots for shift current paper with A. Rubio
 def plot_ShiftCurrents():
@@ -2362,10 +2654,10 @@ def plot_HHG():
 ## Zhukov single color plotting [Phys. Rev. B]
 
 plot_Zhukov_SingleColor_LDA()
-#plot_Zhukov_SingleColor_TB09()
+# plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps() #LDA gap
+# plot_Zhukov_BicolorMaps() #LDA gap
 
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
