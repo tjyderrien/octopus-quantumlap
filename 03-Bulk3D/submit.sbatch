@@ -9,7 +9,7 @@
 # Queue (Partition): #general, mpsd (3 days), express, or short
 #SBATCH --partition=general
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=NumCores
+#SBATCH --nodes=NumNodes
 #SBATCH --ntasks-per-node=32
 #
 # Request 120 GB of main Memory per node in Units of MB:
