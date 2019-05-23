@@ -500,8 +500,8 @@ elif(observable_proj.max() > ValenceBandMax):
 ymax2=5E0; 
 
 ymax11value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
-ymax11valueMax = ymax11value.max()
-ymax12valueMax = CurrentX.max()
+ymax11valueMax = np.max(np.abs(ymax11value))
+ymax12valueMax = np.max(np.abs(CurrentX))
 #if(ymax2valueMax < ymax2 / 100.):
   #ymax2 = ymax2 / 100.
 #elif(ymax2valueMax < ymax2 / 10.):
@@ -513,6 +513,9 @@ ymin_wpi = 1E40
 ymax_wpi = 1E50
 
 
+omega1 = 2.*np.pi*c/wavelength_SI
+omega2 = 2.*np.pi*c/wavelengthB_SI
+
 ### Defining plotting boundaries
 if(PlottingMode=="nonthermalmelting"):
   xmin=0.; xmax=500.; unitx=1E15
@@ -522,12 +525,12 @@ if(PlottingMode=="nonthermalmelting"):
 #  ymax2=5E0; #max for field plot
   PlotGrid=0
 elif(PlottingMode=="doublepulse"):
-  xmin=0.; xmax=60.; unitx=1E15
+  xmin=0.; unitx=1E15; xmax=(2.*np.pi/omega1+PulseDuration_SI+PulseDurationB_SI)*unitx;
 #  ymin=1E16; ymax=4.*5E28; 
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=(2.*np.pi/omega1+PulseDuration_SI*2.)*unitx;
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
