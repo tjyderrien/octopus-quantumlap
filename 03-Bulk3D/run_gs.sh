@@ -22,6 +22,9 @@ kPoints=$5
 InitialTemperature=$6
 TheoryLevel=$7
 Functional=$8
+Mission=$9
+NumNodes=${10}
+
 
 python_calc () {
     python -c "print ($@)"
@@ -148,6 +151,10 @@ SubmitTheJob () {
   cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/
   cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   cp $QuantumLaPsources/03-Bulk3D/${SubmitScript} ${localPath}/
+
+  sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/submit.sbatch
+
 
   if [ ${DryRun} == 0 ]; then
 	  cd ${localPath}

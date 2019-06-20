@@ -25,9 +25,11 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
+NumNodes=1
+Mission="TB09k24gs"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16 24"
+kPoints="24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
@@ -50,7 +52,7 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $OctopusSlabsSources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional}
+      $OctopusSlabsSources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes}
  #    done
     done
  #   done

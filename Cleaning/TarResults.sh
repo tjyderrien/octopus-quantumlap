@@ -20,6 +20,13 @@ backup_StH_fixed() {
  tar -cvf $filename --exclude='*.obf' $( list_folders | grep 'StH' )
 }
 
+backup_eps_STH() {
+ DATE=`date +%Y-%m-%d`
+ echo "== Saving the EPS files" 
+ filename=$DATE-STH-AllEPS.tar
+ tar -cvf $filename $( find . -name "*.eps" | grep 'STH' | grep -v 'StH' | grep 'eps' )
+}
+
 backup_eps_StH() {
  DATE=`date +%Y-%m-%d`
  echo "== Saving the EPS files" 

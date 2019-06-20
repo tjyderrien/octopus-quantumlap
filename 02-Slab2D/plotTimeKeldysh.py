@@ -594,19 +594,19 @@ ymax12valueMax = CurrentX.max()
 
 ### Defining plotting boundaries
 if(PlottingMode=="nonthermalmelting"):
-  xmin=0.; xmax=500.; unitx=1E15
+  xmin=0.; unitx=1E15; xmax=tmax*unitx
 #  ymin=1E16; ymax=5E28; #max for density plot
 #  if(observable_proj.max() > 5E28):
 #    ymax=4.*ymax; 
 #  ymax2=5E0; #max for field plot
   PlotGrid=0
 elif(PlottingMode=="doublepulse"):
-  xmin=0.; unitx=1E15; xmx
+  xmin=0.; unitx=1E15; xmax=tmax*unitx
 #  ymin=1E16; ymax=4.*5E28; 
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx*Figs_Xmax[FigureName] #PulseDuration_SI*unitx*2.;
+  xmin=0.; unitx=1E15; xmax=tmax*unitx #Figs_Xmax[FigureName]
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1

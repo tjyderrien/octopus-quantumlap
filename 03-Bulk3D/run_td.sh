@@ -38,6 +38,7 @@ Functional=${19}
 FreezeXC=${20}
 RiseCycle=${21}
 Mission=${22}
+NumNodes=${23}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -61,7 +62,7 @@ DefineParameters () {
   if [ $MoveIons == 1 ]; then
     export RelaxationTime=$( python_calc "500e-15"  )
   else
-    export RelaxationTime=$( python_calc "60e-15" )
+    export RelaxationTime=$( python_calc "45e-15" )
   fi
 
 # echo "Generating pulses..."
@@ -290,6 +291,7 @@ SubmitTheJob () {
   # Update the Submission script with the mission name
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/submit.sbatch
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
