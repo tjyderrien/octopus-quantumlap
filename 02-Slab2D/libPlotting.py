@@ -616,13 +616,13 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 #}}}
 
 
-## Plots a heat-map color picture
+## Plots a heat-map color picture of randomly meshed data
 # @param X: 2D-matrix
 # @param Y: 2D-matrix
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True): #{{{
+def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False): #{{{
   print len(BrutX)
   print len(BrutY)
   print len(BrutZ)
@@ -636,10 +636,20 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #try:
       triang = tri.Triangulation(BrutX, BrutY)
       triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
-                              BrutY[triang.triangles].mean(axis=1))
+                               BrutY[triang.triangles].mean(axis=1))
                       < 0.15)
+      # We can project the triangular mesh on a orthogonal by performing interpolation as done here. https://matplotlib.org/3.1.0/gallery/images_contours_and_fields/triinterp_demo.html
       refiner = tri.UniformTriRefiner(triang)
       tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
+      
+      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), 100), np.linspace(np.min(BrutY), np.max(BrutY), 100) )
+      #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
+      #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
+      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
+      Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
+      Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
+      
+      ## Plotting the quantity...
       plt.figure()
       #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
       fig = plt.figure()
@@ -687,5 +697,38 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       print Header+"** Info: saved "+filename+"eps|png."
       if(ShowFinalPlot==1):
         plt.show()
+      
+      if(PlotGradient):
+        print Header+"** Info: Plotting the gradient..."
+        print Header+"** Debug: Shape of I1: "+str(np.shape(E1_t))
+        print Header+"** Debug: Shape of I2: "+str(np.shape(E2_t))
+        print Header+"** Debug: Shape of the grad(interpolated field X): "+str(np.shape(Nexc_t_grad[0]))
+        print Header+"** Debug: Shape of the grad(interpolated field Y): "+str(np.shape(Nexc_t_grad[1]))
+        
+        fig2=plt.figure()
+        plt.title(r"$\nabla_{I_1}$"+QuantityTitle)
+        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
+        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
+        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[0], cmap=plt.cm.Blues)
+        plt.triplot(triang, lw=0.1, color='grey')
+        plt.colorbar(CS)
+        plt.tight_layout()
+        plt.savefig(filename+'-GradientE1.eps')
+        plt.savefig(filename+'-GradientE1.png')
+        if(ShowFinalPlot==1):
+            plt.show()
+            
+        fig3=plt.figure()
+        plt.title(r"$\nabla_{I_2}$"+QuantityTitle)
+        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
+        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
+        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[1], cmap=plt.cm.Blues)
+        plt.triplot(triang, lw=0.1, color='grey')
+        plt.colorbar(CS)
+        plt.tight_layout()
+        plt.savefig(filename+'-GradientE2.eps')
+        plt.savefig(filename+'-GradientE2.png')
+        if(ShowFinalPlot==1):
+            plt.show()
 #}}}
   
