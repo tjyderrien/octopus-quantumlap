@@ -25,6 +25,7 @@ import numpy as np
 from numpy import genfromtxt, loadtxt, chararray
 #from scipy import interpolate
 import matplotlib.pyplot as pplt
+import matplotlib.pylab  as pl
 # from pylab import *
 import sys
 import decimal
@@ -118,9 +119,6 @@ GoldNumber = ((1.+np.sqrt(5.))/2.)
 SizeX = 16.
 #SizeY = SizeX / GoldNumber
 SizeY = 8.
-
-#pplt.figure(figsize=(SizeX,SizeY))
-
 
 ## Plot Nexc(RiseTime; single tau, 1 curve per Wavelength)
 def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e):
@@ -1485,7 +1483,8 @@ def plotEffectOfFrozenXC(PlottingTable):
 # This enables to analyze the role of laser wavelength on the final excited electron density, excitation rate and laser-induced energy increase. 
 # Wpi is compared to analytical Keldysh theory. 
 # Energy is compared with analytical Drude model. 
-def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=False):
+def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, ShowDensities=False,
+ PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True):
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
@@ -1498,11 +1497,44 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
   
+  LineWidthCoeff_abs = 0.5 #controls absolute thickness of all curves
+  LineWidthCoeff_rel = 1.0 #controls thickness of Keldysh-Gruzdev curves relatively to TDDFT
+  antialias=True
+  
   #FieldOfInterest = [5e8, 1e9, 2e9, 3E9, 4E9, 5e9, 1e10]
   FieldOfInterest = [5e8, 7.5E8, 1e9, 1.5e9, 2e9, 3e9] #, 4E9, 5e9, 1e10]
-  Colors={5e8: 'c', 7.5e8: 'r', 1e9: 'b', 1.5e9: 'g', 2e9: 'y', 3e9: 'm'} #, 1e10: 'k'}
+  NumberOfColors=len(FieldOfInterest)
+  ColorList=[plt.cm.seismic(i) for i in np.linspace(0, 1, NumberOfColors)] 
+  # Not bad! RdYlBu, coolwarm, seismic
+  # Too soft: Copper, Spectral
+  # Not perfect. RdBu. RdYlGn.
+  # Too dynamic: bwr
+  # To test: , brg, rainbow
+  #Colors={5e8: 'c', 7.5e8: 'r', 1e9: 'b', 1.5e9: 'g', 2e9: 'y', 3e9: 'm'} #, 1e10: 'k'}
+  Colors={5e8:   ColorList[0], 
+          7.5e8: ColorList[1],
+          1e9:   ColorList[2],
+          1.5e9: ColorList[3], 
+          2e9:   ColorList[4], 
+          3e9:   ColorList[5]}
+  
+  LineWidths={5e8:   1.5, 
+              7.5e8: 2, 
+              1e9:   2.5, 
+              1.5e9: 3, 
+              2e9:   3.5, 
+              3e9:   4} #, 1e10: 'k'}
   #EffectiveMass={1e9: meff_LowField, 2e9: meff_LowField, 5e9: meff_HighField, 1e10: meff_VeryHighField}
-  EffectiveMass={5e8: meff_LowField, 7.5e8: meff_LowField, 1e9: meff_LowField, 1.5e9: meff_LowField, 2e9: meff_LowField, 2.5e9: meff_LowField, 3e9: meff_LowField, 4e9: meff_LowField, 5e9: meff_LowField, 1e10: meff_LowField}
+  EffectiveMass={5e8:   meff_LowField, 
+                 7.5e8: meff_LowField, 
+                 1e9:   meff_LowField, 
+                 1.5e9: meff_LowField, 
+                 2e9:   meff_LowField, 
+                 2.5e9: meff_LowField, 
+                 3e9:   meff_LowField, 
+                 4e9:   meff_LowField, 
+                 5e9:   meff_LowField, 
+                 1e10:  meff_LowField}
   # Simple pulse, single color
   
   # TODO: Filtering function
@@ -1525,12 +1557,15 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
   
-  pplt.figure(figsize=(SizeX,SizeY)) #new figure
+  pplt.figure(figsize=(12,6)) #new figure
   plotA=121; plotB=122
   
   ax1 = pplt.subplot(plotA)
+  
+  #ax1.set_prop_cycle('color',Colors)
+  
   plot1 = [] #np.empty((0,0))
-  for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
+  for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart #{{{
     #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
     PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
     PlottingSinglePulses_Efield = FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
@@ -1559,26 +1594,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         wavelengths1_sorted_show = wavelengths1_sorted
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted))
     
-    for Efield1_compare in FieldOfInterest:
-        if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance):
-            print Header+"Building comparison with Keldysh-Gruzdev..."
-            order = 50 
-            wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
-            wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 100)
-            PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order)
-            #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order, 1.)
-            #PeakWpi_Gruzdev_Indirect = GenerateKeldyshDatabase(Egap_SI_indirect, meff, wavelengths1_Keldysh, Efield1_value, order)
-            
-            PeakWpi_Tunneling_Direct = np.clip(KeldyshTunnelingLimit(Egap_SI, meff_Tunnel, wavelengths1_Keldysh, Efield1_value, False), 1E36, 1E46)
-            #PeakWpi_Tunneling_Indirect = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, wavelengths1_Keldysh, Efield1_value), 1E36, 1E46)
-            #PeakWpi_Gruzdev=
-            PeakWpi_Effective = np.power(np.power(PeakWpi_Gruzdev, -1) + np.power(PeakWpi_Tunneling_Direct,-1),-1)
-            
+    for Efield1_compare in FieldOfInterest: #{{{
+        if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
             
         #### PLOTTING
             n0 = 4.*Density
             #if(not EnergyAxis):
-            plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '-'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+            plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+            #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/m$^2$')
             plot1 += [plot_field]
             
             #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, np.multiply(
@@ -1586,18 +1609,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                         #'--.'+Colors[Efield1_compare], label=r'$w_{\mathrm{PI}}\frac{n_0-n_{\mathrm{exc}}{n_0}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             #plot1 += [plot_field]
             
-            # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
-            if(EnergyAxis):
-                wavelengths1_Keldysh_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
-            else:
-                wavelengths1_Keldysh_Show = np.multiply(1E9, wavelengths1_Keldysh)
             
-            # resorting the results to plot as function of energy if necessary
-            lists = sorted(itertools.izip(*[wavelengths1_Keldysh_Show, PeakWpi_Gruzdev]))
-            wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show = list(itertools.izip(*lists)) 
-            
-            plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '--'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-            plot1 += [plot_field]
             
             #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gulley, '-.'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gulley], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             #plot1 += [plot_field]
@@ -1613,6 +1625,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Indirect, '--.'+Colors[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             #plot1 += [plot_field]
             
+            #}}} #end if
             
     #print Efield1_value
     #if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
@@ -1639,11 +1652,49 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--k', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
       #plot1 += [plot_field]
       #break
+    #}}} #end for
     del PlottingSinglePulses_Efield
-  if(EnergyAxis): 
-    ax1.set_xscale('log')
+  #}}} #end for
+  
+  # We separate TDDFT and Keldysh predictions now. 
+  ax2 = pplt.subplot(plotB)
+  
+  for Efield1_compare in FieldOfInterest: #{{{
+    print Header+"Building comparison with Keldysh-Gruzdev..."
+    order = 50 
+    #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
+    wavelengths1_min = 200e-9; wavelengths1_max = 2100e-9
+    wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 500)
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare, order)
+    #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order, 1.)
+    #PeakWpi_Gruzdev_Indirect = GenerateKeldyshDatabase(Egap_SI_indirect, meff, wavelengths1_Keldysh, Efield1_value, order)
+    
+    PeakWpi_Tunneling_Direct = np.clip(KeldyshTunnelingLimit(Egap_SI, meff_Tunnel, wavelengths1_Keldysh, Efield1_compare, False), 1E36, 1E46)
+    #PeakWpi_Tunneling_Indirect = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, wavelengths1_Keldysh, Efield1_value), 1E36, 1E46)
+    #PeakWpi_Gruzdev=
+    PeakWpi_Effective = np.power(np.power(PeakWpi_Gruzdev, -1) + np.power(PeakWpi_Tunneling_Direct,-1),-1)
+    # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
+    if(EnergyAxis):
+        wavelengths1_Keldysh_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
+    else:
+        wavelengths1_Keldysh_Show = np.multiply(1E9, wavelengths1_Keldysh)
+    
+    # resorting the results to plot as function of energy if necessary
+    lists = sorted(itertools.izip(*[wavelengths1_Keldysh_Show, PeakWpi_Gruzdev]))
+    wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show = list(itertools.izip(*lists)) 
+    
+    plot_field, = ax2.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+    
+    #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+    
+    plot1 += [plot_field]
+  #}}} #end for
+    
+  #if(EnergyAxis): 
+    #ax1.set_xscale('log')
   ax1.set_yscale('log')
   ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$/s)')
+  ax2.set_yscale('log')
   
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
@@ -1677,8 +1728,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         for Efield1_compare in FieldOfInterest:
             if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance):
                 #if(not EnergyAxis):
-                plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^'+Colors[Efield1_compare], label=r'$E_{peak}=$'+str(round(Efield1_compare*1E-9))+' V/nm')
-                    
+                plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^', color=Colors[Efield1_compare], label=r'$E_{peak}=$'+str(round(Efield1_compare*1E-9))+' V/nm')
+
+                #plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^', label=r'$E_{peak}=$'+str(round(Efield1_compare*1E-9))+' V/nm')
                 plot1 += [plot_field]
                 #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
                 break
@@ -1713,15 +1765,49 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax1.legend(plot1, labels1, loc='center left', borderaxespad=0., bbox_to_anchor=(1.04, 0.5)) #outside right, middle
   #ax1.legend(loc=3, borderaxespad=0., bbox_to_anchor=(1.05, 0.05))
   if(not EnergyAxis): 
-    pplt.xlabel('Laser wavelength (nm)')
-    pplt.xlim((200.,2100.))
+    ax1.set_xlabel('Laser wavelength (nm)')
+    ax1.set_xlim([200.,2100.])
+    ax2.set_xlabel('Laser wavelength (nm)')
+    ax2.set_xlim([200.,2100.])
   else: 
-    pplt.xlabel('Photon energy (eV)')
-    pplt.xlim((0.5,7.0))
-  #pplt.ylim((1E0,1E45))
+    ax1.set_xlabel('Photon energy (eV)')
+    ax1.set_xlim([0.5,4.0])
+    ax2.set_xlabel('Photon energy (eV)')
+    ax2.set_xlim([0.5,4.0])
+  ax1.set_ylim([1E34,1E42])
+  ax2.set_ylim([1E34,1E42])
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #ax1.grid()
+  
+  ResonantWavelength = h*c/Egap_SI
+  print "** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm."
+  
+  if(not EnergyAxis):
+    ax1.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    
+    ax2.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+  else:
+    ax1.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    
+    ax2.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+  
+  ## Saving this first double figure
+  filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-Keldysh-'+str(int(pulseDuration*1E15))
+  pplt.savefig(filename+'.eps')
+  pplt.savefig(filename+'.png')
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
@@ -1780,7 +1866,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #}}}
   
   ## TODO: TDDFT vs Drude should become another figure. We don't need to have them side by side. 
-  ax2 = plt.subplot(plotB)
+  plt.figure()
+  ax3 = plt.subplot(111)
   #plt.title('Irreversibility factor')
   #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
@@ -1807,17 +1894,18 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     for Efield1_compare in FieldOfInterest: 
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance):
             
-            ax2.plot(wavelengths1_sorted_show, Energy_max_sorted, '-'+Colors[Efield1_compare])
+            ax3.plot(wavelengths1_sorted_show, Energy_max_sorted, '-', color=Colors[Efield1_compare])
+            #ax3.plot(wavelengths1_sorted_show, Energy_max_sorted, '-')
             
     del PlottingSinglePulses_Efield
     
   #pplt.xlabel(r'Intensity (W/m$^2$)')
   if(not EnergyAxis):
-    pplt.xlabel('Laser wavelength (nm)')
+    ax3.set_xlabel('Laser wavelength (nm)')
   else: 
-    pplt.xlabel('Photon energy (eV)')
+    ax3.set_xlabel('Photon energy (eV)')
   #pplt.ylabel('Irreversibility factor')
-  pplt.ylabel('Energy (eV)')
+  ax3.set_ylabel('Electron energy (eV)')
   #pplt.ylim((0,1))
   #ax2.set_xscale('log')
   
@@ -1896,7 +1984,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             if(abs(Efield1_value - Efield1_compare) / Efield1_value < FieldTolerance):
                 EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield1_compare])
                                 
-                ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--'+Colors[Efield1_compare], label='Free carrier absorption')
+                ax3.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
+                #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
             
         ##if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
             ##print Header+"Found field 0.1 V/nm"
@@ -1932,8 +2021,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #ax22 = ax2.twinx()
   #pplt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
-  ax2.set_xscale("log")
-  ax2.set_yscale("symlog", linthreshy=1e-9)
+  ax3.set_xscale("log")
+  ax3.set_yscale("symlog", linthreshy=1e-9)
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
   if(not EnergyAxis): 
@@ -1942,35 +2031,25 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     pplt.xlim((0.5,7.))
   
   
-  ResonantWavelength = h*c/Egap_SI
+  #ResonantWavelength = h*c/Egap_SI
   print "** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm."
   
   if(not EnergyAxis):
-    ax1.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    
-    ax2.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
   else:
-    ax1.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    
-    ax2.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   #ax2.legend(loc=2, borderaxespad=0.)
   #ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   #ax22.legend(loc=1, borderaxespad=0.)
 
   # Saving the plot
-  filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-'+str(int(pulseDuration*1E15))
+  filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-Drude-'+str(int(pulseDuration*1E15))
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   if(ShowFinalPlot==1):
@@ -2608,7 +2687,7 @@ def plot_Zhukov_SingleColor_LDA():
     ## CHECKING DRUDE MODEL VALIDITY (results as function of wavelength)
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
-    plotEffectOfWavelength_Tolerance(PlottingTable, 0.01, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
+    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
     #plotEffectOfWavelength_Tolerance(PlottingTable, 0.05, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect) #ALMOST NO DATA for this one
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
