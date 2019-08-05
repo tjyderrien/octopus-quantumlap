@@ -1,0 +1,68 @@
+CalculationMode = td
+
+PeriodicDimensions = 3
+
+a = 3.147
+
+Spacing = a/16
+
+BoxShape = parallelepiped
+
+Lsize = a/2
+
+%Coordinates
+ 'Mo' | 0.0 | 0.0 | 0.0
+ 'Mo' | a/2 | a/2 | a/2
+%
+
+%KPointsGrid
+  8  | 8 | 8
+%
+
+PseudopotentialSet = pseudodojo_lda
+
+SmearingFunction = fermi_dirac
+Smearing = 0.1*eV
+
+ExtraStates = 8
+
+ExperimentalFeatures = yes
+
+FromScratch = yes
+
+## Extracted from example of delayed kick from NTD testsuite for periodic solids.
+ParStates = auto
+ParDomains = yes
+ParKPoints = auto
+# CurrentDensity = gradient_corrected
+
+Iau  = (sqrt(1E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
+omega = 0.5
+Tpulse = 210
+
+# %TDExternalFields
+#   vector_potential | 1.0 | 0.0 | 0.0 | omega | "envelope_sin2"
+# %
+
+# %TDFunctions
+#  "envelope_sin2" | tdf_from_expr | "-Iau/omega*c*sin(pi*t/Tpulse)^2*(1-step(t-Tpulse))"
+# %
+
+%GaugeVectorField
+   1 | 0 | 0
+%
+
+GaugeFieldDelay =  10
+
+TDMaxSteps = 150
+
+TDTimeStep = 0.25 / 10. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+# TDPropagationTime = ComputingTime
+TDPropagator = aetrs #it was aetrs
+# TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+
+
+
+TDOutput = energy + geometry + total_current + gauge_field

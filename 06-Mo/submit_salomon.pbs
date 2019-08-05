@@ -1,0 +1,54 @@
+#!/bin/bash
+#PBS -q qprod
+#PBS -N octopus-Mo
+#PBS -m ae -M derrien@fzu.cz
+#PBS -e Morille.err
+#PBS -o Morille.log
+#PBS -A OPEN-16-27
+#PBS -l select=1:ncpus=24:mpiprocs=24:ompthreads=1
+#PBS -l walltime=0:10:00
+
+cd $PBS_O_WORKDIR
+
+module purge
+module load icc/2017.7.259-GCC-6.3.0-2.27
+module load ifort/2017.7.259-GCC-6.3.0-2.27
+module load impi/2017.4.239-iccifort-2017.7.259-GCC-6.3.0-2.27
+module load imkl/2017.4.239-iimpi-2017c
+module load libxc/4.2.3-intel-2017a
+module load GSL/2.5-intel-2017a
+module load FFTW/3.3.6-intel-2017a
+module load HDF5/1.10.2-intel-2017a
+module load netCDF/4.4.1.1-intel-2017a
+
+# LD_LIBRARY_PATH=/scratch/tjyderriien/nfft/3.2.4/lib:$LD_LIBRARY_PATH
+
+# module load octopus/5.0.0
+
+## to save memory at high core counts, the "connectionless user datagram protocol" 
+## can be enabled (might come at the expense of speed)
+## see https://software.intel.com/en-us/articles/dapl-ud-support-in-intel-mpi-library
+# export I_MPI_DAPL_UD=1
+
+export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes an MPI problem with Draco.
+
+##gather MPI statistics to be analyzed with itac's mps tool
+# export I_MPI_STATS=all
+
+##gather MPI debug information (high verbosity)
+# export I_MPI_DEBUG=5
+
+# mpiexec -n $NSLOTS octopus_mpi
+# ./start.sh
+# RunningTrunc=/scratch/tjyderri/octopus-svn-15067/src/main
+
+# JUST TO EXECUTE ONE RUN
+RunningTrunc=/home/tjyderrien/octopus.git/bin
+
+# srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
+# srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
+# sleep 5
+# sed -i.bak 's/FromScratch/#FromScracth/g' inp #Avoid to kill the data while restarting the job
+# ~                                                           
+
+mpirun -np 24 $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
