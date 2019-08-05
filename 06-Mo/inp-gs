@@ -24,10 +24,11 @@ PseudopotentialSet = pseudodojo_lda
 SmearingFunction = fermi_dirac
 Smearing = 0.1*eV
 
-Output = geometry
+Output = geometry + dos
 OutputFormat = xyz
 
-ExtraStates = 2
+ExtraStates = 8
+ConvRelDens = 1e-9 
 
 ExperimentalFeatures = yes
 
