@@ -2,32 +2,51 @@ CalculationMode = gs
 
 PeriodicDimensions = 3
 
-a = 3.147
+a = 3.147 #Angstroms. Given by ASE (parallelepipedic)
+# a = 5.9469681168157855 #Bohr 
+
+# a = 2.743 Angstr. #DOI: 10.17188/1189253
+# a = 5.183518762130822 #Bohr
 
 Spacing = a/16
 
 BoxShape = parallelepiped
 
-Lsize = a/2
+# Lsize = a/2
 
-%Coordinates
+ParDomains = yes
+
+KPointsUseSymmetries = yes
+
+%ReducedCoordinates
  'Mo' | 0.0 | 0.0 | 0.0
- 'Mo' | a/2 | a/2 | a/2
 %
+
+%LatticeParameters
+  a | a | a
+%
+
+%LatticeVectors
+  1.0 | 0.0 | 0.0
+  0.0 | 1.0 | 0.0
+  0.0 | 0.0 | 1.0
+%
+
 
 %KPointsGrid
   8|8|8
 %
 
-PseudopotentialSet = pseudodojo_lda
+PseudopotentialSet = pseudodojo_pbe
+XCFunctional = GGA_X_PBE + GGA_C_PBE
 
 SmearingFunction = fermi_dirac
-Smearing = 0.1*eV
+Smearing = 300./11600.*eV #300 K
 
 Output = geometry + dos
 OutputFormat = xyz
 
-ExtraStates = 8
+ExtraStates = 2
 ConvRelDens = 1e-9 
 
 ExperimentalFeatures = yes
