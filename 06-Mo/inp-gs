@@ -2,32 +2,53 @@ CalculationMode = gs
 
 PeriodicDimensions = 3
 
-a = 3.147
+## INPUT WITH CUBIC CELL
+# a = 3.147 #Angstroms. Given by ASE (parallelepipedic) #but the octopus input is in Bohr, right?
+a = 5.9469681168157855 #Bohr, size of the cubic cell
+angle = 90. #degrees, indeed
 
-Spacing = a/16
+## INPUT WITH PRIMITIVE CELL
+# a = 2.743 #Angstroms
+# a = 5.183518762130823 #Bohr
+# angle = 109.471 #*pi/180. #deg
+
+# a = 2.743 Angstr. #DOI: 10.17188/1189253
+# a = 5.183518762130822 #Bohr
+
+Spacing = a/32
 
 BoxShape = parallelepiped
 
-Lsize = a/2
+# Lsize = a/2
 
-%Coordinates
+ParDomains = yes
+
+KPointsUseSymmetries = yes
+
+%Coordinates #coordinates are between -0.5 and 0.5
  'Mo' | 0.0 | 0.0 | 0.0
  'Mo' | a/2 | a/2 | a/2
 %
 
-%KPointsGrid
-  8|8|8
+%LatticeParameters
+  a | a | a
+  angle | angle | angle
 %
 
-PseudopotentialSet = pseudodojo_lda
+%KPointsGrid
+  16|16|16
+%
+
+PseudopotentialSet = pseudodojo_pbe
+XCFunctional = GGA_X_PBE + GGA_C_PBE
 
 SmearingFunction = fermi_dirac
-Smearing = 0.1*eV
+Smearing = 300./11600.*eV #300 K
 
 Output = geometry + dos
 OutputFormat = xyz
 
-ExtraStates = 8
+ExtraStates = 2
 ConvRelDens = 1e-9 
 
 ExperimentalFeatures = yes
