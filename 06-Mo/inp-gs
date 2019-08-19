@@ -15,7 +15,7 @@ angle = 90. #degrees, indeed
 # a = 2.743 Angstr. #DOI: 10.17188/1189253
 # a = 5.183518762130822 #Bohr
 
-Spacing = a/32
+Spacing = a/16
 
 BoxShape = parallelepiped
 
@@ -36,11 +36,17 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  16|16|16
+  32 | 32 | 32
 %
-
-PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_lda
+# PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_pbe_stringent
+# PseudopotentialSet = pseudodojo_pbesol_stringent
+PseudopotentialSet = sg15
 XCFunctional = GGA_X_PBE + GGA_C_PBE
+# XCFunctional = GGA_X_PBE_R
+# XCFunctional = MGGA_X_PBE_GX
+FilterPotentials = filter_none
 
 SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV #300 K
@@ -48,8 +54,14 @@ Smearing = 300./11600.*eV #300 K
 Output = geometry + dos
 OutputFormat = xyz
 
-ExtraStates = 2
-ConvRelDens = 1e-9 
+DOSEnergyMin = -0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 0.8452344170596571 #23 eV, like Zhigilei
+
+# DOSEnergyPoints = 1000
+DOSGamma = 3E-4 #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
+
+ExtraStates = 4
+ConvRelDens = 1e-8
 
 ExperimentalFeatures = yes
 
