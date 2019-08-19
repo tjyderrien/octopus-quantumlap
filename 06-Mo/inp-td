@@ -19,7 +19,7 @@ Lsize = a/2
   8  | 8 | 8
 %
 
-PseudopotentialSet = pseudodojo_lda
+PseudopotentialSet = pseudodojo_pbe
 
 SmearingFunction = fermi_dirac
 Smearing = 0.1*eV
