@@ -956,9 +956,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #}}}  
   ## ZHUKOV
   PathPrefix="/home/hilase/Documents/spp-extended-theory/Keldysh/"
-  PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix)
+  PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh*np.sqrt(OpticalIndex), 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix)
   try: 
-      plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Zhukov, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.')
+      plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Zhukov, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
       plot2    += [plot23]
   except: 
       print Header+"** Warning: no data available from VP Zhukov for this wavelength."
@@ -1489,9 +1489,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
   #Field dependent fitting of effective mass
-  meff_LowField = 0.14
+  meff_LowField = meff_Waroquiers_LDA #0.14
   meff_HighField = meff_Waroquiers_LDA #0.14: fits for Si in MPI regime at 800 nm.
-  meff_VeryHighField = 0.5
+  meff_VeryHighField = meff_Waroquiers_LDA #0.5
   
   meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap for 800 nm
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
@@ -1516,6 +1516,84 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #EffectiveMass={1e9: meff_LowField, 2e9: meff_LowField, 5e9: meff_HighField, 1e10: meff_VeryHighField}
   EffectiveMass={FieldOfInterest[i]:meff_HighField for i in range(0,NumberOfColors)}
   # Simple pulse, single color
+  
+  def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
+    DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
+    wavelengths_source  = DataArray[:,0]
+    if(np.min(np.diff(wavelengths_source))==0e0): 
+        print Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. " 
+        #print np.diff(wavelengths_source)
+        exit()
+    OpticalN            = DataArray[:,1]
+    OpticalK            = DataArray[:,2]
+    order = 1
+    fni = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalN, k=order)
+    fki = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalK, k=order)
+    OpticalN_new = fni(wavelengths)
+    OpticalK_new = fki(wavelengths)
+    epsilon = np.power(OpticalN_new+np.multiply(1j, OpticalK_new), 2)
+    #epsR = np.real(epsilon); epsC = np.imag(epsilon)
+    return epsilon
+  #}}}
+  
+  def ImportPalikDatabase_epsilon_twofiles_eV(wavelengths, DataFile='Database/Si-TDLDA'): #{{{
+    Header="** ImportPalikDatabase_epsilon_twofiles: "
+    nfile = DataFile+"-epsR.csv" #TODO: rename nfile to ReEpsFile
+    kfile = DataFile+"-epsC.csv" #TODO: rename kfile to ImEpsFile
+    
+    print nfile, kfile
+    
+    print "** Info: opening "+nfile+" and "+kfile+"."
+    narray = loadtxt(nfile, delimiter="\t", skiprows=2)
+    karray = loadtxt(kfile, delimiter="\t", skiprows=2)
+    
+    unit = 1E0 #Unit of the wavelength found in databases <nfile> and <kfile>. 
+    
+    # import wavelength, epsilonR, epsilonC
+    energies1 = narray[:,0]*unit #/!\ its an energy!
+    energies2 = karray[:,0]*unit #/!\ its an energy!
+    n = narray[:,1]
+    kk = karray[:,1]
+    #numrows = 10000 #Number of rows to interpolate the data on. 
+    base = 10
+    # interpolate on new wavelength mesh using 1st order
+    order=1 #linear interpolation
+    #print Header+"** Info: Generating the new wavelength mesh: ("+str(np.amin(energies2))+", "+str(np.amax(energies2))+")"
+    #wavelengths = np.logspace(np.amin(np.log10(energies2)), np.amax(np.log10(energies2)), num=numrows, base=base, endpoint = True)
+    
+    #print Header+"New wavelength mesh has "+str(numrows)+" rows."
+    #print wavelengths
+    
+    print Header+"** Info: definition of interpolation functions..."
+    energy1=np.sort(energies1)
+    energy2=np.sort(energies2)
+    del energies1, energies2 
+    fni = InterpolatedUnivariateSpline(energy1, n, k=order)
+    fki = InterpolatedUnivariateSpline(energy2, kk, k=order)
+    
+    ##Interpolation for one optical constant
+    #try:
+      #ni = fni(wavelength); ki = fki(wavelength)
+      ##print wavelength, ni, ki
+      #epsilon = (ni+1j*ki) #NOTE: we are picking up the epsRe, and epsIm directly here
+      #print "" 
+      #print "Interpolated permittivity at "+str(wavelength*1E9)+" nm = "+str(epsilon)
+    #except: 
+      #print "Interpolation for "+str(wavelength*1E9)+" nm failed."
+	    
+	    
+    # We need to express the required energy mesh into a wavelength
+    energies = hbar*np.divide(2.*np.pi * c, wavelengths) / e #eV
+    
+    ## WARNING: Names are misleading here: we actually work with dielectric permittivities! 
+    # defining the new epsR and epsC on a common mesh
+    ni = fni(energies) #eV
+    ki = fki(energies)
+    epsilons = np.add(ni, np.multiply(1.j, ki)) 
+    return epsilons
+#}}}
+  #}}}
+  
   
   # TODO: Filtering function
   PlottingSinglePulses = PlottingTable #get the full database
@@ -1607,31 +1685,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             
             #}}} #end if
             
-    #print Efield1_value
-    #if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-r', label=r'$\widetilde{w}_{PI}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--r', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break #plot only once
-    #if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-b', label=r'$\widetilde{w}_{PI}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--b', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break
-    #if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-g', label=r'$\widetilde{w}_{PI}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--g', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break
-    #if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-k', label=r'$\widetilde{w}_{PI}$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--k', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #break
     #}}} #end for
     del PlottingSinglePulses_Efield
   #}}} #end for
@@ -1645,7 +1698,18 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
     wavelengths1_min = 200e-9; wavelengths1_max = 2100e-9
     wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 500)
-    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare, order)
+    
+    ### Capturing the dielectric permittivity in experimental or TDLDA database
+    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## TODO: replace by LDA !
+    epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
+    print "Dielectric permittivity of Si at 800 nm [Palik]: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))
+    
+    print "Dielectric permittivity of Si at 800 nm [TDLDA]: "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
+    
+    OpticalIndex = np.real(np.sqrt(epsilon_Si0))
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order)
+    Saturation = (n0 - (PeakWpi_Gruzdev * pulseDuration )) / n0 #saturation term
+    PeakWpi_Gruzdev_sat = PeakWpi_Gruzdev * Saturation
     #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order, 1.)
     #PeakWpi_Gruzdev_Indirect = GenerateKeldyshDatabase(Egap_SI_indirect, meff, wavelengths1_Keldysh, Efield1_value, order)
     
@@ -1715,30 +1779,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                 #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
                 break
         
-        #if(1e8*(1.- FieldTolerance) < Efield1_value < 1e8*(1.+ FieldTolerance)):
-            ##print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
-            #plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^r', label=r'$E_{peak}=$'+str(round(Efield1_value*1E-9))+' V/nm')
-            #plot1 += [plot_field]
-            ##, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-            #break
-        #if(1e9*(1.- FieldTolerance) < Efield1_value < 1e9*(1.+ FieldTolerance)):
-            ##print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
-            #plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^b', label=r'$E_{peak}=$'+str(round(Efield1_value*1E-9))+' V/nm') 
-            #plot1 += [plot_field]
-            ##, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-            #break
-        #if(5e9*(1.- FieldTolerance) < Efield1_value < 5e9*(1.+ FieldTolerance)):
-            ##print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
-            #plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^g', label=r'$E_{peak}=$'+str(round(Efield1_value*1E-9))+' V/nm')
-            #plot1 += [plot_field]
-            ##, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-            #break
-        #if(1e10*(1.- FieldTolerance) < Efield1_value < 1e10*(1.+ FieldTolerance)):
-            ##print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
-            #plot_field, = ax12.plot(wavelengths1_sorted, Ne_final_sorted, '^k', label=r'$E_{peak}=$'+str(round(Efield1_value*1E-9))+' V/nm')
-            #plot1 += [plot_field]
-            ##, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
-            #break
         del PlottingSinglePulses_Efield
   #}}}  
   labels1 = [l.get_label() for l in plot1]
@@ -1792,25 +1832,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
-  def ImportPalikDatabase_epsilon(wavelengths, DataFile="Si-Palik"): #{{{
-      DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
-      wavelengths_source  = DataArray[:,0]
-      if(np.min(np.diff(wavelengths_source))==0e0): 
-          print Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. " 
-          #print np.diff(wavelengths_source)
-          exit()
-      OpticalN            = DataArray[:,1]
-      OpticalK            = DataArray[:,2]
-      order = 1
-      fni = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalN, k=order)
-      fki = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalK, k=order)
-      OpticalN_new = fni(wavelengths)
-      OpticalK_new = fki(wavelengths)
-      epsilon = np.power(OpticalN_new+np.multiply(1j, OpticalK_new), 2)
-      #epsR = np.real(epsilon); epsC = np.imag(epsilon)
-      return epsilon
-  #}}}
-  
+
   ## Computes the free carrier energy contained in the volume <SampleVolume>.  
   def EnergyFromFreeCarrierAbsorption(pulseDuration, wavelengths1_sorted, Efield, Ne_final_sorted, w_PI_sorted, Egap_SI = 2.56*e, meff = 0.2226, SampleVolume=2 * 5E28**-1): #{{{
     # dEnergy/dt = alpha * intensity + ( n har omega - Egap ) x sigma_n I^n
@@ -1821,8 +1843,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
     print "nu: "+str(nu) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
-    epsilon_Si0 = ImportPalikDatabase_epsilon(wavelengths1_sorted) ##TODO: replace by LDA !
-    print "Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon(800e-9))
+    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## TODO: replace by LDA !
+    print "Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
@@ -2399,7 +2421,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
-  def ImportPalikDatabase_epsilon(wavelengths, DataFile="Si-Palik"): #{{{
+  def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
       DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
       wavelengths_source  = DataArray[:,0]
       if(np.min(np.diff(wavelengths_source))==0e0): 
@@ -2428,8 +2450,8 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
     print "nu: "+str(nu) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
-    epsilon_Si0 = ImportPalikDatabase_epsilon(wavelengths1_sorted) ##TODO: replace by LDA !
-    print "Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon(800e-9))
+    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ##TODO: replace by LDA !
+    print "Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
