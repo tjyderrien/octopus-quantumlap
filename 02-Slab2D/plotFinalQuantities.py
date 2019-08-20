@@ -972,12 +972,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   Egap_SI_Tunnel = Egap_SI #direct band gap for LDA. Indirect requires phonons!
   
   if(pulseWavelength  == 800e-9): 
-    EffectiveMassList=[1.0] #, meff_Waroquiers_LDA]
+    EffectiveMassList=[meff_Waroquiers_LDA]
     EnableStarkEffect=False
   elif(pulseWavelength==1600e-9):
     EffectiveMassList=[meff_Waroquiers_LDA]
   elif(pulseWavelength==3200e-9):
-    EffectiveMassList=[meff_Waroquiers_LDA, 1.0]
+    EffectiveMassList=[meff_Waroquiers_LDA]
   else: 
     EffectiveMassList=[meff_Waroquiers_LDA]
   
@@ -2047,7 +2047,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   ShowDensities            =False
   PlotIrreversibility      =False
   PlotFreeCarrierAbsorption=False
-  EnergyAxis               =True
+  EnergyAxis               =False
   
   CutOffWavelength=2.1e-6
   
@@ -2393,7 +2393,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   ## Saving this first double figure
   pplt.tight_layout()
-  filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength_Tol10-Keldysh-'+str(int(pulseDuration*1E15))
+  filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   
@@ -2491,7 +2491,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
             LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
         if(LocalCondition):  #if we have captured the fields we are interested in, we plot  
             #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], color=Colors[Efield2_compare])
-            plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
+            plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
             print(Header+"Plotting energy: Adding one plot...")
             print(wavelengths2_sorted_show)
             print(Energy_max_sorted)
@@ -2590,7 +2590,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
             if(LocalCondition):
                 EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths2_sorted, Efield2_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield2_compare])
                                 
-                plot_field, = ax3.plot(wavelengths2_sorted_show, EnergyAnalytical, '--', color=Colors[Efield2_compare], label=r'$E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
+                plot_field, = ax3.plot(wavelengths2_sorted_show, EnergyAnalytical, '--', color=Colors[Efield2_compare], label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
                 #ax2.plot(wavelengths2_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
                 plot1 += [plot_field]
             
@@ -2659,7 +2659,8 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
 
   # Saving the plot
   pplt.tight_layout()
-  filename = 'Metaplot-DoublePulse-Bicolor-EffectOfWavelength_Tol10-Drude-'+str(int(pulseDuration*1E15))
+  #filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Efield1*1E-9,0))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
+  filename='Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Drude-'+str(int(pulseDuration*1E15))
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   print(Header+"Bicolor_plotEffectOfWavelength_Tolerance: successfully wrote the bicolor Stark analysis.")
@@ -3244,10 +3245,17 @@ def plot_Zhukov_SingleColor_LDA():
     PlotWpiAxis = True
     MoveIon=0
     
-    OpticalIndex={
+    ## These are experimental data from Palik. More correct would be to use linear response computed from TDDFT. 
+    OpticalIndex={ #
         483e-9: 4.4028, 484e-9: 4.3964,
         800e-9: 3.6924167231905, 1600e-9: 3.4826, 
-        2200e-9: 3.4548, 2600e-9: 3.4457}
+        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
+    
+    ## NOTE: DUMMY OpticalIndex account
+    #OpticalIndex={
+        #483e-9: 1., 484e-9: 1.,
+        #800e-9: 1., 1600e-9: 1., 
+        #2200e-9: 1., 2600e-9: 1., 3200e-9: 1. }
     
     #Egap_SI_dressed = {483e-9:, 484e-9: ,
                        #800e-9: 1.55*e, 1600e-9: ,
@@ -3316,21 +3324,23 @@ def plot_Zhukov_SingleColor_LDA():
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
     ## We now control in presence in MoveIons
-    
     try:
-        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  800e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, 1.0, MoveIon)
+        wavelength = 800e-9
+        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     except:
-        print Header+"** Warning: no data were found for 800 nm with MoveIons."
+        print Header+"** Warning: no data could be found, or bug took place for 800 nm."
     try:
-        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 1600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, 1.0, MoveIon)
+        wavelength = 1600e-9
+        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     except:
-        print Header+"** Warning: no data were found for 1600 nm with MoveIons."
+        print Header+"** Warning: no data could be found, or bug took place for 1600 nm."
     try:
-        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, 1.0, MoveIon)
+        wavelength = 3200e-9
+        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     except:
-        print Header+"** Warning: no data were found for 3200 nm with MoveIons."
+        print Header+"** Warning: no data could be found, or bug took place for 3200 nm."
 
-def plot_Zhukov_SingleColor_TB09():
+def plot_Zhukov_SingleColor_TB09(): #{{{
     Egap_SI = 3.04*e
     Egap_SI_indirect = 0.98*e
     PulseType  = 3 #STH: 2, StH: 3
@@ -3385,7 +3395,7 @@ def plot_Zhukov_SingleColor_TB09():
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
     ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
 
-
+#}}}
 
 ## Prepare all plots for bicolor paper with V. Zhukov [1 Phys. Rev. Lett + 1 Phys. Rev. A]
 def plot_Zhukov_BicolorMaps(): #{{{
@@ -3529,11 +3539,11 @@ def plot_HHG():
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
 
-#plot_Zhukov_SingleColor_LDA()
+plot_Zhukov_SingleColor_LDA()
 #plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
-plot_Zhukov_BicolorMaps() #LDA gap
+#plot_Zhukov_BicolorMaps() #LDA gap
 
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
