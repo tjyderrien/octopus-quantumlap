@@ -3262,26 +3262,26 @@ def plot_Zhukov_SingleColor_LDA():
     #plotEffectOfRiseTime(PlottingTable, wavelength, 20e-15, Efield, PulseType, ShowPlot, Egap_SI)
     
     # This is a manually prepared figure. 
-    #plotAdjustedCollisionFrequencies_wavelength()
+
+    # plotAdjustedCollisionFrequencies_wavelength()
     
     ## Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
     RiseCycles = 2
-    #Efield     = 1E9
-    #plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot, Egap_SI)
-    ##plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
-    #Efield     = 5E9 #NOTE: Saturation may prevent to see any difference. 
-    #plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot, Egap_SI)
-    ##plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
-    
+    Efield     = 1E9
+    # plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot, Egap_SI)
+    #plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
+    Efield     = 5E9 #NOTE: Saturation may prevent to see any difference. 
+    # plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot, Egap_SI)
+    #plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
     #NOTE: === LOCAL FILTERING
     #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, IndexTable['pulses1'])
     PlottingTable_filtered = PlottingTable
     
-    ### Effect of intensity figures - not much interesting for "long" pulses
-    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 20e-15, False, 0.0, PulseType, RiseCycles, ShowPlot, Egap_SI)
-    ##plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 10e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
-    ##plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
-    
+
+    ## Effect of intensity figures - not much interesting for "long" pulses
+    # plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 20e-15, False, 0.0, PulseType, RiseCycles, ShowPlot, Egap_SI)
+    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 10e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
+    #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
     ## ABSORPTION PROBABILITY FOR 800 nm - Phys Rev B Derrien et al 2019
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
@@ -3303,12 +3303,12 @@ def plot_Zhukov_SingleColor_LDA():
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
     #plotEffectOfWavelength_Tolerance(PlottingTable, 0.05, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect) #ALMOST NO DATA for this one
+
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
     ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
     
-    ## MID-IR: Preparation of the mid-IR experiment: measuring the cross section absorption in mid-IR
-    PulseType = 3 #StH, yes?
+    ## MID-IR: Preparation of the mid-IR experiment: measuring the cross section absorption in mid-IR 
     #wavelength = 1600e-9
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 1600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
     

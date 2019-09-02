@@ -47,11 +47,15 @@ Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
-FigureName='Fig9c' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
+FigureName='Fig6a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
 
 Figs_Legend={'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
 Figs_Xmax={'Fig2a': 0.5, 'Fig2b': 0.5, 'Fig6a': 0.66, 'Fig6b': 0.5, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
 Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
+OpticalIndex={
+        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964,
+        800e-9: 3.6924167231905, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
+        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
 
 
 ## Plotting: parameters for controlling the canvas
@@ -252,8 +256,8 @@ elif(PulseType == "gaussian"):
   tmax =  4.*PulseDuration_SI + t0
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
-  tmin = -2.*PulseDuration_SI + t0
-  tmax =  2.*PulseDuration_SI + t0
+  tmin = -2.*PulseDuration_SI + t0 #then 0...
+  tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
 else: 
   print Header+"** Error: pulse type was not recognized. "
   print Header+"** Error details: PulseType = "+str(PulseType)
@@ -290,7 +294,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   ## Computing final excited electron density for Pulse 1
   print Header+"Computing Keldysh for Pulse 1: "
   timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order) #NOTE: we have now corrected Keldysh model. It should help.
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print Header+"Computing Keldysh for Pulse 2: "
@@ -313,7 +317,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 #}}}
 elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order)
 else: 
   print Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse."
   exit()
