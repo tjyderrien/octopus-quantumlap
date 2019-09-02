@@ -69,6 +69,8 @@ BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, '
 
 Density=5E28 #specific to Si #TODO: compute automatically? 
 
+xscale = 1E-4 #convert W/m2 to W/cm2. 
+
 #Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 
 # Capture the data
@@ -116,12 +118,13 @@ plotA=211; plotB=212; #plotC=313
 
 # Size of main canvas
 GoldNumber = ((1.+np.sqrt(5.))/2.)
-SizeX = 16.
+SizeX = 12.
 #SizeY = SizeX / GoldNumber
-SizeY = 8.
+SizeY = 6.
+OneSizeFitsAll="small"  #caption size for all legends of physics or rocknroll
 
 ## Plot Nexc(RiseTime; single tau, 1 curve per Wavelength)
-def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e):
+def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e): #{{{
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE RISE TIME, 1 WAVELENGTH, 1 POLARIZATIONS: final density as function of RISETIME ======"
   PlottingSinglePulses = PlottingTable #get the full database
   PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
@@ -226,7 +229,7 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
 #}}}
 
 ## Plots Nexc(intensity; single tau, 1 curve per wavelength) | Wpi(intensity)
-def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0., RestrictWavelength1=False, wavelength_value=800e-9, PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI = 2.56*e):
+def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0., RestrictWavelength1=False, wavelength_value=800e-9, PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI = 2.56*e): #{{{
   PlotVirtualExcitation = False
   print "#====== Plot: SINGLE PULSE, VARIOUS WAVELENGTHS, SAME PULSE DURATION, SAME POLARIZATIONS: final density as function of field ====== "
   #Filter: double pulses, same wavelengths, same polarization
@@ -252,7 +255,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
       plotA=111; plotB=111
   # Simple pulse, single color
   pplt.figure()
-  #if(len(wavelength_uniq) == 1): #{{{ #single color simulations
+  #if(len(wavelength_uniq) == 1): #single color simulations
   # Complexity level: 1
   plot1=[]
   ax1 = pplt.subplot(plotA)
@@ -341,7 +344,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # Nexc(I) is used to extract 1 to 7 photon absorption rates, given in caption. 
 # Wpi is compared to Keldysh analytical solid theory, and numerically integrated Keldysh if available. # Wpi is also compared to tunneling limit case. 
 # ElectronEnergy (intensity) is given. 
-def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0):
+def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
   PlotVirtualExcitation = False
   PlotEnergy = True
   EnableKeldysh = True
@@ -368,6 +371,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseCycles, IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions. 
+  
+  if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
+  if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 11e-15, IndexTable['pulses1'])
+  
+  ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures. 
+  ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs. 
 
   ## prints the current state of selection
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
@@ -386,8 +397,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   
   plot1 = []
-  Symbols={10e-15: 'o', 20e-15: '+', 30e-15: '^'}
-  Colors={10e-15: 'r', 20e-15: 'b', 30e-15: 'g'}
+  Symbols={10e-15: '+', 20e-15: 'o', 30e-15: '^'}
+  Colors={10e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
   for pulse_value in pulses_uniq: #{{{
     # select the corresponding wavelength in results
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
@@ -403,7 +414,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     pulses1_sorted, Efield1_sorted, Intensity_sorted, Ne_final_sorted = list(itertools.izip(*lists))
     #print Header+"Ready to plot: "
     
-    plot_field, = ax1.plot(Intensity_sorted, Ne_final_sorted, Colors[pulse_value]+'^', label=r'$n_{\mathrm{exc}}^{\mathrm{tddft}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{tddft}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
     plot1 += [plot_field]
     
     #==== CURVE FITTING SHOULD COME HERE === as it is for each pulse duration. 
@@ -521,7 +532,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Nexc_2PI = TwoPhotonAbsorption(Intensity_sorted_mask, TwoPhotonAbsorption_params[0])
         #print Nexc_2PI
         if(plotMe):
-            plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_2PI, Colors[pulse_value]+'--', label=r'Fit $\sigma_2=$'+str('%.4g'%TwoPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE add value of sigma_2 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+'--', label=r'$\sigma_2=$'+str('%.4g'%TwoPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE add value of sigma_2 here
         else: 
             plot_field = []
         del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
@@ -548,7 +559,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Nexc_1PI = OnePhotonAbsorption(Intensity_sorted_mask, OnePhotonAbsorption_params[0])
         #print Nexc_2PI
         if(plotMe):
-            plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_1PI, Colors[pulse_value]+'-.', label=r'Fit $\sigma_{\mathrm{TI}}=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE add value of sigma_1 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+'-.', label=r'$\sigma_1=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE add value of sigma_1 here
         else:
             plot_field = []
         del Nexc_1PI, OnePhotonAbsorption_params, Intensity_sorted_mask
@@ -574,7 +585,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_3PI, '--', label=r'Fit $\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+':', label=r'$\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -597,7 +608,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_4PI, '--', label=r'Fit $\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+'--', label=r'$\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_4PI, FourPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -620,7 +631,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_5PI = FivePhotonAbsorption(Intensity_sorted_mask, FivePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_5PI, '--', label=r'Fit $\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+'-.', label=r'$\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_5PI, FivePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -643,7 +654,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_6PI = SixPhotonAbsorption(Intensity_sorted_mask, SixPhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_6PI, '--', label=r'Fit $\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+':', label=r'$\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_6PI, SixPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -666,7 +677,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_7PI = SevenPhotonAbsorption(Intensity_sorted_mask, SevenPhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(Intensity_sorted_mask, Nexc_7PI, '--', label=r'Fit $\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+'--', label=r'$\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+r', $\tau=$'+str(int(pulse_value*1E15))+' fs') #NOTE adds value of sigma_3 here
         del Nexc_7PI, SevenPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -702,19 +713,19 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         
     elif(pulseWavelength==1600e-9): 
         
-        SevenPhotonIntensityRegime_min = 0e0
+        SevenPhotonIntensityRegime_min  = 0e0
         SevenPhotonIntensityRegime_max  = 0E0
         
-        SixPhotonIntensityRegime_min = 0e0
+        SixPhotonIntensityRegime_min  = 0e0
         SixPhotonIntensityRegime_max  = 0E0
         
-        FivePhotonIntensityRegime_min = 0e0
+        FivePhotonIntensityRegime_min  = 0e0
         FivePhotonIntensityRegime_max  = 0E0
         
         FourPhotonIntensityRegime_min = 1.1E14
         FourPhotonIntensityRegime_max = 1.6E15 #W/m2
         
-        ThreePhotonIntensityRegime_min = 0e0
+        ThreePhotonIntensityRegime_min  = 0e0
         ThreePhotonIntensityRegime_max  = 0e0
         
         TwoPhotonIntensityRegime_min = 1.4E15
@@ -873,13 +884,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #except: 
         #print Header+"** Warning: 3-ph fitting of the data failed for tau="+str(pulse_value*1E15)+" fs."
     for gammaValues in ListOfInterestingGammas:
-      ax1.axvline(x=IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
+      ax1.axvline(x=np.multiply(xscale, IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength)), color='k', linestyle='--', linewidth=0.5)
     ax1.axhline(y=  Density, color='k', linestyle='--', linewidth=0.25)
     #ax1.axhline(y=2*Density, color='k', linestyle='--', linewidth=0.25)
     #ax1.axhline(y=3*Density, color='k', linestyle='--', linewidth=0.25)
     ax1.axhline(y=4*Density, color='k', linestyle='--', linewidth=0.25)
   #}}}
-  ax1.set_xlabel(r"Peak intensity (W/m$^{2}$)")
+  ax1.set_xlabel(r"Peak intensity (W/cm$^{2}$)")
   ax1.set_ylabel(r"Final exc. density (m$^{-3}$)")
   #pplt.xlabel(r'Peak intensity (W/m$^2$)')
   #pplt.ylabel(r'Final exc. density (m$^{-3}$)')
@@ -887,7 +898,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax1.set_yscale('log')
   
   labels1 = [l.get_label() for l in plot1]
-  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1)
+  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
   
   pplt.tight_layout()
   #print Header+"Adding the adjusted coefficients to check our fitting law."
@@ -909,7 +920,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   print Efield1_Keldysh
   
   for gammaValues in ListOfInterestingGammas:
-      ax2.axvline(x=IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
+      ax2.axvline(x=1E-4*IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
 #  pplt.ylim((1E16,4.*5e28))
   #ax1.grid()
   #if(PlotWpiAxis==True): #{{{
@@ -924,7 +935,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(itertools.izip(*lists))
       
-      plot21, = ax2.loglog(Intensity_sorted, np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+'^', label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{(tddft)}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+      plot21, = ax2.loglog(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{(tddft)}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       plot2 += [plot21]
   #}}}
   
@@ -951,14 +962,15 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         
     ## GRUZDEV    
     ## NOTE: Gruzdev treak consists in plotting (external_field, w_pi[internal_field]).      
-    plot22, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot22, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot22]
   #}}}  
   ## ZHUKOV
   PathPrefix="/home/hilase/Documents/spp-extended-theory/Keldysh/"
   PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh*np.sqrt(OpticalIndex), 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix)
+  
   try: 
-      plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Zhukov, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
+      plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
       plot2    += [plot23]
   except: 
       print Header+"** Warning: no data available from VP Zhukov for this wavelength."
@@ -984,7 +996,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
     PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,1E46)
-    plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling, '--', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling, '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
     
     ## TUNNELING WITH INDIRECT BAND GAP.
@@ -1000,10 +1012,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #plot2    += [plot23]
   
   labels2 = [l.get_label() for l in plot2]
-  ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1)
+  ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
   #ax12.set_yscale('log')
   #ax12.legend(loc='best', fancybox=True, framealpha=0)
-  ax2.set_xlabel(r'Peak intensity (W/m$^2$)')
+  ax2.set_xlabel(r'Peak intensity (W/cm$^2$)')
   ax2.set_ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
   pplt.tight_layout()
   #ax4 = pplt.subplot(plotD)
@@ -1031,10 +1043,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), irreversibility, pulses1]))
         Intensity_sorted, irreversibility_sorted, pulses1_sorted = list(itertools.izip(*lists))
         
-        plot_field, = ax2.plot(Intensity_sorted, irreversibility_sorted, Colors[pulse_value]+'-o', label=r'$\zeta$, $\tau=$'+str(round(pulse_value*1E15))+' fs')
+        plot_field, = ax2.plot(1E-4*Intensity_sorted, irreversibility_sorted, Colors[pulse_value]+'-o', label=r'$\zeta$, $\tau=$'+str(round(pulse_value*1E15))+' fs')
         plot1 += [plot_field]
     #}}}
-    pplt.xlabel(r'Peak intensity (W/m$^2$)')
+    pplt.xlabel(r'Peak intensity (W/cm$^2$)')
     pplt.ylabel(r'Virtual exc. $\zeta$')
     pplt.ylim((0,1))
     ax3.set_xscale('log')
@@ -1096,7 +1108,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Intensity_sorted, Energy_final_sorted, pulses1_sorted, Ne_final_sorted = list(itertools.izip(*lists))
         #print Header+"Ready to plot: "
         
-        plot_field, = ax3.plot(Intensity_sorted, Energy_final_sorted, Colors[pulse_value]+'-o', label=r'$\tau=$'+str(int(pulse_value*1E15))+" fs")
+        plot_field, = ax3.plot(np.multiply(xscale, Intensity_sorted), Energy_final_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\tau=$'+str(int(pulse_value*1E15))+" fs")
         plot3 += [plot_field]
         ## TODO: can we adjust collision frequency on Drude here? 
         
@@ -1117,7 +1129,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         
     #}}}
     labels3 = [l.get_label() for l in plot3]
-    ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=1)
+    ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
     pplt.xlabel(r'Peak intensity (W/m$^2$)')
     pplt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{tddft}}$ (eV)')
     #pplt.ylim((0,1))
@@ -1266,7 +1278,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
 #}}}
 
 ## Nexc ( CEP )  
-def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, FieldAmplitude=1E9, PulseShape=3, pulseRiseTime=0, ShowFinalPlot=0, Egap_SI=2.56*e):
+def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, FieldAmplitude=1E9, PulseShape=3, pulseRiseTime=0, ShowFinalPlot=0, Egap_SI=2.56*e): #{{{
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -1377,7 +1389,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 #}}}
 
 ## (Final density | Virtual excitation rate) (Intensity) with comparing FreezeHXC if available.
-def plotEffectOfFrozenXC(PlottingTable):
+def plotEffectOfFrozenXC(PlottingTable): #{{{
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE FROZEN HXC, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -1475,7 +1487,7 @@ def plotEffectOfFrozenXC(PlottingTable):
     #pplt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq, wavelengths1
-  #}}}
+#}}}
 
 #del PlottingTable
 
@@ -1483,8 +1495,7 @@ def plotEffectOfFrozenXC(PlottingTable):
 # This enables to analyze the role of laser wavelength on the final excited electron density, excitation rate and laser-induced energy increase. Provides predictions on the Stark effect. 
 # Wpi is compared to analytical Keldysh theory. 
 # Energy is compared with analytical Drude model. 
-def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, ShowDensities=False,
- PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True):
+def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
@@ -1591,8 +1602,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ki = fki(energies)
     epsilons = np.add(ni, np.multiply(1.j, ki)) 
     return epsilons
-#}}}
   #}}}
+  
   
   
   # TODO: Filtering function
@@ -1702,9 +1713,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ### Capturing the dielectric permittivity in experimental or TDLDA database
     epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## TODO: replace by LDA !
     epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
-    print "Dielectric permittivity of Si at 800 nm [Palik]: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))
     
-    print "Dielectric permittivity of Si at 800 nm [TDLDA]: "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
+    print "Dielectric permittivity of Si at 800 nm"
+    print "[Palik] | [Reining et al PRL 2002]"
+    print str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
     
     OpticalIndex = np.real(np.sqrt(epsilon_Si0))
     PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order)
@@ -2069,7 +2081,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   ShowDensities            =False
   PlotIrreversibility      =False
   PlotFreeCarrierAbsorption=False
-  EnergyAxis               =False
+  EnergyAxis               =True #True: Xaxis is in eV. False: wavelength in nm. 
   
   CutOffWavelength=2.1e-6
   
@@ -2091,7 +2103,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   antialias=True
   
   #FieldOfInterest = [5e8, 1e9, 2e9, 3E9, 4E9, 5e9, 1e10]
-  FieldOfInterest = [0.0E0, 2.5E8, 1.0E9] #, 1e10] #this should be used only for Efield2
+  FieldOfInterest = [2.5E8] #[0E0, 1.0E9] #, 1e10] #this should be used only for Efield2
   NumberOfColors=len(FieldOfInterest)
   ColorList=[plt.cm.seismic(i) for i in np.linspace(0, 1, NumberOfColors)] 
   # Not bad! RdYlBu, coolwarm, seismic
@@ -2161,13 +2173,12 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   ax1 = pplt.subplot(111)
   
   #ax1.set_prop_cycle('color',Colors)
-  
-  plot1 = [] #np.empty((0,0))
-  for Efield2_value in Efield2_uniq: #for each value of Efield2, we make a new search to construct wavelength dependent data N_exc(wavelenvth2) #{{{
     
+  plot1 = [] #np.empty((0,0))
+  for Efield2_compare in FieldOfInterest: #{{{
     PlottingDoublePulses_Efield = PlottingDoublePulses
-    PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses_Efield, Efield2_value*(1.+FieldTolerance), IndexTable['Efield2'])
-    PlottingDoublePulses_Efield = FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses_Efield, Efield2_compare*(1.+FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), IndexTable['Efield2'])
     #print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
     #print PlottingDoublePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -2196,74 +2207,36 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
         wavelengths2_sorted_show = wavelengths2_sorted
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted)) #NOTE: this is limited to identical pulse durations!
     
-    for Efield2_compare in FieldOfInterest: #{{{
-        LocalCondition = False
-        if(Efield2_compare==0):
-            LocalCondition = (Efield2_value == Efield2_compare)
-        else:
-            LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
-        if(LocalCondition): #{{{
-            print Header+"Available data for the specific field E2="+str(Efield2_value*1E-9)+" V/nm."
-            tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9 = CountTheNumberOfLaserParameters(PlottingDoublePulses_Efield)
-        #### PLOTTING
-            n0 = 4.*Density
-            #if(not EnergyAxis):
-            #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield2_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$') #BACKUP
-            #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, label=r'$\widetilde{w}_{\mathrm{PI}}$, I= ? W/m$^2$')
-            plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
-            plot1 += [plot_field]
-            
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, np.multiply(
-                    ##PeakWpi_Gruzdev, np.divide(np.add(n0, np.multiply(-1,PeakWpi_Gruzdev*pulses1_sorted[0])), n0)),
-                        #'--.'+Colors[Efield2_compare], label=r'$w_{\mathrm{PI}}\frac{n_0-n_{\mathrm{exc}}{n_0}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            
-            
-            
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gulley, '-.'+Colors[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gulley], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Tunneling_Direct, '.-'+Colors[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{TI}}^{\mathrm{(d)}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Tunneling_Indirect, '-.'+Colors[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{TI}}^{\mathrm{(ind)}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Effective, '-.'+Colors[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{eff}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            
-            ## SENSELESS. 
-            #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Indirect, '--.'+Colors[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-            #plot1 += [plot_field]
-            
-            #}}} #end if
-            
-    #print Efield2_value
-    #if(1e8*(1.-FieldTolerance) < Efield2_value < 1e8*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-r', label=r'$\widetilde{w}_{PI}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--r', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break #plot only once
-    #if(1e9*(1.-FieldTolerance) < Efield2_value < 1e9*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-b', label=r'$\widetilde{w}_{PI}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--b', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break
-    #if(5e9*(1.-FieldTolerance) < Efield2_value < 5e9*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-g', label=r'$\widetilde{w}_{PI}$') #, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--g', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      ##break
-    #if(1e10*(1.-FieldTolerance) < Efield2_value < 1e10*(1.+FieldTolerance)):
-      #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,       '+-k', label=r'$\widetilde{w}_{PI}$') #, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev, '--k', label=r'$\widetilde{w}_{PI}$ [Gruzdev], I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
-      #plot1 += [plot_field]
-      #break
-    #}}} #end for
+    # This loop is run len(Efield2_uniq) times
+    #for Efield2_compare in FieldOfInterest: #{{{
+    print(Header+"Strange there are 1 FieldOfInterest, but we are getting once more in this loop. Efield2_compare: "+str(Efield2_compare*1E-9))
+    #LocalCondition = False
+    #if(Efield2_compare==0):
+        #LocalCondition = (Efield2_value == Efield2_compare)
+    #else:
+        #LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_value <= FieldTolerance) #Many loops should not induce one new plot each time. 
+    #if(LocalCondition): #{{{ #If Efield2_value is close enough to a field we would like to see, then we plot one new line. If we already had the value accepted once, we plot again?? No... So we should construct a set of data by merging all these values. 
+    print Header+"Available data for the specific field E2="+str(Efield2_compare*1E-9)+" V/nm."
+    tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9 = CountTheNumberOfLaserParameters(PlottingDoublePulses_Efield)
+    #### PLOTTING
+    n0 = 4.*Density
+    #if(not EnergyAxis):
+    #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield2_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$') #BACKUP
+    #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, label=r'$\widetilde{w}_{\mathrm{PI}}$, I= ? W/m$^2$')
+    plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', label=r'$\widetilde{w}_{\mathrm{PI}}$, $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
+    #linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare] # BUG 
+    plot1 += [plot_field]
+    
+    #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, np.multiply(
+            ##PeakWpi_Gruzdev, np.divide(np.add(n0, np.multiply(-1,PeakWpi_Gruzdev*pulses1_sorted[0])), n0)),
+                #'--.'+Colors[Efield2_compare], label=r'$w_{\mathrm{PI}}\frac{n_0-n_{\mathrm{exc}}{n_0}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$')
+    #plot1 += [plot_field]
+    
+    #}}} #end if
+        
     del PlottingDoublePulses_Efield
   #}}} #end for
+#}}} #end for
   
   # We separate TDDFT and Keldysh predictions now. 
   #ax2 = pplt.subplot(plotB)
@@ -2414,7 +2387,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   
   ## Saving this first double figure
-  pplt.tight_layout()
+  #pplt.tight_layout()
   filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
@@ -2484,10 +2457,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   ax3 = plt.subplot(111)
   #plt.title('Irreversibility factor')
   #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
-  for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
+  for Efield2_compare in FieldOfInterest: #for each value of Efield1, we make a new search, and plot one new line in the chart
     #PlottingDoublePulses_Efield = FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
-    PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), IndexTable['Efield2'])
-    PlottingDoublePulses_Efield = FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_compare*(1.+FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), IndexTable['Efield2'])
     #print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
     #print PlottingDoublePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -2505,20 +2478,20 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     wavelengths2_sorted_show, wavelengths2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield2_value
     
-    for Efield2_compare in FieldOfInterest: 
-        LocalCondition = False
-        if(Efield2_compare==0):
-            LocalCondition = (Efield2_value == Efield2_compare)
-        else:
-            LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
-        if(LocalCondition):  #if we have captured the fields we are interested in, we plot  
-            #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], color=Colors[Efield2_compare])
-            plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
-            print(Header+"Plotting energy: Adding one plot...")
-            print(wavelengths2_sorted_show)
-            print(Energy_max_sorted)
-            plot1 += [plot_field]
-            #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-')
+    #for Efield2_compare in FieldOfInterest: 
+    #LocalCondition = False
+    #if(Efield2_compare==0):
+        #LocalCondition = (Efield2_value == Efield2_compare)
+    #else:
+        #LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
+    #if(LocalCondition):  #if we have captured the fields we are interested in, we plot  
+    #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], color=Colors[Efield2_compare])
+    plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
+    print(Header+"Plotting energy: Adding one plot...")
+    print(wavelengths2_sorted_show)
+    print(Energy_max_sorted)
+    plot1 += [plot_field]
+    #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-')
             
     del PlottingDoublePulses_Efield
     
@@ -2680,7 +2653,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #ax22.legend(loc=1, borderaxespad=0.)
 
   # Saving the plot
-  pplt.tight_layout()
+  #pplt.tight_layout()
   #filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Efield1*1E-9,0))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
   filename='Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Drude-'+str(int(pulseDuration*1E15))
   pplt.savefig(filename+'.eps')
@@ -3484,7 +3457,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         PulseType  = 3; RiseCycles = 2 #StH corrected. 
         for Field1 in [2.5E8, 1.0E9]:
             #try:
-            Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, 1E-3, Field1, FieldLimit, tau, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
+            Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, 1E-5, Field1, FieldLimit, tau, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
             print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() success for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E-9)+" V/nm)")
             #except:
                 #print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() failed for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E9)+" V/nm)")
