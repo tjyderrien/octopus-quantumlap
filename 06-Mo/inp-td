@@ -2,29 +2,47 @@ CalculationMode = td
 
 PeriodicDimensions = 3
 
-a = 3.147
+# a = 3.147
+a = 5.9469681168157855 #Bohr, size of the cubic cell
+angle = 90. #degrees, indeed
+
 
 Spacing = a/16
 
 BoxShape = parallelepiped
 
-Lsize = a/2
+ParDomains = yes
+
+KPointsUseSymmetries = yes
 
 %Coordinates
  'Mo' | 0.0 | 0.0 | 0.0
  'Mo' | a/2 | a/2 | a/2
 %
 
-%KPointsGrid
-  8  | 8 | 8
+%LatticeParameters
+  a | a | a
+  angle | angle | angle
 %
 
-PseudopotentialSet = pseudodojo_pbe
+%KPointsGrid
+  32 | 32 | 32
+%
+
+# PseudopotentialSet = pseudodojo_lda
+# PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_pbe_stringent
+# PseudopotentialSet = pseudodojo_pbesol_stringent
+PseudopotentialSet = sg15
+XCFunctional = GGA_X_PBE + GGA_C_PBE
+# XCFunctional = GGA_X_PBE_R
+# XCFunctional = MGGA_X_PBE_GX
+FilterPotentials = filter_none
 
 SmearingFunction = fermi_dirac
-Smearing = 0.1*eV
+Smearing = 300./11600.*eV
 
-ExtraStates = 8
+ExtraStates = 4
 
 ExperimentalFeatures = yes
 
@@ -36,7 +54,7 @@ ParDomains = yes
 ParKPoints = auto
 # CurrentDensity = gradient_corrected
 
-Iau  = (sqrt(1E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
+Iau  = (sqrt(0E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
 omega = 0.5
 Tpulse = 210
 
@@ -52,17 +70,17 @@ Tpulse = 210
    1 | 0 | 0
 %
 
-GaugeFieldDelay =  10
+GaugeFieldDelay =  2
 
-TDMaxSteps = 150
+%SymmetryBreakDir
+ 1.0 | 0.0 | 0.0
+%
+TDMaxSteps = 300
 
-TDTimeStep = 0.25 / 10. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 # TDPropagationTime = ComputingTime
 TDPropagator = aetrs #it was aetrs
 # TDExponentialMethod = lanczos
 TDExpOrder = 16
 
-
-
-
-TDOutput = energy + geometry + total_current + gauge_field
+TDOutput = energy + geometry + total_current + gauge_field + density
