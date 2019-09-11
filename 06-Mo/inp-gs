@@ -25,6 +25,10 @@ ParDomains = yes
 
 KPointsUseSymmetries = yes
 
+%SymmetryBreakDir
+ 1.0 | 0.0 | 0.0
+%
+
 %Coordinates #coordinates are between -0.5 and 0.5
  'Mo' | 0.0 | 0.0 | 0.0
  'Mo' | a/2 | a/2 | a/2
