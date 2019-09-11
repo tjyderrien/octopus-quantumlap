@@ -62,13 +62,18 @@ BoxShape = parallelepiped
   0.0 | 0.0 | 0.5
 %
 
-%kPointsPath
+%kPointsPath #Si: Gamma X W (K) Gamma L U W L (K) (U) X
   30 | 30 | 30 | 30
-   0.5  | 0.5  | 0.5 #L
+
    0    | 0     | 0     #Gamma
-   0    | 0     | 1        #X
-   0.25 | -0.25 | 1 #U
+   0    | 0     | 1     #X
+   0.5  | 0.25  | 0.75  #W
    0    | 0     | 0        # Gamma
+   0.5  | 0.5   | 0.5 #L  
+   0.25 | -0.25 | 1 #U
+   0.5  | 0.25  | 0.75  #W
+   0.5  | 0.5   | 0.5 #L
+   0    | 0     | 1     #X 
 %
 
 
