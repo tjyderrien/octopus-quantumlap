@@ -346,14 +346,14 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # ElectronEnergy (intensity) is given. 
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
   PlotVirtualExcitation = False
-  PlotEnergy = True
+  PlotEnergy = False
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. 
   
   Ntotal=5.0E28 
   meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
-  meff = 1.0 #meff_Waroquiers_LDA #0.14 #used to adjust the w_PI model 
-  meff_Tunnel = 1.0 #meff_Waroquiers_LDA #fits well if using INDIRECT band gap. 
+  meff = meff_Waroquiers_LDA #0.14 #used to adjust the w_PI model 
+  meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap. 
   
   
   print "====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
@@ -384,10 +384,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
   # Simple pulse, single color
-  pplt.figure(figsize=(SizeX,SizeY))
-  #if(len(wavelength_uniq) == 1): #{{{ #single color simulations
   #plotA = 311; plotB = 312; plotC = 313 #Horizontal
-  plotA = 131; plotB = 132; plotC = 133 #Vertical
+  if(not PlotEnergy):
+      plotA=121; plotB=122;
+      pplt.figure(figsize=(SizeX/3.*2.,SizeY))
+  else:
+      plotA = 131; plotB = 132; plotC = 133 #Vertical
+      pplt.figure(figsize=(SizeX,SizeY))
+      
   #plotA = 221; plotB = 224; plotC = 223; plotD = 222 # 2x2 for huge caption of ax1
   
   EnergyMin = 0e0 #-1E-7
@@ -740,7 +744,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #OnePhotonIntensityRegime_min = 4.7E16
         #OnePhotonIntensityRegime_max = 1.3E17 #W/m2
         
-        ListOfInterestingGammas = [0.20, 1.0, 5.]
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
         
     elif(pulseWavelength==3200e-9): 
         
@@ -765,7 +769,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         OnePhotonIntensityRegime_min = 3.41E16
         OnePhotonIntensityRegime_max = 7.3E16 #W/m2
         
-        ListOfInterestingGammas = [0.10, 1.0, 5.]
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
     else: 
         SevenPhotonIntensityRegime_min = 0e0
         SevenPhotonIntensityRegime_max  = 0E0
@@ -884,7 +888,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #except: 
         #print Header+"** Warning: 3-ph fitting of the data failed for tau="+str(pulse_value*1E15)+" fs."
     for gammaValues in ListOfInterestingGammas:
-      ax1.axvline(x=np.multiply(xscale, IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength)), color='k', linestyle='--', linewidth=0.5)
+      ax1.axvline(x=np.multiply(xscale, IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength)), color='k', linestyle='--', linewidth=0.5)
     ax1.axhline(y=  Density, color='k', linestyle='--', linewidth=0.25)
     #ax1.axhline(y=2*Density, color='k', linestyle='--', linewidth=0.25)
     #ax1.axhline(y=3*Density, color='k', linestyle='--', linewidth=0.25)
@@ -914,13 +918,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   print Header+"Generating comparison with Keldysh-Gruzdev model..." ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
-  Efieldmax = np.max(Efield1_uniq)
-  Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 200)
+  Efieldmax = 5E10 # np.max(Efield1_uniq)
+  Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 500)
   Efield1_Keldysh     = np.power(10., Efield1_Keldysh_log)
   print Efield1_Keldysh
   
   for gammaValues in ListOfInterestingGammas:
-      ax2.axvline(x=1E-4*IntensityAtGamma(gammaValues, Egap_SI, meff, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
+      ax2.axvline(x=xscale*IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
 #  pplt.ylim((1E16,4.*5e28))
   #ax1.grid()
   #if(PlotWpiAxis==True): #{{{
@@ -949,10 +953,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
     EffectiveMassList=[0.01, 0.025, 0.05, 0.1, meff_Waroquiers_LDA]
   for meff_Keldysh in EffectiveMassList: #{{{
-    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order)
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order, 1.) #NOTE: optical index should be treated as such, not through adiabadicity coefficient, or? 
     
+    Acoeff=1
+    PeakWpi_Atomic_Keldysh = IonizationRateAtoms(pulseWavelength, meff_Keldysh, Egap_SI, Efield1_Keldysh, order, 1., Ntotal) #Optical index in gas in 1. 
+    print Header+"Info: Atomic Keldysh: "+str(np.min(PeakWpi_Atomic_Keldysh))+", "+str(np.max(PeakWpi_Atomic_Keldysh))
     #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh, order, 1.)
-    gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1)
+    gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1, 1.) #for gamma, ONE MUST NOT USE OPTICAL INDEX (because gamma is oscillation time divided by tunneling time, hence optical index must vanish)
     #ax2x2 = ax2.twiny()
     # We need to plot values of intensities for which gamma=0.1, 1, 3, 5, 10.
     #def IntensityAtGamma(gamma, Egap_SI, meff, wavelength):
@@ -964,12 +971,17 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ## NOTE: Gruzdev treak consists in plotting (external_field, w_pi[internal_field]).      
     plot22, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot22]
+    
+    # ATOMIC KELDYSH
+    print Header+"Preparing atomic Keldysh..."
+    plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{atom}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot2    += [plot23]
   #}}}  
   ## ZHUKOV
   PathPrefix="/home/hilase/Documents/spp-extended-theory/Keldysh/"
-  PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh*np.sqrt(OpticalIndex), 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix)
+  PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix) #we neglect optical index in atomic theory
   
-  try: 
+  try: #we plot as function of external field
       plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
       plot2    += [plot23]
   except: 
@@ -995,16 +1007,17 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
-    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,1E46)
-    plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling, '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E30,2E46)
+    #NOTE: tunneling barrier does not change as function of refractive index. Hence, we remove the optical index in case of tunneling limit. 
+    plot23, = ax2.loglog(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
     
     ## TUNNELING WITH INDIRECT BAND GAP.
-    PeakWpi_Tunneling_i   = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,1E46)
+    #PeakWpi_Tunneling_i   = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E30,1E46)
     #plot24, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling_i, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     #plot2    += [plot24]
   #}}}
-  
+  pplt.ylim((1E36,1E45))
   # Interpolation of a joint law of photoionization
   #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
@@ -1059,7 +1072,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
       runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, W_pi, PulseType, RiseTime, FinalTime = ExtractData(PlottingSinglePulses_pulses)
       
-      plot_field, = ax32.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'k-', label=r'$\gamma$')
+      plot_field, = ax32.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, Efield1, wavelengths1), 'k-', label=r'$\gamma$')
       #plot1 += [plot_field]
     pplt.ylabel(r'Adiabadicity $\gamma$')
     #pplt.ylim((0,1))
@@ -1164,12 +1177,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
   del PlottingSinglePulses, wavelength_uniq, CEP1_uniq
   del ax2
-  del ax3
+  if(PlotEnergy): 
+      del ax3
 #}}}
 
 ## Single-pulse: Final electron density as function of intensity. Each curve is for a different CEP. 
 # TODO: current and energy, and harmonic spectrum as function of CEP.
-def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, FilterCEP=False, CEP0=0., PulseShape=3, pulseRiseTime=0, ShowFinalPlot=0, Egap_SI=2.56*e):
+def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, FilterCEP=False, CEP0=0., PulseShape=3, pulseRiseTime=0, ShowFinalPlot=0, Egap_SI=2.56*e): #{{{
   print "#====== Plot: SINGLE PULSE, EFFECT OF THE CEP, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======"
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -1719,16 +1733,17 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     print str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
     
     OpticalIndex = np.real(np.sqrt(epsilon_Si0))
-    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order)
+    PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order, 1.) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
     Saturation = (n0 - (PeakWpi_Gruzdev * pulseDuration )) / n0 #saturation term
     PeakWpi_Gruzdev_sat = PeakWpi_Gruzdev * Saturation
     #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_value, order, 1.)
     #PeakWpi_Gruzdev_Indirect = GenerateKeldyshDatabase(Egap_SI_indirect, meff, wavelengths1_Keldysh, Efield1_value, order)
     
-    PeakWpi_Tunneling_Direct = np.clip(KeldyshTunnelingLimit(Egap_SI, meff_Tunnel, wavelengths1_Keldysh, Efield1_compare, False), 1E36, 1E46)
+    PeakWpi_Tunneling_Direct = np.clip(KeldyshTunnelingLimit(Egap_SI, meff_Tunnel, wavelengths1_Keldysh, Efield1_compare, False, 1.), 1E36, 1E46) #NOTE: physically, refractive index does not affect tunneling time
+    
     #PeakWpi_Tunneling_Indirect = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, wavelengths1_Keldysh, Efield1_value), 1E36, 1E46)
     #PeakWpi_Gruzdev=
-    PeakWpi_Effective = np.power(np.power(PeakWpi_Gruzdev, -1) + np.power(PeakWpi_Tunneling_Direct,-1),-1)
+    #PeakWpi_Effective = np.power(np.power(PeakWpi_Gruzdev, -1) + np.power(PeakWpi_Tunneling_Direct,-1),-1)
     # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
     if(EnergyAxis):
         wavelengths1_Keldysh_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
@@ -2043,7 +2058,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   if(not EnergyAxis): 
     pplt.xlim((200.,2100.))
   else: 
-    pplt.xlim((0.5,7.))
+    pplt.xlim((0.5,10.))
   
   
   #ResonantWavelength = h*c/Egap_SI
@@ -3329,11 +3344,11 @@ def plot_Zhukov_SingleColor_LDA():
         plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     except:
         print Header+"** Warning: no data could be found, or bug took place for 1600 nm."
-    try:
-        wavelength = 3200e-9
-        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
-    except:
-        print Header+"** Warning: no data could be found, or bug took place for 3200 nm."
+    #try:
+    wavelength = 3200e-9
+    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
+    #except:
+        #print Header+"** Warning: no data could be found, or bug took place for 3200 nm."
 
 def plot_Zhukov_SingleColor_TB09(): #{{{
     Egap_SI = 3.04*e
