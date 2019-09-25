@@ -516,6 +516,8 @@ ymax_wpi = 1E50
 omega1 = 2.*np.pi*c/wavelength_SI
 omega2 = 2.*np.pi*c/wavelengthB_SI
 
+tmax =  tmin + 4*PulseDuration_SI
+
 ### Defining plotting boundaries
 if(PlottingMode=="nonthermalmelting"):
   xmin=0.; xmax=500.; unitx=1E15
@@ -530,7 +532,8 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=(2.*np.pi/omega1+PulseDuration_SI*2.)*unitx;
+  xmin=0.; unitx=1E15; #xmax=(2.*np.pi/omega1+PulseDuration_SI*2.)*unitx;
+  xmax=tmax*unitx
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
