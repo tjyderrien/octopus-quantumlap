@@ -706,21 +706,32 @@ ExportToTxt(Yaxis, filename+".csv")
 
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")
+
+# Enable the NonLinear Frequency Conversion visuals if E_B is large
+plotNLFC=(Efield_amplitudeB_SI < 1)
+
 # plt.xlabel("Harmonic order")
 plt.xlabel("Photon energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
-ax4.axvline(x=h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-", label=r"$\omega_1$")  #omega1
-ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="-", label=r"$\omega_2$")
 
-#omega1 + omega2
-ax4.axvline(x=h*c/e/wavelengthB_SI+h*c/e/wavelength_SI, color='g', linewidth=0.5, linestyle="-.", label=r"$\omega_1+\omega_2$")
-#omega1 - omega2
-ax4.axvline(x=np.abs(h*c/e/wavelengthB_SI-h*c/e/wavelength_SI), color='k', linewidth=0.5, linestyle="-.", label=r"$\left|\omega_1-\omega_2\right|$")
+ax4.axvline(x=h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-", label=r"$\omega_1$")  #omega1
+
+if(plotNLFC): 
+    ax4.axvline(x=h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="-", label=r"$\omega_2$")
+
+if(plotNLFC): 
+    #omega1 + omega2
+    ax4.axvline(x=h*c/e/wavelengthB_SI+h*c/e/wavelength_SI, color='g', linewidth=0.5, linestyle="-.", label=r"$\omega_1+\omega_2$")
+    #omega1 - omega2
+    ax4.axvline(x=np.abs(h*c/e/wavelengthB_SI-h*c/e/wavelength_SI), color='k', linewidth=0.5, linestyle="-.", label=r"$\left|\omega_1-\omega_2\right|$")
 
 #2omega1
 ax4.axvline(x=2*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$2\omega_1$")  #omega1
+
 #2omega2
-ax4.axvline(x=2*h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--", label=r"$2\omega_2$")  #omega2
+if(plotNLFC): 
+    ax4.axvline(x=2*h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--", label=r"$2\omega_2$")  #omega2
+    
 ## ======== Applying logscales...
 ax4.legend(loc="best")
 if(EnableLogScale == 1):
