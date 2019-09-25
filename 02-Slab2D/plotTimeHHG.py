@@ -708,7 +708,7 @@ ExportToTxt(Yaxis, filename+".csv")
 ax4.set_yscale("log")
 
 # Enable the NonLinear Frequency Conversion visuals if E_B is large
-plotNLFC=(Efield_amplitudeB_SI < 1)
+plotNLFC=(Efield_amplitudeB_SI > 1)
 
 # plt.xlabel("Harmonic order")
 plt.xlabel("Photon energy (eV)")
