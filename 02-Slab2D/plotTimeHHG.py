@@ -728,6 +728,9 @@ if(plotNLFC):
 #2omega1
 ax4.axvline(x=2*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$2\omega_1$")  #omega1
 
+#3 omega1
+ax4.axvline(x=3*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$3\omega_1$")  #omega1
+
 #2omega2
 if(plotNLFC): 
     ax4.axvline(x=2*h*c/e/wavelengthB_SI, color='r', linewidth=0.5, linestyle="--", label=r"$2\omega_2$")  #omega2
