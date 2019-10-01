@@ -148,13 +148,14 @@ SubmitTheJob () {
   echo "Source: ${OctopusSlabsRuns}."
   echo "Target: ${localPath}."
 
-  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/
-  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
-  cp $QuantumLaPsources/03-Bulk3D/${SubmitScript} ${localPath}/
+  cp -u inp ${localPath}/ #just update if file was not found, or is older.
+  # cp ${QuantumLaPsources}/03-Bulk3D/Si.xyz ${localPath}/ #no longer needed, as it is included in input file
+  cp ${QuantumLaPsources}/03-Bulk3D/${SubmitScript} ${localPath}/
 
-  sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
-  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/submit.sbatch
-
+  sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
+## TODO: this region is machine dependent
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript} 
+## 
 
   if [ ${DryRun} == 0 ]; then
 	  cd ${localPath}

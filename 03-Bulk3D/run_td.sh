@@ -289,13 +289,13 @@ SubmitTheJob () {
   
   # Update the Submission script with the mission name
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
-  sed -i.bak s/Mission/${Mission}/g ${localPath}/submit.sbatch
-  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/submit.sbatch
+  sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript}
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
           cd ${localPath}
-          ${SubmitCommand} ${SubmitScript} > submit.log
+          ${SubmitCommand} ${SubmitScript} > ${localPath}/submit.log
 	  jobnumber=$( cat submit.log | awk '{ print $4 }') 
 	  cp submit.log $jobnumber.log
           echo "[Submit] Job number: $jobnumber"
