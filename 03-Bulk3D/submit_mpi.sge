@@ -10,7 +10,7 @@
 ## do not join stdout and stderr
 #$ -j n
 ## name of the job
-#$ -N silicon_tddft
+#$ -N Mission
 ## execute job from the current working directory
 #$ -cwd
 ## send mail
@@ -28,7 +28,7 @@ module purge
 module load intel impi
 module load nfft/3.2.4
 
-LD_LIBRARY_PATH=/scratch/tjyderri/nfft/3.2.4/lib:$LD_LIBRARY_PATH
+# LD_LIBRARY_PATH=/scratch/tjyderri/nfft/3.2.4/lib:$LD_LIBRARY_PATH
 
 # module load octopus/5.0.0
 

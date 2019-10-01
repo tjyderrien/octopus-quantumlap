@@ -27,22 +27,22 @@ tau30_energy=path.tau30_parameters.filename
 set format "%g"
 
 set xrange [:50] #tau50fs: 120, tau30fs: 70, tau10fs: 25
-
+set yrange [0:] 
 set key top left
 
 set xlabel 'Time [fs]'
-set ylabel 'Energy (Ha per atom)'
+unset ylabel #set ylabel 'Energy (Ha per atom)'
 # set ylabel 'Vector field amplitude A(t) [a.u]'
 
 # set xtics 2
 set ytics nomirror
 # set y2tics nomirror
-set grid
+unset grid
 
 NumberOfAtoms = 2
 
 xscale=2.74e-17*1E15
-Origin=-0.06
+Origin=-0.06+0.00092
 
 plot tau10_energy u ($2*xscale):($6/NumberOfAtoms-Origin) w l lc rgb "black" lw 3 t '{/Symbol t}=10 fs', \
      tau20_energy u ($2*xscale):($6/NumberOfAtoms-Origin) w l lc rgb "blue"  lw 3 t '{/Symbol t}=20 fs', \

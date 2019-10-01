@@ -1,5 +1,5 @@
 #!gnuplot
-reset
+# reset
 
 # set output 'RoleOfPulseDuration-Density-'.field.'-'.filename.'.eps'
 # set terminal postscript eps enhanced color font 'Helvetica, 24' size 15cm,8cm
@@ -31,17 +31,19 @@ tau30_density=path.tau30_parameters.filename
 set format "%g"
 
 set xrange [:50] #tau50fs: 120, tau30fs: 70, tau10fs: 25
+set yrange [0:]
 
 set key top left
 
-set xlabel 'Time [fs]'
-set ylabel 'Number of exc. el per atom'
+unset xlabel #set xlabel 'Time [fs]'
+unset ylabel #set ylabel 'Number of exc. el per atom'
 # set ylabel 'Vector field amplitude A(t) [a.u]'
 
 # set xtics 2
+set xtics format ''
 set ytics nomirror
 # set y2tics nomirror
-set grid
+unset grid
 
 NumberOfAtoms = 2
 
