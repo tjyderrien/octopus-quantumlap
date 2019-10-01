@@ -26,13 +26,13 @@ MeshSizeX_SI="0.23" #0.23 Bohr, octopus-recommended value
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 NumNodes=1
-Mission="TB09k24gs"
+Mission="Si_GS_LDA"
 SampleLayers="1"
 SampleXY="1"
 kPoints="24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 for ikPoints in ${kPoints}
 do
