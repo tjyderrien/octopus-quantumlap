@@ -47,15 +47,19 @@ Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 
 meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
-FigureName='Fig6a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
+FigureName='Fig6b' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
 
 Figs_Legend={'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
-Figs_Xmax={'Fig2a': 0.5, 'Fig2b': 0.5, 'Fig6a': 0.66, 'Fig6b': 0.5, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
+Figs_Xmax={'Fig2a': 0.5, 'Fig2b': 0.5, 'Fig6a': 0.66, 'Fig6b': 1.0, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
 Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
 OpticalIndex={
-        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964,
+        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
+        600e-9: 3.947144634525661,
         800e-9: 3.6924167231905, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
+        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik or LDA linear response?
+
+PlotLocalFieldEffects=False
+PlotPoynting=False
 
 
 ## Plotting: parameters for controlling the canvas
@@ -610,7 +614,7 @@ elif(PlottingMode=="doublepulse"):
 #  ymax2=5E0;
   PlotGrid=1 
 elif(PlottingMode=="keldysh"):
-  xmin=0.; unitx=1E15; xmax=tmax*unitx #Figs_Xmax[FigureName]
+  xmin=0.; unitx=1E15; xmax= xmax=tmax*unitx*Figs_Xmax[FigureName]
 #  ymin=1E16; ymax=5E28;
 #  ymax2=5E0;
   PlotGrid=1
@@ -823,8 +827,9 @@ plot3+=[plot_energy_electron]
 # plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}(t)$") #classical formula for electron gap transition 
 # plot_energy_photon, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
 # plot_energy_InterBandEnergy, = ax3.plot(timeNe, InterBandEnergy, 'b--',      label=r"$E_{gap} \times N_{exc}(t)$") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
-plot3+=[plot_energy_IntraBandEnergy]
+if(PlotPoynting):
+	plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
+	plot3+=[plot_energy_IntraBandEnergy]
 
 # Add samples to n_exc_interp? 
 n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
@@ -842,7 +847,7 @@ print np.divide(1.,FitDrudeModel_parameters[0])
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
 # FITTING MANUALLY
-nu_t_opt = 6
+# nu_t_opt = 1.4
 # nu_t = np.power(np.multiply(np.add([0, 0.5, 1, 5, 10, 20],nu_t_opt), 1e-15), -1)
 # nu_t = np.power(np.multiply(np.add([0, 1, 2, 3, 4, 5], nu_t_opt), 1e-15), -1)
 # nu_t = np.power(np.multiply(np.add([0, 0.2, 0.4, 0.6, 0.8, 1], nu_t_opt), 1e-15), -1)
@@ -865,18 +870,20 @@ for nu in nu_t:
     plot_energy_Drude,   = ax3.plot(timeNe, TotalDrudeEnergy, ColorFit+'-.', label=r"$\xi_{Drude}$, $\nu^{-1}=$"+str(round(1E15*(nu**-1.),2))+" fs")
     if(Figs_CollTime[FigureName] != 0E0): 
       plot3 += [plot_energy_Drude]
-plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
-plot3+=[plot_energy_ExcessEnergy]
-plot_energy_diff,            = ax3.plot(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)-TotalEnergyPoynting, 'b--', label=r"$\xi_{\mathrm{el}}^{\mathrm{tddft}} - \int dt' J(t').E(t')$")
-plot3+=[plot_energy_diff]
+if(PlotPoynting):
+	plot_energy_ExcessEnergy,    = ax3.plot(timeNe, AboveBandExcessEnergy,    'r--', label=str(int(NumberOfPhotons))+r"$\hbar \omega N_{exc}$")
+	plot3+=[plot_energy_ExcessEnergy]
+if(PlotLocalFieldEffects):
+	plot_energy_diff,            = ax3.plot(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)-TotalEnergyPoynting, 'b--', label=r"$\xi_{\mathrm{el}}^{\mathrm{tddft}} - \int dt' J(t').E(t')$")
+	plot3+=[plot_energy_diff]
 #plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
 labels3 = [l.get_label() for l in plot3]
 # plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
 plt.xlabel('Time (fs)')
 plt.ylabel('Energy (eV)')
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc='best', borderaxespad=0., fancybox=True, framealpha=0)
-
-ax3.legend(plot3, labels3, loc=Figs_Legend[FigureName], fancybox=True, framealpha=framealpha) 
+# loc=Figs_Legend[FigureName]
+ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=framealpha) 
 ## Plotting vertical bars for comparison A(t) and Ne(t)
 if(PlotGrid==1):
   for xc in xposition:
