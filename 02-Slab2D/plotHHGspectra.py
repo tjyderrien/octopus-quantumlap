@@ -22,6 +22,7 @@
 
 from libKeldysh import *
 import libPlotting
+import glob
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -32,23 +33,27 @@ mp.rcParams['legend.numpoints'] = 1
 Header="[plotHHGspectra] "
 
 ShowFinalPlot              = 0
-path = "./"
+path = "*/td.general/"
 for FolderName in glob.glob(path):
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
     # If the run considers only single pulses
-    filename = path+"../inp"
+    filename = FolderName+"../inp"
     Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
-    
     if(Efield2_SI < 1): #we only select runs that are with single pulses. 
         # NOTE: We need multiple wavelengths, but one spectrum per wavelength. 
-    
+         
         # List all the files HHG-spectrums.csv in subfolders
-        HHG=loadtxt(path+"../td.general/HHG-spectrum.csv", dtyoe='str', skiprows=1)
+        try:
+          HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+        except:
+          print "** Info: Loading of HHG-Spectrum.csv failed."
+        # Size of the spectrum? 
         
-        # Capture the spectrum
+        print len(HHG)
         print HHG
-        
         # Interpolate it to the size of the others
         # Add it as a line in table
         # Plot the final picture
         # Add analytical Stark effect there
+        # Cleaning
+        del HHG
