@@ -21,6 +21,7 @@
 # Then prepares a picture using the collected data for each identified field amplitude
 
 from libKeldysh import *
+import libPlotting
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -34,14 +35,20 @@ ShowFinalPlot              = 0
 path = "./"
 for FolderName in glob.glob(path):
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
+    # If the run considers only single pulses
+    filename = path+"../inp"
+    Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
     
-    # List all the files HHG-spectrums.csv in subfolders 
-    HHG=loadtxt(path+"../td.general/HHG-spectrum.csv", dtyoe='str', skiprows=1)
+    if(Efield2_SI < 1): #we only select runs that are with single pulses. 
+        # NOTE: We need multiple wavelengths, but one spectrum per wavelength. 
     
-    # Capture the spectrum
-    print HHG
-    
-    # Interpolate it to the size of the others
-    # Add it as a line in table
-    # Plot the final picture
-    # Add analytical Stark effect there
+        # List all the files HHG-spectrums.csv in subfolders
+        HHG=loadtxt(path+"../td.general/HHG-spectrum.csv", dtyoe='str', skiprows=1)
+        
+        # Capture the spectrum
+        print HHG
+        
+        # Interpolate it to the size of the others
+        # Add it as a line in table
+        # Plot the final picture
+        # Add analytical Stark effect there
