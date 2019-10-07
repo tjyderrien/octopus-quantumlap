@@ -17,7 +17,7 @@ backup_StH_fixed() {
  DATE=`date +%Y-%m-%d`
  echo "== Saving the StH pulses, not the STH." 
  filename=$DATE-StH-WellControlled-Pulses.tar
- tar -cvf $filename --exclude='*.obf core.draco*' $( list_folders | grep 'StH' )
+ tar --exclude='*.obf' --exclude='core.draco*' -cvf $filename $( list_folders | grep 'StH' )
 }
 
 backup_eps_STH() {

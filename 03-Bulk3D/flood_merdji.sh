@@ -64,7 +64,7 @@ lambda2="1550e-9" #detuned 2.18: 1422e-9
 
 ## Field amplitude
 Efield1="5e9" #MERDJI
-Efield2="1e8 1e9 5e9" #"9e9"
+Efield2="5e9" #"9e9"
 
 ## Pulse duration
 tau1="50e-15"
@@ -72,7 +72,7 @@ tau2="50e-15"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
-CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
+CEP2="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
 
 echo "** Info: laser parameters have been defined. Running. "
 

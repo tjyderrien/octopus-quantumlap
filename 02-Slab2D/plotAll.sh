@@ -12,6 +12,14 @@ source $OctopusSlabsSources/02-Slab2D/functions.sh
 
 echo "Current folder: $( pwd )"
 
+
+# export ListOfRuns="lambda1600e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E10-CEP0.0-StH2"
+
+export ListOfRuns="lambda800e-9-tau20E-15-field9E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.1E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.2E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.3E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.4E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.6E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.7E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.8E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.9E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.1E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.2E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.3E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.4E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.6E9-CEP0.0-StH2"
+
+
+plotBasicOutput () {
+
 echo "Building the list of folders can be long..."
 for folder in $( list_folders | grep 'td.general' )
 do
@@ -43,7 +51,11 @@ do
 	# git add *.eps *.png
 	cd - > /dev/null
 done
+
 # for each results folder where the code was started. #Assume that ./td.general was created. 
+}
+
+plotExcitation () {
 for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
@@ -67,7 +79,10 @@ do
 
 	cd $prevFolder > /dev/null
 done
+}
 
+
+plotHHG () {
 # plot results for HHG for SquaredSinus pulses
 for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
 do
@@ -93,12 +108,32 @@ do
         cd $prevFolder > /dev/null
 done
 
+}
+
+
+# Cleans the octopus files and prepare simple plots for all. 
+# plotBasicOutput
+
+# Prepare the results for the list specified at the beginning of the file
+# Basically mid-IR experiments
+# for run in $ListOfRuns
+# do
+# LocalPath=$( pwd )
+# cd $run
+# plotBasicOutput
+# plotExcitation
+# cd $LocalPath
+# done
+
+# Then we can finish by treating the results for Merdji 
+plotHHG
+
 # for folder in $( list_folders | grep -v 'lambda' ) 
 # do
 #  prevFolder=$( pwd )
 #  cd $folder
-  echo "** Plotting nice figure for post-processed density for $(pwd)..."
-  ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+echo "** Plotting nice figure for post-processed density for $(pwd)..."
+${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
 #   cd $prevFolder > /dev/null
 # done 
 
