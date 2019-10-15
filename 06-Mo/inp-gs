@@ -15,13 +15,14 @@ angle = 90. #degrees, indeed
 # a = 2.743 Angstr. #DOI: 10.17188/1189253
 # a = 5.183518762130822 #Bohr
 
-Spacing = a/16
+# Spacing = a/16
+Spacing = MeshSizeX_AU #to be replaced by script
 
 BoxShape = parallelepiped
 
 # Lsize = a/2
 
-ParDomains = yes
+# ParDomains = yes
 
 KPointsUseSymmetries = yes
 
@@ -40,17 +41,18 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  32 | 32 | 32
+  kPointsValue | kPointsValue | kPointsValue #to be replaced by script
+  # 16 | 16 | 16
 %
-# PseudopotentialSet = pseudodojo_lda
+PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
 # PseudopotentialSet = pseudodojo_pbesol_stringent
-PseudopotentialSet = sg15
-XCFunctional = GGA_X_PBE + GGA_C_PBE
+# PseudopotentialSet = sg15
+# XCFunctional = GGA_X_PBE + GGA_C_PBE
 # XCFunctional = GGA_X_PBE_R
 # XCFunctional = MGGA_X_PBE_GX
-FilterPotentials = filter_none
+# FilterPotentials = filter_none
 
 SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV #300 K
@@ -58,13 +60,13 @@ Smearing = 300./11600.*eV #300 K
 Output = geometry + dos
 OutputFormat = xyz
 
-DOSEnergyMin = -0.3674932248085465 #-10 eV, like Zhigilei
-DOSEnergyMax = 0.8452344170596571 #23 eV, like Zhigilei
+DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 23*eV #0.8452344170596571 #23 eV, like Zhigilei
 
 # DOSEnergyPoints = 1000
-DOSGamma = 3E-4 #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
+DOSGamma = 0.2*ev #0.2 eV: advised by NTD. 3E-4 #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
 
-ExtraStates = 4
+ExtraStates = 8
 ConvRelDens = 1e-8
 
 ExperimentalFeatures = yes
