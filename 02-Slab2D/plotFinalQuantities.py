@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 # @module plotFinalQuantities
-# Collects the generated octopus simulations from subfolders
-# Builds a table with laser parameters, final densities, and final energies after simulation. 
+# Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes)
+# Builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. 
+# Then prepares a bunch of scientific results for publications with one and two color simulations. 
 
 ## IMPORT LIBRARIES
 import numpy as np
@@ -914,12 +915,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
       MoveIonTitle=""
       MoveIonFile=""
-  pplt.title(r'$\lambda = $'+str(round(pulseWavelength*1E9))+r' nm, $n=\frac{E_g}{\hbar \omega}=$'+str(round(NumberOfPhotons_round))+MoveIonTitle)
+  pplt.title(r'$\lambda = $'+str(round(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g}{\hbar \omega}\right\rceil=$'+str(round(NumberOfPhotons_round))+MoveIonTitle)
   print Header+"Generating comparison with Keldysh-Gruzdev model..." ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
   Efieldmax = 5E10 # np.max(Efield1_uniq)
-  Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 500)
+  Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 2000)
   Efield1_Keldysh     = np.power(10., Efield1_Keldysh_log)
   print Efield1_Keldysh
   
@@ -974,7 +975,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     
     # ATOMIC KELDYSH
     print Header+"Preparing atomic Keldysh..."
-    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{atom}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{atom}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot23]
   #}}}  
   ## ZHUKOV
@@ -982,7 +983,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix) #we neglect optical index in atomic theory
   
   try: #we plot as function of external field
-      plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
+      plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
       plot2    += [plot23]
   except: 
       print Header+"** Warning: no data available from VP Zhukov for this wavelength."
@@ -993,11 +994,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     
   ## TUNNELING SECTION
   
-  Egap_SI_Tunnel = Egap_SI #direct band gap for LDA. Indirect requires phonons!
+  Egap_SI_Tunnel = Egap_SI #direct band gap for LDA. Indirect requires phonons (or local field effects)
   
+  EnableStarkEffect=False
   if(pulseWavelength  == 800e-9): 
     EffectiveMassList=[meff_Waroquiers_LDA]
-    EnableStarkEffect=False
   elif(pulseWavelength==1600e-9):
     EffectiveMassList=[meff_Waroquiers_LDA]
   elif(pulseWavelength==3200e-9):
@@ -1007,7 +1008,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
-    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E30,2E46)
+    PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
     #NOTE: tunneling barrier does not change as function of refractive index. Hence, we remove the optical index in case of tunneling limit. 
     plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
@@ -1146,15 +1147,30 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     labels3 = [l.get_label() for l in plot3]
     ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
     pplt.xlabel(r'Peak intensity (W/m$^2$)')
-    pplt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{tddft}}$ (eV)')
+    pplt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{(tddft)}}$ (eV)')
     #pplt.ylim((0,1))
-    ax3.set_xscale('log')
-    ax3.set_yscale('symlog', linthreshy=1e-5)
+    #locmin = mp.ticker.LogLocator(base=10.0, subs=(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 2, 3,4,5,6,7,8,9,10)) 
+    #locmin = mp.ticker.LogLocator(base=10.0,numticks=4)
+    #ax1.get_xaxis().set_major_locator(mp.ticker.LogLocator(base=10.0,numticks=4))
+    #ax1.get_xaxis().set_minor_locator(mp.ticker.LogLocator(base=10.0,numticks=50))
+    #ax1.xaxis.set_minor_locator(mp.ticker.AutoMinorLocator())
+    #ax1.get_xaxis().set_minor_formatter(mp.ticker.NullFormatter())
+    #ax1.get_xaxis().set_minor_formatter(mp.ticker.ScalarFormatter())
     
-    locmin = mp.ticker.LogLocator(base=10.0, subs=(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1)) 
-    ax3.xaxis.set_minor_locator(locmin)
-    ax3.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
-
+    
+    #ax2.xaxis.set_minor_locator(locmin)
+    #ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+    
+    #ax3.xaxis.set_minor_locator(locmin)
+    #ax3.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+    #ax3.yaxis.set_major_locator(locmin)
+    #ax3.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+    
+    ax3.set_xscale('log')
+    #ax3.set_yscale('symlog', linthreshy=1e-5)
+    ax3.set_yscale('log')
+    
+    pplt.tight_layout()
     #ax3.grid()
     #ax32 = ax3.twinx()
     #for pulse_value in pulses_uniq:
@@ -3226,11 +3242,11 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
 def plotAdjustedCollisionFrequencies_wavelength(): #{{{
 # Database was constructed by hand
 
-    Efield = np.array([1E9, 5E9, 1E10])
-    CollTime_1200nm = np.array([np.nan, 1.27e-14, 1.24e-14])
-    CollTime_800nm = np.array([4.85e-15, 7.25e-15, 6.9e-15])
-    CollTime_600nm = np.array([np.nan, 6.85e-15, 5.60e-15])
-    CollTime_400nm = np.array([1.45e-15, 2.65e-15, 3.55e-15])
+    Efield = np.array(          [1E9,      2E9,       3E9,       4E9,       5E9,      1E10])
+    CollTime_1200nm = np.array( [126E-15,  22.75E-15, 16.05e-15, 14.1e-15,  1.27e-14, 1.24e-14])
+    CollTime_800nm = np.array(  [4.85e-15, 5.6E-15,   5.9E-15,   6.55E-15,  7.25e-15, 6.9e-15])
+    CollTime_600nm = np.array(  [np.nan,   7.3E-15,   6.95E-15,  7.2E-15,   6.85e-15, 5.60e-15])
+    CollTime_400nm = np.array(  [1.45e-15, 1.55e-15,  1.75E-15,  2.1E-15,   2.65e-15, 3.55e-15])
 
     # Select the runs where Collision Frequency is provided. 
     # Plot as function of the peak field amplitude. 
@@ -3238,16 +3254,14 @@ def plotAdjustedCollisionFrequencies_wavelength(): #{{{
     plt.figure()
     plt.xlabel(r'Field peak amplitude $E_{\mathrm{peak}}$ (V/nm)')
     plt.ylabel(r'Estimated collision time $\nu^{-1}$ (fs)')
-    plt.plot(Efield*1E-9, 1E15*CollTime_400nm,  'b-+',  label=r"$\lambda=400$ nm")
-    plt.plot(Efield*1E-9, 1E15*CollTime_600nm,  'g-+',  label=r"$\lambda=600$ nm")
-    plt.plot(Efield*1E-9, 1E15*CollTime_800nm,  'k-+',  label=r"$\lambda=800$ nm")
-    plt.plot(Efield*1E-9, 1E15*CollTime_1200nm, 'r-+', label=r"$\lambda=1200$ nm")
+    plt.loglog(Efield*1E-9, 1E15*CollTime_400nm,  'b-+',  label=r"$\lambda=400$ nm")
+    plt.loglog(Efield*1E-9, 1E15*CollTime_600nm,  'g-+',  label=r"$\lambda=600$ nm")
+    plt.loglog(Efield*1E-9, 1E15*CollTime_800nm,  'k-+',  label=r"$\lambda=800$ nm")
+    plt.loglog(Efield*1E-9, 1E15*CollTime_1200nm, 'r-+', label=r"$\lambda=1200$ nm")
     plt.tight_layout()
     plt.legend(loc="best")
     plt.savefig("CollisionFrequencies.eps")
     plt.show()
-
-
     
 #}}}                                                           
 
@@ -3286,7 +3300,7 @@ def plot_Zhukov_SingleColor_LDA():
     
     # This is a manually prepared figure. 
 
-    # plotAdjustedCollisionFrequencies_wavelength()
+    plotAdjustedCollisionFrequencies_wavelength()
     
     ## Effects of CEP on single pulse excitation, current and energy, and harmonic spectrum
     RiseCycles = 2
