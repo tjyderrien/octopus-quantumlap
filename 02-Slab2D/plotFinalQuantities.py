@@ -970,12 +970,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         
     ## GRUZDEV    
     ## NOTE: Gruzdev treak consists in plotting (external_field, w_pi[internal_field]).      
-    plot22, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot22, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{Gruzdev}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot22]
     
     # ATOMIC KELDYSH
     print Header+"Preparing atomic Keldysh..."
-    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{atom}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{atom}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
     plot2    += [plot23]
   #}}}  
   ## ZHUKOV
@@ -983,7 +983,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix) #we neglect optical index in atomic theory
   
   try: #we plot as function of external field
-      plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
+      plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{Zhukov}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity. 
       plot2    += [plot23]
   except: 
       print Header+"** Warning: no data available from VP Zhukov for this wavelength."
@@ -1005,12 +1005,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     EffectiveMassList=[meff_Waroquiers_LDA]
   else: 
     EffectiveMassList=[meff_Waroquiers_LDA]
+  wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34}
   
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
     PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
     #NOTE: tunneling barrier does not change as function of refractive index. Hence, we remove the optical index in case of tunneling limit. 
-    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{TI}}^{\mathrm{Tunnel}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
     
     ## TUNNELING WITH INDIRECT BAND GAP.
@@ -1018,7 +1019,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #plot24, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling_i, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     #plot2    += [plot24]
   #}}}
-  pplt.ylim((1E36,1E45))
+  pplt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
   # Interpolation of a joint law of photoionization
   #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
@@ -1534,6 +1535,8 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   
+  PlotStarkShift=False
+  
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
   #Field dependent fitting of effective mass
@@ -1708,8 +1711,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             n0 = 4.*Density
             #if(not EnergyAxis):
             plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+            
             #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/m$^2$')
             plot1 += [plot_field]
+            
+            ## Let's plot here the Stark effect lines
+            
             
             #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, np.multiply(
                     ##PeakWpi_Gruzdev, np.divide(np.add(n0, np.multiply(-1,PeakWpi_Gruzdev*pulses1_sorted[0])), n0)),
@@ -1741,22 +1748,63 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # We separate TDDFT and Keldysh predictions now. 
   ax2 = pplt.subplot(plotB)
   
+  
+  ## Preparing the data for Keldysh computations
+  order = 50  #Keldysh series order
+  
+  if(PlotStarkShift): #does not bring much info, maybe error somewhere? 
+    # Can we plot Wpi_ResonantGap(EgapEff) ? 
+    IntegerLevels=np.arange(1,6,1) #generates 1,2,3,...,10
+    for IntegerLevel in IntegerLevels:
+        EgapResonant=Egap_SI/IntegerLevel #these are my levels resonant with initial gap
+        EgapResonant_Wavelength=h*c/EgapResonant #gives resonant wavelength with field
+        
+        epsilon_Si0_Stark = ImportPalikDatabase_epsilon_twofiles_eV(EgapResonant_Wavelength, "Database/Si-TDLDA")
+        OpticalIndex_Stark = np.real(np.sqrt(epsilon_Si0_Stark)) #maybe problem on the sqrt(real(sqrt(eps)))?
+        
+        # We compute Wpi_Gruzdev at this multiply resonant wavelength
+        Wpi_ResonantGap = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, EgapResonant_Wavelength, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), order, 1.) #NOTE that OpticalIndex*FieldOfInterest was ignored for now. 
+        gammaResonant = gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), EgapResonant_Wavelength, 1.) #valid for scalar data
+        k1 = Keldysh1phi(gammaResonant); k2 = Keldysh2theta(gammaResonant) #valid
+        EgapEff = EffectiveGap(Egap_SI, k1, k2)
+        del k1, k2
+
+        ## We re-inject the new resonant wavelengths into Keldysh, to compute the "real Wpi"
+        #Wpi_ResonantGap = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, h*c/EgapEff, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), order, 1.) #NOTE that
+        
+        plot_field, = ax1.plot((EgapEff/e/IntegerLevel), Wpi_ResonantGap, '--k', antialiased=antialias, linewidth=1)
+        plot1 += [plot_field]
+        plot_field, = ax2.plot((EgapEff/e/IntegerLevel), Wpi_ResonantGap, '--k', antialiased=antialias, linewidth=1)
+        plot1 += [plot_field]
+        del EgapEff, Wpi_ResonantGap
+  
+
   for Efield1_compare in FieldOfInterest: #{{{
-    print Header+"Building comparison with Keldysh-Gruzdev..."
-    order = 50 
-    #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
     wavelengths1_min = 200e-9; wavelengths1_max = 2100e-9
     wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 500)
-    
+
     ### Capturing the dielectric permittivity in experimental or TDLDA database
-    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## TODO: replace by LDA !
+    #epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## TODO: replace by LDA !
     epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
+    OpticalIndex = np.real(np.sqrt(epsilon_Si0))
     
+    
+    print Header+"Building comparison with Keldysh-Gruzdev..."
+    #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
     print "Dielectric permittivity of Si at 800 nm"
     print "[Palik] | [Reining et al PRL 2002]"
     print str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
     
-    OpticalIndex = np.real(np.sqrt(epsilon_Si0))
+    
+    ### I will need intermerdiate Keldysh coefficients
+    #gamma = gammaKeldysh(Egap, meff, PeakField, wavelength, RefractiveIndex.real) #valid for scalar data
+    #k1 = Keldysh1phi(gamma); k2 = Keldysh2theta(gamma)
+    #EgapEff=EffectiveGap(Egap, k1, k2)
+    
+    ## We construct Wpi(corresponding to the photon energy equal to the effective gap), and plot that! 
+    
+    #PeakWpi_Gruzdev_Stark = 
+    
     PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, EffectiveMass[Efield1_compare], wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order, 1.) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
     Saturation = (n0 - (PeakWpi_Gruzdev * pulseDuration )) / n0 #saturation term
     PeakWpi_Gruzdev_sat = PeakWpi_Gruzdev * Saturation
