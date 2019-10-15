@@ -32,7 +32,7 @@ mp.rcParams['legend.numpoints'] = 1
 Header="[plotHHGspectra] "
 
 ShowFinalPlot              = 0
-path = "./"
+path = "*/*/td.general/"
 for FolderName in glob.glob(path):
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
     # If the run considers only single pulses
@@ -41,14 +41,16 @@ for FolderName in glob.glob(path):
     
     if(Efield2_SI < 1): #we only select runs that are with single pulses. 
         # NOTE: We need multiple wavelengths, but one spectrum per wavelength. 
-    
+            
         # List all the files HHG-spectrums.csv in subfolders
         HHG=loadtxt(path+"../td.general/HHG-spectrum.csv", dtyoe='str', skiprows=1)
         
         # Capture the spectrum
         print HHG
-        
+        # NOTE information on frequencies appear missing in these files. 
         # Interpolate it to the size of the others
         # Add it as a line in table
+        # Prepare the final table
         # Plot the final picture
+        libPlotting.plot2dHeatMap(X, Y, Z, r"HHG(\omega_{\mbox{probe}}, \lambda_{\mbox{pump}})", "HHGspectrum", True, False)
         # Add analytical Stark effect there
