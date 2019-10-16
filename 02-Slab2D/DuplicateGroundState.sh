@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#DryRun="--dry-run"
-DryRun=$3
+DryRun="--dry-run"
+# DryRun=$3
 
 set -e
 
