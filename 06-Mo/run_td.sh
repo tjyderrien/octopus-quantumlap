@@ -230,7 +230,7 @@ ReplaceInputFile () {
 }
 
 BuildSample() {
-  # Build the sample
+  echo "This function should be removed."
 }
 
 SubmitTheJob () {

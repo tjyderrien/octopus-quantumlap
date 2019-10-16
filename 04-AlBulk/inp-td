@@ -2,9 +2,9 @@ CalculationMode = td
 
 PeriodicDimensions = 3
 
-a = 7.653
+a = 7.65271050669904
 
-Spacing = a/16
+Spacing = a/32
 
 BoxShape = parallelepiped
 
@@ -18,8 +18,7 @@ Lsize = a/2
 %
 
 %KPointsGrid
-  4  | 1 | 1
- 1/2 | 0 | 0
+  8  | 8 | 8
 %
 
 PseudopotentialSet = pseudodojo_lda
