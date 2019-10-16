@@ -363,12 +363,16 @@ tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 CurrentX=np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
 
+PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
+
+print "Captured pulse duration [fs]: "+str(1E15*PulseDuration_SI)
+
 print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
 print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU)
 print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, tMaxSimulation_SI)
+CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 3*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -702,7 +706,8 @@ plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
 
 filename = "HHG-Spectrum"
-ExportToTxt([Xaxis, Yaxis], filename+".csv")
+SampleArray=list(zip(*[Xaxis, Yaxis]))
+ExportToTxt(SampleArray, filename+".csv", "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")
