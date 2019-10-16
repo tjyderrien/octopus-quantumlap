@@ -1,3 +1,8 @@
+# # T.J-Y. Derrien, NM Bulgakova 
+# # ATLANTIC project
+# # <derrien@fzu.cz>
+#
+
 CalculationMode = td
 
 PeriodicDimensions = 3
@@ -7,7 +12,12 @@ a = 5.9469681168157855 #Bohr, size of the cubic cell
 angle = 90. #degrees, indeed
 
 
-Spacing = a/16
+# Spacing = a/16
+
+%Spacing
+        MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU #to be replaced by script
+%
+
 
 BoxShape = parallelepiped
 
@@ -26,37 +36,173 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  32 | 32 | 32
+  16 | 16 | 16
 %
 
-# PseudopotentialSet = pseudodojo_lda
+PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
 # PseudopotentialSet = pseudodojo_pbesol_stringent
-PseudopotentialSet = sg15
-XCFunctional = GGA_X_PBE + GGA_C_PBE
+# PseudopotentialSet = sg15
+# XCFunctional = GGA_X_PBE + GGA_C_PBE
 # XCFunctional = GGA_X_PBE_R
 # XCFunctional = MGGA_X_PBE_GX
-FilterPotentials = filter_none
+# FilterPotentials = filter_none
 
+%RestartOptions
+  restart_gs | "../../restart/"
+  restart_proj | "../../restart/"
+%
+
+### LASER PULSE
+
+cSI = 299792458e0
+eVperHartree = 27.21138505e0 #Wikipedia [Hartree]
+BohrRadius = 5.2917721067e-11 #m, Wikipedia [Bohr radius]
+HartreePerBohr = eVperHartree / BohrRadius
+hSI = 6.626070040e-34
+heVs = 4.135667662e-15
+ecSI = 1.6021766208e-19
+hbarSI = 1.054571800e-34
+TimeAUtoSI = hbarSI / eVperHartree / ecSI
+lightvelocity = 137.035999139 #light velocity = 1e0/fine structure constant [https://en.wikipedia.org/wiki/Fine-structure_constant]
+
+# To be replaced by script
+## Pulse wavelengths ##
+lambdaA = lambda1Value #SI: s-1, to be replaced by script
+lambdaB = lambda2Value #SI: s-1, to be replaced by script
+## Field amplitude
+EfieldAsi = Efield1amplitude #V/m, to be replaced by script
+EfieldBsi = Efield2amplitude #V/m, to be replaced by script
+#
+
+## Pulse duration 
+tauAsi = tau1ToReplace #This is FWHM of the Gaussian pulse
+tauBsi = tau2ToReplace #This is FWHM of the Gaussian pulse
+### Double pulse delay
+pulseDelaySI = pulseDelayToReplace
+### Envelope phase CEP
+CEPA = pi*CEP1replaceMe
+CEPB = pi*CEP2replaceMe
+## shifting by pi/2.
+CEPA = CEPA + pi/2.
+CEPB = CEPB + pi/2.
+### Computational time
+ComputingTimeValueSI = ComputingTimeValueToReplace
+#
+#
+
+# Conversion to a.u.
+## Pulse wavelengths ##
+# omegaAsi = 2.*pi*cSI / lambdaA
+# omegaBsi = 2.*pi*cSI / lambdaB
+# omegaA = omegaAsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree 
+# omegaB = omegaBsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree
+omegaA = heVs * cSI / lambdaA / eVperHartree
+omegaB = heVs * cSI / lambdaB / eVperHartree
+## Field amplitude
+EfieldA = EfieldAsi / HartreePerBohr
+EfieldB = EfieldBsi / HartreePerBohr
+## Pulse duration 
+tauA = tauAsi / TimeAUtoSI
+tauB = tauBsi / TimeAUtoSI
+# t0 = max(tauA, tauB) #useless to use tauB there
+t0 = tauA
+t0Gauss = 2.*t0
+GaussianRatio = 2.*sqrt(2. * ln(2.))
+sigmaTauA = tauA / GaussianRatio
+sigmaTauB = tauB / GaussianRatio
+#
+
+## Double pulse delay
+pulseDelay = pulseDelaySI / TimeAUtoSI
+t1 = t0 + pulseDelay
+t1Gauss = t0Gauss + pulseDelay
+### Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
+## RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
+#
+### Vector field amplitude
+#
+## /!\ Assumption is made on the temporal integration of Efield
+amplitudeA = EfieldA * lightvelocity / omegaA
+amplitudeB = EfieldB * lightvelocity / omegaB
+#
+### Simulation time management
+ComputingTime = ComputingTimeValueSI / TimeAUtoSI
+##4.*sigmaTau1 + pulseDelay + RelaxationTime #time of computation
+#
+## Predicting which simulation axis will be broken during excitation. 
+theta_inc = 0. #angle of incidence of the laser
+ell = 0. #ellipticity
+%SymmetryBreakDir
+ cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+%
+#
+
+#TODO: script the change of polarization
+th1 = 0
+th2 = ReplaceMeTheta      #Scripted
+px1 = cos(th1)
+py1 = sin(th1)
+px2 = cos(th2)
+py2 = sin(th2)
+
+# Duration of the rise is linked with laser wavelength
+tauRise = 2.*pi/omegaA #no longer true when input is from a file
+#
+GaugeFieldPropagate = ReplaceMeGaugeField # | yes
+
+## GROUND STATE 
 SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV
 
-ExtraStates = 4
+## EXTRASTATES
+ExtraStates = 8
 
 ExperimentalFeatures = yes
 
 FromScratch = yes
 
+# Building up pulses
+%TDExternalFields
+#   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+#   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
+ise
+
+%TDFunctions
+  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
+  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
+  "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
+  "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
+  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
+  "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+# "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
+# # "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
+# # "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
+#
+#
+#
+  "FieldColorA-STH" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-STH" | tdf_from_file | "PulseB.dat"
+  "FieldColorA-StH" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-StH" | tdf_from_file | "PulseB.dat"
+%
+
+
+
 ## Extracted from example of delayed kick from NTD testsuite for periodic solids.
-ParStates = auto
-ParDomains = yes
-ParKPoints = auto
+# ParStates = auto
+# ParDomains = yes
+# ParKPoints = auto
 # CurrentDensity = gradient_corrected
 
-Iau  = (sqrt(0E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
-omega = 0.5
-Tpulse = 210
+# Iau  = (sqrt(0E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
+# omega = 0.5
+# Tpulse = 210
 
 # %TDExternalFields
 #   vector_potential | 1.0 | 0.0 | 0.0 | omega | "envelope_sin2"
@@ -66,21 +212,20 @@ Tpulse = 210
 #  "envelope_sin2" | tdf_from_expr | "-Iau/omega*c*sin(pi*t/Tpulse)^2*(1-step(t-Tpulse))"
 # %
 
-%GaugeVectorField
-   1 | 0 | 0
+GaugeVectorFieldAmplitude = 0 #for future
+
+%GaugeVectorField #useful for probing
+   GaugeVectorFieldAmplitude | 0 | 0 
 %
 
-GaugeFieldDelay =  2
+GaugeFieldDelay = 0
 
-%SymmetryBreakDir
- 1.0 | 0.0 | 0.0
-%
-TDMaxSteps = 300
+# TDMaxSteps = 300
 
 TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
-# TDPropagationTime = ComputingTime
+TDPropagationTime = ComputingTime
 TDPropagator = aetrs #it was aetrs
-# TDExponentialMethod = lanczos
+TDExponentialMethod = lanczos
 TDExpOrder = 16
 
-TDOutput = energy + geometry + total_current + gauge_field + density
+TDOutput = energy + geometry + laser + total_current + gauge_field + density
