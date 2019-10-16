@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-# @module plotTimeKeldysh
+# @module plotTimeHHG
 # Plots the TD-n_excited density of electrons, automatically compares with Keldysh model, assuming a limiter. 
 # Plots the TD-energy. 
 # Plots the TD-fields and currents. 
@@ -702,7 +702,7 @@ plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
 
 filename = "HHG-Spectrum"
-ExportToTxt(Yaxis, filename+".csv")
+ExportToTxt([Xaxis, Yaxis], filename+".csv")
 
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")
@@ -729,7 +729,7 @@ if(plotNLFC):
 ax4.axvline(x=2*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$2\omega_1$")  #omega1
 
 #3 omega1
-ax4.axvline(x=3*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="--", label=r"$3\omega_1$")  #omega1
+ax4.axvline(x=3*h*c/e/wavelength_SI, color='b', linewidth=0.5, linestyle="-.", label=r"$3\omega_1$")  #omega1
 
 #2omega2
 if(plotNLFC): 
