@@ -6,7 +6,7 @@
 #PBS -o Morille.log
 #PBS -A OPEN-16-27
 #PBS -l select=4:ncpus=24:mpiprocs=24:ompthreads=1
-#PBS -l walltime=1:00:00
+#PBS -l walltime=24:00:00
 
 cd $PBS_O_WORKDIR
 
@@ -51,4 +51,4 @@ RunningTrunc=/home/tjyderrien/octopus.git/bin
 # sed -i.bak 's/FromScratch/#FromScracth/g' inp #Avoid to kill the data while restarting the job
 # ~                                                           
 
-mpirun -np 96 $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
+mpirun $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
