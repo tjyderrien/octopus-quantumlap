@@ -71,6 +71,7 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 # Efield1="5.5E8 5E8 6E8 6.5E8 7E8 7.5E8 8.5E8 8E8 9E8 9.5E8 1.5E9 2E9 2.5E9 3E9 3.5E9 4E9 4.5E9 6E9 7E9 8E9 9E9" #Exceptionally, run a series of runs which did not finish. 
 # Efield1="3E8 4E8 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
+
 Efield1="5E10 1E11 5E11"
 # Efield1="5E8 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
@@ -88,8 +89,13 @@ tau2="20E-15"
 # lambda1="323e-9 448e-9 571e-9 652e-9 918e-9 954e-9 961e-9 968e-9 976e-9 2296e-9 2480e-9"
 # lambda1="550e-9 750e-9 850e-9 1150e-9 1250e-9 1350e-9 1450e-9 1650e-9 1750e-9" 
 # lambda1="483e-9 484e-9" #these are harmonics of the LDA band gap. 
+<<<<<<< HEAD
 lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="800e-9"
+=======
+# lambda1="1600e-9 2200e-9 3200e-9"
+lambda1="800e-9"
+>>>>>>> 544ecdf276c29d3a163a2280196edbd31c174fa7
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
 # lambda1="407.58e-9" #1st harmonic of the band gap LDA: 483.70 nm. TB09: 407.58 nm.
 lambda2="400e-9"
