@@ -622,7 +622,7 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, xlabel, ylabel, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True): #{{{
+def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel=''): #{{{
   print len(BrutX)
   print len(BrutY)
   print len(BrutZ)

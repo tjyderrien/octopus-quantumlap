@@ -93,4 +93,4 @@ xlabel=r"$\hbar \omega_{HHG}$ (eV)"
 ylabel="Runs"
 ShowFinalPlot=False
 PlotTriangles=False
-libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", xlabel, ylabel, ShowFinalPlot, False, PlotTriangles)
+libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
