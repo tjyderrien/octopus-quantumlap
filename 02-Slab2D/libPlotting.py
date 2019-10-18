@@ -622,7 +622,7 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False): #{{{
+def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel=''): #{{{
   print len(BrutX)
   print len(BrutY)
   print len(BrutZ)
@@ -656,8 +656,14 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #ax = fig.add_subplot(111, projection='3d')
       #plt.gca().set_aspect('equal')
       plt.title(QuantityTitle)
-      plt.xlabel(r'$E_1$ (V/nm)')
-      plt.ylabel(r'$E_2$ (V/nm)')
+      if(xlabel==''): 
+         plt.xlabel(r'$E_1$ (V/nm)')
+      else: 
+         plt.xlabel(xlabel)
+      if(ylabel==""):
+         plt.ylabel(r'$E_2$ (V/nm)')
+      else: 
+         plt.ylabel(ylabel)
       #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
       #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
       #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
@@ -666,7 +672,8 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
       #ax.view_init(90, 90)
       #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
-      plt.triplot(triang, lw=0.1, color='grey')
+      if(PlotTriangles):
+        plt.triplot(triang, lw=0.1, color='grey')
       levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
       #cmap = cm.get_cmaps(name='terrain', lut=None)
       cmap = cm.get_cmap(name='Blues', lut=None)

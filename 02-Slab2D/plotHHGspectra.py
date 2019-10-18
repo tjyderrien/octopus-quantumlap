@@ -27,40 +27,80 @@ import glob
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotHHGspectra] "
 
-ShowFinalPlot              = 0
+ShowFinalPlot              = 1
 
-path = "*/*/td.general/"
+path = "*/td.general/"
 
-for FolderName in glob.glob(path):
+X=[]; Y=[]; Z=[]
+counter=0
+
+for FolderName in glob.glob(path): #{{{
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
     # If the run considers only single pulses
     filename = FolderName+"../inp"
+    Efield1_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldAsi = ")
     Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
-    if(Efield2_SI < 1): #we only select runs that are with single pulses. 
+    PulseDuration_SI = libPlotting.GetParameterValueFromInputFile(filename, "tauAsi = ")
+    PulseDuration2_SI= libPlotting.GetParameterValueFromInputFile(filename, "tauBsi = ")
+    wavelength1_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaA = ")
+    wavelength2_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaB = ")
+ 
+
+    print "Pulse duration 1 (s): "+str(PulseDuration_SI)
+    print "Field amplitude 2 (V/m): "+str(Efield2_SI)
+
+    if(Efield2_SI > 1): #we only select runs that are with single pulses. 
         # NOTE: We need multiple wavelengths, but one spectrum per wavelength.       
 
         # List all the files HHG-spectrums.csv in subfolders
-        try:
-          HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
-        except:
-          print "** Info: Loading of HHG-Spectrum.csv failed."
+        # try: 
+        HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+        # except:
+        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
         # Size of the spectrum? 
-        
-        print len(HHG)
-        print HHG
-
-        # NOTE information on frequencies appear missing in these files. 
-
+        HHG=np.asfarray(HHG)
+        print "Size of HHG file: "+str(len(HHG))
+#        print HHG
+#        print "Extracting 1 column: "
+#        print HHG[:,1]
         # Interpolate it to the size of the others
+        
         # Add it as a line in table
+        X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
+        Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
+        print counter
+        Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
+        print Y
         # Prepare the final table
-        # Plot the final picture
-        libPlotting.plot2dHeatMap(X, Y, Z, r"HHG(\omega_{\mbox{probe}}, \lambda_{\mbox{pump}})", "HHGspectrum", True, False)
+        # Plot the intermediate picture
+        # plt.figure()
+        # plt.plot(X, Z)
+        # plt.show() 
         # Add analytical Stark effect there
         # Cleaning
         del HHG
+        counter+=1
+    else: 
+        print "** Info: Double pulses are ignored."
+# }}} #glob loop
+
+# Returns log10 of Z, but clean.
+Z_clipped=np.clip(Z, 1, np.max(Z))
+Z_log=np.log10(Z_clipped)
+Z_contourf=np.reshape(Z_log, (counter, len(Z_log)/counter))
+Z=Z_clipped
+# From here, we have all the files we need. 
+xlabel=r"$\hbar \omega_{HHG}$ (eV)"
+ylabel="Runs"
+ShowFinalPlot=False
+PlotTriangles=False
+plt.figure()
+# plt.contourf(X,Y,Z_contourf)
+plt.savefig("HHG.png")
+# plt.show()
+libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
