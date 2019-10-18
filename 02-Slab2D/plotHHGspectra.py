@@ -75,8 +75,7 @@ for FolderName in glob.glob(path): #{{{
         # Plot the intermediate picture
         # plt.figure()
         # plt.plot(X, Z)
-        # plt.show()
-        
+        # plt.show() 
         # Add analytical Stark effect there
         # Cleaning
         del HHG
@@ -85,6 +84,13 @@ for FolderName in glob.glob(path): #{{{
         print "** Info: Double pulses are ignored."
 # }}} #glob loop
 
+# Returns log10 of Z, but clean.
+Z_clipped=np.clip(Z, 1, np.max(Z))
+Z=np.log10(Z_clipped)
+
 # From here, we have all the files we need. 
+xlabel=r"$\hbar \omega_{HHG}$ (eV)"
+ylabel="Runs"
 ShowFinalPlot=False
-libPlotting.plot2dHeatMap(X, Y, Z, r"HHG(\omega_{\mbox{probe}}, \lambda_{\mbox{pump}})", "HHGspectrum", ShowFinalPlot, False)
+PlotTriangles=False
+libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", xlabel, ylabel, ShowFinalPlot, False, PlotTriangles)
