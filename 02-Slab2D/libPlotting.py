@@ -58,7 +58,7 @@ def LoadRunOutputs(path):
 def GetParameterValueFromInputFile(filepath, string): #{{{
     Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile(filepath, string)
-    print Header+str(wavelength_inp)
+    # print Header+str(wavelength_inp)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
     try:
