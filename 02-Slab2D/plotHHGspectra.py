@@ -43,13 +43,18 @@ for FolderName in glob.glob(path): #{{{
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
     # If the run considers only single pulses
     filename = FolderName+"../inp"
+    Efield1_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldAsi = ")
     Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
     PulseDuration_SI = libPlotting.GetParameterValueFromInputFile(filename, "tauAsi = ")
+    PulseDuration2_SI= libPlotting.GetParameterValueFromInputFile(filename, "tauBsi = ")
+    wavelength1_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaA = ")
+    wavelength2_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaB = ")
+ 
 
     print "Pulse duration 1 (s): "+str(PulseDuration_SI)
     print "Field amplitude 2 (V/m): "+str(Efield2_SI)
 
-    if(Efield2_SI > 1): #we only select runs that are with single pulses. 
+    if(Efield2_SI > 1 and wavelength1_SI==1030e-9): #we only select runs that are with single pulses. 
         # NOTE: We need multiple wavelengths, but one spectrum per wavelength.       
 
         # List all the files HHG-spectrums.csv in subfolders
@@ -86,11 +91,15 @@ for FolderName in glob.glob(path): #{{{
 
 # Returns log10 of Z, but clean.
 Z_clipped=np.clip(Z, 1, np.max(Z))
-Z=np.log10(Z_clipped)
-
+Z_log=np.log10(Z_clipped)
+Z_contourf=np.reshape(Z_log, (counter, len(Z_log)/counter))
 # From here, we have all the files we need. 
 xlabel=r"$\hbar \omega_{HHG}$ (eV)"
 ylabel="Runs"
 ShowFinalPlot=False
 PlotTriangles=False
+plt.figure()
+# plt.contourf(X,Y,Z_contourf)
+plt.savefig("HHG.png")
+# plt.show()
 libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
