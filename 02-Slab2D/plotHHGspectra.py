@@ -54,7 +54,7 @@ for FolderName in glob.glob(path): #{{{
     print "Pulse duration 1 (s): "+str(PulseDuration_SI)
     print "Field amplitude 2 (V/m): "+str(Efield2_SI)
 
-    if(Efield2_SI > 1 and wavelength1_SI==1030e-9): #we only select runs that are with single pulses. 
+    if(Efield2_SI > 1): #we only select runs that are with single pulses. 
         # NOTE: We need multiple wavelengths, but one spectrum per wavelength.       
 
         # List all the files HHG-spectrums.csv in subfolders
@@ -93,6 +93,7 @@ for FolderName in glob.glob(path): #{{{
 Z_clipped=np.clip(Z, 1, np.max(Z))
 Z_log=np.log10(Z_clipped)
 Z_contourf=np.reshape(Z_log, (counter, len(Z_log)/counter))
+Z=Z_clipped
 # From here, we have all the files we need. 
 xlabel=r"$\hbar \omega_{HHG}$ (eV)"
 ylabel="Runs"
