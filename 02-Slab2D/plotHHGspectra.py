@@ -106,11 +106,59 @@ Database = np.loadtxt(DatabaseFile, skiprows=0)
 Efield1=1E9 #V/m
 tau1   =30e-15
 CEP1   =0
-
 Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield1, tau1, CEP1)
-exit()
+
+# One can sort here the DB as function of the sequence we would like to plot.
+# Filtered1 
+
+# Extracting the data from filtered database
+runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Filtered1)
+
+for JobID in np.arange(0,len(runid)):
+    # Lookup for the corresponding file. Reconstruct the folder name: faster than finding the file in TB or data? 
+    RebuiltFolderName="lambda"+str(wavelengths1[JobID])
+    RebuiltFolderName+="-tau"+str(pulses1[JobID])
+    RebuiltFolderName+="-field"+str(Efield1[JobID])
+    RebuiltFolderName+="-CEP"+str(CEP1[JobID])
+    RebuiltFolderName+="-"+str(PulseTypeID_rev[PulseType[JobID]])
+    RebuiltFolderName+=str(RiseTime)
+    RebuiltFolderName+=str(FreezeHXC)+"/"
+    print RebuiltFolderName
+#    RebuiltFolderName+=""lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain} #NOTE appears a bit complicated. 
+
+    # HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+                # except:
+                #  print "** Error: Loading of HHG-Spectrum.csv failed." 
+                # Size of the spectrum? 
+    #            HHG=np.asfarray(HHG)
+        #        print "Size of HHG file: "+str(len(HHG))
+        #        print HHG
+        #        print "Extracting 1 column: "
+        #        print HHG[:,1]
+                # Interpolate it to the size of the others
+
+                # Add it as a line in table
+      #          X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
+      #          Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
+      #          print counter
+      #          Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
+      #          print Y
+                # Prepare the final table
+                # Plot the intermediate picture
+                # plt.figure()
+                # plt.plot(X, Z)
+                # plt.show() 
+                # Add analytical Stark effect there
+                # Cleaning
+      #          del HHG
+      #          counter+=1
+
+
+# Once has the data, let's extract the job numbers, extract the HHG-Spectrum.csv files and build the figure.
 # libDatabase.ExtractMaterialData(DataseFile)
 # libDatabase.ExtractDataDb(DatabaseFile)
+
+exit()
 
 #### ======== COMMON PART 
 
