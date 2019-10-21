@@ -24,6 +24,7 @@ from libKeldysh import *
 import libPlotting
 import glob
 import os
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -104,14 +105,15 @@ def ParseAllFolders():
 
 Database = np.loadtxt(DatabaseFile, skiprows=0)
 # FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
-Efield1=1E9 #V/m
-tau1   =20e-15
-CEP1   =0
+Efield =7.5E8 #V/m
+tau    =20e-15
+CEP    =0
 MoveIon=0
 PulseType=3; RiseCycles=2
-Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield1, tau1, CEP1, PulseType, RiseCycles)
+Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield, tau, CEP, PulseType, RiseCycles)
 
 # One must sort here the DB as function of the sequence we would like to plot.
+
 # Sorted1=np.sort(Filtered1, axis=0)
 Sorted2=Filtered1[np.lexsort((Filtered1[:,libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['wavelengths1']]))]
 # NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. Maybe manual selection in DB ? 
@@ -155,13 +157,23 @@ for JobID in np.arange(0,len(runid)):
                 # Interpolate it to the size of the others
 
                 # Add it as a line in table
-#    if(len(HHG[:,0])
-    X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
-    Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
+    print str(len(wavelengths1))+" wavelengths"
+    if(len(HHG[:,0])!=600):
+      print "** Info: interpolating..."
+    # NOTE: the size of HHG was like 600 all the time. Let's interpolate to that size if different.
+      HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
+      HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), 600)
+      Z_interp=HHG_func(HHG_omega_new)
+      X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
+      Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
       #          print counter
-    Y=np.append(1E9*wavelengths1[JobID]*np.ones(len(HHG)), [Y]) #we are sure that JobID is increasing monotonically. 
-#    Y=np.append(np.multiply(np.divide(2.*np.pi*c,wavelengths1[JobID]),np.ones(len(HHG))), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
-    print int(1E9*wavelengths1[JobID])
+      Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
+    else: 
+      X=np.append(HHG[:,0],X)
+      Z=np.append(HHG[:,1],Z)
+      Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y])
+    print str(int(1E9*wavelengths1[JobID]))+" nm"
+    print str(h*c/wavelengths1[JobID]/e)+" eV"
       #          print Y
                 # Prepare the final table
                 # Plot the intermediate picture
@@ -171,11 +183,10 @@ for JobID in np.arange(0,len(runid)):
                 # Add analytical Stark effect there
                 # Cleaning
     del HHG
-      #          counter+=1
+
 
 
 #### ======== COMMON PART 
-
 # Converts Y to array of reals
 Y = np.asfarray(Y)
 
@@ -184,9 +195,11 @@ Z_clipped=np.clip(Z, 1, np.max(Z))
 Z_log=np.log10(Z_clipped)
 # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
 Z=Z_log #Z_clipped
+# Z=Z_clipped
 # From here, we have all the files we need. 
 xlabel=r"$\hbar \omega_{HHG}$ (eV)"
-ylabel="Runs"
+ylabel=r"Wavelength $\lambda$ (nm)"
+ylabel=r"Photon energy $\hbar \omega$ (eV)"
 ShowFinalPlot=False
 PlotTriangles=False
-libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum-"+str(int(Efield)), ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
