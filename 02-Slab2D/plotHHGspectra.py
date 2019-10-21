@@ -80,7 +80,7 @@ def ParseAllFolders():
 	#        print "Extracting 1 column: "
 	#        print HHG[:,1]
 	        # Interpolate it to the size of the others
-	        
+	       
 	        # Add it as a line in table
 	        X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
 	        Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
@@ -155,12 +155,13 @@ for JobID in np.arange(0,len(runid)):
                 # Interpolate it to the size of the others
 
                 # Add it as a line in table
+#    if(len(HHG[:,0])
     X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
     Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
       #          print counter
-    Y=np.append(JobID*np.ones(len(HHG)), [Y]) #we are sure that JobID is increasing monotonically. 
+    Y=np.append(1E9*wavelengths1[JobID]*np.ones(len(HHG)), [Y]) #we are sure that JobID is increasing monotonically. 
 #    Y=np.append(np.multiply(np.divide(2.*np.pi*c,wavelengths1[JobID]),np.ones(len(HHG))), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
-    print wavelengths1[JobID]
+    print int(1E9*wavelengths1[JobID])
       #          print Y
                 # Prepare the final table
                 # Plot the intermediate picture
