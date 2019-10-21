@@ -23,6 +23,7 @@
 from libKeldysh import *
 import libPlotting
 import glob
+import os
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -104,44 +105,62 @@ def ParseAllFolders():
 Database = np.loadtxt(DatabaseFile, skiprows=0)
 # FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
 Efield1=1E9 #V/m
-tau1   =30e-15
+tau1   =20e-15
 CEP1   =0
-Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield1, tau1, CEP1)
+MoveIon=0
+PulseType=3; RiseCycles=2
+Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield1, tau1, CEP1, PulseType, RiseCycles)
 
-# One can sort here the DB as function of the sequence we would like to plot.
-# Filtered1 
+# One must sort here the DB as function of the sequence we would like to plot.
+# Sorted1=np.sort(Filtered1, axis=0)
+Sorted2=Filtered1[np.lexsort((Filtered1[:,libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['wavelengths1']]))]
+# NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. Maybe manual selection in DB ? 
+
+# One can use np.unique() function, but we may loose the JobID then? 
+#   Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
 
 # Extracting the data from filtered database
-runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Filtered1)
+try: 
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
+except:
+  print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
+  exit()
+
+# DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
+# if(DuplicatedEntries): #we keep only the longest runs
+#  print "There exists DUPLICATED ENTRIES (several iterations of same parameters. Please clean the database.csv flie in that respect, then restart."
+#  print DuplicatedEntries
+#  exit()  
 
 for JobID in np.arange(0,len(runid)):
-    # Lookup for the corresponding file. Reconstruct the folder name: faster than finding the file in TB or data? 
-    RebuiltFolderName="lambda"+str(wavelengths1[JobID])
-    RebuiltFolderName+="-tau"+str(pulses1[JobID])
-    RebuiltFolderName+="-field"+str(Efield1[JobID])
-    RebuiltFolderName+="-CEP"+str(CEP1[JobID])
-    RebuiltFolderName+="-"+str(PulseTypeID_rev[PulseType[JobID]])
-    RebuiltFolderName+=str(RiseTime)
-    RebuiltFolderName+=str(FreezeHXC)+"/"
-    print RebuiltFolderName
-#    RebuiltFolderName+=""lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain} #NOTE appears a bit complicated. 
-
-    # HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
-                # except:
-                #  print "** Error: Loading of HHG-Spectrum.csv failed." 
-                # Size of the spectrum? 
-    #            HHG=np.asfarray(HHG)
-        #        print "Size of HHG file: "+str(len(HHG))
-        #        print HHG
+    runid_int = int(runid[JobID])
+    FileLookUp="octopus-td."+str(runid_int)+".log"
+#    print FileLookUp
+    ListFound=glob.glob("*/*/"+FileLookUp)
+    # We obtain the right path.  
+    # print ListFound
+    runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
+    print runid_folder
+    try:
+        HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+    except:
+        print "** Error: Loading of HHG-Spectrum.csv failed." 
+        continue #just jump this run. Keep plotting the rest. 
+    # Size of the spectrum? 
+    HHG=np.asfarray(HHG)
+    print "Size of HHG file: "+str(len(HHG))
+    # print HHG
         #        print "Extracting 1 column: "
         #        print HHG[:,1]
                 # Interpolate it to the size of the others
 
                 # Add it as a line in table
-      #          X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
-      #          Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
+    X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
+    Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
       #          print counter
-      #          Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
+    Y=np.append(JobID*np.ones(len(HHG)), [Y]) #we are sure that JobID is increasing monotonically. 
+#    Y=np.append(np.multiply(np.divide(2.*np.pi*c,wavelengths1[JobID]),np.ones(len(HHG))), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
+    print wavelengths1[JobID]
       #          print Y
                 # Prepare the final table
                 # Plot the intermediate picture
@@ -150,30 +169,23 @@ for JobID in np.arange(0,len(runid)):
                 # plt.show() 
                 # Add analytical Stark effect there
                 # Cleaning
-      #          del HHG
+    del HHG
       #          counter+=1
 
 
-# Once has the data, let's extract the job numbers, extract the HHG-Spectrum.csv files and build the figure.
-# libDatabase.ExtractMaterialData(DataseFile)
-# libDatabase.ExtractDataDb(DatabaseFile)
-
-exit()
-
 #### ======== COMMON PART 
+
+# Converts Y to array of reals
+Y = np.asfarray(Y)
 
 # Returns log10 of Z, but clean.
 Z_clipped=np.clip(Z, 1, np.max(Z))
 Z_log=np.log10(Z_clipped)
-Z_contourf=np.reshape(Z_log, (counter, len(Z_log)/counter))
-Z=Z_clipped
+# Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
+Z=Z_log #Z_clipped
 # From here, we have all the files we need. 
 xlabel=r"$\hbar \omega_{HHG}$ (eV)"
 ylabel="Runs"
 ShowFinalPlot=False
 PlotTriangles=False
-plt.figure()
-# plt.contourf(X,Y,Z_contourf)
-plt.savefig("HHG.png")
-# plt.show()
 libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
