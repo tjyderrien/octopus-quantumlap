@@ -585,6 +585,33 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 
 IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'MoveIon': 15, 'Ne_max': 16, 'Ne_final': 17, 'irreversibility': 18, 'Current_final': 19, 'Energy_max': 20, 'Wpi': 21, 'PulseType': 22, 'RiseTime': 23}
 
+#Selects single-color pulses, with same field amplitude and same wavelengths from a database
+# @param Database: the array with all the data, 
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2): #{{{ 
+        PlottingSinglePulses = Database  #get the full database
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingSinglePulses)
+        return PlottingSinglePulses
+#}}}
+
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0
 # SinSquared is working and physical. 
