@@ -105,7 +105,7 @@ def ParseAllFolders():
 
 Database = np.loadtxt(DatabaseFile, skiprows=0)
 # FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
-Efield =7.5E8 #V/m
+Efield =4E9 #V/m
 tau    =20e-15
 CEP    =0
 MoveIon=0
@@ -149,8 +149,9 @@ for JobID in np.arange(0,len(runid)):
         print "** Error: Loading of HHG-Spectrum.csv failed." 
         continue #just jump this run. Keep plotting the rest. 
     # Size of the spectrum? 
+    print "Size of HHG table before conversion: "+str(len(HHG))
     HHG=np.asfarray(HHG)
-    print "Size of HHG file: "+str(len(HHG))
+    print "Size of HHG farray: "+str(len(HHG))
     # print HHG
         #        print "Extracting 1 column: "
         #        print HHG[:,1]
@@ -158,7 +159,9 @@ for JobID in np.arange(0,len(runid)):
 
                 # Add it as a line in table
     print str(len(wavelengths1))+" wavelengths"
-    if(len(HHG[:,0])!=600):
+    print "Shape of the HHG array: "+str(np.shape(HHG))
+    
+    if(len(HHG)!=600):
       print "** Info: interpolating..."
     # NOTE: the size of HHG was like 600 all the time. Let's interpolate to that size if different.
       HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
@@ -198,7 +201,7 @@ Z=Z_log #Z_clipped
 # Z=Z_clipped
 # From here, we have all the files we need. 
 xlabel=r"$\hbar \omega_{HHG}$ (eV)"
-ylabel=r"Wavelength $\lambda$ (nm)"
+# ylabel=r"Wavelength $\lambda$ (nm)"
 ylabel=r"Photon energy $\hbar \omega$ (eV)"
 ShowFinalPlot=False
 PlotTriangles=False
