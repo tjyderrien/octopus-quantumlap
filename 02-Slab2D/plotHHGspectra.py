@@ -35,59 +35,84 @@ Header="[plotHHGspectra] "
 ShowFinalPlot              = 1
 
 path = "*/td.general/"
+DatabaseFile="Database.csv"
 
 X=[]; Y=[]; Z=[]
 counter=0
 
-for FolderName in glob.glob(path): #{{{
-    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
-    # If the run considers only single pulses
-    filename = FolderName+"../inp"
-    Efield1_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldAsi = ")
-    Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
-    PulseDuration_SI = libPlotting.GetParameterValueFromInputFile(filename, "tauAsi = ")
-    PulseDuration2_SI= libPlotting.GetParameterValueFromInputFile(filename, "tauBsi = ")
-    wavelength1_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaA = ")
-    wavelength2_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaB = ")
- 
+# NOTE: two ways to capture the corresponding data can be employed. 
+#
+# 1. Looking the individual input file.
+# 2. Or accessing the database using the ID of the run. Must be much more clever way.
+    
+## NOTE: METHOD 1: accessing each subfolder. 
+def ParseAllFolders():
+	for FolderName in glob.glob(path): #{{{ #NOTE: this takes everything available: not sorted.
+	    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
+	  
+	    ### METHOD 1: rebuilding database without choosing the order of the sequence.  
+	    filename = FolderName+"../inp"
+	    Efield1_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldAsi = ")
+	    Efield2_SI = libPlotting.GetParameterValueFromInputFile(filename, "EfieldBsi = ")
+	    PulseDuration_SI = libPlotting.GetParameterValueFromInputFile(filename, "tauAsi = ")
+	    PulseDuration2_SI= libPlotting.GetParameterValueFromInputFile(filename, "tauBsi = ")
+	    wavelength1_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaA = ")
+	    wavelength2_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaB = ") 
+   
+	    print "Pulse duration 1 (s): "+str(PulseDuration_SI)
+	    print "Field amplitude 2 (V/m): "+str(Efield2_SI)
+	
+	    # NOTE: all of these data were already collected in the Database. Fetch them from database.  
+	    # If the run considers only single pulses
+	    if(Efield2_SI > 1): #we only select runs that are with single pulses. 
+	        # NOTE: We need multiple wavelengths, but one spectrum per wavelength.       
+	
+	        # List all the files HHG-spectrums.csv in subfolders
+	        # try: 
+	        HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+	        # except:
+	        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
+	        # Size of the spectrum? 
+	        HHG=np.asfarray(HHG)
+	        print "Size of HHG file: "+str(len(HHG))
+	#        print HHG
+	#        print "Extracting 1 column: "
+	#        print HHG[:,1]
+	        # Interpolate it to the size of the others
+	        
+	        # Add it as a line in table
+	        X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
+	        Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
+	        print counter
+	        Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
+	        print Y
+	        # Prepare the final table
+	        # Plot the intermediate picture
+	        # plt.figure()
+	        # plt.plot(X, Z)
+	        # plt.show() 
+	        # Add analytical Stark effect there
+	        # Cleaning
+        	del HHG
+	        counter+=1
+	    else: 
+	        print "** Info: Double pulses are ignored."
+	# }}} #glob loop
 
-    print "Pulse duration 1 (s): "+str(PulseDuration_SI)
-    print "Field amplitude 2 (V/m): "+str(Efield2_SI)
+#### ======== METHOD 2: construct the sub-database of interest
 
-    if(Efield2_SI > 1): #we only select runs that are with single pulses. 
-        # NOTE: We need multiple wavelengths, but one spectrum per wavelength.       
+Database = np.loadtxt(DatabaseFile, skiprows=0)
+# FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
+Efield1=1E9 #V/m
+tau1   =30e-15
+CEP1   =0
 
-        # List all the files HHG-spectrums.csv in subfolders
-        # try: 
-        HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
-        # except:
-        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
-        # Size of the spectrum? 
-        HHG=np.asfarray(HHG)
-        print "Size of HHG file: "+str(len(HHG))
-#        print HHG
-#        print "Extracting 1 column: "
-#        print HHG[:,1]
-        # Interpolate it to the size of the others
-        
-        # Add it as a line in table
-        X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
-        Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
-        print counter
-        Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
-        print Y
-        # Prepare the final table
-        # Plot the intermediate picture
-        # plt.figure()
-        # plt.plot(X, Z)
-        # plt.show() 
-        # Add analytical Stark effect there
-        # Cleaning
-        del HHG
-        counter+=1
-    else: 
-        print "** Info: Double pulses are ignored."
-# }}} #glob loop
+Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield1, tau1, CEP1)
+exit()
+# libDatabase.ExtractMaterialData(DataseFile)
+# libDatabase.ExtractDataDb(DatabaseFile)
+
+#### ======== COMMON PART 
 
 # Returns log10 of Z, but clean.
 Z_clipped=np.clip(Z, 1, np.max(Z))
