@@ -618,7 +618,7 @@ def FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CE
 # STH was not well controlled (stupid mistake)
 # StH was well controlled. 
 PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
-
+PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH'}
 ## Damps a signal from FinalTimeDamping instant. 
 # @param timeCurrent: table of instants (SI)
 # @param CurrentX: signal to be processed
@@ -655,7 +655,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
   print len(BrutZ)
   X=list(set(BrutX))
   Y=list(BrutY)
-  #Z=DensityMax2Dsorted
+
   YY, XX = np.meshgrid(X, Y)
   # If the size is big enough, let's make a plot.
   #if(len(DensityMax2D) >= 2): #{{{
