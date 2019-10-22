@@ -679,7 +679,12 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel=''): #{{{
+def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=10, ylimit=10): #{{{
+#    cmap='Blues'
+#    cmap='RdBu_r'
+#    afmhot_r, hot, hot_r, bone_r, 
+#    colormap="bone_r"
+
   print len(BrutX)
   print len(BrutY)
   print len(BrutZ)
@@ -731,9 +736,9 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
       if(PlotTriangles):
         plt.triplot(triang, lw=0.1, color='grey')
-      levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
+      levels = np.linspace(np.min(BrutZ), np.max(BrutZ), number_of_levels)
       #cmap = cm.get_cmaps(name='terrain', lut=None)
-      cmap = cm.get_cmap(name='Blues', lut=None)
+      cmap = cm.get_cmap(name=cmap_ext, lut=None)
       plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
       #plt.tricontour(tri_refi, z_test_refi, levels=levels,
               #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
@@ -756,7 +761,11 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
       #plt.colorbar(CS)
       
-      plt.savefig(filename+'.eps')
+      # Limiting the view
+      plt.xlim((0, xlimit))
+      plt.ylim((0, ylimit))
+
+      # plt.savefig(filename+'.eps')
       plt.savefig(filename+'.png')
       print Header+"** Info: saved "+filename+"eps|png."
       if(ShowFinalPlot==1):

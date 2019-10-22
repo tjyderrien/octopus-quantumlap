@@ -185,10 +185,22 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     #ylabel=r"Wavelength $\lambda$ (nm)"
     ylabel=r"Photon energy $\hbar \omega$ (eV)"
     title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
+    #    cmap='Blues'
+#    cmap='RdBu_r'
+    # afmhot_r, hot, hot_r, bone_r, 
+    colormap='bone_r'
 
     ShowFinalPlot=False
     PlotTriangles=False
-    libPlotting.plot2dHeatMap(X, Y, Z, title, "HHGspectrum-"+str(int(Efield)), ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+    PlotGradient =False
+
+    xlimit=10   #eV
+    ylimit=6  #eV
+    numberoflevels=30
+
+#plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
+    filename="HHGspectrum-"+str(int(Efield))
+    libPlotting.plot2dHeatMap(X, Y, Z, title, filename, ShowFinalPlot, False, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
     return 0
 #}}}
 
@@ -273,15 +285,28 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     # Z=Z_clipped
     # From here, we have all the files we need. 
 
-    xlabel=r"$\hbar \omega_{HHG}$ (eV)"
+    xlabel=r'$\hbar \omega_{HHG}$ (eV)'
     #ylabel=r"Wavelength $\lambda$ (nm)"
     #ylabel=r"Photon energy $\hbar \omega$ (eV)"
-    ylabel=r"Carrier Env. Phase (deg)"
-    title=r"$HHG(\omega_{probe}$, CEP$_{pump})$"
+    ylabel=r'Carrier Env. Phase (deg)'
+    title=r'$HHG(\omega_{probe}$, CEP$_{pump})$'
+#    cmap='Blues'
+#    cmap='RdBu_r'
+    # afmhot_r, hot, hot_r, bone_r, 
+    colormap='bone_r'
 
     ShowFinalPlot=False
-    PlotTriangles=False
-    libPlotting.plot2dHeatMap(X, Y, Z, title, "HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+    PlotTriangles=True
+    PlotGradient =False
+
+    xlimit=6 #eV
+    ylimit=10  #eV
+    numberoflevels=30
+ 
+    filename="HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm"
+
+#plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
+    libPlotting.plot2dHeatMap(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
     return 0
 #}}}
 
@@ -296,3 +321,7 @@ def plotHHG_batch_CEP():
 	tau=20E-15; MoveIon=0; wavelength=800e-9
 	for Efield in [1E9, 5E9]:
 		PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon)
+
+# plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
+
+plotHHG_batch_Efield() 
