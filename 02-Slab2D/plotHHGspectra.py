@@ -193,7 +193,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 #}}}
 
 ## Prepares plot HHG(omega_HHG, CEP) 
-def PlotHHGsinglePulsewithCEP(CEP, wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
+def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
     
     # Declaring variables
     X=[]; Y=[]; Z=[]
@@ -281,15 +281,18 @@ def PlotHHGsinglePulsewithCEP(CEP, wavelength=800e-9, Efield=1E9, tau=20E-15, Mo
 
     ShowFinalPlot=False
     PlotTriangles=False
-    libPlotting.plot2dHeatMap(X, Y, Z, title, "HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(CEP1)), ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+    libPlotting.plot2dHeatMap(X, Y, Z, title, "HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm", ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
     return 0
 #}}}
 
-
+def plotHHG_batch_Efield():
 # HHG(omegaHHG, omega1; Efield1)
-tau=20E-15; CEP=0; MoveIon=0
-for Efield in [5E8, 7.5E8, 1E9, 1.5E9, 2E9, 3E9, 4E9, 5E9]:
-    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
+	tau=20E-15; CEP=0; MoveIon=0
+	for Efield in [5E8, 7.5E8, 1E9, 1.5E9, 2E9, 3E9, 4E9, 5E9]:
+	    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
     
 # HHG(omegaHHG, CEP1; Efield1)
-
+def plotHHG_batch_CEP():
+	tau=20E-15; MoveIon=0; wavelength=800e-9
+	for Efield in [1E9, 5E9]:
+		PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon)
