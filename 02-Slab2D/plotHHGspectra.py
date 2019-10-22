@@ -39,9 +39,6 @@ ShowFinalPlot              = 1
 path = "*/td.general/"
 DatabaseFile="Database.csv"
 
-X=[]; Y=[]; Z=[]
-counter=0
-
 # NOTE: two ways to capture the corresponding data can be employed. 
 # 1. Looking the individual input file.
 # 2. Or accessing the database using the ID of the run. Must be much more clever way.
@@ -105,6 +102,10 @@ def ParseAllFolders(): #{{{
 Database = np.loadtxt(DatabaseFile, skiprows=0)
 
 def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
+    
+    # Declaring variables
+    X=[]; Y=[]; Z=[]
+   
     # FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
     #Efield =7.5E8 #V/m
     #tau    =20e-15
@@ -158,12 +159,12 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
             Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
             #          print counter
             Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
-            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+#            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
             Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
-            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
+#            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
         print str(int(1E9*wavelengths1[JobID]))+" nm"
         print str(h*c/wavelengths1[JobID]/e)+" eV"
         del HHG
