@@ -43,12 +43,10 @@ X=[]; Y=[]; Z=[]
 counter=0
 
 # NOTE: two ways to capture the corresponding data can be employed. 
-#
 # 1. Looking the individual input file.
 # 2. Or accessing the database using the ID of the run. Must be much more clever way.
-    
-## NOTE: METHOD 1: accessing each subfolder. 
-def ParseAllFolders():
+# METHOD 1: accessing each subfolder. 
+def ParseAllFolders(): #{{{
 	for FolderName in glob.glob(path): #{{{ #NOTE: this takes everything available: not sorted.
 	    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
 	  
@@ -99,107 +97,103 @@ def ParseAllFolders():
 	        counter+=1
 	    else: 
 	        print "** Info: Double pulses are ignored."
-	# }}} #glob loop
-
+	#}}} #glob loop
+#}}}
+    
 #### ======== METHOD 2: construct the sub-database of interest
 
 Database = np.loadtxt(DatabaseFile, skiprows=0)
-# FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
-Efield =7.5E8 #V/m
-tau    =20e-15
-CEP    =0
-MoveIon=0
-PulseType=3; RiseCycles=2
-Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield, tau, CEP, PulseType, RiseCycles)
 
-# One must sort here the DB as function of the sequence we would like to plot.
+def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
+    # FilterSinglePulseDatabaseWithParameters(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2)
+    #Efield =7.5E8 #V/m
+    #tau    =20e-15
+    #CEP    =0
+    #MoveIon=0
+    #PulseType=3; RiseCycles=2
+    Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters(Database, Efield, tau, CEP, PulseType, RiseCycles)
 
-# Sorted1=np.sort(Filtered1, axis=0)
-Sorted2=Filtered1[np.lexsort((Filtered1[:,libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['wavelengths1']]))]
-# NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. Maybe manual selection in DB ? 
+    # SORTING
+    # One must sort here the DB as function of the sequence we would like to plot.
+    # Sorted1=np.sort(Filtered1, axis=0)
+    Sorted2=Filtered1[np.lexsort((Filtered1[:,libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['wavelengths1']]))]
+    # NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. For now: manually disabling duplicated entries in DB. 
+    # One could use np.unique() function, but we may loose the JobID then? 
+    # Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
 
-# One can use np.unique() function, but we may loose the JobID then? 
-#   Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
-
-# Extracting the data from filtered database
-try: 
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
-except:
-  print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
-  exit()
-
-# DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
-# if(DuplicatedEntries): #we keep only the longest runs
-#  print "There exists DUPLICATED ENTRIES (several iterations of same parameters. Please clean the database.csv flie in that respect, then restart."
-#  print DuplicatedEntries
-#  exit()  
-
-for JobID in np.arange(0,len(runid)):
-    runid_int = int(runid[JobID])
-    FileLookUp="octopus-td."+str(runid_int)+".log"
-#    print FileLookUp
-    ListFound=glob.glob("*/*/"+FileLookUp)
-    # We obtain the right path.  
-    # print ListFound
-    runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
-    print runid_folder
-    try:
-        HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+    # Extracting the data from filtered database
+    try: 
+        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
     except:
-        print "** Error: Loading of HHG-Spectrum.csv failed." 
-        continue #just jump this run. Keep plotting the rest. 
-    # Size of the spectrum? 
-    HHG=np.asfarray(HHG)
-    print "Size of HHG file: "+str(len(HHG))
-    # print HHG
-        #        print "Extracting 1 column: "
-        #        print HHG[:,1]
-                # Interpolate it to the size of the others
+        print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
+        exit()
 
-                # Add it as a line in table
-    print str(len(wavelengths1))+" wavelengths"
-    if(len(HHG[:,0])!=600):
-      print "** Info: interpolating..."
-    # NOTE: the size of HHG was like 600 all the time. Let's interpolate to that size if different.
-      HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-      HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), 600)
-      Z_interp=HHG_func(HHG_omega_new)
-      X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
-      Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
-      #          print counter
-      Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
-    else: 
-      X=np.append(HHG[:,0],X)
-      Z=np.append(HHG[:,1],Z)
-      Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y])
-    print str(int(1E9*wavelengths1[JobID]))+" nm"
-    print str(h*c/wavelengths1[JobID]/e)+" eV"
-      #          print Y
-                # Prepare the final table
-                # Plot the intermediate picture
-                # plt.figure()
-                # plt.plot(X, Z)
-                # plt.show() 
-                # Add analytical Stark effect there
-                # Cleaning
-    del HHG
+    # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
+    # if(DuplicatedEntries): #we keep only the longest runs
+    #  print "There exists DUPLICATED ENTRIES (several iterations of same parameters. Please clean the database.csv flie in that respect, then restart."
+    #  print DuplicatedEntries
+    #  exit()  
 
+    for JobID in np.arange(0,len(runid)):
+        runid_int = int(runid[JobID])
+        FileLookUp="octopus-td."+str(runid_int)+".log"
+        ListFound=glob.glob("*/*/"+FileLookUp)
+        runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
+        print runid_folder
+        try:
+            HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+        except:
+            print "** Error: Loading of HHG-Spectrum.csv failed." 
+            continue #just jump this run. Keep plotting the rest. 
+        # Size of the spectrum? 
+        HHG=np.asfarray(HHG)
+        print "Size of HHG file: "+str(len(HHG))
 
+        if(len(HHG[:,0])!=600): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
+            print "** Info: interpolating..."
+            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
+            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), 600)
+            Z_interp=HHG_func(HHG_omega_new)
+            X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
+            Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
+            #          print counter
+            Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
+            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+        else: #dont interpolate
+            X=np.append(HHG[:,0],X)
+            Z=np.append(HHG[:,1],Z)
+            Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
+            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
+        print str(int(1E9*wavelengths1[JobID]))+" nm"
+        print str(h*c/wavelengths1[JobID]/e)+" eV"
+        del HHG
 
-#### ======== COMMON PART 
-# Converts Y to array of reals
-Y = np.asfarray(Y)
+    #### ======== COMMON PART 
+    # Converts Y to array of reals
+    Y = np.asfarray(Y)
 
-# Returns log10 of Z, but clean.
-Z_clipped=np.clip(Z, 1, np.max(Z))
-Z_log=np.log10(Z_clipped)
-# Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
-Z=Z_log #Z_clipped
-# Z=Z_clipped
-# From here, we have all the files we need. 
-xlabel=r"$\hbar \omega_{HHG}$ (eV)"
-ylabel=r"Wavelength $\lambda$ (nm)"
-ylabel=r"Photon energy $\hbar \omega$ (eV)"
-ShowFinalPlot=False
-PlotTriangles=False
-libPlotting.plot2dHeatMap(X, Y, Z, r"$HHG(\omega_{probe}$, $\lambda_{pump})$", "HHGspectrum-"+str(int(Efield)), ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+    # Returns log10 of Z, but clean.
+    Z_clipped=np.clip(Z, 1, np.max(Z))
+    Z_log=np.log10(Z_clipped)
+    # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
+    Z=Z_log #Z_clipped
+    # Z=Z_clipped
+    # From here, we have all the files we need. 
+
+    xlabel=r"$\hbar \omega_{HHG}$ (eV)"
+    #ylabel=r"Wavelength $\lambda$ (nm)"
+    ylabel=r"Photon energy $\hbar \omega$ (eV)"
+    title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
+
+    ShowFinalPlot=False
+    PlotTriangles=False
+    libPlotting.plot2dHeatMap(X, Y, Z, title, "HHGspectrum-"+str(int(Efield)), ShowFinalPlot, False, PlotTriangles, xlabel, ylabel)
+    return 0
+#}}}
+
+# HHG(omegaHHG, omega1; Efield1)
+tau=20E-15; CEP=0; MoveIon=0
+for Efield in [5E8, 7.5E8, 1E9, 1.5E9, 2E9, 3E9, 4E9, 5E9]:
+    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
+    
+# HHG(omegaHHG, CEP1; Efield1)
