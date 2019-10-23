@@ -120,8 +120,8 @@ done
 # do
 # LocalPath=$( pwd )
 # cd $run
-# plotBasicOutput
-# plotExcitation
+plotBasicOutput
+plotExcitation
 # cd $LocalPath
 # done
 
