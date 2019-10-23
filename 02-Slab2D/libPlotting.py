@@ -691,7 +691,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
   X=list(set(BrutX))
   Y=list(BrutY)
 
-  YY, XX = np.meshgrid(X, Y)
+#  YY, XX = np.meshgrid(X, Y)
   # If the size is big enough, let's make a plot.
   #if(len(DensityMax2D) >= 2): #{{{
   if(len(BrutZ) >= 2): #{{{
@@ -708,6 +708,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
       #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
       interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
+#      interp_linear= tri.LinearTriInterpolator(tri_refi, z_test_refi) #consumes much less. 
       Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
       Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
       
