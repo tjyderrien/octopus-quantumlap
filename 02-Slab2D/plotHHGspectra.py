@@ -160,12 +160,12 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
             X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
             Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
             #          print counter
-            Y=np.append(np.multiply(1E9*wavelengths1[JobID],np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
+            Y=np.append(np.multiply(1E6*wavelengths1[JobID],np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
-            Y=np.append(np.multiply(1E9*wavelengths1[JobID],np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
+            Y=np.append(np.multiply(1E6*wavelengths1[JobID],np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
         print str(int(1E9*wavelengths1[JobID]))+" nm"
         print str(h*c/wavelengths1[JobID]/e)+" eV"
@@ -183,7 +183,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     # Z=Z_clipped
 
     xlabel=r"$\hbar \omega_{HHG}$ (eV)"
-    ylabel=r"Wavelength $\lambda$ (nm)"
+    ylabel=r"Wavelength $\lambda$ ($\mu$m)"
     # ylabel=r"Photon energy $\hbar \omega$ (eV)"
     title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
     #    cmap='Blues'
@@ -196,7 +196,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     PlotGradient =False
 
     xlimit=10   #eV
-    ylimit=3.5  #um
+    ylimit=2.5  #um
     numberoflevels=30
 
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
