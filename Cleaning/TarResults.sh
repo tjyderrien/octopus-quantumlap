@@ -47,3 +47,15 @@ backup_SinSquared() {
   filename=$DATE-SinSquared-Pulses.tar
   tar -cvf $filename --exclude='*.obf' $( list_folders | grep 'SinSquared' -i )
 }
+
+remove_corefiles() {
+  for file in $( find | grep 'core.draco0' )
+  do
+    rm $file
+  done
+}
+
+remove_obf_files() {
+  # find . -type f | grep '.obf' >& OBFfilesToRemove.log
+  find . -name '*.obf' -mindepth 5 -maxdepth 5 #-delete  
+}
