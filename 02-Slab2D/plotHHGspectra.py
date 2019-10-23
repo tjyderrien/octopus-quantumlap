@@ -24,7 +24,7 @@ from libKeldysh import *
 import libPlotting
 import glob
 import os
-from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import InterpolatedUnivariateSpline, interp1d
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -35,6 +35,7 @@ mp.rcParams['legend.numpoints'] = 1
 Header="[plotHHGspectra] "
 
 ShowFinalPlot              = 1
+HHG_samples                = 600 #*2, *3, *4
 
 path = "*/td.general/"
 DatabaseFile="Database.csv"
@@ -150,20 +151,21 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
         HHG=np.asfarray(HHG)
         print "Size of HHG file: "+str(len(HHG))
 
-        if(len(HHG[:,0])!=600): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
+        if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print "** Info: interpolating..."
-            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), 600)
+#            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1]) #does not work very well. Sure, they are not many points in input. 
+            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='cubic')
+            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
             Z_interp=HHG_func(HHG_omega_new)
             X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
             Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
             #          print counter
-            Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
+            Y=np.append(np.multiply(1E9*wavelengths1[JobID],np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
-            Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
+            Y=np.append(np.multiply(1E9*wavelengths1[JobID],np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
         print str(int(1E9*wavelengths1[JobID]))+" nm"
         print str(h*c/wavelengths1[JobID]/e)+" eV"
@@ -179,11 +181,10 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
     Z=Z_log #Z_clipped
     # Z=Z_clipped
-    # From here, we have all the files we need. 
 
     xlabel=r"$\hbar \omega_{HHG}$ (eV)"
-    #ylabel=r"Wavelength $\lambda$ (nm)"
-    ylabel=r"Photon energy $\hbar \omega$ (eV)"
+    ylabel=r"Wavelength $\lambda$ (nm)"
+    # ylabel=r"Photon energy $\hbar \omega$ (eV)"
     title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
     #    cmap='Blues'
 #    cmap='RdBu_r'
@@ -195,11 +196,17 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     PlotGradient =False
 
     xlimit=10   #eV
-    ylimit=6  #eV
+    ylimit=3.5  #um
     numberoflevels=30
 
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
-    filename="HHGspectrum-"+str(int(Efield))
+    filename="HHGspectrum-"+str(int(Efield))+"-HHGamples"+str(HHG_samples)
+
+    ## EXPORT to external file.
+    print "** Info: Exporting to file "+filename+".csv"
+    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv", "# X\tY\tZ")
+
+    print "** Preparing plot..."
     libPlotting.plot2dHeatMap(X, Y, Z, title, filename, ShowFinalPlot, False, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
     return 0
 #}}}
@@ -254,10 +261,10 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         HHG=np.asfarray(HHG)
         print "Size of HHG file: "+str(len(HHG))
 
-        if(len(HHG[:,0])!=600): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
+        if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print "** Info: interpolating..."
             HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), 600)
+            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_saples)
             Z_interp=HHG_func(HHG_omega_new)
             X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
             Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
