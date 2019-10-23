@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2018 T. J.-Y. Derrien
+# Copyright (C) 2013-2019 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ def LoadRunOutputs(path):
 def GetParameterValueFromInputFile(filepath, string): #{{{
     Header="GetParameterValueFromInputFile: "
     wavelength_inp       = LookUpStringInFile(filepath, string)
-    print Header+str(wavelength_inp)
+    # print Header+str(wavelength_inp)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
     try:
@@ -585,13 +585,70 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 
 IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'MoveIon': 15, 'Ne_max': 16, 'Ne_final': 17, 'irreversibility': 18, 'Current_final': 19, 'Energy_max': 20, 'Wpi': 21, 'PulseType': 22, 'RiseTime': 23}
 
+#Selects single-color pulses of various wavelengths, with same field amplitude from a database
+# @param Database: the array with all the data, 
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2, MoveIon=0): #{{{ 
+        PlottingSinglePulses = Database  #get the full database
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingSinglePulses)
+        return PlottingSinglePulses
+#}}}
+
+#Selects single-color pulses, with same field amplitude from a database
+# @param Database: the array with all the data, 
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration, PulseType=3, RiseTime=2, MoveIon=0): #{{{ 
+        PlottingSinglePulses = Database  #get the full database
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+        #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingSinglePulses)
+        return PlottingSinglePulses
+#}}}
+
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0
 # SinSquared is working and physical. 
 # STH was not well controlled (stupid mistake)
 # StH was well controlled. 
 PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
-
+PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH'}
 ## Damps a signal from FinalTimeDamping instant. 
 # @param timeCurrent: table of instants (SI)
 # @param CurrentX: signal to be processed
@@ -614,7 +671,6 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
     CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
     return CurrentX_HHG
 #}}}
-
 
 ## Plots a heat-map color picture of randomly meshed data
 # @param X: 2D-matrix
@@ -693,6 +749,140 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #plt.colorbar(CS)
       
       plt.savefig(filename+'.eps')
+      plt.savefig(filename+'.png')
+      print Header+"** Info: saved "+filename+"eps|png."
+      if(ShowFinalPlot==1):
+        plt.show()
+      
+      if(PlotGradient):
+        print Header+"** Info: Plotting the gradient..."
+        print Header+"** Debug: Shape of I1: "+str(np.shape(E1_t))
+        print Header+"** Debug: Shape of I2: "+str(np.shape(E2_t))
+        print Header+"** Debug: Shape of the grad(interpolated field X): "+str(np.shape(Nexc_t_grad[0]))
+        print Header+"** Debug: Shape of the grad(interpolated field Y): "+str(np.shape(Nexc_t_grad[1]))
+        
+        fig2=plt.figure()
+        plt.title(r"$\nabla_{I_1}$"+QuantityTitle)
+        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
+        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
+        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[0], cmap=plt.cm.Blues)
+        plt.triplot(triang, lw=0.1, color='grey')
+        plt.colorbar(CS)
+        plt.tight_layout()
+        plt.savefig(filename+'-GradientE1.eps')
+        plt.savefig(filename+'-GradientE1.png')
+        if(ShowFinalPlot==1):
+            plt.show()
+            
+        fig3=plt.figure()
+        plt.title(r"$\nabla_{I_2}$"+QuantityTitle)
+        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
+        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
+        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[1], cmap=plt.cm.Blues)
+        plt.triplot(triang, lw=0.1, color='grey')
+        plt.colorbar(CS)
+        plt.tight_layout()
+        plt.savefig(filename+'-GradientE2.eps')
+        plt.savefig(filename+'-GradientE2.png')
+        if(ShowFinalPlot==1):
+            plt.show()
+#}}}
+
+
+## Plots a heat-map color picture of randomly meshed data
+# @param X: 2D-matrix
+# @param Y: 2D-matrix
+# @param Z: f(X, Y)
+# @param QuantityTitle: string with title (LaTeX accepted)
+# @param filename:      string with filename (EPS and PNG will be generated)
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=10, ylimit=10): #{{{
+#    cmap='Blues'
+#    cmap='RdBu_r'
+#    afmhot_r, hot, hot_r, bone_r, 
+#    colormap="bone_r"
+
+  print len(BrutX)
+  print len(BrutY)
+  print len(BrutZ)
+  X=list(set(BrutX))
+  Y=list(BrutY)
+
+#  YY, XX = np.meshgrid(X, Y)
+  # If the size is big enough, let's make a plot.
+  #if(len(DensityMax2D) >= 2): #{{{
+  if(len(BrutZ) >= 2): #{{{
+      #try:
+      triang = tri.Triangulation(BrutX, BrutY)
+      triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
+                               BrutY[triang.triangles].mean(axis=1))
+                      < 0.15)
+      # We can project the triangular mesh on a orthogonal by performing interpolation as done here. https://matplotlib.org/3.1.0/gallery/images_contours_and_fields/triinterp_demo.html
+      refiner = tri.UniformTriRefiner(triang)
+      tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
+      
+      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), 100), np.linspace(np.min(BrutY), np.max(BrutY), 100) )
+      #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
+      #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
+      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
+#      interp_linear= tri.LinearTriInterpolator(tri_refi, z_test_refi) #consumes much less. 
+      Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
+      Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
+      
+      ## Plotting the quantity...
+      plt.figure()
+      #plt.title(r'$N_{exc}(E_1,E_2)$, $\lambda_1=$'+str(wavelength1*1E9)+r'nm, $\lambda_2=$'+str(wavelength2*1E9)+'nm.')
+      fig = plt.figure()
+      #ax = fig.add_subplot(111, projection='3d')
+      #plt.gca().set_aspect('equal')
+      plt.title(QuantityTitle)
+      if(xlabel==''): 
+         plt.xlabel(r'$E_1$ (V/nm)')
+      else: 
+         plt.xlabel(xlabel)
+      if(ylabel==""):
+         plt.ylabel(r'$E_2$ (V/nm)')
+      else: 
+         plt.ylabel(ylabel)
+      #CS = plt.imshow(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues)
+      #CS = plt.contourf(XX, YY, DensityMax2Dsorted, cmap=plt.cm.Blues)
+      #CS = ax.scatter(BrutX, BrutY, BrutZ) #, cmap=plt.cm.Blues) #WORKS but limited to boring dots
+      #CS = ax.plot_wireframe(XX, YY, DensityMax2Dsorted) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+      #CS = ax.plot_surface(XX, YY, DensityMax2DsortedShape) #, cmap=plt.cm.Blues) #FAILS: WHY do we have ground values ?! 
+      #CS = ax.plot_trisurf(BrutX, BrutY, BrutZ, cmap=plt.cm.Blues, antialiased=True, edgecolor='none') #WORKS
+      #ax.view_init(90, 90)
+      #See https://matplotlib.org/gallery/images_contours_and_fields/tricontour_smooth_user.html#sphx-glr-gallery-images-contours-and-fields-tricontour-smooth-user-py
+      if(PlotTriangles):
+        plt.triplot(triang, lw=0.1, color='grey')
+      levels = np.linspace(np.min(BrutZ), np.max(BrutZ), number_of_levels)
+      #cmap = cm.get_cmaps(name='terrain', lut=None)
+      cmap = cm.get_cmap(name=cmap_ext, lut=None)
+      plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+      #plt.tricontour(tri_refi, z_test_refi, levels=levels,
+              #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
+              #linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])
+      plt.colorbar()
+      plt.tight_layout()
+        #except:
+            #CS = -1
+            #print Header+"** Warning: failed to produce one of the plots."
+        
+      #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
+      #print np.shape(Xi), np.shape(Yi)
+      #print np.shape(XXi), np.shape(YYi)
+      #print np.shape(BicolorNeFinal)
+      
+      #CS = ax.scatter(XXi, YYi, BicolorNeFinal) #, cmap=plt.cm.Blues) #WORKS
+      
+      #CS = ax.plot_trisurf(Xi, Yi, BicolorNeFinal, cmap=plt.cm.Spectral)
+      
+      #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
+      #plt.colorbar(CS)
+      
+      # Limiting the view
+      plt.xlim((0, xlimit))
+      plt.ylim((0, ylimit))
+
+      # plt.savefig(filename+'.eps')
       plt.savefig(filename+'.png')
       print Header+"** Info: saved "+filename+"eps|png."
       if(ShowFinalPlot==1):

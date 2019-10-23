@@ -122,14 +122,12 @@ done
 # LocalPath=$( pwd )
 # cd $run
 
-echo "Plotting basic results..."
-plotBasicOutput
-# plotExcitation
-# cd $LocalPath
-# done
 
-# Then we can finish by treating the results for Merdji 
-# plotHHG
+echo "Plotting basic results..."
+plotBasicOutput #cleans up laser files also. 
+plotExcitation  #Prepare all plots for n_ex analysis.
+plotHHG         #Generate the CSV files with HHG spectra. 
+echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
 # for folder in $( list_folders | grep -v 'lambda' ) 
 # do

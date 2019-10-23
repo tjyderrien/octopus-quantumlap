@@ -55,8 +55,8 @@ Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 ,
 OpticalIndex={
         400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
         600e-9: 3.947144634525661,
-        800e-9: 3.6924167231905, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik or LDA linear response?
+        800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
+        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik. TODO: change for linear response. 
 Fig_PlotLocalField={'Fig2a': True, 'Fig2b': True, 'Fig6a': False, 'Fig6b': False, 'Fig9a': False, 'Fig9b': False, 'Fig9c': False}
 Fig_PlotPoynting=Fig_PlotLocalField
 
