@@ -187,7 +187,7 @@ Output = density + potential + geometry + elf + current + kinetic_energy_density
 OutputFormat = axis_x + axis_y + axis_z + vtk + xyz + netcdf 
 
 OutputInterval = 5 #Output interval for maps (videos). 10 is a bit too high.
-RestartWriteInterval = 50
+RestartWriteInterval = 500
 TDOutputComputeInterval = 10 #Essentially used for n_excited_el.
 
 # Absorbing boundary
