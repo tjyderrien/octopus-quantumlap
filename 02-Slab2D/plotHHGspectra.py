@@ -195,8 +195,8 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     PlotTriangles=False
     PlotGradient =False
 
-    xlimit=10   #eV
-    ylimit=2.5  #um
+    xlimit=[0,10]   #eV
+    ylimit=[0,2.5]  #um
     numberoflevels=30
 
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
@@ -313,9 +313,9 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     ShowFinalPlot=False
     PlotTriangles=False
     PlotGradient =False
-
-    xlimit=6 #eV
-    ylimit=10  #eV
+    
+    xlimit     = [0,10] #eV
+    ylimit     = [-90,90] #deg
     numberoflevels=30
  
     filename="HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm"
