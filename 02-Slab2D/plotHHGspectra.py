@@ -333,9 +333,13 @@ def plotHHG_batch_Efield():
     
 # HHG(omegaHHG, CEP1; Efield1)
 def plotHHG_batch_CEP():
-	tau=20E-15; MoveIon=0; wavelength=800e-9; InducedFields=0; PulseType=3; RiseCycles=2
-	for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
-		PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
+        for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
+            for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
+                try: 
+                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+                except:
+                    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
 
 plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
