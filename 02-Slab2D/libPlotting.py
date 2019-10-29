@@ -795,7 +795,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=10, ylimit=10): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=10, ylimit=10, Egap=2.56*e): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -866,11 +866,6 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
             #CS = -1
             #print Header+"** Warning: failed to produce one of the plots."
         
-      #print np.shape(BrutX), np.shape(BrutY), np.shape(BrutZ)
-      #print np.shape(Xi), np.shape(Yi)
-      #print np.shape(XXi), np.shape(YYi)
-      #print np.shape(BicolorNeFinal)
-      
       #CS = ax.scatter(XXi, YYi, BicolorNeFinal) #, cmap=plt.cm.Blues) #WORKS
       
       #CS = ax.plot_trisurf(Xi, Yi, BicolorNeFinal, cmap=plt.cm.Spectral)
@@ -882,9 +877,16 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       plt.xlim((0, xlimit))
       plt.ylim((0, ylimit))
 
+      # Adding vertical bars for the gap energy
+      for n in [1,2,3,4]:
+        plt.axvline(x=Egap/e/n, linestyle=":")
+        plt.axhline(y=1E6*h*c/(Egap/n), linestyle=':') 
+        plt.axvline(x=n*Egap/e, linestyle=":")
+        # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevent
+
       # plt.savefig(filename+'.eps')
       plt.savefig(filename+'.png')
-      print Header+"** Info: saved "+filename+"eps|png."
+      print Header+"** Info: saved "+filename+".png."
       if(ShowFinalPlot==1):
         plt.show()
       
