@@ -198,7 +198,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     xlimit=[0,10]   #eV
     ylimit=[0,2.5]  #um
     numberoflevels=30
-
+    Egap=2.56*e
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     filename="HHGspectrum-"+str(int(Efield))+"-HHGamples"+str(HHG_samples)
 
@@ -207,7 +207,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     print "** Preparing plot..."
-    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, False, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
+    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, False, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
     return 0
 #}}}
 
