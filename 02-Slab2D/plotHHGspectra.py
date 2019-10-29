@@ -195,8 +195,8 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     PlotTriangles=False
     PlotGradient =False
 
-    xlimit=10   #eV
-    ylimit=2.5  #um
+    xlimit=[0,10]   #eV
+    ylimit=[0,2.5]  #um
     numberoflevels=30
     Egap=2.56*e
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
@@ -212,7 +212,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 #}}}
 
 ## Prepares plot HHG(omega_HHG, CEP) 
-def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
+def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0): #{{{
     
     # Declaring variables
     X=[]; Y=[]; Z=[]
@@ -223,8 +223,8 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     #CEP    =0
     #MoveIon=0
     #PulseType=3; RiseCycles=2
-    Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, RiseCycles)
-
+    Filtered1=libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, RiseCycles, InducedFields)
+    Filtered1=np.asfarray(Filtered1) #lets use only numbers there.
     # SORTING
     # One must sort here the DB as function of the sequence we would like to plot.
     # Sorted1=np.sort(Filtered1, axis=0)
@@ -248,8 +248,9 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
     for JobID in np.arange(0,len(runid)):
         runid_int = int(runid[JobID])
-        FileLookUp="octopus-td."+str(runid_int)+".log"
+        FileLookUp="octopus-td."+str(runid_int)+"*.log"
         ListFound=glob.glob("*/*/"+FileLookUp)
+        print FileLookUp
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
         print runid_folder
         try:
@@ -263,14 +264,21 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print "** Info: interpolating..."
-            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_saples)
+#            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
+            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='cubic')
+
+            HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
+
             Z_interp=HHG_func(HHG_omega_new)
             X=np.append(HHG_omega_new, X) #HHG frequencies for 1 run
             Z=np.append(Z_interp,      Z) #HHG amplitudes  for 1 run
-            #          print counter
+
+
             #Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
-            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+#            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+            print "** Debug: "+str(CEP1[JobID]*180./np.pi)
+            print "** Debug: checking length of new mesh: "+str(np.shape(HHG_omega_new))
+            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new))),[Y])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
@@ -303,11 +311,11 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     colormap='bone_r'
 
     ShowFinalPlot=False
-    PlotTriangles=True
+    PlotTriangles=False
     PlotGradient =False
-
-    xlimit=6 #eV
-    ylimit=10  #eV
+    
+    xlimit     = [0,10] #eV
+    ylimit     = [-90,90] #deg
     numberoflevels=30
  
     filename="HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm"
@@ -325,10 +333,15 @@ def plotHHG_batch_Efield():
     
 # HHG(omegaHHG, CEP1; Efield1)
 def plotHHG_batch_CEP():
-	tau=20E-15; MoveIon=0; wavelength=800e-9
-	for Efield in [1E9, 5E9]:
-		PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon)
+	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
+        for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
+            for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
+                try: 
+                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+                except:
+                    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
 
-# plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
+plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
-plotHHG_batch_Efield() 
+#plotHHG_batch_Efield() 
+

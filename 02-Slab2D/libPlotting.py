@@ -111,7 +111,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
     print Header+"** Capturing the RUN ID of octopus on Draco..."
-    runid=LookUpLatestLogFile(FolderName+"../")
+    runid=LookUpLatestLogFile(FolderName+"../octopus-td")
     print Header+"LogFile="+str(runid)+", folder = "+FolderName 
     try: #there is quite much loss here, 30% maybe. 
       int(runid)
@@ -382,7 +382,11 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Importing simulation data..."
     
     # Catch the final excited electron density. 
-    timeNe           = np.asfarray(Ne[:,1])
+    try: 
+        timeNe           = np.asfarray(Ne[:,1])
+    except: 
+        print Header+"** Error: It seems this run was not complete. We jump it."
+        continue
     Nproj_AU         = np.asfarray(Ne[:,2]) #number of particles, not a density!
     density_proj_AU  = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
     density_proj_SI  = Density_AU_to_SI(density_proj_AU)
@@ -620,7 +624,7 @@ def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulse
 # @param CEP: desired carrier envelope phase (pulse1)
 # @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
 # @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
-def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration, PulseType=3, RiseTime=2, MoveIon=0): #{{{ 
+def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration, PulseType=3, RiseTime=2, MoveIon=0, InducedFields=0): #{{{ 
         PlottingSinglePulses = Database  #get the full database
         PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
         PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
@@ -628,9 +632,9 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
         PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
-        #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
+#        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons. 
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
+        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, InducedFields, IndexTable['FieldInduced']) 
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
@@ -795,7 +799,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=10, ylimit=10, Egap=2.56*e): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -874,8 +878,8 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       #plt.colorbar(CS)
       
       # Limiting the view
-      plt.xlim((0, xlimit))
-      plt.ylim((0, ylimit))
+      plt.xlim((xlimit[0], xlimit[1]))
+      plt.ylim((ylimit[0], ylimit[1]))
 
       # Adding vertical bars for the gap energy
       for n in [1,2,3,4]:

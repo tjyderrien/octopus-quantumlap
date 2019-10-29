@@ -1,17 +1,19 @@
 #!/bin/bash
-module load purge
+module purge
 module load git
 module load gnuplot
-module load anaconda/2/5.1
+# module load anaconda/2/5.1 #we shall use machines.env library load for this.
 module list
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
-source $OctopusSlabsSources/02-Slab2D/functions.sh
+source $QuantumLaPsources/02-Slab2D/functions.sh
 # set -e
 
 echo "Current folder: $( pwd )"
 
+export OctopusSlabsSources=${QuantumLaPsources}
+echo "** Debug: OctopusSlabsSources=${OctopusSlabsSources}"
 
 # export ListOfRuns="lambda1600e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E10-CEP0.0-StH2"
 
@@ -25,14 +27,14 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ -e laser.tmp ]; then
+	if [ -e laser ]; then
 		echo "** Plotting laser..."
-		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${OctopusSlabsSources}/03-Bulk3D/plotPolarization.gnu"
+		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeEnergy.gnu"
+		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
@@ -49,7 +51,7 @@ do
 	echo "** NEXT FOLDER"
 	echo ""
 	# git add *.eps *.png
-	cd - > /dev/null
+	cd - >& /dev/null
 done
 
 # for each results folder where the code was started. #Assume that ./td.general was created. 
@@ -80,7 +82,6 @@ do
 	cd $prevFolder > /dev/null
 done
 }
-
 
 plotHHG () {
 # plot results for HHG for SquaredSinus pulses
@@ -120,29 +121,31 @@ done
 # do
 # LocalPath=$( pwd )
 # cd $run
-plotBasicOutput
-plotExcitation
-# cd $LocalPath
-# done
 
-# Then we can finish by treating the results for Merdji 
-plotHHG
+
+echo "Plotting basic results..."
+plotBasicOutput #cleans up laser files also. 
+plotExcitation  #Prepare all plots for n_ex analysis.
+plotHHG         #Generate the CSV files with HHG spectra. 
+echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
 # for folder in $( list_folders | grep -v 'lambda' ) 
 # do
 #  prevFolder=$( pwd )
 #  cd $folder
-echo "** Plotting nice figure for post-processed density for $(pwd)..."
-${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+
+# echo "** Plotting nice figure for post-processed density for $(pwd)..."
+# ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+
 #   cd $prevFolder > /dev/null
 # done 
 
 # git commit -m 'Added new time-dependent plots.'
 # echo "plots have been added to Git. Just commit and push them."
-echo "Don't use Git for transfering binary data!"
 
-echo "building a TAR archive with results..."
+
+echo "Once you are done: build a TAR archive with results."
 echo 'tar -cvf LastEPSfiles.tar $( find | grep eps )'
-echo "Transfer:"
+echo "For transfer, use:"
 echo "rsync -avzhe ssh --progress LastEPSfiles.tar thibault@134.76.2.54:/home/thibault/Documents/octopus/02-Slab2D/"
 

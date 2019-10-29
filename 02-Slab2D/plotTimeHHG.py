@@ -707,7 +707,7 @@ plt.xticks(np.arange(1,30, step=2))
 
 filename = "HHG-Spectrum"
 SampleArray=list(zip(*[Xaxis, Yaxis]))
-ExportToTxt(SampleArray, filename+".csv", "# omega_HHG(eV) \tSpectraIntensity(u.a)")
+ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
 # ax4.set_xscale("log", nonposx='clip')
 ax4.set_yscale("log")
