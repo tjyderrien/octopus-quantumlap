@@ -204,7 +204,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
     ## EXPORT to external file.
     print "** Info: Exporting to file "+filename+".csv"
-    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv", "# X\tY\tZ")
+    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     print "** Preparing plot..."
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, False, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
@@ -320,6 +320,11 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
  
     filename="HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm"
 
+    ## EXPORT to external file.
+    print "** Info: Exporting to file "+filename+".csv"
+    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
+
+
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit)
     return 0
@@ -336,10 +341,11 @@ def plotHHG_batch_CEP():
 	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
         for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
             for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
-                try: 
-                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
-                except:
-                    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
+                #try: 
+                PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+                #except:
+                #    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
+                #    continue
 
 plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
