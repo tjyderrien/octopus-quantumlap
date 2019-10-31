@@ -187,9 +187,11 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     # ylabel=r"Photon energy $\hbar \omega$ (eV)"
     title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
     #    cmap='Blues'
-#    cmap='RdBu_r'
-    # afmhot_r, hot, hot_r, bone_r, 
-    colormap='bone_r'
+#   cmap='RdBu_r' #null values generate serious noise in the picture
+#   NICE: 'bone_r', 'afmhot_r'
+#   TO TEST: ocean.
+    # Not amazing: hot_r
+    colormap='ocean_r'
 
     ShowFinalPlot=False
     PlotTriangles=False
@@ -348,7 +350,7 @@ def plotHHG_batch_CEP():
                     print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
                     continue
 
-plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
+# plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
-#plotHHG_batch_Efield() 
+plotHHG_batch_Efield() 
 
