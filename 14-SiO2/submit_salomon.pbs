@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q qprod
-#PBS -N octopus-Mo
+#PBS -N octopus-SiO2-152
 #PBS -m ae -M derrien@fzu.cz
 #PBS -e Morille.err
 #PBS -o Morille.log
@@ -51,4 +51,4 @@ RunningTrunc=/home/tjyderrien/octopus.git/bin
 # sed -i.bak 's/FromScratch/#FromScracth/g' inp #Avoid to kill the data while restarting the job
 # ~                                                           
 
-mpirun -np 96 $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
+mpirun $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
