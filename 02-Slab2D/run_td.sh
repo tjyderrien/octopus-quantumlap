@@ -8,7 +8,7 @@ source functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0
-kPoints=1
+kPoints=24
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1

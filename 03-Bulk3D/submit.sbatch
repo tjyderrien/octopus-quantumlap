@@ -29,17 +29,22 @@ pwd >> $OctopusSlabsRuns/LastRuns.log
 . /etc/profile.d/modules.sh
 
 module purge
-module load intel/17.0
-module load impi/2017.4
-module load mkl/2017.4
+# module load intel/17.0
+module load intel/19.0.5
+# module load impi/2017.4
+module load impi/2019.5
+# module load mkl/2017.4
+module load mkl/2019.5
 module load libxc/3.0
-module load gsl/2.3
-module load fftw-serial/3.3.7
-module load hdf5-serial/1.8.20
-module load netcdf-serial/4.4.1
+# module load gsl/2.3
+module load gsl/2.4
+# module load fftw-serial/3.3.7
+module load fftw-serial/3.3.8
+# module load hdf5-serial/1.8.20
+module load hdf5-serial/1.8.21
+# module load netcdf-serial/4.4.1
+module load netcdf-serial/4.7.0
 module list
-
-
 
 export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 

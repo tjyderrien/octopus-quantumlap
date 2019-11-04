@@ -36,7 +36,7 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  16 | 16 | 16
+  kPointsValue | kPointsValue | kPointsValue
 %
 
 PseudopotentialSet = pseudodojo_lda
@@ -169,7 +169,7 @@ FromScratch = yes
 #   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
     vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
     vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
-ise
+%
 
 %TDFunctions
   "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
@@ -227,3 +227,9 @@ TDExponentialMethod = lanczos
 TDExpOrder = 16
 
 TDOutput = energy + geometry + laser + total_current + gauge_field + density
+OutputFormat = xyz
+
+OutputInterval = 10
+RestartWriteInterval = 500 #otherwise the number of IO becomes astronomic
+TDOutputComputeInterval = 10
+

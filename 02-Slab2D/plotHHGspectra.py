@@ -187,9 +187,11 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     # ylabel=r"Photon energy $\hbar \omega$ (eV)"
     title=r"$HHG(\omega_{probe}$, $\lambda_{pump})$"
     #    cmap='Blues'
-#    cmap='RdBu_r'
-    # afmhot_r, hot, hot_r, bone_r, 
-    colormap='bone_r'
+#   cmap='RdBu_r' #null values generate serious noise in the picture
+#   NICE: 'bone_r', 'afmhot_r'
+#   TO TEST: ocean.
+    # Not amazing: hot_r
+    colormap='ocean_r'
 
     ShowFinalPlot=False
     PlotTriangles=False
@@ -265,7 +267,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print "** Info: interpolating..."
 #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='cubic')
+            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero'
 
             HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
 
@@ -293,7 +295,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     Y = np.asfarray(Y)
 
     # Returns log10 of Z, but clean.
-    Z_clipped=np.clip(Z, 1, np.max(Z))
+    Z_clipped=np.clip(Z, 2, np.max(Z))
     Z_log=np.log10(Z_clipped)
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
     Z=Z_log #Z_clipped
@@ -314,13 +316,13 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     PlotTriangles=False
     PlotGradient =False
     
-    xlimit     = [0,10] #eV
+    xlimit     = [0,50] #eV
     ylimit     = [-90,90] #deg
     numberoflevels=30
     Egap=2.56*e
- 
-    filename="HHGspectrumWithCEP-Efield"+str(int(Efield))+"-wavelength"+str(int(wavelength*1E9))+"nm"
-
+    
+    filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))
+    
     ## EXPORT to external file.
     print "** Info: Exporting to file "+filename+".csv"
     ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
@@ -333,7 +335,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
 def plotHHG_batch_Efield():
 # HHG(omegaHHG, omega1; Efield1)
-	tau=20E-15; CEP=0; MoveIon=0
+	tau=20E-15; CEP=0; MoveIon=0; InducedFields=0 #TODO: option for selecting induced fields is not included in function.
 	for Efield in [5E8, 7.5E8, 1E9, 1.5E9, 2E9, 3E9, 4E9, 5E9]:
 	    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
     
@@ -342,13 +344,13 @@ def plotHHG_batch_CEP():
 	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
         for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
             for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
-                #try: 
-                PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
-                #except:
-                #    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
-                #    continue
+                try: 
+                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+                except:
+                    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
+                    continue
 
-plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
+# plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
-#plotHHG_batch_Efield() 
+plotHHG_batch_Efield() 
 

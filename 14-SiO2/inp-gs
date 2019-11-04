@@ -13,9 +13,11 @@ PeriodicDimensions = 3
 # RandomVelocityTemp = 300e0
 
 # Conversion factors
-aAngstrom = 5.431 #Angstrom (experimental value)
+aAngstrom = 4.921 #Angstrom (interactomic distance, experimental value), taken from http://rruff.info/uploads/ZK198_177.pdf
+cAngstrom = 5.4163 #Angstrom
 AngstromPerBohr = 0.52917721067 #AngstromPerBohr
 a = aAngstrom / AngstromPerBohr #Bohr
+caxis = cAngstrom / AngstromPerBohr
 
 # Simulation box size
 m = 1 #X blocks: to be replaced by script
@@ -35,13 +37,13 @@ BoxShape = parallelepiped
 %
 
 %LatticeParameters #noncubic cells
-  m*a | m*a | m*a
+  m*a | m*a | m*caxis
 %
 
-%LatticeVectors
-  0.0 | 0.5 | 0.5
-  0.5 | 0.0 | 0.5
-  0.5 | 0.5 | 0.0
+%LatticeVectors #simply the primitive cell of the lattice type
+  0.5 | -sqrt(3.)/2.| 0
+  0.5 | sqrt(3.)/2. | 0
+  0   | 0           | 1.
 %
 
 # %Lsize #! Lsize is half of the box...

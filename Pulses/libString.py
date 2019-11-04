@@ -1,0 +1,1 @@
+../02-Slab2D/libString.py
