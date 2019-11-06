@@ -42,11 +42,14 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 ### MISSION #####
 # Mission="Drude"
+
+# Mission="CEP-tunneling"
 # Mission="InducedField"
 Mission="Stark"
 
+
 # Phase
-CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
+CEP1="-0.5 -0.25 0.0 0.25 0.5 0.333333333 0.16666667 -0.333333333 -0.16666667" #will be multiplied by pi in script file
 CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
@@ -73,6 +76,8 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="5.5E8 5E8 6E8 6.5E8 7E8 7.5E8 8.5E8 8E8 9E8 9.5E8 1.5E9 2E9 2.5E9 3E9 3.5E9 4E9 4.5E9 6E9 7E9 8E9 9E9" #Exceptionally, run a series of runs which did not finish. 
 # Efield1="3E8 4E8 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 
+# Efield1="5E8 7.5E9 1E9 2E9 3E9"
+# Efield1="5E8 3E9 4E9"
 # Efield1="5E10 1E11 5E11"
 Efield1="5E8" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
@@ -92,6 +97,7 @@ lambda1="2470e-9 3100e-9 4100e-9 6200e-9 12400e-9"
 # lambda1="550e-9 750e-9 850e-9 1150e-9 1250e-9 1350e-9 1450e-9 1650e-9 1750e-9" 
 # lambda1="483e-9 484e-9" #these are harmonics of the LDA band gap. 
 
+lambda1="2200e-9 3200e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="800e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"

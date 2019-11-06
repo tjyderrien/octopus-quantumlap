@@ -22,7 +22,7 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.25 0.23 0.15" # 0.20"
+MeshSizeX="0.19" #0.25 0.23 0.15" # 0.20"
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
@@ -51,7 +51,7 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="SinSquared" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
@@ -64,7 +64,8 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
 
 # Field amplitude
-Efield1="1E9" # 5E9 1E10"
+# Efield1="1E9"
+Efield1="1E9" #5E9 1E10"
 # Efield1="1E9" #"2E9 3E9 4E9" #ZHUKOV
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"
@@ -80,9 +81,9 @@ Efield2="0E0"
 
 
 # Pulse duration
-tau1="30E-15" # 20e-15 30E-15 10E-15"
+tau1="20E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="30E-15"
+tau2="20E-15"
 
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
