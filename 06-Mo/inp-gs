@@ -44,6 +44,20 @@ KPointsUseSymmetries = yes
   kPointsValue | kPointsValue | kPointsValue #to be replaced by script
   # 16 | 16 | 16
 %
+
+# KpointPath Resolution
+KppR=30
+#
+%kPointsPath #Mo: Gamma H N Gamma P H|P N (according to http://www.cryst.ehu.es/cgi-bin/cryst/programs/nph-kv-list)
+   KppR | KppR | KppR | KppR | KppR | KppR
+      0    | 0     | 0     #Gamma
+      0.5  | -0.5  | 0.5   #H
+      0    | 0     | 0.5   #N
+      0    | 0     | 0.0   #Gamma
+      0.25 | 0.25  | 0.25  #P
+      0.5  | -0.5  | 0.5   #H(|P)
+      0    | 0     | 0.5   #N
+%
 PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
