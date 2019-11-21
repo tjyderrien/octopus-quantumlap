@@ -1,0 +1,104 @@
+CalculationMode = gs
+
+PeriodicDimensions = 3
+
+## INPUT WITH CUBIC CELL
+# a = 4.0796*angstrom #Bohr, size of the cubic cell
+a = 3.10321*angstrom #size of the primitive cell
+# angle = 90. #degrees, indeed
+angle_deg = 109.47122 #deg
+angle = angle_deg/180.*pi #rad
+
+
+## INPUT WITH PRIMITIVE CELL
+# a = 2.743 #Angstroms
+# a = 5.183518762130823 #Bohr
+# angle = 109.471 #*pi/180. #deg
+
+# a = 2.743 Angstr. #DOI: 10.17188/1189253
+# a = 5.183518762130822 #Bohr
+
+Spacing = a/16
+
+BoxShape = parallelepiped
+
+# Lsize = a/2
+
+ParDomains = yes
+
+KPointsUseSymmetries = no
+
+# %SymmetryBreakDir
+# 1.0 | 0.0 | 0.0
+#%
+
+%ReducedCoordinates #coordinates are between -0.5 and 0.5
+# 'Au' | 0.25*a | 0.25*a | 0.25*a
+# 'Au' | 0.75*a | 0.75*a | 0.25*a
+# 'Au' | 0.25*a | 0.75*a | 0.75*a 
+# 'Au' | 0.75*a | 0.25*a | 0.75*a
+'Zr' | 0 | 0 | 0 #let's try at the minimum of the basis
+%
+
+%LatticeParameters
+  a | a | a
+#  angle | angle | angle
+%
+
+%LatticeVectors
+#  3.10321 |  0.00000 |  0.00000
+# -1.034403300933891 |  2.925734457382807 |  0.00000
+# -1.034403300933891 | -1.4628671599618088 |  2.5337604045020403
+1.0 | 0.0 | 0.0
+-0.33333332289271145 | 0.9428090452733805 | 0.0
+-0.33333332289271145 | -0.47140450048878707 | 0.8164965969115981
+%
+
+
+%KPointsGrid
+  8 | 8 | 8
+%
+
+kpts=30
+
+%KPointsPath # Gamma | H | N | Gamma | P | H|P | N 
+# Consistency problem: if using the primitive cell for atmos, one has to introduced kPointsPath in b1b2b3 basis. If introducing cubic cell for atoms, one has to introduce KPointsPath in xyz basis. 
+ kpts | kpts | kpts | kpts | kpts
+ 0 | 0 | 0 #Gamma
+ 0.5 | -0.5 | 0.5 #H
+ 0 | 0 | 0.5 #N
+ 0 | 0 | 0  # Gamma
+ 0.25 | 0.25 | 0.25 #P
+# 0.5 | 0.25 | 0.75 #H|P
+ 0 | 0 | 0.5  #N
+%
+
+PseudopotentialSet = pseudodojo_lda
+# PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_pbe_stringent
+# PseudopotentialSet = pseudodojo_pbesol_stringent
+# PseudopotentialSet = sg15
+# XCFunctional = GGA_X_PBE + GGA_C_PBE
+# XCFunctional = GGA_X_PBE_R
+# XCFunctional = MGGA_X_PBE_GX
+# FilterPotentials = filter_none
+
+SmearingFunction = fermi_dirac
+Smearing = 300./11600.*eV #300 K
+
+Output = geometry + dos
+OutputFormat = xyz
+
+DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 25*eV #0.8452344170596571 #23 eV, like Zhigilei
+
+# DOSEnergyPoints = 1000
+DOSGamma = 0.2*eV #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
+
+ExtraStates = 4
+ExtraStatesToConverge = 2
+ConvRelDens = 1e-9
+
+ExperimentalFeatures = yes
+
+FromScratch = yes
