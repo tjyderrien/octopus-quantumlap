@@ -3,14 +3,21 @@
 . /etc/profile.d/modules.sh
 
 module purge  
-module load intel/17.0
-module load impi/2017.4
-module load mkl/2017.4
+# module load intel/17.0
+module load intel/19.0.5
+# module load impi/2017.4
+module load impi/2019.5
+# module load mkl/2017.4
+module load mkl/2019.5
 module load libxc/3.0
-module load gsl/2.3  
-module load fftw-serial/3.3.7
-module load hdf5-serial/1.8.20
-module load netcdf-serial/4.4.1
+# module load gsl/2.3
+module load gsl/2.4
+# module load fftw-serial/3.3.7
+module load fftw-serial/3.3.8
+# module load hdf5-serial/1.8.20
+module load hdf5-serial/1.8.21
+# module load netcdf-serial/4.4.1
+module load netcdf-serial/4.7.0
 module list
 
 export MKL="-L$MKL_HOME/lib/intel64  -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
