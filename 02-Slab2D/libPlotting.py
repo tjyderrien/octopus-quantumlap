@@ -693,7 +693,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
   X=list(set(BrutX))
   Y=list(BrutY)
   #Z=DensityMax2Dsorted
-  YY, XX = np.meshgrid(X, Y)
+  #YY, XX = np.meshgrid(X, Y)
   # If the size is big enough, let's make a plot.
   #if(len(DensityMax2D) >= 2): #{{{
   if(len(BrutZ) >= 2): #{{{
