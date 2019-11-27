@@ -2,22 +2,38 @@ CalculationMode = td
 
 PeriodicDimensions = 3
 
-# a = 3.147
-a = 5.9469681168157855 #Bohr, size of the cubic cell
-angle = 90. #degrees, indeed
+## INPUT WITH CUBIC CELL
+# a = 4.0796*angstrom #Bohr, size of the cubic cell
+a = 2.949546*angstrom #size of the primitive cell #warning: relaxed geometry has 2.879 A.
+# angle = 90. #degrees, indeed
+angle_deg = 60. #deg
+angle = angle_deg/180.*pi #rad
 
-
-Spacing = a/16
+%Spacing
+ MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU
+%
 
 BoxShape = parallelepiped
 
-ParDomains = yes
-
 KPointsUseSymmetries = yes
 
-%Coordinates
- 'Mo' | 0.0 | 0.0 | 0.0
- 'Mo' | a/2 | a/2 | a/2
+%SymmetryBreakDir
+ 1.0 | 0.0 | 0.0
+%
+
+%LatticeVectors
+  1.  | 0.0 | 0.0
+  0.5 | sqrt(3.)/2. | 0.0
+  cos(angle) | -(cos(angle)-1.)/tan(angle) | sqrt(2.*cos(angle)+1.)*(1.-cos(angle))/(sin(angle)) #sqrt(2.)*sqrt(3.)/3. #try with minus for the element 3,3 in case 
+%
+
+
+%ReducedCoordinates #coordinates are between -0.5 and 0.5
+# 'Au' | 0.25*a | 0.25*a | 0.25*a
+# 'Au' | 0.75*a | 0.75*a | 0.25*a
+# 'Au' | 0.25*a | 0.75*a | 0.75*a 
+# 'Au' | 0.75*a | 0.25*a | 0.75*a
+'Au' | 0 | 0 | 0 #let's try at the minimum of the basis
 %
 
 %LatticeParameters
@@ -26,10 +42,10 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  32 | 32 | 32
+  kPointsValue | kPointsValue | kPointsValue
 %
 
-# PseudopotentialSet = pseudodojo_lda
+PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
 # PseudopotentialSet = pseudodojo_pbesol_stringent
@@ -43,6 +59,7 @@ SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV
 
 ExtraStates = 4
+ExtraStatesToConverge = 2 
 
 ExperimentalFeatures = yes
 
@@ -70,17 +87,14 @@ Tpulse = 210
    1 | 0 | 0
 %
 
-GaugeFieldDelay =  2
+GaugeFieldDelay =  0
 
-%SymmetryBreakDir
- 1.0 | 0.0 | 0.0
-%
-TDMaxSteps = 300
+# TDMaxSteps = 300
 
-TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
-# TDPropagationTime = ComputingTime
+TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough with Si. 
+TDPropagationTime = ComputingTime
 TDPropagator = aetrs #it was aetrs
-# TDExponentialMethod = lanczos
+TDExponentialMethod = lanczos
 TDExpOrder = 16
 
-TDOutput = energy + geometry + total_current + gauge_field + density
+TDOutput = energy + geometry + total_current + gauge_field + density + laser
