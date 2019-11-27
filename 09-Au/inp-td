@@ -1,0 +1,86 @@
+CalculationMode = td
+
+PeriodicDimensions = 3
+
+# a = 3.147
+a = 5.9469681168157855 #Bohr, size of the cubic cell
+angle = 90. #degrees, indeed
+
+
+Spacing = a/16
+
+BoxShape = parallelepiped
+
+ParDomains = yes
+
+KPointsUseSymmetries = yes
+
+%Coordinates
+ 'Mo' | 0.0 | 0.0 | 0.0
+ 'Mo' | a/2 | a/2 | a/2
+%
+
+%LatticeParameters
+  a | a | a
+  angle | angle | angle
+%
+
+%KPointsGrid
+  32 | 32 | 32
+%
+
+# PseudopotentialSet = pseudodojo_lda
+# PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_pbe_stringent
+# PseudopotentialSet = pseudodojo_pbesol_stringent
+PseudopotentialSet = sg15
+XCFunctional = GGA_X_PBE + GGA_C_PBE
+# XCFunctional = GGA_X_PBE_R
+# XCFunctional = MGGA_X_PBE_GX
+FilterPotentials = filter_none
+
+SmearingFunction = fermi_dirac
+Smearing = 300./11600.*eV
+
+ExtraStates = 4
+
+ExperimentalFeatures = yes
+
+FromScratch = yes
+
+## Extracted from example of delayed kick from NTD testsuite for periodic solids.
+ParStates = auto
+ParDomains = yes
+ParKPoints = auto
+# CurrentDensity = gradient_corrected
+
+Iau  = (sqrt(0E11)/sqrt(3.509470*1E16)) #Conversion in a.u.
+omega = 0.5
+Tpulse = 210
+
+# %TDExternalFields
+#   vector_potential | 1.0 | 0.0 | 0.0 | omega | "envelope_sin2"
+# %
+
+# %TDFunctions
+#  "envelope_sin2" | tdf_from_expr | "-Iau/omega*c*sin(pi*t/Tpulse)^2*(1-step(t-Tpulse))"
+# %
+
+%GaugeVectorField
+   1 | 0 | 0
+%
+
+GaugeFieldDelay =  2
+
+%SymmetryBreakDir
+ 1.0 | 0.0 | 0.0
+%
+TDMaxSteps = 300
+
+TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+# TDPropagationTime = ComputingTime
+TDPropagator = aetrs #it was aetrs
+# TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+TDOutput = energy + geometry + total_current + gauge_field + density

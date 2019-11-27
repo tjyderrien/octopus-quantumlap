@@ -4,7 +4,7 @@ PeriodicDimensions = 3
 
 ## INPUT WITH CUBIC CELL
 # a = 4.0796*angstrom #Bohr, size of the cubic cell
-a = 2.949546*angstrom #size of the primitive cell
+a = 2.949546*angstrom #size of the primitive cell #warning: relaxed geometry has 2.879 A.
 # angle = 90. #degrees, indeed
 angle_deg = 60. #deg
 angle = angle_deg/180.*pi #rad
