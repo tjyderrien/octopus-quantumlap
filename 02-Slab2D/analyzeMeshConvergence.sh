@@ -10,7 +10,7 @@ CheckComputerName
 # ListOfRuns="Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.188972612546/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.226767135055/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.264561657564/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.302356180073/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.340150702582/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.377945225092/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.415739747601/ Si-4x4x6-k-1x1x1-L12-Mesh0.434637008855-Mesh0.434637008855/"
 
 echo "Building up list of folders..."
-ListOfRuns=$( find . -type d -maxdepth 1 -mindepth 1 )
+ListOfRuns=$( find . -type d -maxdepth 2 -mindepth 2 )
 
 echo $ListOfRuns
 
