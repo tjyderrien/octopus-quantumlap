@@ -49,11 +49,11 @@ PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
 # PseudopotentialSet = pseudodojo_pbesol_stringent
-PseudopotentialSet = sg15
-XCFunctional = GGA_X_PBE + GGA_C_PBE
+# PseudopotentialSet = sg15
+# XCFunctional = GGA_X_PBE + GGA_C_PBE
 # XCFunctional = GGA_X_PBE_R
 # XCFunctional = MGGA_X_PBE_GX
-FilterPotentials = filter_none
+# FilterPotentials = filter_none
 
 SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV
