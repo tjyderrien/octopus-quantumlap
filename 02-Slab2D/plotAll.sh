@@ -8,7 +8,8 @@ module list
 source $QuantumLaPsources/machines.env
 CheckComputerName
 source $QuantumLaPsources/02-Slab2D/functions.sh
-# set -e
+
+set -e
 
 echo "Current folder: $( pwd )"
 
@@ -29,16 +30,16 @@ do
 	cd $folder
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
-		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
+                gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
+		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
 	fi
 	if [ -e n_ex ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
@@ -125,7 +126,7 @@ done
 
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
-plotExcitation  #Prepare all plots for n_ex analysis.
+# plotExcitation  #Prepare all plots for n_ex analysis.
 plotHHG         #Generate the CSV files with HHG spectra. 
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 

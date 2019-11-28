@@ -8,7 +8,7 @@ CheckComputerName
 source $QuantumLaPsources/03-Bulk3D/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
-source $OctopusSlabsSources/03-Bulk3D/functions.sh
+source $QuantumLaPsources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
@@ -138,6 +138,9 @@ DefineParameters () {
     "LDA")
       FunctionalPath=""
       ;;
+    "PBE")
+      FunctionalPath="-PBE"
+      ;;
     *)
       echo "This functional was not planned. Modify run_td.sh."
       exit 1
@@ -145,7 +148,7 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${OctopusSlabsRuns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -175,7 +178,7 @@ ReplaceInputFile () {
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to TIME-DEPENDENT RUN"
-  cp $OctopusSlabsSources/09-Au/inp-td inp
+  cp $QuantumLaPsources/09-Au/inp-td inp
   echo ""; echo "REPLACING MATERIAL PARAMETERS for $localPath"
   sed -i.bak s/SizeOfTheBox/${SampleXY}/g inp
   sed -i.bak s/NumberOfBlocks/${SampleLayers}/g inp
@@ -223,15 +226,21 @@ ReplaceInputFile () {
   fi
 
   if [ ${Functional} == "LDA" ]; then
-    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp 
+    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+    echo "PseudopotentialSet = pseudodojo_lda" >> inp
   fi
-  # cd - >& /dev/null
+
+  if [ ${Functional} == "PBE" ]; then
+    echo "XCFunctional = GGA_X_PBE + GGA_C_PBE" >> inp
+    echo "PseudopotentialSet = pseudodojo_pbe" >> inp
+  fi
+# cd - >& /dev/null
 
 }
 
-BuildSample() {
-  # Build the sample
-}
+
+
+
 
 SubmitTheJob () {
   echo "== CHECKING GROUND STATE INTEGRITY =="
@@ -258,7 +267,7 @@ SubmitTheJob () {
  
   echo ""
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${OctopusSlabsRuns}."
+  echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
 #  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/ #induces an error: parameters were not replaced systematically
 # Good path is actually $( pwd ).
@@ -294,7 +303,7 @@ print_usage
 # For each calculation to perform
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
-BuildSample #also performed in directory
+
 # ReplaceInputFile 
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 

@@ -14,6 +14,8 @@ Yscale = HartreeToEv
 
 set ylabel 'Energy (eV)'
 
+set yrange [-10:]
+
 unset xtics
 
 #Column meanings. 

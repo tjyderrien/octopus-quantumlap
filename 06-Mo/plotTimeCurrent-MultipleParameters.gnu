@@ -20,7 +20,7 @@ print tau10_light
 
 set format "%g"
 
-set xrange [30:40] #tau50fs: 120, tau30fs: 70, tau10fs: 25
+set xrange [30:70] #tau50fs: 120, tau30fs: 70, tau10fs: 25
 
 set key top left
 

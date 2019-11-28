@@ -5,7 +5,6 @@ source $QuantumLaPsources/machines.env
 CheckComputerName
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
-echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
 
 echo "Description: Massive job submitter for QuantumLaP."
 echo "WARNING:     1 job ~ 19,200 core-hours per job."
@@ -37,7 +36,7 @@ CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="PBE" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
@@ -45,7 +44,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="Au-Current"
+Mission="Au-J-PBE"
 
 
 # Phase
@@ -163,7 +162,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
+            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
 #           done
           done
 #          done

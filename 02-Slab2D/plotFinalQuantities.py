@@ -59,7 +59,7 @@ import libExcitationDatabase
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
