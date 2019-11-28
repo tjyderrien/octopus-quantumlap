@@ -8,3 +8,5 @@ list_folders () {
     find . -maxdepth 3 -mindepth 0 -type d
 }
 
+# useful for plotAll.sh
+module load gnuplot
