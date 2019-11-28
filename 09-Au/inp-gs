@@ -3,8 +3,8 @@ CalculationMode = gs #unocc
 PeriodicDimensions = 3
 
 ## INPUT WITH CUBIC CELL
-# a = 4.0796*angstrom #Bohr, size of the cubic cell
-a = 2.949546*angstrom #size of the primitive cell #warning: relaxed geometry has 2.879 A.
+a = 4.175*angstrom #Value of Zhigilei PRB 2008 #interatomic distance, more clear. 
+# a = 2.949546*angstrom #size of the primitive cell in half filled trigonal form. #warning: relaxed geometry has 2.879 A
 # angle = 90. #degrees, indeed
 angle_deg = 60. #deg
 angle = angle_deg/180.*pi #rad
@@ -34,11 +34,18 @@ KPointsUseSymmetries = yes
  1.0 | 0.0 | 0.0
 %
 
+# %LatticeVectors
+#   1.  | 0.0 | 0.0
+#   0.5 | sqrt(3.)/2. | 0.0
+#   cos(angle) | -(cos(angle)-1.)/tan(angle) | sqrt(2.*cos(angle)+1.)*(1.-cos(angle))/(sin(angle)) #sqrt(2.)*sqrt(3.)/3. #try with minus for the element 3,3 in case 
+# %
+
+### Symmetric frame, according to Duke University. 
 %LatticeVectors
-  1.  | 0.0 | 0.0
-  0.5 | sqrt(3.)/2. | 0.0
-  cos(angle) | -(cos(angle)-1.)/tan(angle) | sqrt(2.*cos(angle)+1.)*(1.-cos(angle))/(sin(angle)) #sqrt(2.)*sqrt(3.)/3. #try with minus for the element 3,3 in case 
-%
+  0   | 0.5 | 0.5
+  0.5 | 0   | 0.5
+  0.5 | 0.5 | 0
+%      
 
 %ReducedCoordinates #coordinates are between -0.5 and 0.5
 # 'Au' | 0.25*a | 0.25*a | 0.25*a
@@ -75,7 +82,7 @@ kpts=30
  0.5 | 0 | 0.5  # X
 %
 
-PseudopotentialSet = pseudodojo_lda
+# PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
 # PseudopotentialSet = pseudodojo_pbe_stringent
 # PseudopotentialSet = pseudodojo_pbesol_stringent

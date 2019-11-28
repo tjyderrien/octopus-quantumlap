@@ -102,6 +102,7 @@ ReplaceInputFile () {
 
   if [ ${Functional} == "LDA" ]; then
     echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+    echo "PseudopotentialSet = pseudodojo_lda"
   fi
  
   if [ ${Functional} == "PBE" ]; then
