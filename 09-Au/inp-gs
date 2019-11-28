@@ -2,21 +2,12 @@ CalculationMode = gs #unocc
 
 PeriodicDimensions = 3
 
-## INPUT WITH CUBIC CELL
+## INPUT WITH PRIMITIVE CELL
 a = 4.175*angstrom #Value of Zhigilei PRB 2008 #interatomic distance, more clear. 
 # a = 2.949546*angstrom #size of the primitive cell in half filled trigonal form. #warning: relaxed geometry has 2.879 A
 # angle = 90. #degrees, indeed
 angle_deg = 60. #deg
 angle = angle_deg/180.*pi #rad
-
-
-## INPUT WITH PRIMITIVE CELL
-# a = 2.743 #Angstroms
-# a = 5.183518762130823 #Bohr
-# angle = 109.471 #*pi/180. #deg
-
-# a = 2.743 Angstr. #DOI: 10.17188/1189253
-# a = 5.183518762130822 #Bohr
 
 %Spacing
  MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU
@@ -29,10 +20,6 @@ BoxShape = parallelepiped
 ParDomains = yes
 
 KPointsUseSymmetries = yes
-
-%SymmetryBreakDir
- 1.0 | 0.0 | 0.0
-%
 
 # %LatticeVectors
 #   1.  | 0.0 | 0.0
@@ -52,7 +39,7 @@ KPointsUseSymmetries = yes
 # 'Au' | 0.75*a | 0.75*a | 0.25*a
 # 'Au' | 0.25*a | 0.75*a | 0.75*a 
 # 'Au' | 0.75*a | 0.25*a | 0.75*a
-'Au' | 0 | 0 | 0 #let's try at the minimum of the basis
+'Au' | 0 | 0 | 0
 %
 
 %LatticeParameters
