@@ -1537,7 +1537,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   PlotStarkShift=False
   
-  meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
+  meff_Waroquiers_LDA = 0.2226 #effective mass of electron
+  #[Laflamme Janssen, J.; Gillet, Y.; Poncé, S.; Martin, A.; Torrent, M. & Gonze, X. Precise effective masses from density functional perturbation theory Physical Review B, 2016, 93, 205147]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
   #Field dependent fitting of effective mass
   meff_LowField = meff_Waroquiers_LDA #0.14
@@ -2007,7 +2008,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   else: 
     ax3.set_xlabel('Photon energy (eV)')
   #pplt.ylabel('Irreversibility factor')
-  ax3.set_ylabel('Electron energy (eV)')
+  ax3.set_ylabel('Electron excess energy (eV)')
   #pplt.ylim((0,1))
   #ax2.set_xscale('log')
   
@@ -2168,18 +2169,18 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   ShowDensities            =False
   PlotIrreversibility      =False
   PlotFreeCarrierAbsorption=False
-  EnergyAxis               =True #True: Xaxis is in eV. False: wavelength in nm. 
+  EnergyAxis               =False #True: Xaxis is in eV. False: wavelength in nm. 
   
   CutOffWavelength=2.1e-6
   
-  CEP2=-np.pi/2.
+  CEP2_request=-np.pi/2. #np.pi/2.
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   #meff = 0.14 #0.14: fits for Si in MPI regime at 800 nm.
   #Field dependent fitting of effective mass
-  meff_LowField = 0.14
+  meff_LowField = meff_Waroquiers_LDA
   meff_HighField = meff_Waroquiers_LDA #0.14: fits for Si in MPI regime at 800 nm.
-  meff_VeryHighField = 0.5
+  meff_VeryHighField = meff_Waroquiers_LDA
   
   meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap for 800 nm
   print "#====== Plot: DOUBLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======"
@@ -2190,7 +2191,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   antialias=True
   
   #FieldOfInterest = [5e8, 1e9, 2e9, 3E9, 4E9, 5e9, 1e10]
-  FieldOfInterest = [2.5E8] #[0E0, 1.0E9] #, 1e10] #this should be used only for Efield2
+  FieldOfInterest = [2.5E8, 5E8] #[0E0, 1.0E9] #, 1e10] #this should be used only for Efield2
   NumberOfColors=len(FieldOfInterest)
   ColorList=[plt.cm.seismic(i) for i in np.linspace(0, 1, NumberOfColors)] 
   # Not bad! RdYlBu, coolwarm, seismic
@@ -2231,12 +2232,12 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, CEP1, IndexTable['CEP1']) #keeps only CEP = 0. 
   
-  if(CEP2 >= 0):
-      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2)*(1.1), IndexTable['CEP2'])
-      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+  if(CEP2_request >= 0):
+      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
+      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
   else:
-      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2)*(1.1), IndexTable['CEP2'])
-      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), IndexTable['CEP2'])
+      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
   # TODO: we shall clean CEP2 as well, as it must influence the results. 
   
   PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses, CutOffWavelength, IndexTable['wavelengths2']) #introducing a cutoff at 2.1 um in selection. 
@@ -2310,7 +2311,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #if(not EnergyAxis):
     #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield2_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$') #BACKUP
     #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, label=r'$\widetilde{w}_{\mathrm{PI}}$, I= ? W/m$^2$')
-    plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', label=r'$\widetilde{w}_{\mathrm{PI}}$, $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
+    plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', label=r'$\widetilde{w}_{\mathrm{PI}}$, $\lambda_1$='+str(wavelength1*1E9)+' nm, $E_1$='+str(Field1*1E-9)+', $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
     #linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare] # BUG 
     plot1 += [plot_field]
     
@@ -2457,6 +2458,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=1e9*wavelength1, color='k', linestyle='--', linewidth=1)
     
     #ax2.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
     #ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
@@ -2467,6 +2469,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax1.axvline(x=2.*np.pi*c/wavelength1/e, color='r', linestyle='-', linewidth=2)
     
     #ax2.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
     #ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
@@ -2475,7 +2478,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   ## Saving this first double figure
   #pplt.tight_layout()
-  filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
+  filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))+"-CEP"+str(round(CEP2_request*180./np.pi,0))
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   
@@ -2573,7 +2576,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
         #LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
     #if(LocalCondition):  #if we have captured the fields we are interested in, we plot  
     #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], color=Colors[Efield2_compare])
-    plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
+    plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$\lambda_1=$'+str(wavelength1*1E9)+' nm, $E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
     print(Header+"Plotting energy: Adding one plot...")
     print(wavelengths2_sorted_show)
     print(Energy_max_sorted)
@@ -2588,7 +2591,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   else: 
     ax3.set_xlabel('Photon energy (eV)')
   #pplt.ylabel('Irreversibility factor')
-  ax3.set_ylabel('Electron energy (eV)')
+  ax3.set_ylabel('Electron excess energy (eV)')
   #pplt.ylim((0,1))
   #ax2.set_xscale('log')
   
@@ -2712,7 +2715,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #ax22.set_ylim((0,1))
   labels1 = [l.get_label() for l in plot1]
   ax3.legend(plot1, labels1, loc='best') #outside right, middle
-  ax3.set_xscale("log")
+  #ax3.set_xscale("log")
   ax3.set_yscale("symlog", linthreshy=1e-9)
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
@@ -2730,11 +2733,13 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     ax3.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
     ax3.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
     ax3.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=1E9*wavelength1, color='r', linestyle='-', linewidth=2)
   else:
     ax3.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax3.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax3.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax3.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax3.axvline(x=2.*np.pi*c/wavelength1/e, color='r', linestyle='-', linewidth=2)
   #ax2.legend(loc=2, borderaxespad=0.)
   #ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   #ax22.legend(loc=1, borderaxespad=0.)
@@ -2945,7 +2950,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 # From this function, we perform a  wish to GENERATE a 1D section in this figure to analyze the role of Stark effect in bicolor absorption.
 def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e, RemoveTunneling=True): #{{{
   LogWpi=True                                                                                                                                                                                                                
-  gammaLimit = 0.5
+  gammaLimit = 1E-2
   meff = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   CEP2=-pi/2.
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
@@ -3482,9 +3487,9 @@ def plot_Zhukov_BicolorMaps(): #{{{
     Egap_SI = 2.56*e; Egap_SI_indirect=0.51*e
     
     ## Plotting E1, E2 maps 
-    #for tau in [30e-15]:
-        #PulseType  = 3; RiseCycles = 2 #StH corrected. 
-        ##PulseType  = 2;  RiseCycles = 0 #bugged STH. 
+    for tau in [30e-15]:
+        PulseType  = 3; RiseCycles = 2 #StH corrected. 
+        #PulseType  = 2;  RiseCycles = 0 #bugged STH. 
         
         ##Bicolor_plotEffectOfCEP(PlottingTable, 1030e-9, tau, 1E9, 515e-9, tau, 1E9, PulseType, RiseCycles)
         ##Bicolor_plotEffectOfCEP(PlottingTable, 1030e-9, tau, 9E9, 515e-9, tau, 9E9, PulseType, RiseCycles)
@@ -3497,7 +3502,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         #### These runs are separatly SUB-band gap, but jointly ABOVE band gap. 
         ### Commensurable 800+1600
         #wavelength1 = 800e-9; wavelength2 = 1600e-9
-        #CEP1=0.; CEP2=0.; Egap=2.56*e; meff=0.2226; 
+        CEP1=0.; CEP2=0.; Egap=2.56*e; meff=0.2226; 
         ## BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3}
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['NexcGrad'])
@@ -3513,12 +3518,12 @@ def plot_Zhukov_BicolorMaps(): #{{{
         
         ##exit()
         ### Commensurable
-        #wavelength1 = 1030e-9; wavelength2 = 515e-9
-        #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
+        wavelength1 = 1030e-9; wavelength2 = 515e-9
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['NexcGrad'])
-        #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['J'])
-        #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Energy'])
-        #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Wpi'])
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['J'])
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Energy'])
+        plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Wpi'])
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['E2'])
         ##VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
         ##VPZ_Wpi2D(wavelength1, wavelength2, 0.8E10, 1E10)
@@ -3540,7 +3545,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         FieldLimit=5E9
         wavelength1 = 1030e-9;
         PulseType  = 3; RiseCycles = 2 #StH corrected. 
-        for Field1 in [2.5E8, 1.0E9]:
+        for Field1 in [2.5E8]: #, 1.0E9]:
             #try:
             Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, 1E-5, Field1, FieldLimit, tau, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
             print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() success for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E-9)+" V/nm)")
