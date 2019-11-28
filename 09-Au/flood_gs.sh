@@ -26,7 +26,7 @@ MeshSizeX_SI="0.15 0.18 0.20 0.23" #0.23 Bohr, octopus-recommended value
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 NumNodes=1
-Mission="Au_GS_PBE"
+Mission="Au_GS_LDA"
 SampleLayers="1"
 SampleXY="1"
 kPoints="12 16 24"

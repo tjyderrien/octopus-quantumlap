@@ -1,12 +1,12 @@
 #!/bin/bash
 #PBS -q qprod
-#PBS -N octopus-Au
+#PBS -N Mission
 #PBS -m ae -M derrien@fzu.cz
 #PBS -e Morille.err
 #PBS -o Morille.log
 #PBS -A OPEN-16-27
 #PBS -l select=1:ncpus=24:mpiprocs=24:ompthreads=1
-#PBS -l walltime=1:00:00
+#PBS -l walltime=4:00:00
 
 cd $PBS_O_WORKDIR
 

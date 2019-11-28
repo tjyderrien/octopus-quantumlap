@@ -34,7 +34,7 @@ BoxShape = parallelepiped
 
 %LatticeParameters
   a | a | a
-  angle | angle | angle
+#  angle | angle | angle
 %
 
 
