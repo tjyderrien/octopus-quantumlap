@@ -2,7 +2,7 @@
 # QuantumLaP project
 # <derrien@fzu.cz>
 
-CalculationMode = gs
+CalculationMode = gs #unocc #gs
 ExperimentalFeatures=yes
 FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
@@ -15,9 +15,11 @@ PeriodicDimensions = 3
 # Conversion factors
 aAngstrom = 4.91343*angstrom #interactomic distance, experimental value from Landolt-Bornstein
 cAngstrom = 5.40506*angstrom #idem 
-# AngstromPerBohr = 0.52917721067 #AngstromPerBohr
-a = aAngstrom #/ AngstromPerBohr #Bohr
-caxis = cAngstrom #/ AngstromPerBohr
+
+
+## DATA FROM AVOGADRO 
+a = 5.02778*angstrom #aAngstrom 
+caxis = 5.51892*angstrom #cAngstrom 
 
 # Simulation box size
 m = 1 #X blocks: to be replaced by script
@@ -25,9 +27,9 @@ n = 1 #Z blocks: to be replaced by script
 
 # Optimization
 # PoissonFFTKernel = planar
-ParKPoints = auto
+# ParKPoints = auto
 # ParStates = auto
-# ParDomains = auto #crashes if made per state only
+ParDomains = auto #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
@@ -40,11 +42,18 @@ BoxShape = parallelepiped
   m*a | m*a | m*caxis
 %
 
+## DUKE UNIVERSITY INPUT. Symmetric but fails on space group.
 %LatticeVectors 
-  0.5 |-sqrt(3.)/2. | 0
-  0.5 | sqrt(3.)/2. | 0
-  0.  | 0.          | 1
+ 0.5 |-sqrt(3.)/2. | 0
+ 0.5 | sqrt(3.)/2. | 0
+ 0.  | 0.          | 1.0
 %
+
+# %LatticeVectors
+#  0.19889 |  0.11483 |  0.00000
+#  0.00000 |  0.22966 |  0.00000
+#  0.00000 |  0.00000 |  0.18119
+#%
 
 # %Lsize #! Lsize is half of the box...
 # 	0.5*m*a | 0.5*m*a | 0.5*m*a #(n*a + Lvac)*0.5
@@ -69,18 +78,18 @@ PseudopotentialSet = pseudodojo_pbe #pseudodojo_pbe_stringent #sg15 #pseudodojo_
 # XCFunctional = GGA_X_PBE + GGA_C_PBE
 
 %ReducedCoordinates
-"Si" | 0.52272 |  0.52272 |  0.50000
-"Si" | 0.47728 |  0.00000 |  0.16667
-"Si" | 0.00000 |  0.47728 |  0.83333
-"O"  | 0.58497 |  0.83926 |  0.37068
-"O"  | 0.16074 |  0.74571 |  0.03734
-"O"  | 0.25429 |  0.41503 |  0.70401
-"O"  | 0.83926 |  0.58497 |  0.62932
-"O"  | 0.74571 |  0.16074 |  0.96266
-"O"  | 0.41503 |  0.25429 |  0.29599
+"Si" | 0.52272 | 0.52272 |  0.50000
+"Si" | 0.47728 | 0.00000 |  0.16667
+"Si" | 0.00000 | 0.47728 |  0.83333
+"O"  | 0.58497 | 0.83926 |  0.37068
+"O"  | 0.16074 | 0.74571 |  0.03734
+"O"  | 0.25429 | 0.41503 |  0.70401
+"O"  | 0.83926 | 0.58497 |  0.62932
+"O"  | 0.74571 | 0.16074 |  0.96266
+"O"  | 0.41503 | 0.25429 |  0.29599
 %
 
-kPointsValue=8
+kPointsValue=16
 
 %KPointsGrid
 #  12 | 12 | 12
@@ -91,7 +100,7 @@ kPointsValue=8
 #   0   | 0   | 0.5
 %
 
-kpts=kPointsValue
+kpts=30
 %KPointsPath
 # Gamma | M | K | Gamma | A | L | H | A|L | M|K | H
 kpts | kpts | kpts | kpts | kpts | kpts 
@@ -109,13 +118,13 @@ kpts | kpts | kpts | kpts | kpts | kpts
 
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
-KPointsUseSymmetries = no
-# %SymmetryBreakDir #laser direction, where we gonna break symmetry
-#  1 | 0 | 0
-#%
+KPointsUseSymmetries = yes
+%SymmetryBreakDir #laser direction, where we gonna break symmetry
+ 1 | 0 | 0
+%
 
-ExtraStates = 0
-ExtraStatesToConverge=0
+ExtraStates = 16
+# ExtraStatesToConverge=0
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
@@ -129,7 +138,10 @@ MaximumIter=200
 Output = dos + density + potential + geometry
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 
+DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei
+
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
 FilterPotentials = filter_none #filter_BSB #filter_TS, filter_none        #this will be added automatically
 #
-####################FromScratch=yes
+#####################FromScratch=yes
