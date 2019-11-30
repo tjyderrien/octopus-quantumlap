@@ -29,7 +29,7 @@ n = 1 #Z blocks: to be replaced by script
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
-ParDomains = no #crashes if made per state only
+ParDomains = yes #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
