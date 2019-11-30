@@ -55,6 +55,9 @@ ProcessArguments () { # Conversion factors
     "LDA")
       FunctionalPath=""
       ;;
+    "PBE")
+      FunctionalPath="-PBE"
+      ;;
     *)
       echo "This functional was not planned. Modify run_td.sh."
       exit 1
@@ -64,7 +67,7 @@ ProcessArguments () { # Conversion factors
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${OctopusSlabsRuns}/14-SiO2/SiO2-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/14-SiO2/SiO2-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -90,7 +93,7 @@ ReplaceInputFile () {
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp $OctopusSlabsSources/14-SiO2/inp-gs inp || exit
+  cp ${QuantumLaPsources}/14-SiO2/inp-gs inp || exit
 
   if [ ${Functional} == "TB09" ]; then
     echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
@@ -99,19 +102,19 @@ ReplaceInputFile () {
 
   if [ ${Functional} == "LDA" ]; then
     echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+    echo "PseudopotentialSet = pseudodojo_lda" >> inp
   fi
+
+  if [ ${Functional} == "PBE" ]; then
+    echo "XCFunctional = GGA_X_PBE + GGA_C_PBE" >> inp
+    echo "PseudopotentialSet = pseudodojo_pbe" >> inp
+  fi
+
 
 
 }
 
 BuildSample () {
-  # Build the sample
-  if [ -e Si.xyz ]; then
-    rm Si.xyz
-    echo "[Info] Removed the previous sample file."
-  fi
-  echo "[Checking] AbsPath: $AbsPath"
-  
   # Define the missing parameters
   sed -i.bak s/SizeOfTheBox/$SampleXY/g inp
   sed -i.bak s/NumberOfBlocks/$SampleLayers/g inp
@@ -131,11 +134,10 @@ BuildSample () {
 
 SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${OctopusSlabsRuns}."
+  echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
 
-  cp ${OctopusSlabsRuns}/14-SiO2/inp ${localPath}/
-  cp ${OctopusSlabsRuns}/14-SiO2/Si.xyz ${localPath}/
+  cp -u inp ${localPath}/
   cp $QuantumLaPsources/14-SiO2/${SubmitScript} ${localPath}/
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
