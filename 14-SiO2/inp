@@ -1,10 +1,10 @@
-# T.J.-Y. Derrien, N. M. Bulgakova
+# T.J.-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
 # QuantumLaP project
 # <derrien@fzu.cz>
 
 CalculationMode = gs #unocc #gs
 ExperimentalFeatures=yes
-FromScratch = yes
+FromScracth = yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
 # UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
@@ -29,13 +29,14 @@ n = 1 #Z blocks: to be replaced by script
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
+
 ParDomains = auto #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
 %Spacing
-	0.434637008855 | 0.434637008855 | 0.434637008855 #to be replaced by script
-        # MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU
+	# 0.434637008855 | 0.434637008855 | 0.434637008855 #to be replaced by script
+        0.283458918819 | 0.283458918819 | 0.283458918819
 %
 
 %LatticeParameters #noncubic cells
@@ -62,21 +63,6 @@ BoxShape = parallelepiped
 # Using external file
 # XYZCoordinates = "Si.xyz"
 
-# %XYZCoordinates
-# "Si" |  1.31405/a | 2.27600/a  | 2.75946/caxis
-# "Si" |  2.39968/a |  0.00000/a |  0.91982/caxis
-# "Si" | -1.19984/a |  2.07819/a |  4.59910/caxis
-#  "O" |  0.83128/a |  3.65430/a |  2.04574/caxis
-#  "O" | -1.06647/a |  3.24695/a |  0.20610/caxis
-#  "O" |  0.23519/a |  1.80712/a |  3.88538/caxis
-#  "O" |  2.74908/a |  2.54706/a |  3.47318/caxis
-#  "O" |  3.34517/a |  0.69988/a |  5.31282/caxis
-#  "O" |  1.44742/a |  1.10724/a |  1.63354/caxis
-# %
-
-PseudopotentialSet = pseudodojo_pbe #pseudodojo_pbe_stringent #sg15 #pseudodojo_pbe
-# XCFunctional = GGA_X_PBE + GGA_C_PBE
-
 %ReducedCoordinates
 "Si" | 0.52272 | 0.52272 |  0.50000
 "Si" | 0.47728 | 0.00000 |  0.16667
@@ -92,29 +78,25 @@ PseudopotentialSet = pseudodojo_pbe #pseudodojo_pbe_stringent #sg15 #pseudodojo_
 kPointsValue=16
 
 %KPointsGrid
-#  12 | 12 | 12
-  kPointsValue | kPointsValue | kPointsValue
-#   0.5 | 0.5 | 0.5
-#   0.5 | 0.0 | 0.0
-#   0   | 0.5 | 0
-#   0   | 0   | 0.5
+   kPointsValue | kPointsValue | kPointsValue
 %
 
 kpts=30
 %KPointsPath
 # Gamma | M | K | Gamma | A | L | H | A|L | M|K | H
-kpts | kpts | kpts | kpts | kpts | kpts 
-0 | 0 | 0 #Gamma 
-0.5 | 0 | 0 #M
-1./3. | 1./3. | 0 # K
-0 | 0 | 0 # Gamma
-0 | 0 | 0.5 # A
-0.5 | 0 | 0.5 # L (ex?)
-1./3. | 1./3. | 0.5 # H
+kpts | kpts | kpts | kpts | kpts | kpts
+ 0 | 0 | 0 #Gamma 
+ 0.5 | 0 | 0 #M
+ 1./3. | 1./3. | 0 # K
+ 0 | 0 | 0 # Gamma
+ 0 | 0 | 0.5 # A
+ 0.5 | 0 | 0.5 # L (ex?)
+ 1./3. | 1./3. | 0.5 # H
 # A|L
 # M|K
 # 1./3. | 1./3. | 0.5 # H 
 %
+
 
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
@@ -123,8 +105,9 @@ KPointsUseSymmetries = yes
  1 | 0 | 0
 %
 
-ExtraStates = 16
 # ExtraStatesToConverge=0
+
+ExtraStates =0 #16 is enough for band structure.
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
@@ -138,6 +121,7 @@ MaximumIter=200
 Output = dos + density + potential + geometry
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 
+
 DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
 DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei
 
@@ -145,3 +129,9 @@ DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei
 FilterPotentials = filter_none #filter_BSB #filter_TS, filter_none        #this will be added automatically
 #
 #####################FromScratch=yes
+
+# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+
+XCFunctional = GGA_X_PBE + GGA_C_PBE
+PseudopotentialSet = pseudodojo_pbe
+
