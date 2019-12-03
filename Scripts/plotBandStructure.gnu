@@ -13,7 +13,7 @@ HartreeToEv = 27.2114 #1 Hartree = 27.2114 eV
 Yscale = HartreeToEv
 
 set ylabel 'Energy (eV)'
-set yrange [-10:10]
+set yrange [:]
 unset xtics
 
 #Column meanings. 
@@ -22,7 +22,7 @@ unset xtics
 
 Fermi_Ha=system("grep 'Fermi' -i $( ls -htr1 ../*.log | tail -n1 ) | tail -n1 | awk '{ print $4 }'")
 print Fermi_Ha." Ha"
-FermiLevel=Fermi_Ha*HartreeToEv
+FermiLevel=0e0 #Fermi_Ha*HartreeToEv
 print FermiLevel #." eV"
 
 plot file u 1:(($5 )*Yscale-FermiLevel) w lp lt 1 t 'occ', \
@@ -40,13 +40,24 @@ plot file u 1:(($5 )*Yscale-FermiLevel) w lp lt 1 t 'occ', \
      file u 1:(($17)*Yscale-FermiLevel) w lp lt 1 notitle, \
      file u 1:(($18)*Yscale-FermiLevel) w lp lt 1 notitle, \
      file u 1:(($19)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($20)*Yscale-FermiLevel) w lp lt 2 t 'unocc', \
+     file u 1:(($20)*Yscale-FermiLevel) w lp lt 2 notitle, \
      file u 1:(($21)*Yscale-FermiLevel) w lp lt 2 notitle, \
      file u 1:(($22)*Yscale-FermiLevel) w lp lt 2 notitle, \
      file u 1:(($23)*Yscale-FermiLevel) w lp lt 2 notitle, \
      file u 1:(($24)*Yscale-FermiLevel) w lp lt 2 notitle, \
      file u 1:(($25)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($26)*Yscale-FermiLevel) w lp lt 2 notitle
+     file u 1:(($26)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($27)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($28)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($29)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($30)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($31)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($32)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($33)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($34)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($35)*Yscale-FermiLevel) w lp lt 2 notitle, \
+     file u 1:(($36)*Yscale-FermiLevel) w lp lt 2 notitle
+
 
 #   0    | 0     | 0     #Gamma
 #   0.5  | -0.5  | 0.5   #H
