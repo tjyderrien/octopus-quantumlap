@@ -5,18 +5,19 @@
 CalculationMode = td
 ExperimentalFeatures = yes
 FromScratch = yes
+PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
 # Debug = trace
+
+
+
+ParStates = auto
+ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
+ParKpoints = auto
 
 %RestartOptions
   restart_gs | "../../restart/"
   restart_proj | "../../restart/"
 %
-
-PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
-
-ParStates = auto
-ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
-ParKpoints = auto
 
 ## DATA FROM AVOGADRO 
 a = 5.02778*angstrom #aAngstrom 
@@ -30,13 +31,11 @@ BoxShape = parallelepiped
         MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU #to be replaced by script
 %
 
-# %Lsize #useful if using external file
-#  0.5*m*a | 0.5*m*a | 0.5*m*a #TotalZsize
-# %
-
 %LatticeParameters
   m*a | m*a | n*caxis
 %
+
+KPointsUseSymmetries = yes
 
 %LatticeVectors #simply the primitive cell of the lattice type
   0.5 | -sqrt(3.)/2.| 0
@@ -64,15 +63,8 @@ BoxShape = parallelepiped
 # XYZCoordinates = "Si.xyz" #input is in Bohr now
 
 ConvRelDens = 1e-9 #1e-9
-KPointsUseSymmetries = yes
-
-%SymmetryBreakDir #laser direction, where we gonna break symmetry
-  1 | 0 | 0
-%
 
 ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
-# smearing = 0.0002
-# SmearingFunction=fermi_dirac
 
 # == THis is for ground state
 # MaximumIter=1000
