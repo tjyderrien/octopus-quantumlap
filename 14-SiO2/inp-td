@@ -1,36 +1,31 @@
-# T.J-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# T.J-Y. Derrien, N. M. Bulgakova
 # QuantumLaP project
 # <derrien@fzu.cz>
 
 CalculationMode = td
 ExperimentalFeatures = yes
-# FromScratch = yes
-# Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
-# UnitsXYZFiles = Angstrom
+FromScratch = yes
 # Debug = trace
-
-ParStates = no
-ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
-ParKpoints = auto
-
-# ParKpoints = auto
-# ParStates  = auto
-
-PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
-
-m = SizeOfTheBox #X blocks: to be replaced by script
-n = NumberOfBlocks #Z blocks: to be replaced by script 
 
 %RestartOptions
   restart_gs | "../../restart/"
   restart_proj | "../../restart/"
 %
 
-aAngstrom = 5.431 #Angstrom (experimental value)
-AngstromPerBohr = 0.52917721067 #AngstromPerBohr
-a = aAngstrom / AngstromPerBohr #Bohr
+PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
+
+ParStates = auto
+ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
+ParKpoints = auto
+
+## DATA FROM AVOGADRO 
+a = 5.02778*angstrom #aAngstrom 
+caxis = 5.51892*angstrom #cAngstrom 
+m = SizeOfTheBox #X blocks: to be replaced by script
+n = NumberOfBlocks #Z blocks: to be replaced by script 
 
 BoxShape = parallelepiped
+
 %Spacing
         MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU #to be replaced by script
 %
@@ -40,26 +35,29 @@ BoxShape = parallelepiped
 # %
 
 %LatticeParameters
-  a | a | a
+  m*a | m*a | n*caxis
 %
 
-%LatticeVectors
- 0.  | 0.5 | 0.5
- 0.5 | 0.  | 0.5
- 0.5 | 0.5 | 0.0
+%LatticeVectors #simply the primitive cell of the lattice type
+  0.5 | -sqrt(3.)/2.| 0
+  0.5 | sqrt(3.)/2. | 0
+  0   | 0           | 1.
 %
 
 %ReducedCoordinates
- "Si" |   0.0    | 0.0     | 0.0
- "Si" |   1/4    | 1/4     | 1/4
+"Si" | 0.52272 | 0.52272 |  0.50000
+"Si" | 0.47728 | 0.00000 |  0.16667
+"Si" | 0.00000 | 0.47728 |  0.83333
+"O"  | 0.58497 | 0.83926 |  0.37068
+"O"  | 0.16074 | 0.74571 |  0.03734
+"O"  | 0.25429 | 0.41503 |  0.70401
+"O"  | 0.83926 | 0.58497 |  0.62932
+"O"  | 0.74571 | 0.16074 |  0.96266
+"O"  | 0.41503 | 0.25429 |  0.29599
 %
 
 %KPointsGrid
   kPointsValue | kPointsValue   | kPointsValue
-  0.5 | 0.5 | 0.5 
-  0.5 | 0.0 | 0.0
-  0.0 | 0.5 | 0.0
-  0.0 | 0.0 | 0.5
 %
 
 # Using external file
@@ -67,6 +65,11 @@ BoxShape = parallelepiped
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
+
+%SymmetryBreakDir #laser direction, where we gonna break symmetry
+  1 | 0 | 0
+%
+
 ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac

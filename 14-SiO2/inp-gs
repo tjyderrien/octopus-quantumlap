@@ -5,8 +5,6 @@
 CalculationMode = gs
 ExperimentalFeatures=yes
 FromScracth = yes
-# Units = atomic #eV_Angstrom is a false unit system! ;)
-# UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
 
 # Initial temperature
