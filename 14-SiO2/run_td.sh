@@ -138,6 +138,9 @@ DefineParameters () {
     "LDA")
       FunctionalPath=""
       ;;
+    "PBE")
+      FunctionalPath="-PBE"
+      ;;  
     *)
       echo "This functional was not planned. Modify run_td.sh."
       exit 1
@@ -223,8 +226,15 @@ ReplaceInputFile () {
   fi
 
   if [ ${Functional} == "LDA" ]; then
-    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp 
+    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+    echo "PseudopotentialSet = pseudodojo_lda" >> inp
   fi
+
+  if [ ${Functional} == "PBE" ]; then
+    echo "XCFunctional = GGA_X_PBE + GGA_C_PBE" >> inp
+    echo "PseudopotentialSet = pseudodojo_pbe" >> inp
+  fi
+
   # cd - >& /dev/null
 
 }
