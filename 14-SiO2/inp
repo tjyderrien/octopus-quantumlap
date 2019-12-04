@@ -2,7 +2,7 @@
 # QuantumLaP project
 # <derrien@fzu.cz>
 
-CalculationMode = gs
+CalculationMode = gs #unocc #gs
 ExperimentalFeatures=yes
 FromScracth = yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
@@ -29,7 +29,8 @@ n = 1 #Z blocks: to be replaced by script
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
-ParDomains = no #crashes if made per state only
+
+ParDomains = auto #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
@@ -42,11 +43,18 @@ BoxShape = parallelepiped
   m*a | m*a | m*caxis
 %
 
-%LatticeVectors #simply the primitive cell of the lattice type
-  0.5 | -sqrt(3.)/2.| 0
-  0.5 | sqrt(3.)/2. | 0
-  0   | 0           | 1.
+## DUKE UNIVERSITY INPUT. Symmetric but fails on space group.
+%LatticeVectors 
+ 0.5 |-sqrt(3.)/2. | 0
+ 0.5 | sqrt(3.)/2. | 0
+ 0.  | 0.          | 1.0
 %
+
+# %LatticeVectors
+#  0.19889 |  0.11483 |  0.00000
+#  0.00000 |  0.22966 |  0.00000
+#  0.00000 |  0.00000 |  0.18119
+#%
 
 # %Lsize #! Lsize is half of the box...
 # 	0.5*m*a | 0.5*m*a | 0.5*m*a #(n*a + Lvac)*0.5
@@ -94,8 +102,10 @@ kpts | kpts | kpts | kpts | kpts | kpts
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
 KPointsUseSymmetries = yes
 %SymmetryBreakDir #laser direction, where we gonna break symmetry
-  1 | 0 | 0
+ 1 | 0 | 0
 %
+
+# ExtraStatesToConverge=0
 
 ExtraStates =0 #16 is enough for band structure.
 
@@ -110,11 +120,18 @@ MaximumIter=200
 ### OUTPUTS
 Output = dos + density + potential + geometry
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
-# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+
 
 DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
 DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei
 
-FilterPotentials = filter_none        #this will be added automatically
+# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+FilterPotentials = filter_none #filter_BSB #filter_TS, filter_none        #this will be added automatically
+#
+#####################FromScratch=yes
+
+# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+
 XCFunctional = GGA_X_PBE + GGA_C_PBE
 PseudopotentialSet = pseudodojo_pbe
+

@@ -5,8 +5,6 @@
 CalculationMode = gs
 ExperimentalFeatures=yes
 FromScracth = yes
-# Units = atomic #eV_Angstrom is a false unit system! ;)
-# UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
 
 # Initial temperature
@@ -29,7 +27,7 @@ n = 1 #Z blocks: to be replaced by script
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
-ParDomains = no #crashes if made per state only
+ParDomains = yes #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
