@@ -1,8 +1,9 @@
 #!/bin/bash
 module purge
+source $QuantumLaPsources/machines.env
 module load git
 module load gnuplot
-# module load anaconda/2/5.1 #we shall use machines.env library load for this.
+module load Anaconda2/5.3.1 #we shall use machines.env library load for this. Does not seem to work on Salomon.
 module list
 
 source $QuantumLaPsources/machines.env
