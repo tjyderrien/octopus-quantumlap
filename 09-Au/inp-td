@@ -227,6 +227,9 @@ tR = tauRise
 #%
 # GaugeFieldDelay =  0
 
+GaugeFieldPropagate = ReplaceMeGaugeField # | yes
+
+
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
 TDPropagator = etrs #it was aetrs
@@ -244,6 +247,7 @@ TDOutput = geometry + energy + laser + total_current
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
 OutputInterval = 10
+RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. . 
 RestartWriteInterval = 500
 TDOutputComputeInterval = 10
 
