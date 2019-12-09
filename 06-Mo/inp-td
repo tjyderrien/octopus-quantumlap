@@ -230,6 +230,7 @@ TDOutput = energy + geometry + laser + total_current + gauge_field + density
 OutputFormat = xyz
 
 OutputInterval = 10
+RestartWrite = 0 #WE DISABLE RESTART WRITING since Computer time >>>> Disk space. 
 RestartWriteInterval = 500 #otherwise the number of IO becomes astronomic
 TDOutputComputeInterval = 10
 
