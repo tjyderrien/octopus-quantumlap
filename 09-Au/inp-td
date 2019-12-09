@@ -25,11 +25,11 @@ a = 4.175*angstrom #Value of Zhigilei PRB 2008 #interatomic distance, more clear
 angle_deg = 60. #deg
 angle = angle_deg/180.*pi #rad
 
+BoxShape = parallelepiped
 %Spacing
  MeshSizeX_AU | MeshSizeX_AU | MeshSizeZ_AU
 %
 
-BoxShape = parallelepiped
 
 
 %LatticeParameters
@@ -80,7 +80,7 @@ SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV
 
 ExtraStates = 4
-ExtraStatesToConverge = 2 
+ExtraStatesToConverge = 2
 
 
 #### PULSE DEFINITION
