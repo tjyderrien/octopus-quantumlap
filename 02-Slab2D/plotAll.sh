@@ -1,11 +1,15 @@
 #!/bin/bash
 module purge
+# module load git
+# module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
+#module load anaconda/2/5.1 #we shall use machines.env library load for this.
 source $QuantumLaPsources/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
-module list
-source $QuantumLaPsources/02-Slab2D/functions.sh
 
-set -e
+source $QuantumLaPsources/02-Slab2D/functions.sh
+# module load plgrid/tools/gnuplot/5.2.4 #temporary fix
+module list
+# set -e
 
 echo "Current folder: $( pwd )"
 
@@ -66,7 +70,11 @@ do
 	echo "** Building files for post-processed density..."
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
+<<<<<<< HEAD
 	screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+=======
+	${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+>>>>>>> a2a510ececd7c9c4525f97e58365359dc82b23aa
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
@@ -93,7 +101,11 @@ do
         echo "** Building files for post-processed density..."
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
         echo "** Plotting the TD-HHG results... $(pwd)" 
+<<<<<<< HEAD
         screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+=======
+        ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+>>>>>>> a2a510ececd7c9c4525f97e58365359dc82b23aa
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
         echo ""
 
@@ -122,7 +134,7 @@ done
 
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
-# plotExcitation  #Prepare all plots for n_ex analysis.
+plotExcitation  #Prepare all plots for n_ex analysis.
 plotHHG         #Generate the CSV files with HHG spectra. 
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 

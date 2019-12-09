@@ -407,7 +407,7 @@ HHG_AU_duration=1./HHG_AU_omega
 ##=== CALCULATION OF THE Single + Supercell Volume (at. u.)
 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log("../")
 SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
-SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum("../") #Volume of the sample (without vacuum region) 
+SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum("../") #Volume of the sample (without vacuum region)  ##WE ASSUME A BULK
 SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
 CellVolume_AU = Sample.VolumePerPoint_Log("../") #0.06385 #0.07820 #Bohr**3
 CellVolume_SI = Volume_AU_to_SI(CellVolume_AU)
