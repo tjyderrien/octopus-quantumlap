@@ -1,13 +1,8 @@
 #!/bin/bash
 module purge
 source $QuantumLaPsources/machines.env
-module load git
-module load gnuplot
-module load Anaconda2/5.3.1 #we shall use machines.env library load for this. Does not seem to work on Salomon.
+CheckComputerName #this loads the machine dependent libraries from machines.env.
 module list
-
-source $QuantumLaPsources/machines.env
-CheckComputerName
 source $QuantumLaPsources/02-Slab2D/functions.sh
 
 set -e
@@ -40,14 +35,14 @@ do
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeCurrent.gnu"
+		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
 	fi
 	if [ -e n_ex ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
-		${OctopusSlabsSources}/fixOutputFile.sh laser
+		${QuantumLaPsources}/fixOutputFile.sh laser
 		echo "Plotting density..."
-                screen -d -m gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
 	fi
 	echo ""
 	echo "** NEXT FOLDER"
@@ -71,7 +66,7 @@ do
 	echo "** Building files for post-processed density..."
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
-	screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
+	screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
@@ -98,7 +93,7 @@ do
         echo "** Building files for post-processed density..."
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
         echo "** Plotting the TD-HHG results... $(pwd)" 
-        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
         echo ""
 
