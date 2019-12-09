@@ -49,9 +49,9 @@ remove_obf_files() {
 
 remove_td_restart() {
 #  find . -mindepth 5 | grep 'lambda' | grep 'obf' >& CanBeRemoved.log
-  echo "Warning: THIS WILL BE REMOVED."
+  echo "Warning: THE FOLLOWING FILES WILL BE REMOVED."
   find . -mindepth 5 -name '*.obf' | grep 'lambda' | tail
-  echo "Warning: THIS SHOULD SHOW EMPTY SEARCH!"
+  echo "Warning: THE FOLLOWING LINES SHOULD SHOW EMPTY SEARCH!"
   find . -mindepth 5 -name '*.obj' | grep -v 'lambda' | tail
   echo "If you are ready, type find . -mindepth 5 -name '*.obj' #-delete"
 
