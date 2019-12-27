@@ -5,7 +5,7 @@ set terminal postscript eps enhanced color font 'Helvetica, 24'
 
 set format "%g"
 
-#set xrange [:25]
+set xrange [:60]
 
 set ytics nomirror
 set y2tics nomirror
