@@ -13,7 +13,7 @@ angle = angle_deg/180.*pi #rad
 ## INPUT WITH PRIMITIVE CELL
 # a = 2.743 #Angstroms
 # a = 5.183518762130823 #Bohr
-# angle = 109.471 #*pi/180. #deg
+
 
 # a = 2.743 Angstr. #DOI: 10.17188/1189253
 # a = 5.183518762130822 #Bohr
@@ -42,16 +42,25 @@ KPointsUseSymmetries = no
 
 %LatticeParameters
   a | a | a
-#  angle | angle | angle
+#  angle_deg | angle_deg | angle_deg
 %
+
+# Signs
+s1=1
+s2=1
 
 %LatticeVectors
 #  3.10321 |  0.00000 |  0.00000
 # -1.034403300933891 |  2.925734457382807 |  0.00000
 # -1.034403300933891 | -1.4628671599618088 |  2.5337604045020403
-1.0 | 0.0 | 0.0
--0.33333332289271145 | 0.9428090452733805 | 0.0
--0.33333332289271145 | -0.47140450048878707 | 0.8164965969115981
+# Analytical computed with Python
+# 1.0 | 0.0 | 0.0
+# -0.33333332289271145 | 0.9428090452733805 | 0.0
+# -0.33333332289271145 | -0.47140450048878707 | 0.8164965969115981
+# Analytical, by hand, assuming angle is in rad
+1 | 0 | 0
+cos(angle) | s1*sin(angle) | 0
+cos(angle) | -(cos(angle)*(cos(angle)-1))/(s1*sin(angle)) | s2*(sqrt(2*cos(angle)^3+1-3*cos(angle)^2+s1^2*sin(angle)^4-sin(angle)^4))/(sin(angle)*s1)
 %
 
 
@@ -101,4 +110,4 @@ ConvRelDens = 1e-9
 
 ExperimentalFeatures = yes
 
-FromScratch = yes
+# FromScratch = yes
