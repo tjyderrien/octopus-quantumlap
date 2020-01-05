@@ -15,7 +15,7 @@ Spacing = a/16
 # ParStates = auto
 ParDomains = yes #crashes if made per state only
 
-BoxShape = parallelepiped
+# BoxShape = parallelepiped
 
 %LatticeParameters #noncubic cells
   m*a | m*a | m*a
