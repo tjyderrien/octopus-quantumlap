@@ -22,7 +22,7 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.19" #0.25 0.23 0.15" # 0.20"
+MeshSizeX="0.15" # 0.18 0.23" #0.15 0.18 0.23" #0.15: accurate. 0.19: modest convergence of energy(t). 0.23, 0.25: not good for Mo.
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
@@ -37,13 +37,13 @@ CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="PBE" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
 # Mission="Drude"
 # Mission="InducedField"
-Mission="Mo-TD-ConvergeJ"
+Mission="Mo-TD-J"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -65,7 +65,7 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 
 # Field amplitude
 # Efield1="1E9"
-Efield1="1E9" #5E9 1E10"
+Efield1="1E10 1E11 1E12"
 # Efield1="1E9" #"2E9 3E9 4E9" #ZHUKOV
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"

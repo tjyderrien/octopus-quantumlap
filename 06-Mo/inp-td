@@ -8,9 +8,9 @@ CalculationMode = td
 PeriodicDimensions = 3
 
 # a = 3.147
-a = 5.9469681168157855 #Bohr, size of the cubic cell
-angle = 90. #degrees, indeed
 
+a = 3.1472*angstrom #interatomic distance: REF: Landolt-Bornstein, New Series III/24b p.22
+angle = 109.47122 #*pi/180. #deg
 
 # Spacing = a/16
 
@@ -27,13 +27,20 @@ KPointsUseSymmetries = yes
 
 %Coordinates
  'Mo' | 0.0 | 0.0 | 0.0
- 'Mo' | a/2 | a/2 | a/2
 %
 
 %LatticeParameters
   a | a | a
-  angle | angle | angle
+#  angle | angle | angle
 %
+
+%LatticeVectors
+  -0.5 | 0.5  | 0.5
+   0.5 | -0.5 | 0.5
+   0.5 | 0.5  | -0.5
+%
+
+
 
 %KPointsGrid
   kPointsValue | kPointsValue | kPointsValue
@@ -157,8 +164,8 @@ SmearingFunction = fermi_dirac
 Smearing = 300./11600.*eV
 
 ## EXTRASTATES
-ExtraStates = 8
-
+ExtraStates = 4
+ExtraStatesToConverge = 0
 ExperimentalFeatures = yes
 
 FromScratch = yes
