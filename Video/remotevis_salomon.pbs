@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -q qprod
+#PBS -q qviz
 #PBS -N Video
 #PBS -m ae -M derrien@fzu.cz
 #PBS -e Morille.err
@@ -20,6 +20,7 @@ module purge
 # module load FFTW/3.3.6-intel-2017a
 module load HDF5/1.10.2-intel-2017a
 module load netCDF/4.4.1.1-intel-2017a
+module load VisIt/2.10.0
 
 # LD_LIBRARY_PATH=/scratch/tjyderriien/nfft/3.2.4/lib:$LD_LIBRARY_PATH
 
