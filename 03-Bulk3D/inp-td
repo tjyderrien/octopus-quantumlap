@@ -243,6 +243,7 @@ TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
+RestartWrite = 0 #WE NEED TO SAVE SPACE AND INODES
 OutputInterval = 10
 RestartWriteInterval = 500
 TDOutputComputeInterval = 10
