@@ -12,7 +12,7 @@ source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=16 # 8: convergence of density is fine, 16: convergence of energy is okay', 24: convergence of currents is fine
 GaugeVectorFieldAmplitude=0 #0: no probe pulse. >0: probe pulse strength in Hartree. 
 GaugeFieldDelayValue=0 #delay of probe pulse (in number of cycles?)
 

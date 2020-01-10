@@ -1,6 +1,6 @@
 # -*- coding: utf-8 mode: shell-script -*-
 
-CalculationMode = gs
+CalculationMode = go
 
 ExperimentalFeatures=yes
 FromScratch = yes
@@ -8,24 +8,24 @@ FromScratch = yes
 PeriodicDimensions = 0
 
 # b = 4.03 #4.03 augstrum in z direction. 2.82930332580211 #2.467 Angstrums between atoms. 
-a = 2.87 #2.82930332580211 #Anstrums. He took it in Bohr. It should be angtrums in xy direction.
+a = 1.163*angstrom #2.82930332580211 #Anstrums. He took it in Bohr. It should be angtrums in xy direction.
 # a = 2.467 #angstrums between atoms
-# a = 5.346612162095391 #this is in Bohr.
 m = 1
 Spacing = a/16
+radius = 10.0*angstrom
 
 # Optimization
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
-# ParDomains = yes #crashes if made per state only
+# ParDomains = auto #auto #crashes if made per state only
 
-BoxShape = parallelepiped
+# BoxShape = parallelepiped
 
 %Coordinates
 "C" | 0  | 0 | 0
-"O" | 1  | 0 | 0
-"O" | -1 | 0 | 0
+"O" | a  | 0 | 0
+"O" | -a | 0 | 0
 %
 
 ForceComplex = yes
