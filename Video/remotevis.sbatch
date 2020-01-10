@@ -1,12 +1,11 @@
 #!/bin/bash
 
 # DRACO@MPCDF remote visualization SLURM submit script.
-# 2016, khr@rzg.mpg.de
 
 #SBATCH -o ./job.out.%j
 #SBATCH -e ./job.err.%j
 #SBATCH -D ./
-#SBATCH -J remotevis
+#SBATCH -J qviz
 #SBATCH --partition=viz
 #SBATCH --constraint="gpu"
 #SBATCH --gres=gpu:1

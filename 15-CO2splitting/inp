@@ -1,0 +1,56 @@
+# -*- coding: utf-8 mode: shell-script -*-
+
+CalculationMode = go
+
+ExperimentalFeatures=yes
+FromScratch = yes
+
+PeriodicDimensions = 0
+
+# b = 4.03 #4.03 augstrum in z direction. 2.82930332580211 #2.467 Angstrums between atoms. 
+a = 1.163*angstrom #2.82930332580211 #Anstrums. He took it in Bohr. It should be angtrums in xy direction.
+# a = 2.467 #angstrums between atoms
+m = 1
+Spacing = a/16
+radius = 10.0*angstrom
+
+# Optimization
+# PoissonFFTKernel = planar
+# ParKPoints = auto
+# ParStates = auto
+# ParDomains = auto #auto #crashes if made per state only
+
+# BoxShape = parallelepiped
+
+%Coordinates
+"C" | 0  | 0 | 0
+"O" | a  | 0 | 0
+"O" | -a | 0 | 0
+%
+
+ForceComplex = yes
+LCAOComplexYlms = yes
+SpinComponents = polarized
+
+ExtraStates = 2
+
+PoissonSolver = fft
+PoissonFFTKernel = multipole_correction
+
+FilterPotentials = filter_none
+
+MixField = density
+
+# PseudopotentialSet = pseudodojo_lda
+
+ConvRelDens = 1e-9
+
+## Is it corresponding to our thermal DFT ?
+SmearingFunction = fermi_dirac
+Smearing = 300./11600. * eV # 0.025851991011651636*eV #300 K
+
+SCFCalculateStress=yes #computes stress after computation
+
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+

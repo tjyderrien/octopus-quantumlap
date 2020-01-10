@@ -1,0 +1,56 @@
+CalculationMode = go
+
+ExperimentalFeatures=yes
+# FromScratch = yes
+
+PeriodicDimensions = 3
+
+a = 2.87
+m = 1
+Spacing = a/16
+
+# Optimization
+# PoissonFFTKernel = planar
+# ParKPoints = auto
+# ParStates = auto
+ParDomains = yes #crashes if made per state only
+
+# BoxShape = parallelepiped
+
+%LatticeParameters #noncubic cells
+  m*a | m*a | m*a
+%
+
+%LatticeVectors
+  1.0 | 0.0 | 0.0
+  0.0 | 1.0 | 0.0
+  0.0 | 0.0 | 1.0
+%
+
+%ReducedCoordinates
+ "Fe" | 0.0 | 0.0 | 0.0
+ "Fe" | 1/2 | 1/2 | 1/2
+%
+
+%KPointsGrid
+  8|8|8
+%
+
+PseudopotentialSet = pseudodojo_lda
+
+ConvRelDens = 1e-9
+
+KPointsUseSymmetries = no
+
+## Is it corresponding to our thermal DFT ?
+SmearingFunction = fermi_dirac
+Smearing = 0.025851991011651636*eV
+
+SCFCalculateStress=yes #computes stress after computation
+
+ExtraStates = 2
+
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+
+# FilterPotentials = filter_none 

@@ -5,18 +5,18 @@ PeriodicDimensions = 3
 ## INPUT WITH CUBIC CELL
 # a = 3.147 #Angstroms. Given by ASE (parallelepipedic) #but the octopus input is in Bohr, right?
 # a = 5.9469681168157855*bohr #, size of the cubic cell
-# angle = 90. #degrees
+# angle = 90. #degrees, indeed
 
 ## INPUT WITH PRIMITIVE CELL
 # a = 2.74324*angstrom #Avogadro input. Good for lower triangular primitive cell. 
 a = 3.1472*angstrom #interatomic distance: REF: Landolt-Bornstein, New Series III/24b p.22
-# angle = 109.47122*pi/180. #deg
+angle = 109.47122 #*pi/180. #deg
 
 # a = 2.743 Angstr. #DOI: 10.17188/1189253
 # a = 5.183518762130822 #Bohr
 
-Spacing = a/16
-# Spacing = MeshSizeX_AU #to be replaced by script
+# Spacing = a/16
+Spacing = MeshSizeX_AU #to be replaced by script
 
 BoxShape = parallelepiped
 
@@ -54,8 +54,8 @@ KPointsUseSymmetries = yes
 %
 
 %KPointsGrid
-  # kPointsValue | kPointsValue | kPointsValue #to be replaced by script
-  16 | 16 | 16
+  kPointsValue | kPointsValue | kPointsValue #to be replaced by script
+  # 16 | 16 | 16
 %
 
 # KpointPath Resolution

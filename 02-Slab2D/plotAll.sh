@@ -1,11 +1,10 @@
 #!/bin/bash
 module purge
-
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 #module load anaconda/2/5.1 #we shall use machines.env library load for this.
 source $QuantumLaPsources/machines.env
-CheckComputerName
+CheckComputerName #this loads the machine dependent libraries from machines.env.
 
 source $QuantumLaPsources/02-Slab2D/functions.sh
 # module load plgrid/tools/gnuplot/5.2.4 #temporary fix
@@ -31,23 +30,40 @@ do
 	cd $folder
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
-		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
+                if [ UseScreen ]; then
+		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                else
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
                 gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                fi
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+		if [ UseScreen ]; then
+                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+                else
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+                fi
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
+		if [ UseScreen ]; then
+                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
+                else
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
+                fi
 	fi
 	if [ -e n_ex ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "Fixing bad output octopus problems..."
 		${QuantumLaPsources}/fixOutputFile.sh laser
 		echo "Plotting density..."
+                if [ UseScreen ]; then
+                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
+                else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
+                fi
 	fi
 	echo ""
 	echo "** NEXT FOLDER"
@@ -70,7 +86,12 @@ do
         cd $folder
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
-	${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+
+	if [ UseScreen ]; then
+         screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+        else
+         ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+        fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	echo ""
 
@@ -97,7 +118,12 @@ do
         echo "** Building files for post-processed density..."
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
         echo "** Plotting the TD-HHG results... $(pwd)" 
-        ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        if [ UseScreen ]; then
+         screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        else
+         ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        fi
+
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0
         echo ""
 
