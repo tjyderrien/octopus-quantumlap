@@ -28,6 +28,13 @@ backup_eps_SinSquared() {
  tar -cvf $filename $( find . -name "*.eps" | grep 'SinSquared' )
 }
 
+backup_video() {
+  DATE=`date +%Y-%m-%d`
+  echo "== Saving the PNG files present in subfolders..."
+  filename=$DATE-Video.tar
+  tar -cvf $filename $( find . -name "*.png" | grep 'output_iter' ) 
+} 
+
 backup_SinSquared() {
   DATE=`date +%Y-%m-%d`
   echo "== Saving the SinSquared pulses."
