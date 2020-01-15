@@ -220,6 +220,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     elif ("StH" in PulseType_value): #fixed STH 
       print Header+"** Info: FIXED Soft Top Hat pulse detected..."
       PulseTypeName="StH"
+    elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope
+      print Header+"** Info: SIN4 soft top hat pulse detected..."
+      PulseTypeName="StH4"
     else:
       print Header+"** Error: pulse type was not recognized."
       print Header+"** Error PulseType_value = "+str(PulseType_value)
@@ -664,8 +667,10 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
 # SinSquared is working and physical. 
 # STH was not well controlled (stupid mistake)
 # StH was well controlled. 
-PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3}
-PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH'}
+# StH4 is experimental.
+PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4}
+PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4'}
+
 ## Damps a signal from FinalTimeDamping instant. 
 # @param timeCurrent: table of instants (SI)
 # @param CurrentX: signal to be processed
