@@ -244,7 +244,7 @@ TDOutput = geometry + energy + laser + total_current
 # Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF DATA.
 #OutputFormat = cube #VisIt
 # Output = geometry
-OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
+OutputFormat = xyz + vtk # + netcdf #OpenDX, UCSF Chimera
 
 OutputInterval = 10
 RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. . 

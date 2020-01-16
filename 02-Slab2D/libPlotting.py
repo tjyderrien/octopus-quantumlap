@@ -39,19 +39,28 @@ Header = "[libPlotting]"
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path):
-  geometry = path+"../Si.xyz" #static method
-  Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
+  #geometry = path+"../Si.xyz" #static method
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
+  
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
       laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
   except: 
       print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "
       exit()
+  try:
+      # This should work for dielectrics
+      Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
+  except:
+      # This should be for metallic materials.
+      print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
+      Ne=laser #we just copy laser, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
+      Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
+  
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
   TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
-  return geometry, Ne, laser, TotalCurrent, Energy
+  return Ne, laser, TotalCurrent, Energy
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
 # Hence, localize yourself in td.general before using this function. 
@@ -105,7 +114,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
     # Import the quantities from the subfolders
     try:
-      geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
+      Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
       print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
       continue #could not load the files, it did not run, then jump this run.
@@ -685,7 +694,7 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
     return CurrentX_HHG
 #}}}
 
-## Plots a heat-map color picture of randomly meshed data
+## Plots a heat-map color picture of randomly meshed data. Outputs the results on a regular grid for further usage. 
 # @param X: 2D-matrix
 # @param Y: 2D-matrix
 # @param Z: f(X, Y)
@@ -715,7 +724,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
       #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
       interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
-      Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
+      Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. It could be energy also... Let's keep it generic. 
       Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
       
       ## Plotting the quantity...
@@ -767,7 +776,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       if(ShowFinalPlot==1):
         plt.show()
       
-      if(PlotGradient):
+      if(PlotGradient): #{{{
         print Header+"** Info: Plotting the gradient..."
         print Header+"** Debug: Shape of I1: "+str(np.shape(E1_t))
         print Header+"** Debug: Shape of I2: "+str(np.shape(E2_t))
@@ -799,6 +808,10 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
         plt.savefig(filename+'-GradientE2.png')
         if(ShowFinalPlot==1):
             plt.show()
+        #}}}
+      ## Extract the E1, E2, Nexc_t to prepares sections and post-treated results on a regular grid. Figure of (Energy_pulse1+2)/(Energy_pulse1+Energy_pulse2)
+      return E1_t, E2_t, Nexc_t
+  #}}}
 #}}}
 
 

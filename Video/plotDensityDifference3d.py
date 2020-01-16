@@ -70,7 +70,7 @@
 from libPlotVideo import *
 
 ExportVideo = 1 #1: export an MPG file. 
-OldResult   = 1 #0: we will use total "density" field, otherwise "Re" field. 
+OldResult   = 0 #0: we will use total "density" field, otherwise "Re" field. 
 
 inputdata = 'listoffiles.txt'
 outdir    = './'
@@ -84,18 +84,18 @@ WhatToPlot1 = "Difference" # "ExcitedStateData" #"Difference"
 WhatToPlot2 = "Difference" #
 
 #elfvtk     = 'elf_rs.vtk'
-geometry    = 'geometry.vtk'
+geometry    = 'crystal.xyz' #'geometry.vtk' 
 
 ShowCaption = 2 #2 == auto: only for 1 direction 
 bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=-0.25 #complete slab: 0, just the top: -0.25
+OriginZ=0. #complete slab: 0, just the top: -0.25
 
-MaxValue=0.01 #8e-5 good for 1 V/nm. 0.01 is good for saturated case (9 V/nm). 
+MaxValue=0.02 #8e-5 good for 1 V/nm. 0.01 is good for saturated case (9 V/nm). 
 MinValue=-MaxValue
-ZoomValue=1.5 #2.3 #complete slab ~ 1.5, #just the top: 2.3
+ZoomValue=4.5 #2.3 #complete slab ~ 1.5, #just the top: 2.3
 #1:Bulk #3:Slabs
 EnablePerspective=0
 
