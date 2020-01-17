@@ -138,7 +138,7 @@ elif(sys.argv[3] == "1"):
 else:
   ShowFinalPlot = ShowFinalPlotDefault
   
-geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
+Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
 # Treat the data generated with Octopus. 
 
@@ -224,7 +224,7 @@ else:
   #exit()
 
 ##==== KELDYSH CALCULATION PULSE 1 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
-ValenceBandMax = 5E28 
+ValenceBandMax = 5E29
 dtPrecision = 1E-17
 order=50
 CentralTime = 2.*PulseDuration_SI #20E-15
