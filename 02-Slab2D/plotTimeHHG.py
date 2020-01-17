@@ -115,7 +115,7 @@ else:
   ShowFinalPlot = ShowFinalPlotDefault
   
 
-geometry, Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
+Ne, laser, TotalCurrent, Energy = LoadRunOutputs("")
 
 # Treat the data generated with Octopus. 
 
