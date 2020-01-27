@@ -11,10 +11,8 @@ echo "[Checking] Variable basePath: $basePath"
 source $OctopusSlabsSources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
-MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
+MoveIons=1 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
 kPoints=16 # 8: convergence of density is fine, 16: convergence of energy is okay', 24: convergence of currents is fine
-GaugeVectorFieldAmplitude=0 #0: no probe pulse. >0: probe pulse strength in Hartree. 
-GaugeFieldDelayValue=0 #delay of probe pulse (in number of cycles?)
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -40,6 +38,8 @@ FreezeXC=${20}
 RiseCycle=${21}
 Mission=${22}
 NumNodes=${23}
+GaugeVectorFieldAmplitude=${24} 
+GaugeFieldDelayValue=${25} 
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -107,13 +107,20 @@ DefineParameters () {
   else
      CrossPolaAngle="0."
   fi
-
+# LASER INPUT (pump!)
   if [ $InducedField == 1 ]; then
      GaugeFieldValue="yes"
      GaugeFieldText="-InducedFields"
   else
      GaugeFieldValue="no"
      GaugeFieldText=""
+  fi
+
+# PROBE INPUT
+  if [ ${GaugeVectorFieldAmplitude} == 0 ]; then
+    GaugeVectorFieldText=""
+  else 
+    GaugeVectorFieldText="-Probe${GaugeVectorFieldAmplitude}-ProbeDelay${GaugeFieldDelayValue}"
   fi
 
   MoveIonsChain=""
@@ -148,7 +155,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/06-Mo/Mo-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
