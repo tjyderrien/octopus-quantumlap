@@ -93,7 +93,16 @@ OriginX=0.
 OriginY=0.
 OriginZ=0. #complete slab: 0, just the top: -0.25
 
-MaxValue=0.02 #8e-5 good for 1 V/nm. 0.01 is good for saturated case (9 V/nm). 
+# MaxValue=4e4  # Au, 10V/nm, induced fields (difference must be from field enhancement)
+# MaxValue=0.02 # Au, 10V/nm, no induced fields
+
+MaxValue=4e-3 # Mo, 10V/nm, induced fields (no field enhancement in Mo... !)
+# MaxValue=5e-3 # Mo, 10V/nm, no induced fields.
+# MaxValue=3e-2 # Mo, 1000V/nm, no induced fields. 
+
+# MaxValue=8e-5 #Si: 1 V/nm, No induced fields.
+# MaxValue=0.01 #Si: 9 V/nm, No induced fields. Saturated case (9 V/nm). 
+
 MinValue=-MaxValue
 ZoomValue=4.5 #2.3 #complete slab ~ 1.5, #just the top: 2.3
 #1:Bulk #3:Slabs
