@@ -57,10 +57,12 @@ do
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
                 fi
 	fi
-	if [ -e n_ex ]; then
+	if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
-		echo "Fixing bad output octopus problems..."
+		echo "** Fixing bad output octopus problems..."
 		${QuantumLaPsources}/fixOutputFile.sh laser
+        fi
+        if [ -e n_ex ]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -89,16 +91,17 @@ do
 	prevFolder=$( pwd )
         cd $folder
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
-	echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
 
-	if [[ $UseScreen ]]; then
-         echo " *** Warning: screen is employed."
-         screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
-        else
-         ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
-        fi
+        if [ -e n_ex ]; then
+          echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
+          if [[ $UseScreen ]]; then
+            screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+          else
+            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+          fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
-	echo ""
+	  echo ""
+        fi
 
  	# echo "** Generating list of TD-visual outputs..."
  	# TODO : $OctopusSlabsSources/Video/buildFileList.sh #generated listoffiles.txt
@@ -122,12 +125,13 @@ do
         cd $folder
         echo "** Building files for post-processed density..."
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
-        echo "** Plotting the TD-HHG results... $(pwd)" 
-        if [[ $UseScreen ]]; then
-         echo " *** Warning: screen is employed."
-         screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
-        else
-         ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+        if [ -e total_current ]; then
+          echo "** Plotting the TD-HHG results... $(pwd)" 
+          if [[ $UseScreen ]]; then
+            screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+          else
+            ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+          fi
         fi
 
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeHHG.py auto 1 0

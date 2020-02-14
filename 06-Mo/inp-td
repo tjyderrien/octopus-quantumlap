@@ -239,7 +239,7 @@ TDOutput = geometry + laser + gauge_field + density + total_current + energy
 OutputFormat = xyz + vtk
 
 # VIDEO
-# Output = geometry + laser + density + current + kinetic_energy_density
+Output = geometry + laser + density + current + kinetic_energy_density
 
 OutputInterval = 10
 RestartWrite = 0 #WE DISABLE RESTART WRITING since Computer time >>>> Disk space. 
