@@ -31,6 +31,7 @@ do
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
                 if [[ $UseScreen ]]; then
+                echo " *** Warning: screen is employed."
 		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
                 screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 else
@@ -41,6 +42,7 @@ do
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
 		if [[ $UseScreen ]]; then
+                echo " *** Warning: screen is employed."
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
@@ -49,6 +51,7 @@ do
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
 		if [[ $UseScreen ]]; then
+                echo " *** Warning: screen is employed."
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
@@ -62,6 +65,7 @@ do
         if [ -e n_ex ]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
+                echo " *** Warning: screen is employed."
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
