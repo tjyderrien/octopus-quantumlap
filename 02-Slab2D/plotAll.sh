@@ -30,7 +30,7 @@ do
 	cd $folder
 	if [ -e laser ]; then
 		echo "** Plotting laser..."
-                if [ UseScreen ]; then
+                if [[ $UseScreen ]]; then
 		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
                 screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 else
@@ -40,7 +40,7 @@ do
 	fi
 	if [ -e energy ]; then
 		echo "** Plotting energy..."
-		if [ UseScreen ]; then
+		if [[ $UseScreen ]]; then
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
@@ -48,7 +48,7 @@ do
 	fi
 	if [ -e total_current ]; then
 		echo "** Plotting current..."
-		if [ UseScreen ]; then
+		if [[ $UseScreen ]]; then
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
@@ -61,7 +61,7 @@ do
         fi
         if [ -e n_ex ]; then
 		echo "Plotting density..."
-                if [ UseScreen ]; then
+                if [[ $UseScreen ]]; then
                 screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
                 else
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
@@ -90,7 +90,7 @@ do
 
         if [ -e n_ex ]; then
           echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
-          if [ UseScreen ]; then
+          if [[ $UseScreen ]]; then
             screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
             ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
@@ -123,7 +123,7 @@ do
         # screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
         if [ -e total_current ]; then
           echo "** Plotting the TD-HHG results... $(pwd)" 
-          if [ UseScreen ]; then
+          if [[ $UseScreen ]]; then
             screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
           else
             ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
@@ -158,7 +158,9 @@ done
 
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
+echo "Plotting Excitation results..."
 plotExcitation  #Prepare all plots for n_ex analysis.
+echo "Plotting harmonic generation results..."
 plotHHG         #Generate the CSV files with HHG spectra. 
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
