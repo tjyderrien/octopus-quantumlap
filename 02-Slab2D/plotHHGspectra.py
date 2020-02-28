@@ -125,7 +125,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
     # Extracting the data from filtered database
     try: 
-        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
+        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
     except:
         print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
         exit()
@@ -237,7 +237,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
     # Extracting the data from filtered database
     try: 
-        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
+        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
     except:
         print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
         exit()
