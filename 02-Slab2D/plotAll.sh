@@ -6,6 +6,8 @@ module purge
 source $QuantumLaPsources/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 
+echo "** Info: UseScreen? [${UseScreen}]"
+
 source $QuantumLaPsources/02-Slab2D/functions.sh
 # module load plgrid/tools/gnuplot/5.2.4 #temporary fix
 module list
@@ -82,7 +84,7 @@ done
 }
 
 plotExcitation () {
-for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
+for folder in $( list_folders | grep 'td.general' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -97,7 +99,7 @@ do
           if [[ $UseScreen ]]; then
             screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
-            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 # >& plotTimeKeldysh.log
           fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	  echo ""
@@ -115,7 +117,7 @@ done
 
 plotHHG () {
 # plot results for HHG for SquaredSinus pulses
-for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
+for folder in $( list_folders | grep 'td.general' )
 do
         # HERE, the whole thing should be executed in background for each folder (1 thread / folder).
         # then, processes may work on a different run, and hence produce all results at the same time
@@ -162,7 +164,9 @@ done
 
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
+echo "Plotting Excitation results..."
 plotExcitation  #Prepare all plots for n_ex analysis.
+echo "Plotting harmonic generation results..."
 plotHHG         #Generate the CSV files with HHG spectra. 
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
