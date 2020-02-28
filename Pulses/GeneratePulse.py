@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2018 T. J.-Y. Derrien
+# Copyright (C) 2013-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -40,11 +40,11 @@ DebugMode = 0 #0: outputs the envelope of the field for octopus. 1: output the f
 # @param PulseDelay (SI): temporal delay for this pulse (useful to generate several pulses)
 # Outputs:
 # t (At. Units) | Envelope of the field A(t)
-def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.): #{{{
+def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDelay=0.,power=2): #{{{
   # Tested and validated with octopus on Jan 30th 2018. 
   #Envelope, Field = PulseSquaredSinTemporalShape(t, tau, PeakField, wavelength, CEP, t0, PulseDelay)
   # BUG: To be validated. 
-  Envelope, Field = PulseSmoothTopHatShape(t, tau, tauRise, PeakField, wavelength, CEP, t0, PulseDelay)
+  Envelope, Field = PulseSmoothTopHatShape(t, tau, tauRise, PeakField, wavelength, CEP, t0, PulseDelay, power)
   # We obtain SI electric field envelope. We need to convert it to Vector potential envelope in Atomic Units. 
   # NOTE: Are envelope of the electric field and vector potential the same thing? E(t) = - 1/c * dA/dt 
   # NOTE: A=-i c E/omega <=> E = i A * omega / c
@@ -109,7 +109,7 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
 
 # Read pulse data from command line
 # =======================================================
-if(len(sys.argv)<6):
+if(len(sys.argv)<7):
   print "Usage: ./GeneratePulse.py \ "
   print "    <Pulse duration (s)> \ "
   print "    <Ramp cycle number> \ "
@@ -117,9 +117,10 @@ if(len(sys.argv)<6):
   print "    <Laser wavelength (m)> \ "
   print "    <CEP [multiples of Pi] > \ "
   print "    <Double pulse Delay (s) > \ "
-  print "    <End of simulation time (s) > "
+  print "    <End of simulation time (s) > \ "
+  print "    <Power of sin for increase/decrease: 2, 4, 6...> "
   
-  print "Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 "
+  print "Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 2"
   print "Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. "
   exit()
 
@@ -131,6 +132,7 @@ wavelength = sys.argv[4]
 CEP        = sys.argv[5]
 PulseDelay = sys.argv[6]
 ComputingT = sys.argv[7] #maximum time of computation
+power      = sys.argv[8] #sin2 or sin4 for the Soft top hat
 
 tau = np.asfarray(tau); 
 RiseCycle = np.asfarray(RiseCycle); 
@@ -138,7 +140,8 @@ PeakField = np.asfarray(PeakField);
 wavelength = np.asfarray(wavelength); 
 CEP = np.asfarray(CEP); 
 PulseDelay = np.asfarray(PulseDelay); 
-ComputingT = np.asfarray(ComputingT); 
+ComputingT = np.asfarray(ComputingT);
+power      = np.asfarray(power)     ;
 
 omega = 2.*pi*c/wavelength
 
@@ -164,7 +167,7 @@ Number = 50000 #NOTE: better to put too many nodes here ! Better to have somethi
 t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()
-Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay+1E-15) #NOTE: we always add 1 fs to ensure a zero derivative at initial time
+Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay+1E-15, power) #NOTE: we always add 1 fs to ensure a zero derivative at initial time
 
 if(DebugMode==1):
     time, Ax, Ay = Envelope
