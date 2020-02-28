@@ -102,9 +102,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,26))
+    Database = np.empty((0,29))
 
-  PlottingTable = np.empty((0,26)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,29)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -456,6 +456,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## Also reporting maximum norm of the current
     TotalCurrent_AU_norm  = np.sqrt( np.power(TotalCurrent_X_AU,2)+np.power(TotalCurrent_Y_AU,2)+np.power(TotalCurrent_Z_AU,2) ) #computes norm of the current
     TotalCurrent_AU_max   = np.max(TotalCurrent_AU_norm)
+    TotalCurrent_AU_Xmax  = np.max(TotalCurrent_X_AU)
+    TotalCurrent_AU_Ymax  = np.max(TotalCurrent_Y_AU)
+    TotalCurrent_AU_Zmax  = np.max(TotalCurrent_Z_AU)
     
     print Header+"******* WARNING: Here we neglect other polarization directions than X ! ******"
     print Header+"Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
@@ -482,9 +485,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), float(MoveIon),
-	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(FinalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1]) ]
+	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max), float(density_proj_SI_final),
+	      float(density_irreversibility_ratio), float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), 
+	      float(FinalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
+	      RiseTime, float(timeNe[len(timeNe)-1]) ]
 
     
     print Header+"Stack contains:"
@@ -553,19 +557,22 @@ def ExtractData(PlottingTable): #{{{
   irreversibility    =   PlottingTable[:,18]
   TotalCurrent_final =   PlottingTable[:,19]
   TotalCurrent_max   =   PlottingTable[:,20]
-  Energy_max         =   PlottingTable[:,21]
-  Wpi                =   PlottingTable[:,22]
-  PulseType          =   PlottingTable[:,23]
-  RiseTime           =   PlottingTable[:,24]
-  FinalTime          =   PlottingTable[:,25]
+  TotalCurrent_AU_Xmax = PlottingTable[:,21]
+  TotalCurrent_AU_Ymax = PlottingTable[:,22]
+  TotalCurrent_AU_Zmax = PlottingTable[:,23]
+  Energy_max         =   PlottingTable[:,24]
+  Wpi                =   PlottingTable[:,25]
+  PulseType          =   PlottingTable[:,26]
+  RiseTime           =   PlottingTable[:,27]
+  FinalTime          =   PlottingTable[:,28]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
