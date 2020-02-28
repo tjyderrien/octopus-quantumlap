@@ -185,6 +185,8 @@ FromScratch = yes
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
   "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
   "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
   "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
 # "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
@@ -233,8 +235,11 @@ TDPropagator = aetrs #it was aetrs
 TDExponentialMethod = lanczos
 TDExpOrder = 16
 
-TDOutput = energy + geometry + laser + total_current + gauge_field + density
-OutputFormat = xyz
+TDOutput = geometry + laser + gauge_field + density + total_current + energy
+OutputFormat = xyz + vtk
+
+# VIDEO
+Output = geometry + laser + density + current + kinetic_energy_density
 
 OutputInterval = 10
 RestartWrite = 0 #WE DISABLE RESTART WRITING since Computer time >>>> Disk space. 

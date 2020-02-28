@@ -180,9 +180,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Info: CEP1: "+CEP1_inp[7:]
        
     #Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
-    Efield2_SI           = GetParameterValueFromInputFile(filename, "EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
+    Efield1_SI_input     = GetParameterValueFromInputFile(filename, "EfieldAsi = ")
+    Efield2_SI_input     = GetParameterValueFromInputFile(filename, "EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
-    if(Efield2_SI > 1.0):#{ #get the second pulse data
+    if(Efield2_SI_input > 1.0):#{ #get the second pulse data
       print Header+"** Entering second pulse input."
       #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = GetParameterValueFromInputFile(filename, "lambdaB = ")
@@ -214,15 +215,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     elif ("SinSquared" in PulseType_value):
       print Header+"** Info: Squared Sinus pulse detected..."
       PulseTypeName="SinSquared"
+    elif ("SinFourth" in PulseType_value): 
+      print Header+"** Info: Sinus**4 pulse detected..."
+      PulseTypeName="SinFourth"
     elif ("STH" in PulseType_value):
       print Header+"** Info: BUGGY Soft Top Hat pulse detected..."
       PulseTypeName="STH"
+    elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope #comes first in priority
+      print Header+"** Info: SIN4 soft top hat pulse detected..."
+      PulseTypeName="StH4"
     elif ("StH" in PulseType_value): #fixed STH 
       print Header+"** Info: FIXED Soft Top Hat pulse detected..."
       PulseTypeName="StH"
-    elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope
-      print Header+"** Info: SIN4 soft top hat pulse detected..."
-      PulseTypeName="StH4"
     else:
       print Header+"** Error: pulse type was not recognized."
       print Header+"** Error PulseType_value = "+str(PulseType_value)
@@ -275,12 +279,16 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     if( len(Functional_string) > 0 ): #should be run only if Functional_string is defined. 
       Functional_value = Functional_string[13:] #capturing name of the functional
       Functional_lda_position = Functional_value.find("lda_x")
-      Functional_mgga_position = Functional_value.find("mgga")
+      Functional_mgga_position = Functional_value.find("MGGA")
+      Functional_gga_position  = Functional_value.find("GGA")
       if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
         Functional = 0 #lda
         print Header+"** Info: Functional LDA detected."
       elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
-        Functional = 1 #gga
+        Functional = 1 #mgga
+        print Header+"** Info: Functional MGGA detected."
+      elif(Functional_gga_position >= 0 and Functional_mgga_position == -1 and Functional_lda_position == -1): #GGA was found, not MGGA.
+        Functional = 2 #GGA
         print Header+"** Info: Functional GGA detected."
       else: 
         print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
@@ -380,7 +388,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	 print Header+"** Warning: sample computation volume was jumped!"
 	 continue
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
-    SampleCellVolume_AU = SuperCellVolume_AU - Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) 
+    SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
     
@@ -471,8 +479,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"Checking integrity before adding to table..."
        
     StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
-	      float(Efield_amplitude_SI), float(CEP1_SI), float(wavelength2_SI), 
-	      float(PulseDuration2_SI), float(Efield2_amplitude_SI), float(CEP2_SI), 
+	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
+	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), float(MoveIon),
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
@@ -676,8 +684,8 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
 # STH was not well controlled (stupid mistake)
 # StH was well controlled. 
 # StH4 is experimental.
-PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4}
-PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4'}
+PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4, 'SinFourth': 5}
+PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4', 5: 'SinFourth'}
 
 ## Damps a signal from FinalTimeDamping instant. 
 # @param timeCurrent: table of instants (SI)

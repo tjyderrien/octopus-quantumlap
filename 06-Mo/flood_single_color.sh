@@ -35,15 +35,15 @@ SampleXY=1
 InitialTemperature="0e0"
 CrossPolarization=0 #1
 
-InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
+InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="PBE" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
 # Mission="Drude"
-# Mission="InducedField"
-Mission="Mo-TD-J"
+Mission="Mo-MD-IF-Video"
+# Mission="Mo-TD-PumpProbe"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -52,6 +52,12 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
 delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+
+# PROBE PULSE
+GaugeVectorFieldAmplitude=0 #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
+GaugeFieldDelayValue=0 #"1e-15" #delay of probe pulse (in number of cycles?)
+
+
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="SinSquared" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
@@ -116,7 +122,10 @@ lambda2="400e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
-
+for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
+do
+for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
+do
 for iTheoryLevel in ${TheoryLevel};
 do
 for iCrossPola in ${CrossPolarization}; 
@@ -153,7 +162,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/06-Mo/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
+            $OctopusSlabsSources/06-Mo/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue}
 #           done
           done
 #          done
@@ -165,6 +174,8 @@ do
    done
   done
  done
+done
+done
 done
 done
 done

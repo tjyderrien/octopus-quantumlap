@@ -182,6 +182,15 @@ Aa = amplitudeA
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
+# Linear response probing
+%GaugeVectorField #useful for probing
+   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script
+%
+
+# Delay for the probing
+GaugeFieldDelaySI = GaugeFieldDelayValue
+GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
+
 # Building up pulses
 %TDExternalFields
 #   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
@@ -199,8 +208,12 @@ tR = tauRise
   "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
   "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
   "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
   "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+    "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
 # "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 # "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
 # "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
@@ -209,6 +222,8 @@ tR = tauRise
   "FieldColorB-STH" | tdf_from_file | "PulseB.dat"
   "FieldColorA-StH" | tdf_from_file | "PulseA.dat"
   "FieldColorB-StH" | tdf_from_file | "PulseB.dat"
+  "FieldColorA-StH4" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-StH4" | tdf_from_file | "PulseB.dat"
 %
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
@@ -242,7 +257,6 @@ TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
 #OutputFormat = cube #VisIt
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
-
 
 RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
 OutputInterval = 10
