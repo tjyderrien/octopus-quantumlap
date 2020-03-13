@@ -3,7 +3,7 @@
 
 ##################################################################################
 ## Copyright (C) 2016 M. Compostella, M. Rampp, H. Appel
-## Modified by TJY Derrien, 21st July 2016
+## Modified by TJY Derrien, July 2016 - September 2018
 ##
 ## This program is free software; you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@
 
 
 # This script creates a multi-windows 3D plot of a laser pulse propagating towards Azulene.
-# TODO: add vertical red bar on the laser graph
+# TODO: add vertical red bar on the laser graph (difficult! not included into Visit yet.) 
 # TODO: convert units for input the laser intensity to W/cm2 ! V/m is awful to manage. 
 
 # Variables that you can set before running the script:
@@ -67,26 +67,51 @@
 # All other time steps will be normalized to this one. 
 # import scipy.constants as phys
 
+from libPlotVideo import *
+
+ExportVideo = 1 #1: export an MPG file. 
+OldResult   = 0 #0: we will use total "density" field, otherwise "Re" field. 
+
 inputdata = 'listoffiles.txt'
 outdir    = './'
 
 densityvtk = 'current.vtk'
 DensityGsVtk= '/../td.0000000/current.vtk' #This should work for any run in our frame. 
 
-#elfvtk    = 'elf_rs.vtk'
-geometry  = 'geometry.vtk'
+# Plots of lines 1 and 2. 
+WhatToPlot1 = "Difference" # "ExcitedStateData" #"Difference" 
+WhatToPlot2 = "Difference" #
 
-ShowCaption = 1 
-bonds     = False
+#elfvtk     = 'elf_rs.vtk'
+geometry    = 'crystal.xyz' #'geometry.vtk' 
 
+ShowCaption = 2 #2 == auto: only for 1 direction 
+bonds       = False
 
 OriginX=0.
 OriginY=0.
-OriginZ=0. #0.6788749999999979/BohrRadius
+OriginZ=0. #complete slab: 0, just the top: -0.25
 
-MaxValue=1E-4
-ZoomValue=0.8
+# MaxValue=4e4  # Au, 10V/nm, induced fields (difference must be from field enhancement)
+# MaxValue=0.02 # Au, 10V/nm, no induced fields
+
+# MaxValue=5e-3 # Mo, 10V/nm, no induced fields.
+MaxValue=6e-4 # Mo, 10V/nm, induced fields
+# MaxValue=4e-2 # Mo, 100V/nm, induced fields (no field enhancement in Mo... !)
+# MaxValue = 5e-3 # Mo, 100V/nm, induced fields
+# MaxValue=3e-2 # Mo, 1000V/nm, no induced fields. 
+
+# MaxValue=8e-5 #Si: 1 V/nm, No induced fields.
+# MaxValue=0.01 #Si: 9 V/nm, No induced fields. Saturated case (9 V/nm). 
+
+MinValue=-MaxValue
+ZoomValue=4.5 #2.3 #complete slab ~ 1.5, #just the top: 2.3
+#1:Bulk #3:Slabs
 EnablePerspective=0
+
+dt_AU = 0.25 #au
+dt_SI = dt_AU * 2.41888433e-17
+dt = 1E15 * dt_SI #timesteps in fs
 
 ###############################################
 # Setting up Python interpreter, if necessary #
@@ -127,7 +152,7 @@ import math, time
 import glob, os, shutil
 import subprocess
 from visit_utils import *
-from libPlotVideo import *
+# from libPlotVideo import *
 
 start_script = time.time()
 
@@ -264,9 +289,9 @@ if (len(indata)==0):
     print "Please check the paths and the name of the inputs"
     print ""
     print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
-    if (press=='q'):
-        quit()
+#    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+#    if (press=='q'):
+#        quit()
 
 # Summary of setup variables
 print "Summary of the setup variables:\n"
@@ -284,9 +309,9 @@ else:
     print "-Movie file "+moviename+" will be created"
     print "-Movie speed: ", moviespeed
 print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
-if (press=='q'):
-    quit()
+# press = raw_input("Press enter to continue or type \"q\" to quit\n")
+# if (press=='q'):
+#    quit()
 subprocess.call(["clear", ""])
 
 #########################
@@ -366,11 +391,17 @@ for i in range(0,len(indata)):
     #inefx = activepath+maxe_x
     #inefy = activepath+maxe_y
     #inefz = activepath+maxe_z
-    step = activepath[len(activepath)-8:len(activepath)-1]
+    step = str(round(float(activepath[len(activepath)-8:len(activepath)-1])*dt))
+#    print "Step = "+step
 
     # We open all databases for the plots
-    #OpenDatabase(indensityGsVtk)
-    elfvar="current_magnitude"
+    OpenDatabase(indensityGsVtk)
+    
+    if(OldResult==0):
+        elfvar="density" #Old simulations: Re. 
+    else:
+        elfvar="Re"
+    print "** Warning: IF THIS FAILS, change ELFVAR in Python script."
     DefineScalarExpression("GroundStateData", "conn_cmfe(<"+indensityGsVtk+":"+elfvar+">, <mesh>)") #TODO: script the definition of this mesh
     OpenDatabase(indensityvtk)
     DefineScalarExpression("ExcitedStateData", "conn_cmfe(<"+indensityvtk+":"+elfvar+">, <mesh>)")
@@ -401,20 +432,25 @@ for i in range(0,len(indata)):
     #### Window 1 ####
     SetActiveWindow(1)
     #SetActivePlots(0)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "X", MaxValue, ZoomValue, EnablePerspective, molvar)
+    if(ShowCaption==2): 
+        Caption = 1
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot1, step, Caption, OriginX, OriginY, OriginZ, "X", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
+    #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 2 ####
     #CloneWindow()
     #SetActivePlots(1)
     SetActiveWindow(2)
-    #plot2Ddifference(axis="SiBond", extreme=MaxValue, caption=0)
-    plot3Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    if(ShowCaption==2): 
+        Caption = 0
+    #plot2Ddifference(inxyz, indensityvtk, step, ShowCaption, OriginX, OriginY, OriginZ, "Y", MaxValue, ZoomValue, EnablePerspective, molvar)
+    plot3Ddifference(inxyz, indensityvtk, WhatToPlot2, step, 0, OriginX, OriginY, OriginZ, "Y", MinValue, MaxValue, ZoomValue, EnablePerspective, molvar)
     
     #### Window 3 ####
     #CloneWindow()
     #SetActivePlots(0)
     #SetActiveWindow(3)
-    #plot2Ddifference(axis="Z", extreme=MaxValue, caption=0)
+    #plot2Ddifference(inxyz, indensityvtk, "Z", MaxValue, caption=0)
     
     #### Window 4 ####
     ##SetActiveWindow(4)
@@ -448,7 +484,7 @@ for i in range(0,len(indata)):
         RemoveAllOperators()
    
     CloseDatabase(indensityvtk)
-    #CloseDatabase(indensityGsVtk)
+    CloseDatabase(indensityGsVtk)
     CloseDatabase(inxyz)
 
     # Estimating remaining time
@@ -457,42 +493,43 @@ for i in range(0,len(indata)):
 # End of the loop over the input files
 
 imgtend = time.time()
-subprocess.call(["clear", ""])
+#subprocess.call(["clear", ""])
 print "Creation of the images completed."
 
-# Movie creation
-if (len(moviename)!=0):
-    vidtstart= time.time() 
-    input_pattern = outdir+savename+"%04d.png"
-    output_pattern = outdir+moviename
-    encoding.encode(input_pattern,output_pattern,fdup=int(moviespeed))
-    vidtend = time.time()
-
-
-# Reporting working time
-print "\n"
-print " *** Time statistics ***"
-if (len(indata)!=0):
-    print "Images creation time:"
-    print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
-    print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
-    if (molzoom>1.):
-        print ""
-        print "Additional time for creating the zooming:"
-        print("--- %s seconds ---" % (zoomtend-zoomtstr))
-    print ""
-print "Video creation time:"
-if (len(moviename)!=0):
-    print("--- %s seconds ---" % (vidtend - vidtstart))
-else:
-    print"--- Not Available ---"
-print ""
-print "Script total execution time:"
-print("--- %s seconds ---" % (time.time() - start_script))
-print ""
-
+if(ExportVideo):
+  # Movie creation
+  if (len(moviename)!=0):
+      vidtstart= time.time() 
+      input_pattern = outdir+savename+"%04d.png"
+      output_pattern = outdir+moviename
+      encoding.encode(input_pattern,output_pattern,fdup=int(moviespeed))
+      vidtend = time.time()
+  
+  
+  # Reporting working time
+  print "\n"
+  print " *** Time statistics ***"
+  if (len(indata)!=0):
+      print "Images creation time:"
+      print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
+      print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
+      if (molzoom>1.):
+          print ""
+          print "Additional time for creating the zooming:"
+          print("--- %s seconds ---" % (zoomtend-zoomtstr))
+      print ""
+  print "Video creation time:"
+  if (len(moviename)!=0):
+      print("--- %s seconds ---" % (vidtend - vidtstart))
+  else:
+      print"--- Not Available ---"
+  print ""
+  print "Script total execution time:"
+  print("--- %s seconds ---" % (time.time() - start_script))
+  print ""
+  
 quit()
 
-exit()
+# exit()
 
 ##################################################################
