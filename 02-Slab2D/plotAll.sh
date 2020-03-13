@@ -6,6 +6,8 @@ module purge
 source $QuantumLaPsources/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 
+echo "** Info: UseScreen? [${UseScreen}]"
+
 source $QuantumLaPsources/02-Slab2D/functions.sh
 # module load plgrid/tools/gnuplot/5.2.4 #temporary fix
 module list
@@ -97,7 +99,7 @@ do
           if [[ $UseScreen ]]; then
             screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
-            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 # >& plotTimeKeldysh.log
           fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	  echo ""
