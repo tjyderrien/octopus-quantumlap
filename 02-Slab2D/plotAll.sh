@@ -82,7 +82,7 @@ done
 }
 
 plotExcitation () {
-for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
+for folder in $( list_folders | grep 'td.general' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -115,7 +115,7 @@ done
 
 plotHHG () {
 # plot results for HHG for SquaredSinus pulses
-for folder in $( list_folders | grep 'td.general' | grep 'StH' | grep -v 'STH' )
+for folder in $( list_folders | grep 'td.general' )
 do
         # HERE, the whole thing should be executed in background for each folder (1 thread / folder).
         # then, processes may work on a different run, and hence produce all results at the same time
