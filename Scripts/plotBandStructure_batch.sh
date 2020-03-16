@@ -1,7 +1,7 @@
 #!/bin/bash
-for folder in $( find | grep 'bandstructure' | sed 's/bandstructure//g' )
+for folder in $( find . -maxdepth 3 -mindepth 1 | grep 'bandstructure' | sed 's/bandstructure//g' )
 do 
 	cd $folder; 
-	gnuplot '/home/tjyderrien/octopus-slabs/06-Mo/plotBandStructure.gnu'
+	gnuplot "$QuantumLaPsources/Scripts/plotBandStructure.gnu"
  	cd -
 done
