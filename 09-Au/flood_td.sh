@@ -32,6 +32,7 @@ NumNodes=4
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
+SmearingTe="0.025 1 2 5 10 20"
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
@@ -124,7 +125,8 @@ lambda2="400e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
-
+for iSmearingTe in ${SmearingTe};
+do
 for iTheoryLevel in ${TheoryLevel};
 do
 for iCrossPola in ${CrossPolarization}; 
@@ -161,7 +163,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
+            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iSmearingTe}
 #           done
           done
 #          done
@@ -173,6 +175,7 @@ do
    done
   done
  done
+done
 done
 done
 done

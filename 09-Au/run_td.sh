@@ -38,6 +38,7 @@ FreezeXC=${20}
 RiseCycle=${21}
 Mission=${22}
 NumNodes=${23}
+SmearingTe=${24}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -148,7 +149,7 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}$-Te${SmearingTe}eV{TheoryLevelPath}${FunctionalPath}
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -201,6 +202,7 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
+  sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
