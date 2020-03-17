@@ -19,7 +19,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.15 0.18 0.23" #0.19 Bohr converges up to 40 meV resolution. octopus-recommended value?
+MeshSizeX_SI="0.15" #"0.15 0.18 0.23" #0.19 Bohr converges up to 40 meV resolution. octopus-recommended value?
 # MeshSizeX_SI="0.15" #this was the best of course
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
@@ -30,7 +30,7 @@ NumNodes=1
 Mission="Mo_GS"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16 20 24" #24 is also fine. 
+kPoints="16" #"16 20 24" #24 is also fine. 
 InitialTemperature="0e0"
 SmearingTe="1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
