@@ -44,7 +44,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="Au-J-24"
+Mission="Au-Energy-24"
 
 # Phase
 CEP1="0.0"
@@ -71,16 +71,19 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"
 # Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
-# Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+
+Efield1="2E10 3E10 4E10 6E10 7E10 8E10 9E10 2E11 3E11 4E11" #REFINING THE WEIRD ENERGY TRANSITION. W/O INDUCED FIELDS
+# Efield1="2E11 3E11 4E11 6E11 7E11 8E11 9E11 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12 1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
+
 # Efield1="5.5E8 5E8 6E8 6.5E8 7E8 7.5E8 8.5E8 8E8 9E8 9.5E8 1.5E9 2E9 2.5E9 3E9 3.5E9 4E9 4.5E9 6E9 7E9 8E9 9E9" #Exceptionally, run a series of runs which did not finish. 
 # Efield1="3E8 4E8 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 
 # Efield1="5E8 7.5E9 1E9 2E9 3E9"
 # Efield1="5E8 3E9 4E9"
-# Efield1="1E10"
+# Efield1="1E12"
 # Efield1="1E8 5E8 1E9 5E9 1E10" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
-Efield1="1E8 5E8 1E9 5E9 5E10 1E11 5E11 1E12"
+# Efield1="1E8 5E8 1E9 5E9 5E10 1E11 5E11 1E12"
 Efield2="0E0"
 
 
