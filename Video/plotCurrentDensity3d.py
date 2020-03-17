@@ -96,7 +96,7 @@ OriginZ=0. #complete slab: 0, just the top: -0.25
 # MaxValue=0.02 # Au, 10V/nm, no induced fields
 
 # MaxValue=5e-3 # Mo, 10V/nm, no induced fields.
-MaxValue=6e-4 # Mo, 10V/nm, induced fields
+MaxValue=1e-2 # Mo, 10V/nm, induced fields
 # MaxValue=4e-2 # Mo, 100V/nm, induced fields (no field enhancement in Mo... !)
 # MaxValue = 5e-3 # Mo, 100V/nm, induced fields
 # MaxValue=3e-2 # Mo, 1000V/nm, no induced fields. 
@@ -398,7 +398,7 @@ for i in range(0,len(indata)):
     OpenDatabase(indensityGsVtk)
     
     if(OldResult==0):
-        elfvar="density" #Old simulations: Re. 
+        elfvar="current_magnitude" #Old simulations: Re. 
     else:
         elfvar="Re"
     print "** Warning: IF THIS FAILS, change ELFVAR in Python script."
