@@ -8,7 +8,7 @@ CheckComputerName
 source $QuantumLaPsources/03-Bulk3D/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
-source $OctopusSlabsSources/03-Bulk3D/functions.sh
+source $QuantumLaPsources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
@@ -39,7 +39,8 @@ RiseCycle=${21}
 Mission=${22}
 NumNodes=${23}
 GaugeVectorFieldAmplitude=${24} 
-GaugeFieldDelayValue=${25} 
+GaugeFieldDelayValue=${25}
+SmearingTe=${26}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -154,7 +155,7 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${OctopusSlabsRuns}/06-Mo/Mo-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export groundStatePath=${OctopusSlabsRuns}/06-Mo/Mo-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}${TheoryLevelPath}${FunctionalPath}
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -209,6 +210,7 @@ ReplaceInputFile () {
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
   sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp
   sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
+  sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
@@ -269,7 +271,7 @@ SubmitTheJob () {
  
   echo ""
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${OctopusSlabsRuns}."
+  echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
 #  cp ${OctopusSlabsRuns}/03-Bulk3D/inp ${localPath}/ #induces an error: parameters were not replaced systematically
 # Good path is actually $( pwd ).
@@ -304,7 +306,7 @@ print_usage
 # For each calculation to perform
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
-BuildSample #also performed in directory
+
 # ReplaceInputFile 
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 

@@ -31,9 +31,12 @@ SampleLayers="1"
 SampleXY="1"
 kPoints="12 16 24"
 InitialTemperature="0e0"
+SmearingTe="1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="LDA" #LDA, PBE, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
+for iSmearingTe in ${SmearingTe}
+do
 for ikPoints in ${kPoints}
 do
  for iSampleLayers in ${SampleLayers}
@@ -52,10 +55,11 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $QuantumLaPsources/09-Au/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes}
+      $QuantumLaPsources/09-Au/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iSmearingTe}
  #    done
     done
  #   done
   done
  done
+done
 done
