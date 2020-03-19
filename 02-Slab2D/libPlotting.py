@@ -102,9 +102,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,29))
+    Database = np.empty((0,31))
 
-  PlottingTable = np.empty((0,29)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,31)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -151,6 +151,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
 	 
     FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
+    GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
+    GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
+    
     try:
 	 FieldInduced_string = FieldInduced_inp[0]
     except:
@@ -267,6 +270,27 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     else:
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
+    
+    ### Checking if probe was enabled. Output the double pulse delay (or the probe delay). 
+    
+    GaugeFieldAmplitude=0e0 #zero if it was not used.
+    
+    GaugeVectorField_tmp   = GaugeVectorField_inp.split'|' #structure: X|Y|Z #comment
+    try: 
+        GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
+    except:
+        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(GaugeVectorField_tmp)
+        exit()
+    
+    GaugeFieldDelay=0e0 #zero if was not used
+    GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
+    try:
+        GaugeFieldDelay    = GaugeFieldDelay_tmp[1] #rhs
+    except: 
+        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(GaugeFieldDelay_tmp)
+        exit()
+        
+        
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
@@ -485,7 +509,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max), float(density_proj_SI_final),
+	      float(FieldInduced_enabled), float(GaugeFieldAmplitude), float(GaugeFieldDelay), float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max), float(density_proj_SI_final),
 	      float(density_irreversibility_ratio), float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), 
 	      float(FinalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
 	      RiseTime, float(timeNe[len(timeNe)-1]) ]
@@ -549,30 +573,32 @@ def ExtractData(PlottingTable): #{{{
   CrossPolarization  =   PlottingTable[:,10]
   TheoryLevel        =   PlottingTable[:,11]
   FieldInduced       =   PlottingTable[:,12]
-  Functional         =   PlottingTable[:,13]
-  FreezeHXC          =   PlottingTable[:,14]
-  MoveIon            =   PlottingTable[:,15]
-  Ne_max             =   PlottingTable[:,16]
-  Ne_final           =   PlottingTable[:,17]
-  irreversibility    =   PlottingTable[:,18]
-  TotalCurrent_final =   PlottingTable[:,19]
-  TotalCurrent_max   =   PlottingTable[:,20]
-  TotalCurrent_AU_Xmax = PlottingTable[:,21]
-  TotalCurrent_AU_Ymax = PlottingTable[:,22]
-  TotalCurrent_AU_Zmax = PlottingTable[:,23]
-  Energy_max         =   PlottingTable[:,24]
-  Wpi                =   PlottingTable[:,25]
-  PulseType          =   PlottingTable[:,26]
-  RiseTime           =   PlottingTable[:,27]
-  FinalTime          =   PlottingTable[:,28]
+  GaugeFieldAmplitude=   PlottingTable[:,13]
+  GaugeFieldDelay    =   PlottingTable[:,14]
+  Functional         =   PlottingTable[:,15]
+  FreezeHXC          =   PlottingTable[:,16]
+  MoveIon            =   PlottingTable[:,17]
+  Ne_max             =   PlottingTable[:,18]
+  Ne_final           =   PlottingTable[:,19]
+  irreversibility    =   PlottingTable[:,20]
+  TotalCurrent_final =   PlottingTable[:,21]
+  TotalCurrent_max   =   PlottingTable[:,22]
+  TotalCurrent_AU_Xmax = PlottingTable[:,23]
+  TotalCurrent_AU_Ymax = PlottingTable[:,24]
+  TotalCurrent_AU_Zmax = PlottingTable[:,25]
+  Energy_max         =   PlottingTable[:,26]
+  Wpi                =   PlottingTable[:,27]
+  PulseType          =   PlottingTable[:,28]
+  RiseTime           =   PlottingTable[:,29]
+  FinalTime          =   PlottingTable[:,30]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -626,7 +652,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'Functional': 13, 'FreezeHXC':14, 'MoveIon': 15, 'Ne_max': 16, 'Ne_final': 17, 'irreversibility': 18, 'Current_final': 19, 'Current_max': 20, 'Energy_max': 21, 'Wpi': 22, 'PulseType': 23, 'RiseTime': 24}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'Energy_max': 23, 'Wpi': 24, 'PulseType': 25, 'RiseTime': 26}
 
 #Selects single-color pulses of various wavelengths, with same field amplitude from a database
 # @param Database: the array with all the data, 
