@@ -274,23 +274,22 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ### Checking if probe was enabled. Output the double pulse delay (or the probe delay). 
     
     GaugeFieldAmplitude=0e0 #zero if it was not used.
-    
-    GaugeVectorField_tmp   = GaugeVectorField_inp.split'|' #structure: X|Y|Z #comment
-    try: 
-        GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
-    except:
-        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(GaugeVectorField_tmp)
-        exit()
+    GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
+    # if a "#" is found, then set 0!
+    if "#" in GaugeVectorField_tmp[0]: 
+        GaugeFieldAmplitude = 0e0
+    else: 
+        try: 
+            GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
+        except:
+            print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
     
     GaugeFieldDelay=0e0 #zero if was not used
     GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
     try:
         GaugeFieldDelay    = GaugeFieldDelay_tmp[1] #rhs
     except: 
-        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(GaugeFieldDelay_tmp)
-        exit()
-        
-        
+        print Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
