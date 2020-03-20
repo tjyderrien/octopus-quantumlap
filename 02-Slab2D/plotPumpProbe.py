@@ -29,16 +29,16 @@ path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe0.1-ProbeD
 path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP+PROBE RUN
 
 # 2. Capture their total_current. 
-current1=np.loadtxt(path_run1, dtype='str', delimiter="\t", skiprows=4)
-current2=np.loadtxt(path_run2, dtype='str', delimiter="\t", skiprows=4)
+current1=np.loadtxt(path_run1, dtype='str', skiprows=4)
+current2=np.loadtxt(path_run2, dtype='str', skiprows=4)
 # Considered using ASE here, but it is poorly developed for TDDFT. 
 
 # 3. Identify the common temporal intervals. 
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
 current2_time_AU, current2_X_AU, current2_Y_AU, current2_Z_AU = GetTotalCurrent(current2)
 
-current12_time_AU_min = np.max(np.min(current1_time_AU), np.min(current2_time_AU))
-current12_time_AU_max = np.min(np.max(current1_time_AU), np.max(current2_time_AU))
+current12_time_AU_min = np.max([np.min(current1_time_AU), np.min(current2_time_AU)])
+current12_time_AU_max = np.min([np.max(current1_time_AU), np.max(current2_time_AU)])
 
 # 4. Interpolate the signals if necessary (seems not required here). 
 # 5. Prepare Yabana's case: J(pump+probe) - J_pump = J_probe. 
