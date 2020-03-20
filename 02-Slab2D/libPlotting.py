@@ -720,10 +720,9 @@ PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4, 'S
 PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4', 5: 'SinFourth'}
 
 ## Splits the currents into several objects
-def GetTotalCurrent(TotalCurrent, ShrinkBy): #{{{
+def GetTotalCurrent(TotalCurrent): #{{{
     timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
     # timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
-    maxSize=timeCurrent.size-ShrinkBy
     CurrentX=np.asfarray(TotalCurrent[:,2])
     CurrentY=np.asfarray(TotalCurrent[:,3])
     CurrentZ=np.asfarray(TotalCurrent[:,4])

@@ -359,6 +359,8 @@ ShrinkBy=0
 
 timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent, ShrinkBy)
 
+maxSize=timeCurrent.size-ShrinkBy
+
 tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
 tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 
