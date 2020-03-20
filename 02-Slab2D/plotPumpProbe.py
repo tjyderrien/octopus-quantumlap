@@ -26,15 +26,17 @@ from libPlottingSettings import *
 
 SizeX = 8
 SizeY = 12
-plotA = 112; plotB=122
+plotA = 211; plotB=212
 
 ShrinkBy=0
 
-# 1. Select 2 runs, 
+# 1. Select 2 runs,
+path_run1_folder="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
 path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP+PROBE RUN
 
 # 2. Capture their total_current. 
+filename = path_run1_folder+"../inp"
 current1=np.loadtxt(path_run1, dtype='str', skiprows=4)
 current2=np.loadtxt(path_run2, dtype='str', skiprows=4)
 # Considered using ASE here, but it is poorly developed for TDDFT. 
@@ -62,7 +64,6 @@ plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 labels1 = [l.get_label() for l in plot1]
 
 # 6. Fourier Transform the J_probe. 
-
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
 
