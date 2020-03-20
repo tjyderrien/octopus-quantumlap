@@ -35,12 +35,15 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
 from libPlotting import *
-
+import libMaterial
 
 ## Materials properties
-Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
-meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
-#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
+
+Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+
+#Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+##0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
 plotA=211; plotD=212
@@ -357,7 +360,7 @@ ShrinkBy=0
 
 # CurrentX=CurrentX[:maxSize]
 
-timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent, ShrinkBy)
+timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent)
 
 maxSize=timeCurrent.size-ShrinkBy
 
