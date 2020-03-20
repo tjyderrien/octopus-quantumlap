@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2019 T. J.-Y. Derrien
+# Copyright (C) 2016-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -355,13 +355,12 @@ Hartree        = Hartree - Hartree.min()
 ##===== Prepare plotting of total_current ======
 ShrinkBy=0
 
-timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
-# timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
-maxSize=timeCurrent.size-ShrinkBy
+# CurrentX=CurrentX[:maxSize]
+
+timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent, ShrinkBy)
+
 tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
 tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
-CurrentX=np.asfarray(TotalCurrent[:,2])
-# CurrentX=CurrentX[:maxSize]
 
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 

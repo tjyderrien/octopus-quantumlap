@@ -19,11 +19,33 @@
 # @module plotPumpProbe
 # Provides a set of functions aimed at analyzing the optical properties of solids from the total_current. 
 
+import numpy as np
+from libAtomicUnits import *
+from libPlotting import *
+
 # 1. Select 2 runs, 
+
+path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe0.1-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
+path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP+PROBE RUN
+
 # 2. Capture their total_current. 
-# 3. Identify the common intervals. 
-# 4. Interpolate the signals if necessary. 
+current1=np.loadtxt(path_run1, delimiter="\t", skiprows=4)
+current2=np.loadtxt(path_run2, delimiter="\t", skiprows=4)
+# Considered using ASE here, but it is poorly developed for TDDFT. 
+
+# 3. Identify the common temporal intervals. 
+current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1, 0)
+current2_time_AU, current2_X_AU, current2_Y_AU, current2_Z_AU = GetTotalCurrent(current2, 0)
+
+current12_time_AU_min = np.max(np.min(current1_time_AU), np.min(current2_time_AU))
+current12_time_AU_max = np.min(np.max(current1_time_AU), np.max(current2_time_AU))
+
+# 4. Interpolate the signals if necessary (seems not required here). 
 # 5. Prepare Yabana's case: J(pump+probe) - J_pump = J_probe. 
+current_probe_X_AU=current2_X_AU-current1_X_AU
+current_probe_Y_AU=current2_Y_AU-current1_Y_AU
+current_probe_Z_AU=current2_Z_AU-current1_Z_AU
+
 # 6. Fourier Transform the J_probe. 
 # 7. Extract the conductivity out of it. 
 # 8. Deduce the dielectric property. 
