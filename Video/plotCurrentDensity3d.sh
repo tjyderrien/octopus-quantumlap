@@ -1,3 +1,3 @@
 #!/bin/bash
-source $QuantumLaP/Video/loadModules.sh
-$RunVisit -cli -s $QuantumLaP/Video/plotCurrentDensity3d.py
+source $QuantumLaPsources/Video/loadModules.sh
+$RunVisit -cli -s $QuantumLaPsources/Video/plotCurrentDensity3d.py

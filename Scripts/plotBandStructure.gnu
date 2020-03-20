@@ -13,7 +13,7 @@ HartreeToEv = 27.2114 #1 Hartree = 27.2114 eV
 Yscale = HartreeToEv
 
 set ylabel 'Energy (eV)'
-set yrange [:]
+set yrange [-10:10]
 unset xtics
 
 #Column meanings. 
@@ -21,42 +21,43 @@ unset xtics
 # ? kx ky kz band1 band2 band3 ....
 
 Fermi_Ha=system("grep 'Fermi' -i $( ls -htr1 ../*.log | tail -n1 ) | tail -n1 | awk '{ print $4 }'")
+# Fermi_Ha=0e0
 print Fermi_Ha." Ha"
-FermiLevel=0e0 #Fermi_Ha*HartreeToEv
+FermiLevel=Fermi_Ha*HartreeToEv
 print FermiLevel #." eV"
 
-plot file u 1:(($5 )*Yscale-FermiLevel) w lp lt 1 t 'occ', \
-     file u 1:(($6 )*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($7 )*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($8 )*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($9 )*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($10)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($11)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($12)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($13)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($14)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($15)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($16)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($17)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($18)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($19)*Yscale-FermiLevel) w lp lt 1 notitle, \
-     file u 1:(($20)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($21)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($22)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($23)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($24)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($25)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($26)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($27)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($28)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($29)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($30)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($31)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($32)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($33)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($34)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($35)*Yscale-FermiLevel) w lp lt 2 notitle, \
-     file u 1:(($36)*Yscale-FermiLevel) w lp lt 2 notitle
+plot file u 1:(($5 )*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($6 )*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($7 )*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($8 )*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($9 )*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($10)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($11)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($12)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($13)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($14)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($15)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($16)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($17)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($18)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($19)*Yscale-FermiLevel) w l lt 1 notitle, \
+     file u 1:(($20)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($21)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($22)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($23)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($24)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($25)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($26)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($27)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($28)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($29)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($30)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($31)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($32)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($33)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($34)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($35)*Yscale-FermiLevel) w l lt 2 notitle, \
+     file u 1:(($36)*Yscale-FermiLevel) w l lt 2 notitle
 
 
 #   0    | 0     | 0     #Gamma

@@ -68,6 +68,26 @@ def LookUpStringInFile(Filename, string): #{{{
   return result
 #}}}
 
+## Return the line that follows an identified pattern
+def LookUpStringReturnNextLine(Filename, string): #{{{
+  import glob
+  newest = max(glob.iglob(Filename), key=os.path.getctime)
+  
+  #Open the log file
+  searchfile = open(newest, "r")
+
+  # Search into this file the <line> with <string>
+  result=''
+  found=False
+  for line in searchfile:
+      if(found):
+          result=line #returns the line N+1 when pattern is found in line N
+          break
+      if string in line:
+          found=True
+  return result
+  #}}}
+
 ## Looks for subfolders 
 def FindAllDirectories(directory): 
   for dirname, dirnames, filenames in os.walk(directory):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2019 T. J.-Y. Derrien
+# Copyright (C) 2016-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,13 +38,16 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
 from libPlotting import *
-
+import libMaterials
 
 ## Materials properties
-# Z_at    = 2 #Number of atoms per unit cell #This may be misleading!!!
-Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 
-meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+
+# Z_at    = 2 #Number of atoms per unit cell #This may be misleading!!!
+#Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+
+#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 #0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 FigureName='Fig2a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
@@ -52,11 +55,11 @@ FigureName='Fig2a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
 Figs_Legend={'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
 Figs_Xmax={'Fig2a': 1.0, 'Fig2b': 1.0, 'Fig6a': 0.66, 'Fig6b': 1.0, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
 Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
-OpticalIndex={
-        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
-        600e-9: 3.947144634525661,
-        800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik. TODO: change for linear response. 
+#OpticalIndex={
+        #400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
+        #600e-9: 3.947144634525661,
+        #800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
+        #2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik. TODO: change for linear response. 
 Fig_PlotLocalField={'Fig2a': True, 'Fig2b': True, 'Fig6a': False, 'Fig6b': False, 'Fig9a': False, 'Fig9b': False, 'Fig9c': False}
 Fig_PlotPoynting=Fig_PlotLocalField
 
@@ -373,10 +376,12 @@ ShrinkBy=0
 maxSize=timeNe.size-ShrinkBy
 Nproj_AU_FFT = SignalDampR(timeNe, Nproj_AU, wavelength_SI, tmax / 3. ) #damps the signal to avoid discontinuity in FFT. 
 
-timeCurrent=np.asfarray(TotalCurrent[:,1])
-CurrentX   =np.asfarray(TotalCurrent[:,2])
+timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent)
+
+#timeCurrent=np.asfarray(TotalCurrent[:,1])
+#CurrentX   =np.asfarray(TotalCurrent[:,2])
 # CurrentX=CurrentX[:maxSize]
-print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
+print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)+", "+str(CurrentY.size)+", "+str(CurrentZ.size)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)

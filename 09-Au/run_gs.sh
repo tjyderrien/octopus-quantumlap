@@ -24,7 +24,7 @@ TheoryLevel=$7
 Functional=$8
 Mission=$9
 NumNodes=${10}
-
+SmearingTe=${11}
 
 python_calc () {
     python -c "print ($@)"
@@ -67,7 +67,7 @@ ProcessArguments () { # Conversion factors
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -121,6 +121,7 @@ BuildSample () {
   sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g inp
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
+  sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
   if [ ${TheoryLevel} == "independent_particles" ]; then 
         echo "Theory level: independent particles was added to the input file."

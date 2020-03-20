@@ -80,7 +80,7 @@ kpts=30
 # FilterPotentials = filter_none
 
 SmearingFunction = fermi_dirac
-Smearing = 300./11600.*eV #300 K
+Smearing = SmearingTe*eV #300 K
 
 Output = geometry + dos
 OutputFormat = xyz

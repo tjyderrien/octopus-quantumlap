@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2019 T. J.-Y. Derrien
+# Copyright (C) 2016-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,12 +35,15 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
 from libPlotting import *
-
+import libMaterial
 
 ## Materials properties
-Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
-meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
-#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
+
+Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+
+#Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+##0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
 plotA=211; plotD=212
@@ -355,13 +358,14 @@ Hartree        = Hartree - Hartree.min()
 ##===== Prepare plotting of total_current ======
 ShrinkBy=0
 
-timeCurrent=np.asfarray(TotalCurrent[:,1]) #Unit a.u.
-# timeCurrent=timeCurrent[:timeCurrent.size-ShrinkBy]
+# CurrentX=CurrentX[:maxSize]
+
+timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent)
+
 maxSize=timeCurrent.size-ShrinkBy
+
 tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
 tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
-CurrentX=np.asfarray(TotalCurrent[:,2])
-# CurrentX=CurrentX[:maxSize]
 
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 
