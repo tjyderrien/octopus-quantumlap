@@ -24,8 +24,12 @@ from libAtomicUnits      import *
 from libPlotting         import *
 from libPlottingSettings import *
 
+SizeX = 8
+SizeY = 12
+plotA = 111
+
 # 1. Select 2 runs, 
-path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe0.1-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
+path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
 path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP+PROBE RUN
 
 # 2. Capture their total_current. 
@@ -48,17 +52,14 @@ current_probe_Z_AU=current2_Z_AU-current1_Z_AU
 
 plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
-plt.ylabel('Field amplitude (V/nm)')
-plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~
-ax12 = ax1.twinx()
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
-ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
-ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
-plot1   = [plot_field, plot_current]
+plot_current_PumpProbe, = ax1.plot(current1_time_AU, current2_X_AU, 'g-', label=r'$J_{P+p}(t)$ (a.u.)')
+plot_current_Pump,      = ax1.plot(current1_time_AU, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
+plot_current_probe,     = ax1.plot(current1_time_AU, current_probe_X_AU, 'b-', label=r'$J_p(t)$ (a.u.)')
+plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 labels1 = [l.get_label() for l in plot1]
-
+plt.legend(loc="best")
+plt.show()
 
 # 6. Fourier Transform the J_probe. 
 # 7. Extract the conductivity out of it. 
