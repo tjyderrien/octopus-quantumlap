@@ -26,7 +26,9 @@ from libPlottingSettings import *
 
 SizeX = 8
 SizeY = 12
-plotA = 111
+plotA = 112; plotB=122
+
+ShrinkBy=0
 
 # 1. Select 2 runs, 
 path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
@@ -58,9 +60,30 @@ plot_current_Pump,      = ax1.plot(current1_time_AU, current1_X_AU, 'r-', label=
 plot_current_probe,     = ax1.plot(current1_time_AU, current_probe_X_AU, 'b-', label=r'$J_p(t)$ (a.u.)')
 plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 labels1 = [l.get_label() for l in plot1]
-plt.legend(loc="best")
-plt.show()
 
 # 6. Fourier Transform the J_probe. 
+
+PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
+wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
+
+current_probe_X_AU_damped = SignalDampR(Time_AU_to_SI(current1_time_AU), current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI) 
+
+maxSize=current1_time_AU.size-ShrinkBy
+
+TimeSteps=np.diff(current1_time_AU)
+TimeStep=TimeSteps[0]
+
+HHG_AU=np.fft.fft(current_probe_X_AU_damped)
+HHG_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+# c_SI = Velocity_AU_to_SI(c_AU)
+HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
+HHG_AU_duration=1./HHG_AU_omega
+
+ax2 = plt.subplot(plotB)
+Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
+Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
+plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
+plt.legend(loc="best")
+plt.show()
 # 7. Extract the conductivity out of it. 
 # 8. Deduce the dielectric property. 
