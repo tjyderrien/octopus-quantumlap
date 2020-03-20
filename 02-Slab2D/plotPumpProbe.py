@@ -26,7 +26,7 @@ from libPlottingSettings import *
 
 SizeX = 8
 SizeY = 12
-plotA = 112; plotB=122
+plotA = 211; plotB=212
 
 ShrinkBy=0
 
