@@ -29,7 +29,7 @@ SizeY = 12
 plotA = 211; plotB=212
 
 ShrinkBy=0
-maxHHG = 3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
 
 # 1. Select 2 runs,
 path_run1_folder="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
