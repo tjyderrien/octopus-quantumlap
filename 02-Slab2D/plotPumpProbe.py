@@ -45,6 +45,7 @@ current2=np.loadtxt(path_run2, dtype='str', skiprows=4)
 # 3. Identify the common temporal intervals. 
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
 current2_time_AU, current2_X_AU, current2_Y_AU, current2_Z_AU = GetTotalCurrent(current2)
+current1_time_SI = Time_AU_to_SI(current1_time_AU)
 
 current12_time_AU_min = np.max([np.min(current1_time_AU), np.min(current2_time_AU)])
 current12_time_AU_max = np.min([np.max(current1_time_AU), np.max(current2_time_AU)])
@@ -57,10 +58,11 @@ current_probe_Z_AU=current2_Z_AU-current1_Z_AU
 
 plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
+plt.xlabel('Time (s)')
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-plot_current_PumpProbe, = ax1.plot(current1_time_AU, current2_X_AU, 'g-', label=r'$J_{P+p}(t)$ (a.u.)')
-plot_current_Pump,      = ax1.plot(current1_time_AU, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
-plot_current_probe,     = ax1.plot(current1_time_AU, current_probe_X_AU, 'b-', label=r'$J_p(t)$ (a.u.)')
+plot_current_PumpProbe, = ax1.plot(current1_time_SI, current2_X_AU, 'g--', label=r'$J_{P+p}(t)$ (a.u.)')
+plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r--', label=r'$J_P(t)$ (a.u.)')
+plot_current_probe,     = ax1.plot(current1_time_SI, current_probe_X_AU, 'b-', label=r'$J_p(t)$ (a.u.)')
 plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 labels1 = [l.get_label() for l in plot1]
 
@@ -68,7 +70,7 @@ labels1 = [l.get_label() for l in plot1]
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
 
-current_probe_X_AU_damped = SignalDampR(Time_AU_to_SI(current1_time_AU), current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI) 
+current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI) 
 
 maxSize=current1_time_AU.size-ShrinkBy
 
@@ -85,6 +87,8 @@ ax2 = plt.subplot(plotB)
 Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
 Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
+plt.xlabel("Photon energy (eV)")
+plt.ylabel("Harmonic ampl. (arb. u.)")
 plt.legend(loc="best")
 plt.show()
 # 7. Extract the conductivity out of it. 
