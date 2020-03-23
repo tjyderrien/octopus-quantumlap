@@ -32,14 +32,17 @@ ShrinkBy=0
 maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
 
 # 1. Select 2 runs,
-path_run1_folder="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
-path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP 
-path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/total_current" #PUMP+PROBE RUN
+# PUMP RUN
+path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
+
+# PUMP+PROBE RUN
+#path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN
+path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 
 # 2. Capture their total_current. 
-filename = path_run1_folder+"../inp"
-current1=np.loadtxt(path_run1, dtype='str', skiprows=4)
-current2=np.loadtxt(path_run2, dtype='str', skiprows=4)
+filename = path_run1+"../inp"
+current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
+current2=np.loadtxt(path_run2+"total_current", dtype='str', skiprows=4)
 # Considered using ASE here, but it is poorly developed for TDDFT. 
 
 # 3. Identify the common temporal intervals. 
@@ -86,10 +89,18 @@ HHG_AU_duration=1./HHG_AU_omega
 ax2 = plt.subplot(plotB)
 Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
 Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
-plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
+plt.semilogy(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xlabel("Photon energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 plt.legend(loc="best")
+plt.savefig("Current_Fourier_omega.eps")
 plt.show()
-# 7. Extract the conductivity out of it. 
-# 8. Deduce the dielectric property. 
+
+# 7. Fourier transform of the E_field
+
+
+# 8. Extract the conductivity out of it. 
+
+# Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
+
+# 9. Deduce the dielectric property. 
