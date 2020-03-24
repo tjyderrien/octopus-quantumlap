@@ -38,6 +38,7 @@ Header = "[libPlotting]"
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path):
+  
   #geometry = path+"../Si.xyz" #static method
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
   
@@ -47,18 +48,18 @@ def LoadRunOutputs(path):
   except: 
       print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "
       exit()
+  
+  # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
+  TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
+  Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   try:
       # This should work for dielectrics
       Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
       print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
-      Ne=energy #we just copy laser, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
+      Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
-  
-  # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
-  TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
-  Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   return Ne, laser, TotalCurrent, Energy
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
