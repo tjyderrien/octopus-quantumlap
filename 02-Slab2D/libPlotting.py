@@ -516,6 +516,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     print Header+"Stack contains:"
     print StackToAdd
+    print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
     if(FromScratch): #We construct a new database from scratch
       try:
@@ -533,7 +534,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         print Header+"** Info: these data were NEW and were ADDED to the stack."
-    print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
