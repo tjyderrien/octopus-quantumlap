@@ -54,7 +54,7 @@ def LoadRunOutputs(path):
   except:
       # This should be for metallic materials.
       print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
-      Ne=laser #we just copy laser, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
+      Ne=energy #we just copy laser, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
   
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
@@ -430,7 +430,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     # Catch the final excited electron density. 
     try: 
-        timeNe           = np.asfarray(Ne[:,1])
+        timeNe           = np.asfarray(Ne[:,1]) #WARNING: this does exist for metals...
     except: 
         print Header+"** Error: It seems this run was not complete. We jump it."
         continue
