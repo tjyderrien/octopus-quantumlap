@@ -28,6 +28,7 @@ SizeX = 8
 SizeY = 12
 plotA = 211; plotB=212
 
+delay="30e-15"
 ShrinkBy=0
 maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
 
@@ -37,7 +38,7 @@ path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-ta
 
 # PUMP+PROBE RUN
 #path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN
-path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
+path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 
 # 2. Capture their total_current. 
 filename = path_run1+"../inp"
@@ -93,7 +94,7 @@ plt.semilogy(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplit
 plt.xlabel("Photon energy (eV)")
 plt.ylabel("Harmonic ampl. (arb. u.)")
 plt.legend(loc="best")
-plt.savefig("Current_Fourier_omega.eps")
+plt.savefig("Current_Fourier_omega-delay-"+str(float(delay)*1E15)+"fs.eps")
 plt.show()
 
 # 7. Fourier transform of the E_field
