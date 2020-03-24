@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2019 T. J.-Y. Derrien
+# Copyright (C) 2016-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# @module plotHHGspectra
+## @package plotHHGspectra
 # Collects the generated time-dependent octopus simulations spectra HHG.dat from all subfolders (can last minutes)
 # Then prepares a picture using the collected data for each identified field amplitude
 

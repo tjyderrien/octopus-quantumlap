@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-# @module libMaterials
+## @package libMaterials
 # Puts there the properties of materials we are modeling
 
 # 1. Select the material one want to model. This can be based on the name of the folder. 

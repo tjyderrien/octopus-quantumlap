@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# @module plotFinalQuantities
-# Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes)
-# Builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. 
-# Then prepares a bunch of scientific results for publications with one and two color simulations. 
+## @package plotFinalQuantities
+# Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes), builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. Then prepares a bunch of scientific results for publications with one and two color simulations. 
 
 ## IMPORT LIBRARIES
 import numpy as np

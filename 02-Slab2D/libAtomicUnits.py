@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2017 T. J.-Y. Derrien
+# Copyright (C) 2013-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-## @module libAtomicUnits
-## Manage conversion between atomic units (AU) and International System (SI)
+## @package libAtomicUnits
+# Manage conversion between atomic units (AU) and International System (SI)
 
 from numpy import vectorize
 from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h, hbar
