@@ -70,7 +70,7 @@ ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
-maxHHG = 3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
 
 Header="[octopus-slabs] "
 
