@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# @module plotPumpProbe
+## @package plotPumpProbe
 # Provides a set of functions aimed at analyzing the optical properties of solids from the total_current. 
 
 import numpy as np

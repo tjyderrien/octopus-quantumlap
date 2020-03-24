@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2018 T. J.-Y. Derrien
+# Copyright (C) 2013-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-# @module plotIntensityKeldysh
+# @package plotIntensityKeldysh
 # Plots the TD-n_excited density of electrons, automatically compares with Keldysh model, assuming a limiter. 
 # Plots the TD-energy. 
 # Plots the TD-fields and currents. 

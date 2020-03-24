@@ -16,9 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-
-## @module libPlotting
-## Define shared functions for plotting routines
+## @package libPlotting
+# Define shared functions for plotting routines and database construction
 
 from numpy import genfromtxt, loadtxt, chararray
 import glob

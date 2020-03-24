@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-# @module plotTimeHHG
+## @package plotTimeHHG
 # Plots the TD-n_excited density of electrons, automatically compares with Keldysh model, assuming a limiter. 
 # Plots the TD-energy. 
 # Plots the TD-fields and currents. 
