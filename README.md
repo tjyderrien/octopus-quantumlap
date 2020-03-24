@@ -1,5 +1,5 @@
 # Code author: 
-Thibault J.-Y. Derrien <derrien@fzu.>
+Thibault J.-Y. Derrien <derrien@fzu.cz>
 HiLASE Centre, Institute of Physics (Prague, Czech Academy of Sciences)
 Max Planck Institute for Structure and Dynamics of Matter (Hamburg, Germany)
 
@@ -14,6 +14,12 @@ WARNING: the repository spp-extended-theory is necessary to run the routines. Do
 
 WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
 
+# Versioning information
+
+Versioning strategy is as follows. 
+1. Each new format/structure of database is a major change, and therefore defines a new version v0.1, v0.2, etc.
+2. New feature or retro-active modification of the code is a minor change, and defines a sub-version v0.1.2, etc.
+
 # Documentation
 
 dOxygen documentation is available in ./doc. Generate using doc/generate.sh. 
@@ -24,7 +30,7 @@ The routines are a combination of Python and Bash.
 Of course, it may not be completely optimum and transition to ASE (Python) would be desirable in future.
 
 # List of folders
-Warning: the avoid putting simulations into the tree. Since generated data can be huge (> TB), 
+Warning: avoid putting simulations into the git tree. Since generated data can be huge (> TB), 
 
 * FHI-aims/: Some examples for FHI-aims are provided. Molecular dynamics software to build up the lattice structures: FHI-aims. This folder shall be removed at some point. 
 
@@ -39,3 +45,7 @@ Warning: the avoid putting simulations into the tree. Since generated data can b
 * xx-Material: many materials start to be available. Routines to compute them in series are given in these folders.
 
 * Samples: preparation of bulk and slabs samples. 
+
+* Pulses: several types of laser pulses have been introduced into the routines: sin**2, sin**4, soft top-hat (STH), Gaussian (disadvised).
+
+* doc: in this folder, automatic dOxygen documentation can be generated easily.
