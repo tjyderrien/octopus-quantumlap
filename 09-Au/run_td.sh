@@ -38,8 +38,10 @@ FreezeXC=${20}
 RiseCycle=${21}
 Mission=${22}
 NumNodes=${23}
-SmearingTe=${24}
-
+GaugeVectorFieldAmplitude=${24}
+GaugeFieldDelayValue=${25}
+SmearingTe=${26}
+ 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
 
@@ -87,15 +89,23 @@ DefineParameters () {
 #   tauRiseA=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
 #   tauRiseB=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda2} ) ) "  )
   
+  if [ ${PulseShape} == "StH4" ]; then
+    SinPower=4
+    echo "** Info: power of Soft Top Hat enveloppe is defined to 4."
+  else
+    SinPower=2
+    echo "** Info: power of Soft Top Hat enveloppe is defined to 2."
+  fi
+
 # CONCEPT OF THE PULSE CAPTURE
 # NOTE: flood_td.sh generates the list of pulses we need. 
 # NOTE: run_td.sh addresses each of the requests to octopus/Pulses/python script who calls spp-extended-theory/Keldysh/libKeldyshPulses.py:PulseSquaredSinTemporalShape() to generates the envelope. 
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} 
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseA.dat
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime}
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."
@@ -149,8 +159,8 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}$-Te${SmearingTe}eV{TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
