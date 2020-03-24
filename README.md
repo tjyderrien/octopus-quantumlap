@@ -15,13 +15,22 @@ WARNING: the repository spp-extended-theory is necessary to run the routines. Do
 WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
 
 # Versioning information
-
 Versioning strategy is as follows. 
 1. Each new format/structure of database is a major change, and therefore defines a new version v0.1, v0.2, etc.
 2. New feature or retro-active modification of the code is a minor change, and defines a sub-version v0.1.2, etc.
 
-# Documentation
+Since this logic would induce already be at v13 when enabling version tagging, it was decided to adopt this less hurry scheme.
 
+# Databases
+
+Several databases are available. For now, they are separated into :
+* Material, i.e., periodic lattice definition, 
+* Ground state k-space grid,
+* Ground state real-space grid,
+* Groud state Fermi temperature,
+* Employed xc functional.
+
+# Documentation
 dOxygen documentation is available in ./doc. Generate using doc/generate.sh. 
 
 # Direction/Languages
