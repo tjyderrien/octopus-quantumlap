@@ -116,13 +116,20 @@ DefineParameters () {
   else
      CrossPolaAngle="0."
   fi
-
+# LASER INPUT (pump!)
   if [ $InducedField == 1 ]; then
      GaugeFieldValue="yes"
      GaugeFieldText="-InducedFields"
   else
      GaugeFieldValue="no"
      GaugeFieldText=""
+  fi
+
+# PROBE INPUT
+  if [ ${GaugeVectorFieldAmplitude} == 0 ]; then
+    GaugeVectorFieldText=""
+  else 
+    GaugeVectorFieldText="-Probe${GaugeVectorFieldAmplitude}-ProbeDelay${GaugeFieldDelayValue}"
   fi
 
   MoveIonsChain=""
@@ -212,6 +219,8 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
+  sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp
+  sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
   sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
   if [ ${MoveIons} == 1 ]; then
