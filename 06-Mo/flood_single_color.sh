@@ -33,7 +33,7 @@ NumNodes=4
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-SmearingTe="0.025 1 2 5 10 20"
+SmearingTe="0.025" # 1 2 5 10 20"
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 

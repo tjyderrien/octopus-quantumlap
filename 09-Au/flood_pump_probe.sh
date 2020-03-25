@@ -42,7 +42,8 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 SmearingTe="0.025" #~300 K
 ### MISSION #####
 # Mission="Drude"
-Mission="Au-TD-IF-PumpProbe"
+# Mission="Au-TD-IF-PumpProbe"
+Mission="Au-LinearResponse"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -54,7 +55,8 @@ delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse 
 
 # PROBE PULSE
 GaugeVectorFieldAmplitude="1E-3" #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
-GaugeFieldDelayValue="1e-15" # 5e-15 10e-15 15e-15 30e-15" #delay of probe pulse (in number of cycles?)
+GaugeFieldDelayValue="1e-15"
+# GaugeFieldDelayValue="5e-15 10e-15 15e-15 30e-15" #1e-15 #delay of probe pulse (in number of cycles?)
 
 
 
@@ -70,7 +72,8 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 
 # Field amplitude
 # Efield1="1E9"
-Efield1="1E10"
+Efield1="0E0"
+#Efield1="1E10"
 # Efield1="1E9" #"2E9 3E9 4E9" #ZHUKOV
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"

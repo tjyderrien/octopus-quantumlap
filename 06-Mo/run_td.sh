@@ -103,7 +103,8 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
+
+  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower} 
   mv Pulses.dat PulseA.dat
   $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseB.dat
@@ -166,6 +167,7 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
+
   export groundStatePath=${OctopusSlabsRuns}/06-Mo/Mo-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
