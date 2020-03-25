@@ -60,11 +60,14 @@ plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
 plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
 # plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 plot1     = [plot_current_Pump]
-labels1 = [l.get_label() for l in plot1]
-ax1.legend(labels1, loc="best")
+
 
 ax2   = plt.subplot(plotB)
 plot2 = []
+
+ax12 = ax1.twinx()
+ax12.set_ylabel("Probe current (a.u.)")
+
 # PUMP+PROBE PULSES
 for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]:
     #path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN
@@ -89,9 +92,10 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]:
     #plot_current_probe,     = ax2.plot(current1_time_SI, current_probe_X_AU, '-', label=r'$J_p(t)$ (a.u.)')
 
     # 6. Fourier Transform the J_probe. 
-
-    current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI) 
-
+    current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI)
+    plot_current_probe, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, '--', label=r'$J_{p}(t),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
+    plot1+=[plot_current_probe]
+    
     HHG_AU=np.fft.fft(current_probe_X_AU_damped)
     HHG_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
     # c_SI = Velocity_AU_to_SI(c_AU)
@@ -102,6 +106,9 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]:
     Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
     plot_spectrum_probe, = ax2.semilogy(Xaxis, Yaxis, '-', label=r'$I(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
     plot2 += [plot_spectrum_probe]
+
+labels1 = [l.get_label() for l in plot1]
+ax1.legend(labels1, loc="best")
 
 labels2 = [l.get_label() for l in plot2]
 ax2.set_xlabel("Photon energy (eV)")
