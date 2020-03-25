@@ -61,7 +61,6 @@ plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r-', label=
 # plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 plot1     = [plot_current_Pump]
 
-
 ax2   = plt.subplot(plotB)
 plot2 = []
 
@@ -113,8 +112,9 @@ ax1.legend(labels1, loc="best")
 labels2 = [l.get_label() for l in plot2]
 ax2.set_xlabel("Photon energy (eV)")
 ax2.set_ylabel("Harmonic ampl. (arb. u.)")
-ax2.legend(labels2, loc="best")    
+ax2.legend(labels2, loc="best")
 # plt.savefig("Current_Fourier_omega-delay-"+str(float(delay)*1E15)+"fs.eps")
+plt.tight_layout()
 plt.savefig("Current_Fourier_omega-MultipleDelays.eps")
 plt.show()
 
