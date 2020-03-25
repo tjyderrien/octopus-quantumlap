@@ -116,13 +116,20 @@ DefineParameters () {
   else
      CrossPolaAngle="0."
   fi
-
+# LASER INPUT (pump!)
   if [ $InducedField == 1 ]; then
      GaugeFieldValue="yes"
      GaugeFieldText="-InducedFields"
   else
      GaugeFieldValue="no"
      GaugeFieldText=""
+  fi
+
+# PROBE INPUT
+  if [ ${GaugeVectorFieldAmplitude} == 0 ]; then
+    GaugeVectorFieldText=""
+  else 
+    GaugeVectorFieldText="-Probe${GaugeVectorFieldAmplitude}-ProbeDelay${GaugeFieldDelayValue}"
   fi
 
   MoveIonsChain=""
@@ -160,7 +167,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -212,6 +219,8 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
+  sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp
+  sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
   sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
   if [ ${MoveIons} == 1 ]; then
