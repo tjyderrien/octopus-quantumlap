@@ -57,13 +57,16 @@ plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 plt.xlabel('Time (s)')
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r--', label=r'$J_P(t)$ (a.u.)')
-plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
+plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
+# plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
+plot1     = [plot_current_Pump]
 labels1 = [l.get_label() for l in plot1]
+ax1.legend(labels1, loc="best")
 
-ax2 = plt.subplot(plotB)
+ax2   = plt.subplot(plotB)
+plot2 = []
 # PUMP+PROBE PULSES
-for delay in [1e-15, 5e-15, 10e-15, 15e-15, 30e-15]:
+for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]:
     #path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN
     path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 
@@ -97,12 +100,15 @@ for delay in [1e-15, 5e-15, 10e-15, 15e-15, 30e-15]:
 
     Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
     Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
-    ax2.semilogy(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
-    ax2.set_xlabel("Photon energy (eV)")
-    ax2.set_ylabel("Harmonic ampl. (arb. u.)")
-    ax2.legend(loc="best")
-    
-plt.savefig("Current_Fourier_omega-delay-"+str(float(delay)*1E15)+"fs.eps")
+    plot_spectrum_probe, = ax2.semilogy(Xaxis, Yaxis, '-', label=r'$I(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+    plot2 += [plot_spectrum_probe]
+
+labels2 = [l.get_label() for l in plot2]
+ax2.set_xlabel("Photon energy (eV)")
+ax2.set_ylabel("Harmonic ampl. (arb. u.)")
+ax2.legend(labels2, loc="best")    
+# plt.savefig("Current_Fourier_omega-delay-"+str(float(delay)*1E15)+"fs.eps")
+plt.savefig("Current_Fourier_omega-MultipleDelays.eps")
 plt.show()
 
 # 7. Fourier transform of the E_field
