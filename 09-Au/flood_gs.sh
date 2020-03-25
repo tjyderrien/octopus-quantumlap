@@ -19,7 +19,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.15 0.18 0.20 0.23" #0.23 Bohr, octopus-recommended value
+MeshSizeX_SI="0.20" #"0.15 0.18 0.20 0.23" #0.23 Bohr, octopus-recommended value
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
@@ -29,11 +29,11 @@ NumNodes=1
 Mission="Au_GS_LDA"
 SampleLayers="1"
 SampleXY="1"
-kPoints="12 16 24"
+kPoints="16 24" # "12 16 24"
 InitialTemperature="0e0"
-SmearingTe="1 2 5 10 20" #0.025 eV
+SmearingTe="0.025" #"1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #LDA, PBE, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="PBE" #LDA, PBE, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 for iSmearingTe in ${SmearingTe}
 do
