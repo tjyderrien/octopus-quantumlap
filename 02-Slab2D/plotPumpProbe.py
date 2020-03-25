@@ -28,9 +28,9 @@ SizeX = 8
 SizeY = 12
 plotA = 211; plotB=212
 
-delay="30e-15"
+delay="0e-15"
 ShrinkBy=0
-maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 
 # 1. Select 2 runs,
 # PUMP RUN
