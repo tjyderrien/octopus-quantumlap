@@ -38,7 +38,6 @@ path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe
 
 current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
 
-
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
 
@@ -52,11 +51,11 @@ TimeSteps=np.diff(current1_time_AU)
 TimeStep=TimeSteps[0]
 
 # Plot the corresponding PUMP current
-# (plotting the probe current is too small: useless)
+# (plotting the probe current is too small: useless
 plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 plt.xlabel('Time (s)')
-plt.ylabel(r'Pump current $J_P(t)$ (arb. u.)')
+plt.ylabel(r'Probe current $J_p(t)$ (arb. u.)')
 plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
 # plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 plot1     = [plot_current_Pump]
@@ -65,7 +64,7 @@ ax2   = plt.subplot(plotB)
 plot2 = []
 
 ax12 = ax1.twinx()
-ax12.set_ylabel("Probe current $J_p(t)$ (a.u.)")
+# ax12.set_ylabel("Probe current $J_p(t)$ (a.u.)")
 
 # PUMP+PROBE PULSES
 # for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
@@ -80,7 +79,7 @@ current_probe_Z_AU=current1_Z_AU
 
 # 6. Fourier Transform the J_probe. 
 current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI)
-plot_current_probe, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, '--', linewidth=LineWidthAll, label=r'$J_{p}(t),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
+plot_current_probe, = ax1.plot(current1_time_SI, current_probe_X_AU_damped, '--', linewidth=LineWidthAll, label=r'$J_{p}(t)$')
 plot1+=[plot_current_probe]
     
 HHG_AU=np.fft.fft(current_probe_X_AU_damped)
@@ -108,6 +107,7 @@ ax2.legend(labels2, loc="best")
 plt.tight_layout()
 plt.savefig("LinearResponse_Current_Fourier_omega.eps")
 plt.show()
+
 
 # 7. Fourier transform of the E_field
 
