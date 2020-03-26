@@ -33,8 +33,8 @@ ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 
 # PUMP PULSE
-# Mo: path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
-path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
+# Mo linear response: path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
+path_run1   = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 
 current1    = np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
 gauge_field = np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
@@ -59,20 +59,19 @@ TimeStep=TimeSteps[0]
 # (plotting the probe current is too small: useless
 plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
-plt.xlabel('Time (s)')
-plt.ylabel(r'Induced field $A_i(t)$ (arb. u.)')
-plot_field_probe, = ax12.plot(A1tot_time_SI, A1tot_X_AU, 'b-', label=r'$A_x^{(i)}(t)$ (a.u.)')
+ax1.set_xlabel('Time (s)')
+ax1.set_ylabel(r'Induced field $A_i(t)$ (arb. u.)')
+plot_field_probe, = ax1.plot(A1tot_time_SI, A1tot_X_AU, 'b-', label=r'$A_x^{(i)}(t)$ (a.u.)')
 
 # plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
 plot1     = [plot_field_probe]
 
 ax12 = ax1.twinx()
-ax12.set_ylabel("Probe current $J_x^{(p)}(t)$ (a.u.)")
+ax12.set_ylabel("Probed current $J_x^{(p)}(t)$ (a.u.)")
 plot_current_Pump,      = ax12.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_x^{(p)}(t)$ (a.u.)')
 
 ax2   = plt.subplot(plotB)
 plot2 = []
-
 
 # PUMP+PROBE PULSES
 # for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
