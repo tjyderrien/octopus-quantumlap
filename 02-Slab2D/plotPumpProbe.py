@@ -26,7 +26,7 @@ from libPlottingSettings import *
 
 SizeX = 8
 SizeY = 12
-plotA = 211; plotB=212
+plotA = 121; plotB=122
 LineWidthAll=0.5
 
 ShrinkBy=0
@@ -43,6 +43,8 @@ path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2/lamb
 
 current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
 
+A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field)
+A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
 
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
@@ -52,6 +54,7 @@ maxSize=current1_time_AU.size-ShrinkBy
 filename = path_run1+"../inp"
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
+omega            = 2.*pi*c/wavelength_SI
 
 TimeSteps=np.diff(current1_time_AU)
 TimeStep=TimeSteps[0]
@@ -100,20 +103,55 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate t
     plot_current_probe, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, '--', linewidth=LineWidthAll, label=r'$J_{p}(t),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
     plot1+=[plot_current_probe]
     
-    HHG_AU=np.fft.fft(current_probe_X_AU_damped)
-    HHG_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+    Current_Fourier_AU=np.fft.fft(current_probe_X_AU_damped)
+    Current_omega_AU=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
     # c_SI = Velocity_AU_to_SI(c_AU)
-    HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
-    HHG_AU_duration=1./HHG_AU_omega
+    HHG_AU_order=Current_omega_AU/(omega)
+    #HHG_AU_duration=1./Current_omega_AU
 
-    Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
-    Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
-#    Yaxis_Re = np.power(HHG_AU_order[:maxHHG],2.)*np.real(HHG_AU[:maxHHG])
-#    Yaxis_Im = np.power(HHG_AU_order[:maxHHG],2.)*np.imag(HHG_AU[:maxHHG])
-    plot_spectrum_probe, = ax2.semilogy(Xaxis, Yaxis, '-', linewidth=LineWidthAll, label=r'$J^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
-#    plot_spectrum_probe_Im, = ax2.semilogy(Xaxis, Yaxis_Im, '--', linewidth=LineWidthAll, label=r'$Im(J(\omega)),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
-    plot2 += [plot_spectrum_probe]
+    Xaxis = Current_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
+    Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(Current_Fourier_AU[:maxHHG])**2
+#    Yaxis_Re = np.power(HHG_AU_order[:maxHHG],2.)*np.real(Current_Fourier_AU[:maxHHG])
+#    Yaxis_Im = np.power(HHG_AU_order[:maxHHG],2.)*np.imag(Current_Fourier_AU[:maxHHG])
+    plot_spectrum_Jprobe, = ax2.semilogy(Xaxis, Yaxis, '-', linewidth=LineWidthAll, label=r'$J^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+#    plot_spectrum_Jprobe_Im, = ax2.semilogy(Xaxis, Yaxis_Im, '--', linewidth=LineWidthAll, label=r'$Im(J(\omega)),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
+    plot2 += [plot_spectrum_Jprobe]
+    
+    # 7. Converting A_field into E_field
+    # E_tot=-1/c * dA_tot/dt #We keep the induced fields
+    #A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field)
+    #A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
+    E1tot_time_SI = A1tot_time_SI
+    E1tot_X_AU    = -1./c * np.divide( np.diff(A1tot_X_AU), np.diff(E1tot_time_SI) )
+    E1tot_Y_AU    = -1./c * np.divide( np.diff(A1tot_Y_AU), np.diff(E1tot_time_SI) )
+    E1tot_Z_AU    = -1./c * np.divide( np.diff(A1tot_Z_AU), np.diff(E1tot_time_SI) )
 
+    E_probe_X_AU_damped = SignalDampR(E1tot_time_SI, E1tot_X_AU, wavelength_SI, 3*PulseDuration_SI)
+
+    # 7. Fourier transform of the E_field
+    E_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
+    E_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+    E_order_AU=E_omega_AU/(omega)
+    #HHG_AU_duration=1./E_omega_AU
+    Xaxis = E_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
+    Yaxis = np.power(E_order_AU[:maxHHG],2.)*np.abs(E_Fourier_AU[:maxHHG])**2
+    plot_spectrum_Eprobe, = ax2.semilogy(Xaxis, Yaxis, '--', linewidth=LineWidthAll, label=r'$E^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+    plot2 += [plot_spectrum_Eprobe]
+    
+    # 8. Extract the conductivity out of it. 
+    # Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
+    # For now, we keep it simple: 
+    #conductivity = np.divide(Current_Fourier_AU[:maxHHG], E_Fourier_AU[:maxHHG])
+
+    ## 9. Deduce the dielectric property from conductivity. 
+    #permittivity = 1. + 1j * conductivity / epsilon_0 / omega
+    #permittivity_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+    
+    #Xaxis = E_omega_AU[:maxHHG-1]*hbar/e #energy of the harmonics
+    #Yaxis = np.power(E_order_AU[:maxHHG],2.)*np.real(permittivity[:maxHHG]))
+    #plot_spectrum_conductivity_probe, = ax2.semilogy(Xaxis, Yaxis, '--', linewidth=LineWidthAll, label=r'$E^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+    #plot2 += [plot_spectrum_Eprobe]
+    
 labels1 = [l.get_label() for l in plot1]
 ax1.legend(labels1, loc="best")
 
@@ -126,10 +164,4 @@ plt.tight_layout()
 plt.savefig("Current_Fourier_omega-MultipleDelays.eps")
 plt.show()
 
-# 7. Fourier transform of the E_field
 
-
-# 8. Extract the conductivity out of it. 
-# Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
-
-# 9. Deduce the dielectric property. 
