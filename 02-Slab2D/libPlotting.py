@@ -732,6 +732,12 @@ def GetTotalCurrent(TotalCurrent): #{{{
     return timeCurrent, CurrentX, CurrentY, CurrentZ
 #}}}
 
+## Splits the gauge field into several objects (all in atomic units)
+def GetTotalGaugeField(obj): #{{{
+    t, X, Y, Z = GetTotalCurrent(obj)
+    return t, X, Y, Z
+#}}}
+
 ## Damps a signal from FinalTimeDamping instant. 
 # @param timeCurrent: table of instants (SI)
 # @param CurrentX: signal to be processed

@@ -36,10 +36,15 @@ maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 # Mo: path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 
-current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
+current1    = np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
+gauge_field = np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
+
+A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field)
+A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
 
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
+
 
 maxSize=current1_time_AU.size-ShrinkBy
 
@@ -55,16 +60,19 @@ TimeStep=TimeSteps[0]
 plt.figure(figsize=(SizeX,SizeY))
 ax1 = plt.subplot(plotA)
 plt.xlabel('Time (s)')
-plt.ylabel(r'Probe current $J_p(t)$ (arb. u.)')
-plot_current_Pump,      = ax1.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_P(t)$ (a.u.)')
+plt.ylabel(r'Induced field $A_i(t)$ (arb. u.)')
+plot_field_probe, = ax12.plot(A1tot_time_SI, A1tot_X_AU, 'b-', label=r'$A_x^{(i)}(t)$ (a.u.)')
+
 # plot1   = [plot_current_PumpProbe, plot_current_Pump, plot_current_probe]
-plot1     = [plot_current_Pump]
+plot1     = [plot_field_probe]
+
+ax12 = ax1.twinx()
+ax12.set_ylabel("Probe current $J_x^{(p)}(t)$ (a.u.)")
+plot_current_Pump,      = ax12.plot(current1_time_SI, current1_X_AU, 'r-', label=r'$J_x^{(p)}(t)$ (a.u.)')
 
 ax2   = plt.subplot(plotB)
 plot2 = []
 
-ax12 = ax1.twinx()
-# ax12.set_ylabel("Probe current $J_p(t)$ (a.u.)")
 
 # PUMP+PROBE PULSES
 # for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
@@ -79,7 +87,7 @@ current_probe_Z_AU=current1_Z_AU
 
 # 6. Fourier Transform the J_probe. 
 current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, 3*PulseDuration_SI)
-plot_current_probe, = ax1.plot(current1_time_SI, current_probe_X_AU_damped, '--', linewidth=LineWidthAll, label=r'$J_{p}(t)$')
+plot_current_probe, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, '--', linewidth=LineWidthAll, label=r'$J_{p}^{(damped)}(t)$')
 plot1+=[plot_current_probe]
     
 HHG_AU=np.fft.fft(current_probe_X_AU_damped)
@@ -108,11 +116,14 @@ plt.tight_layout()
 plt.savefig("LinearResponse_Current_Fourier_omega.eps")
 plt.show()
 
-
+# 7. Converting A_field into E_field
 # 7. Fourier transform of the E_field
+#HHG_AU=np.fft.fft(E_probe_X_AU_damped)
+#HHG_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+#HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
+#HHG_AU_duration=1./HHG_AU_omega
 
-
-# 8. Extract the conductivity out of it. 
+# 8. Extract the conductivity tensor elements. Let's see if one need symmetries. 
 # Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
 
-# 9. Deduce the dielectric property. 
+# 9. Deduce the dielectric property from conductivity. 
