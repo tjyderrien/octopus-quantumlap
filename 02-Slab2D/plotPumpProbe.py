@@ -32,18 +32,22 @@ LineWidthAll=0.5
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 
+plotEomega=False
+plotJomega=False
+plotConductivity=True
 # 1. Select 2 runs,
 
 # PUMP PULSE
 # Mo: path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
-# Mo: path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
+path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 # Au
-path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
+# Au: path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 # path_run2 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 
 current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
+gauge_field1=np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
 
-A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field)
+A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field1)
 A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
 
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
@@ -76,9 +80,9 @@ ax12 = ax1.twinx()
 ax12.set_ylabel("Probe current $J_p(t)$ (a.u.)")
 
 # PUMP+PROBE PULSES
-for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
-    #path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN
-    path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
+for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
+    path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN for Mo
+    # Au: path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 
     # 2. Capture their total_current. 
     current2=np.loadtxt(path_run2+"total_current", dtype='str', skiprows=4)
@@ -108,14 +112,14 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate t
     # c_SI = Velocity_AU_to_SI(c_AU)
     HHG_AU_order=Current_omega_AU/(omega)
     #HHG_AU_duration=1./Current_omega_AU
-
-    Xaxis = Current_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
-    Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(Current_Fourier_AU[:maxHHG])**2
+    if(plotJomega):
+      Xaxis = Current_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
+      Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(Current_Fourier_AU[:maxHHG])**2
 #    Yaxis_Re = np.power(HHG_AU_order[:maxHHG],2.)*np.real(Current_Fourier_AU[:maxHHG])
 #    Yaxis_Im = np.power(HHG_AU_order[:maxHHG],2.)*np.imag(Current_Fourier_AU[:maxHHG])
-    plot_spectrum_Jprobe, = ax2.semilogy(Xaxis, Yaxis, '-', linewidth=LineWidthAll, label=r'$J^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+      plot_spectrum_Jprobe, = ax2.semilogy(Xaxis, Yaxis, '-', linewidth=LineWidthAll, label=r'$J^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
 #    plot_spectrum_Jprobe_Im, = ax2.semilogy(Xaxis, Yaxis_Im, '--', linewidth=LineWidthAll, label=r'$Im(J(\omega)),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
-    plot2 += [plot_spectrum_Jprobe]
+      plot2 += [plot_spectrum_Jprobe]
     
     # 7. Converting A_field into E_field
     # E_tot=-1/c * dA_tot/dt #We keep the induced fields
@@ -126,31 +130,33 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate t
     E1tot_Y_AU    = -1./c * np.divide( np.diff(A1tot_Y_AU), np.diff(E1tot_time_SI) )
     E1tot_Z_AU    = -1./c * np.divide( np.diff(A1tot_Z_AU), np.diff(E1tot_time_SI) )
 
-    E_probe_X_AU_damped = SignalDampR(E1tot_time_SI, E1tot_X_AU, wavelength_SI, 3*PulseDuration_SI)
+    E_probe_X_AU_damped = SignalDampR(E1tot_time_SI[:len(E1tot_time_SI)-1], E1tot_X_AU[:len(E1tot_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
 
     # 7. Fourier transform of the E_field
     E_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
     E_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
     E_order_AU=E_omega_AU/(omega)
     #HHG_AU_duration=1./E_omega_AU
-    Xaxis = E_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
-    Yaxis = np.power(E_order_AU[:maxHHG],2.)*np.abs(E_Fourier_AU[:maxHHG])**2
-    plot_spectrum_Eprobe, = ax2.semilogy(Xaxis, Yaxis, '--', linewidth=LineWidthAll, label=r'$E^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
-    plot2 += [plot_spectrum_Eprobe]
+    if(plotEomega):
+      Xaxis = E_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
+      Yaxis = np.power(E_order_AU[:maxHHG],2.)*np.abs(E_Fourier_AU[:maxHHG])**2
+      plot_spectrum_Eprobe, = ax2.semilogy(Xaxis, Yaxis, '--', linewidth=LineWidthAll, label=r'$E^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+      plot2 += [plot_spectrum_Eprobe]
     
     # 8. Extract the conductivity out of it. 
     # Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
     # For now, we keep it simple: 
-    #conductivity = np.divide(Current_Fourier_AU[:maxHHG], E_Fourier_AU[:maxHHG])
+    conductivity = np.divide(Current_Fourier_AU[:maxHHG], E_Fourier_AU[:maxHHG])
 
     ## 9. Deduce the dielectric property from conductivity. 
-    #permittivity = 1. + 1j * conductivity / epsilon_0 / omega
-    #permittivity_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
-    
-    #Xaxis = E_omega_AU[:maxHHG-1]*hbar/e #energy of the harmonics
-    #Yaxis = np.power(E_order_AU[:maxHHG],2.)*np.real(permittivity[:maxHHG]))
-    #plot_spectrum_conductivity_probe, = ax2.semilogy(Xaxis, Yaxis, '--', linewidth=LineWidthAll, label=r'$E^2(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
-    #plot2 += [plot_spectrum_Eprobe]
+    permittivity = 1. + 1j * conductivity / epsilon_0 / omega
+    permittivity_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+    permittivity_order_AU  = permittivity_omega_AU / omega
+    if(plotConductivity):
+      Xaxis = permittivity_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
+      Yaxis = np.power(permittivity_order_AU[:maxHHG],2.)*np.real(permittivity[:maxHHG])
+      plot_spectrum_permittivity_probe, = ax2.loglog(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+      plot2 += [plot_spectrum_permittivity_probe]
     
 labels1 = [l.get_label() for l in plot1]
 ax1.legend(labels1, loc="best")
