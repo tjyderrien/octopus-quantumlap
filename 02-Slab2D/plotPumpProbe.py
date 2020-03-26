@@ -62,7 +62,8 @@ omega            = 2.*pi*c/wavelength_SI
 
 TimeSteps=np.diff(current1_time_AU)
 TimeStep=TimeSteps[0]
-
+TimeSteps_E_AU = np.diff(A1tot_time_AU)
+TimeStep_E_AU=TimeSteps_E_AU[0]
 # Plot the corresponding PUMP current
 # (plotting the probe current is too small: useless)
 plt.figure(figsize=(SizeX,SizeY))
@@ -93,7 +94,8 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     current12_time_AU_min = np.max([np.min(current1_time_AU), np.min(current2_time_AU)])
     current12_time_AU_max = np.min([np.max(current1_time_AU), np.max(current2_time_AU)])
 
-    # 4. Interpolate the signals if necessary (seems not required here). 
+    # 4. TODO: CONVERT THE CURRENT FROM AU TO SI. 
+    
     # 5. Prepare Yabana's case: J(pump+probe) - J_pump = J_probe. 
     current_probe_X_AU=current2_X_AU-current1_X_AU
     current_probe_Y_AU=current2_Y_AU-current1_Y_AU
@@ -129,13 +131,13 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     E1tot_X_AU    = -1./c * np.divide( np.diff(A1tot_X_AU), np.diff(E1tot_time_SI) )
     E1tot_Y_AU    = -1./c * np.divide( np.diff(A1tot_Y_AU), np.diff(E1tot_time_SI) )
     E1tot_Z_AU    = -1./c * np.divide( np.diff(A1tot_Z_AU), np.diff(E1tot_time_SI) )
-
+    # 7. TODO: CONVERT THE FIELD FROM AU TO SI. 
     E_probe_X_AU_damped = SignalDampR(E1tot_time_SI[:len(E1tot_time_SI)-1], E1tot_X_AU[:len(E1tot_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
 
     # 7. Fourier transform of the E_field
     E_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
-    E_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
-    E_order_AU=E_omega_AU/(omega)
+    E_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep_E_AU*Time_AU_to_SI(1.))
+    E_order_AU=E_omega_AU/(omega) #hbar assumed equal to 1 here (atomic units)
     #HHG_AU_duration=1./E_omega_AU
     if(plotEomega):
       Xaxis = E_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
@@ -149,9 +151,9 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     conductivity = np.divide(Current_Fourier_AU[:maxHHG], E_Fourier_AU[:maxHHG])
 
     ## 9. Deduce the dielectric property from conductivity. 
-    permittivity = 1. + 1j * conductivity / epsilon_0 / omega
+    permittivity = 1. + 1j * conductivity / epsilon_0 / omega #NOTE: is this fine in atomic units?
     permittivity_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
-    permittivity_order_AU  = permittivity_omega_AU / omega
+    permittivity_order_AU  = permittivity_omega_AU / omega #hbar is also missing here
     if(plotConductivity):
       Xaxis = permittivity_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
       Yaxis = np.power(permittivity_order_AU[:maxHHG],2.)*np.real(permittivity[:maxHHG])
