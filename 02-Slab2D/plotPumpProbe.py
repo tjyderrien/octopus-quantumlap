@@ -32,9 +32,9 @@ LineWidthAll=0.5
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 
-plotEomega=True
-plotJomega=True
-plotConductivity=False
+plotEomega=False
+plotJomega=False
+plotConductivity=True
 # 1. Select 2 runs,
 
 # PUMP PULSE
