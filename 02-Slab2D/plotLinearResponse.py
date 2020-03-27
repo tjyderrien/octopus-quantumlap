@@ -120,7 +120,7 @@ E1probe_Y_AU    = -1./c * np.divide( np.diff(A1tot_Y_AU), np.diff(E1probe_time_S
 E1probe_Z_AU    = -1./c * np.divide( np.diff(A1tot_Z_AU), np.diff(E1probe_time_SI) )
 
 # Keeping the beginning of the signal
-E_probe_X_AU_damped = SignalDampR(E1probe_time_SI, E1probe_X_AU, wavelength_SI, 3*PulseDuration_SI)
+E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_SI)-1], E1probe_X_AU[:len(E1probe_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
 
 # 7. Fourier transform of the E_field
 E_probe_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
