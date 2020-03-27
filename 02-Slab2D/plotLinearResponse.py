@@ -26,11 +26,16 @@ from libPlottingSettings import *
 
 SizeX = 8
 SizeY = 12
-plotA = 211; plotB=212
+plotA = 121; plotB=122
 LineWidthAll=0.5
 
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
+
+plotEomega=False
+plotJomega=False
+plotConductivity=True
+# 1. Select 2 runs,
 
 # PUMP PULSE
 # Mo linear response: path_run1 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
@@ -51,10 +56,12 @@ maxSize=current1_time_AU.size-ShrinkBy
 filename = path_run1+"../inp"
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 wavelength_SI    = GetParameterValueFromInputFile(filename, "lambdaA = ")
+omega            = 2.*pi*c/wavelength_SI
 
 TimeSteps=np.diff(current1_time_AU)
 TimeStep=TimeSteps[0]
-
+TimeSteps_E_AU = np.diff(A1tot_time_AU)
+TimeStep_E_AU=TimeSteps_E_AU[0]
 # Plot the corresponding PUMP current
 # (plotting the probe current is too small: useless
 plt.figure(figsize=(SizeX,SizeY))
