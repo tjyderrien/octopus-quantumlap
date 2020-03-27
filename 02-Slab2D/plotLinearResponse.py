@@ -129,16 +129,16 @@ E_probe_Fourier_AU_duration=1./E_probe_Fourier_AU_omega
 
 # 8. Extract the conductivity tensor elements. Let's see if one need symmetries. 
 # Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
-conductivity_AU = np.divide(current_probe_Fourier_AU, E_probe_Fourier_AU)
+conductivity_AU = np.divide(current_probe_Fourier_AU[:maxSize-1], E_probe_Fourier_AU[:maxSize])
 
 # 9. Deduce the dielectric property from conductivity. 
-permittivity = 1. + 4.*np.pi * 1.j * conductivity / omega #atomic units,
+permittivity = 1. + 4.*np.pi * 1.j * np.divide(conductivity_AU[:maxSize], E_probe_Fourier_AU_omega[:maxSize-1]) #atomic units,
 
 # 10. Plotting
 Xaxis = current_probe_Fourier_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
 Yaxis = np.imag(permittivity[:maxHHG]) #imag(permittivity) is taken as example in Otobe & Yabana PRB 2016. 
 
-plot_spectrum_permittivity_probe, = ax2.plot(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+plot_spectrum_permittivity_probe, = ax2.plot(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$') #normalization in amplitude
 plot2 += [plot_spectrum_permittivity_probe]
 
 labels1 = [l.get_label() for l in plot1]
