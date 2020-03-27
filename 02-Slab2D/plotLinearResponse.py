@@ -112,7 +112,7 @@ plot_spectrum_probe, = ax2.plot(Xaxis, Yaxis, '-', linewidth=LineWidthAll, label
 #    plot_spectrum_probe_Im, = ax2.semilogy(Xaxis, Yaxis_Im, '--', linewidth=LineWidthAll, label=r'$Im(J(\omega)),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
 plot2 += [plot_spectrum_probe]
 
-l
+
 # 7. Converting A_field into E_field
 E1probe_time_SI = A1tot_time_AU #we keep the same time grid
 E1probe_X_AU    = -1./c * np.divide( np.diff(A1tot_X_AU), np.diff(E1probe_time_SI) )
