@@ -32,9 +32,9 @@ LineWidthAll=0.5
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 
-plotEomega=False
-plotJomega=False
-plotConductivity=True
+plotEomega=True
+plotJomega=True
+plotConductivity=
 # 1. Select 2 runs,
 
 # PUMP PULSE
@@ -90,7 +90,7 @@ ax12 = ax1.twinx()
 ax12.set_ylabel("Probe current $J_p(t)$ (a.u.)")
 
 # PUMP+PROBE PULSES
-for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
+for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate this list from database
     path_run2 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2-Probe1.0-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" #PUMP+PROBE RUN for Mo
     # Au: path_run2="lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay"+str(delay)+"/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/" 
 
