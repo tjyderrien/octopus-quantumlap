@@ -44,17 +44,16 @@ path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared2/lambda400e-9-ta
 # Au: path_run1 = "lambda800e-9-tau20E-15-field1E10-CEP0.0-SinSquared-SinPower2-2/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 # path_run2 = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 
-current1=np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
+current1    =np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
 gauge_field1=np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
 laser_field1=np.loadtxt(path_run1+"laser", dtype='str', skiprows=4)
 
-A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field1)
-A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
-
-A1laser_time_AU, A1laser_X_AU, A1laser_Y_AU, A1laser_Z_AU = GetTotalGaugeField(laser_field1)
-A1laser_time_SI = Time_AU_to_SI(A1laser_time_AU)
-
+A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU             = GetTotalGaugeField(gauge_field1)
+A1laser_time_AU, A1laser_X_AU, A1laser_Y_AU, A1laser_Z_AU     = GetTotalGaugeField(laser_field1)
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
+
+A1tot_time_SI    = Time_AU_to_SI(A1tot_time_AU)
+A1laser_time_SI  = Time_AU_to_SI(A1laser_time_AU)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
 
 maxSize=current1_time_AU.size-ShrinkBy
@@ -113,9 +112,10 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     
     # E(pump+probe+induced) - E(pump) = E(probe+induced)
     # WARNING: is time identical for A(gauge_field) and A(laser)? added a test above
-    A1probe_X_AU = A1tot_X_AU - A1laser_X_AU
-    A1probe_Y_AU = A1tot_Y_AU - A1laser_Y_AU
-    A1probe_Z_AU = A1tot_Z_AU - A1laser_Z_AU
+    A1probe_time_AU = A1tot_time_AU
+    A1probe_X_AU    = A1tot_X_AU - A1laser_X_AU
+    A1probe_Y_AU    = A1tot_Y_AU - A1laser_Y_AU
+    A1probe_Z_AU    = A1tot_Z_AU - A1laser_Z_AU
     
     #plot_current_PumpProbe, = ax2.plot(current1_time_SI, current2_X_AU, '--', label=r'$J_{P+p}(t)$ (a.u.)')
     #plot_current_probe,     = ax2.plot(current1_time_SI, current_probe_X_AU, '-', label=r'$J_p(t)$ (a.u.)')
@@ -142,13 +142,13 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     # 7. Converting A_probe_field into E_field
     # E_tot=-1/c * dA_tot/dt #We keep the induced fields
     #A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU = GetTotalGaugeField(gauge_field)
-    #A1tot_time_SI = Time_AU_to_SI(A1tot_time_AU)
+    A1probe_time_SI = Time_AU_to_SI(A1probe_time_AU)
     E1probe_time_SI = A1probe_time_SI #we keep the same time grid
     E1probe_X_AU    = -1./c * np.divide( np.diff(A1probe_X_AU), np.diff(E1probe_time_SI) )
     E1probe_Y_AU    = -1./c * np.divide( np.diff(A1probe_Y_AU), np.diff(E1probe_time_SI) )
     E1probe_Z_AU    = -1./c * np.divide( np.diff(A1probe_Z_AU), np.diff(E1probe_time_SI) )
     # 7. TODO: CONVERT THE FIELD FROM AU TO SI? 
-    E_probe_X_AU_damped = SignalDampR(E1tot_time_SI[:len(E1tot_time_SI)-1], E1probe_X_AU[:len(E1tot_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
+    E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_SI)-1], E1probe_X_AU[:len(E1tot_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
     # NOTE: One has to use the PROBE field here.
 
     # 7. Fourier transform of the E_field
