@@ -174,7 +174,7 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate t
     permittivity_order_AU  = permittivity_omega_AU / omega #hbar is also missing here
     if(plotConductivity):
       Xaxis = permittivity_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
-      Yaxis = np.power(permittivity_order_AU[:maxHHG],2.)*np.real(permittivity[:maxHHG])
+      Yaxis = np.real(permittivity[:maxHHG])
       plot_spectrum_permittivity_probe, = ax2.loglog(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
       plot2 += [plot_spectrum_permittivity_probe]
     
