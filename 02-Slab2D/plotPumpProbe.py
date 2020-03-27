@@ -169,13 +169,14 @@ for delay in ["1e-15", "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: generate t
     conductivity = np.divide(Current_Fourier_AU[:maxHHG], E_Fourier_AU[:maxHHG])
 
     ## 9. Deduce the dielectric property from conductivity. 
-    permittivity = 1. + 1j * conductivity / epsilon_0 / omega #NOTE: is this fine in atomic units?
+#    permittivity = 1. + 1j * conductivity / epsilon_0 / omega #NOTE: is this fine in atomic units?
+    permittivity = 1. + 4.*np.pi * 1.j * conductivity / omega #atomic units, [Otobe, Yabana et al., Phys. Rev. B (2016)]
     permittivity_omega_AU  =2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
     permittivity_order_AU  = permittivity_omega_AU / omega #hbar is also missing here
     if(plotConductivity):
       Xaxis = permittivity_omega_AU[:maxHHG]*hbar/e #energy of the harmonics
-      Yaxis = np.real(permittivity[:maxHHG])
-      plot_spectrum_permittivity_probe, = ax2.loglog(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
+      Yaxis = np.imag(permittivity[:maxHHG])
+      plot_spectrum_permittivity_probe, = ax2.plot(Xaxis, Yaxis, '-.', linewidth=LineWidthAll, label=r'$\varepsilon_{xx}(\omega),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs') #normalization in amplitude
       plot2 += [plot_spectrum_permittivity_probe]
     
 labels1 = [l.get_label() for l in plot1]
