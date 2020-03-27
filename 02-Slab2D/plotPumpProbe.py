@@ -148,7 +148,7 @@ for delay in ["1e-15"]: #, "5e-15", "10e-15", "15e-15", "30e-15"]: #TODO: genera
     E1probe_Y_AU    = -1./c * np.divide( np.diff(A1probe_Y_AU), np.diff(E1probe_time_SI) )
     E1probe_Z_AU    = -1./c * np.divide( np.diff(A1probe_Z_AU), np.diff(E1probe_time_SI) )
     # 7. TODO: CONVERT THE FIELD FROM AU TO SI? 
-    E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_SI)-1], E1probe_X_AU[:len(E1tot_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
+    E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_SI)-1], E1probe_X_AU[:len(E1probe_time_SI)-1], wavelength_SI, 3*PulseDuration_SI)
     # NOTE: One has to use the PROBE field here.
 
     # 7. Fourier transform of the E_field
