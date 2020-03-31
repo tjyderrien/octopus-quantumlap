@@ -1,0 +1,96 @@
+# T.J.-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# QuantumLaP project
+# <derrien@fzu.cz>
+
+CalculationMode = gs
+ExperimentalFeatures=yes
+#FromScratch = yes
+# Units = atomic #eV_Angstrom is a false unit system! ;)
+# UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
+PeriodicDimensions = 3
+
+# Initial temperature
+# RandomVelocityTemp = 300e0
+
+# Conversion factors
+aAngstrom = 5.431 #Angstrom (experimental value)
+AngstromPerBohr = 0.52917721067 #AngstromPerBohr
+a = aAngstrom / AngstromPerBohr #Bohr
+
+# Simulation box size
+m = 1 #X blocks: to be replaced by script
+n = 1 #Z blocks: to be replaced by script 
+
+# Optimization
+# PoissonFFTKernel = planar
+ParKPoints = no #auto
+ParStates = no
+ParDomains = auto #crashes if made per state only
+
+# Mesh parameters
+BoxShape = parallelepiped
+%Spacing
+	# 0.434637008855 | 0.434637008855 | 0.434637008855 #to be replaced by script
+        0.434637008855 | 0.434637008855 | 0.434637008855
+%
+
+%LatticeParameters #noncubic cells
+  m*a | m*a | m*a
+%
+
+%LatticeVectors
+  0.0 | 0.5 | 0.5
+  0.5 | 0.0 | 0.5
+  0.5 | 0.5 | 0.0
+%
+
+# %Lsize #! Lsize is half of the box...
+# 	0.5*m*a | 0.5*m*a | 0.5*m*a #(n*a + Lvac)*0.5
+# %
+
+# Using external file
+# XYZCoordinates = "Si.xyz"
+
+%ReducedCoordinates
+ "Si" | 0.0 | 0.0 | 0.0
+ "Si" | 1/4 | 1/4 | 1/4
+%
+
+
+%KPointsGrid
+#  12 | 12 | 12
+   8 | 8 | 8
+   0.5 | 0.5 | 0.5
+   0.5 | 0.0 | 0.0
+   0   | 0.5 | 0
+   0   | 0   | 0.5
+%
+
+##### CONVERGENCE OPTIMIZATION
+ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
+KPointsUseSymmetries = yes
+# %SymmetryBreakDir #laser direction, where we gonna break symmetry
+#  1 | 0 | 0
+#%
+
+ExtraStates = 0
+
+# smearing = 0.0002
+# SmearingFunction=fermi_dirac
+
+# LCAOstart = lcao_simple #self-consistent starter
+
+MaximumIter=200
+# Mixing = 0.05
+
+### OUTPUTS
+Output = dos + density + potential + geometry + el_pressure + matrix_elements + pol_density
+
+### GS matrix elements (useful for Floquet)
+OutputMatrixElements= ks_multipoles + momentum
+OutputMEMultipoles = 1 #works in ParDomain. Fails in others.
+
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+# XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+# FilterPotentials = filter_none        #this will be added automatically
+XCFunctional = lda_x + lda_c_pz_mod
