@@ -252,8 +252,11 @@ TDExpOrder = 16
 # omega
 # PESMask2PEnlargeFactor = pi/Spacing/sqrt(2*EM)
 
-TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
+TDOutput = geometry + energy + laser + total_current + n_excited_el + multipoles
 # Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF DATA.
+
+# Output = el_pressure + matrix_elements + pol_density #this will generate HUGE data
+
 #OutputFormat = cube #VisIt
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
