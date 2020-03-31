@@ -252,8 +252,13 @@ TDExpOrder = 16
 # omega
 # PESMask2PEnlargeFactor = pi/Spacing/sqrt(2*EM)
 
-TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
-# Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF DATA.
+
+
+# Output = el_pressure + matrix_elements + pol_density #this will generate HUGE data
+# Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF FILES.
+
+TDOutput = geometry + energy + laser + total_current + n_excited_el + gauge_field #multipoles
+
 #OutputFormat = cube #VisIt
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
@@ -268,3 +273,5 @@ TDOutputComputeInterval = 10
 # %ABShape
 #  TotalZsize - BoundaryThickness  | TotalZsize #absorbing between zmax and zmax-BoundaryThickness. 
 # %
+
+PropagationSpectrumDampMode = exponential #useful for propagation_spectrum utility

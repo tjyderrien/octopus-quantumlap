@@ -230,7 +230,7 @@ GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
 
 # TDMaxSteps = 300
 
-TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! Should be much smaller for pump-probe.
 TDPropagationTime = ComputingTime
 TDPropagator = aetrs #it was aetrs
 TDExponentialMethod = lanczos
@@ -247,3 +247,4 @@ RestartWrite = 0 #WE DISABLE RESTART WRITING since Computer time >>>> Disk space
 RestartWriteInterval = 500 #otherwise the number of IO becomes astronomic
 TDOutputComputeInterval = 10
 
+PropagationSpectrumDampMode = exponential #useful for propagation_spectrum utility

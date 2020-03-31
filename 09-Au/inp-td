@@ -254,3 +254,4 @@ RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>
 RestartWriteInterval = 500
 TDOutputComputeInterval = 10
 
+PropagationSpectrumDampMode = exponential #useful for propagation_spectrum utility
