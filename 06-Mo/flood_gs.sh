@@ -32,7 +32,7 @@ SampleLayers="1"
 SampleXY="1"
 kPoints="16" #"16 20 24" #24 is also fine. 
 InitialTemperature="0e0"
-SmearingTe="1 2 5 10 20" #0.025 eV
+SmearingTe="0.025" #1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"

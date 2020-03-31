@@ -59,6 +59,9 @@ delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse du
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
 
+GaugeVectorFieldAmplitude="0"
+GaugeFieldDelayValue="1e-15"
+
 RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
 # lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
@@ -128,6 +131,10 @@ lambda2="400e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
+for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude}
+do
+for iGaugeFieldDelayValue in ${GaugeFieldDelayValue}
+do
 for iSmearingTe in ${SmearingTe};
 do
 for iTheoryLevel in ${TheoryLevel};
@@ -166,7 +173,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iSmearingTe}
+            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${iSmearingTe}
 #           done
           done
 #          done
@@ -183,3 +190,6 @@ done
 done
 done
 done
+done
+done
+

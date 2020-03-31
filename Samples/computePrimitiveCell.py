@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2019 T. J.-Y. Derrien
+# Copyright (C) 2013-2020 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-## @module libPrimitiveCells
-## Define primitive cells 
+## @package libPrimitiveCells
+# Defines primitive cells 
 # These routines already exist in softwares like Avogadro, or library for group theory, or ASE, but somehow I start to doubt them. 
 # See the 7 cases of the Kittel book. 
 
@@ -85,8 +85,8 @@ def hexagonal(a, c, alpha, gamma):
     
     b2 = s1*np.sqrt(a**2-b1**2)
     
-    c2 = (a*c*np.cos(alpha)-b1*c2)/b2
-    c3 = np.sqrt(c**2 - c1**2-c2**2)
+    c2 = (a*c*np.cos(alpha)-b1*c1)/b2
+    c3 = s2*np.sqrt(c**2 - c1**2-c2**2)
     
     print "Not normalized"
     print str(a1)+"|"+str(a2)+"|"+str(a3)

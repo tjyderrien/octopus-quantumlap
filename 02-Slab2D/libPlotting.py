@@ -16,9 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-
-## @module libPlotting
-## Define shared functions for plotting routines
+## @package libPlotting
+# Define shared functions for plotting routines and database construction
 
 from numpy import genfromtxt, loadtxt, chararray
 import glob
@@ -39,6 +38,7 @@ Header = "[libPlotting]"
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path):
+  
   #geometry = path+"../Si.xyz" #static method
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
   
@@ -48,18 +48,18 @@ def LoadRunOutputs(path):
   except: 
       print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "
       exit()
+  
+  # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
+  TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
+  Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   try:
       # This should work for dielectrics
       Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
       print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
-      Ne=laser #we just copy laser, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
+      Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
-  
-  # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
-  TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
-  Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   return Ne, laser, TotalCurrent, Energy
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
@@ -430,7 +430,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     # Catch the final excited electron density. 
     try: 
-        timeNe           = np.asfarray(Ne[:,1])
+        timeNe           = np.asfarray(Ne[:,1]) #WARNING: this does exist for metals...
     except: 
         print Header+"** Error: It seems this run was not complete. We jump it."
         continue
@@ -516,6 +516,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     print Header+"Stack contains:"
     print StackToAdd
+    print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
     if(FromScratch): #We construct a new database from scratch
       try:
@@ -533,7 +534,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         print Header+"** Info: these data were NEW and were ADDED to the stack."
-  
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
@@ -730,6 +730,12 @@ def GetTotalCurrent(TotalCurrent): #{{{
     CurrentY=np.asfarray(TotalCurrent[:,3])
     CurrentZ=np.asfarray(TotalCurrent[:,4])
     return timeCurrent, CurrentX, CurrentY, CurrentZ
+#}}}
+
+## Splits the gauge field into several objects (all in atomic units)
+def GetTotalGaugeField(obj): #{{{
+    t, X, Y, Z = GetTotalCurrent(obj)
+    return t, X, Y, Z
 #}}}
 
 ## Damps a signal from FinalTimeDamping instant. 
