@@ -27,7 +27,7 @@ from libAtomicUnits      import *
 from libPlotting         import *
 from libPlottingSettings import *
 from libString           import *
-from libStark            import Kronecker
+from libStark            import Kronecker, ComputeFloquetBandStructure
 
 Filenames = "ks_me_multipoles.*"
 LocalFolder="./"
@@ -42,169 +42,43 @@ print "Checking consistency on the number of files."
 nb_atoms      = 2 #number of atoms in simulation box
 Z_electrons   = 2 #number of modeled valence electrons in the simulation box
 kpoints       = 8
-m_points      = 3 #m=-1, 0, +1: 1 file for each. 
 unocc_states  = 4
-MPI_number    = 0
-Efield_SI     = 1E0 #a.u.
-wavelength_SI = 800e-9
-num_time_steps=1
-#Degenerated_Electrons=True #Do we describe 2 degenerated electron using 1 state? 
-#if(Degenerated_Electrons): 
-    ##True --> 0.5. False: 1. 
-    #degenerated_electrons_f=0.5
-#else:
-    #degenerated_electrons_f=1
-    
-expected_num_files = nb_atoms * Z_electrons * m_points * kpoints**3
-if(len(listoffiles) != expected_num_files):
-    print "Error: set of data may be incomplete. Expected number of files: "+str(expected_num_files)
-else: 
-    print "Info: number of files is correct."
+MPI_number    = 1
+wavelength_SI = 3200e-9
+num_time_steps= 100
+num_fields    = 200
+Efield_SI_min = 1E9
+Efield_SI_max = 1E12
+SizeOfDots    = 1
 
-# 3. Construct the big matrice of dipolar transition inside the Floquet Hamiltonian. 
-# WARNING: how to put m=-1, m=0, m=+1 ? does this order matter? 
+Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
+Efield_SI     = np.power(10., Efield_SI_log)
 
-# 3.1: NOTE: we start with gamma point only. 
-# Gamma point index may be indicated in "info" file, at the gap indication. 
-print "Capturing the Gamma point..."
-
-print "** WARNING: this part is experimental!"
-## METHOD 1: trusting the choice of octopus
-info_file = "info"
-print "Is there a direct gap value?"
-try: 
-    kpoints_index_inp   = LookUpStringInFile(info_file, "Direct gap")
-    kpoints_index_array = kpoints_index_inp.split(" ")
-    #print kpoints_index_array
-    kpoints_index       = int(kpoints_index_array[4]) #BUG: dangerous...
-    gamma_point_files_index=[kpoints_index*m_points, kpoints_index*m_points+1, kpoints_index*m_points+2]
-    print "** Info: found a direct gap."
-except:
-    print "** Warning: could not find a direct gap. Looking for an indirect gap then."
-    kpoints_index_inp   = LookUpStringInFile(info_file, "Indirect gap")
-    kpoints_index_array = kpoints_index_inp.split(" ")
-    kpoints_index       = int(kpoints_index_array[7]) #BUG: dangerous...
-    gamma_point_files_index=[kpoints_index*m_points, kpoints_index*m_points+1, kpoints_index*m_points+2]
-
-gamma_point_files = []
-for num in gamma_point_files_index:
-    gamma_point_file = filename+'.'+str(num)
-    gamma_point_files.append(gamma_point_file)    
-print "Files containing the matrix at Gamma point: "+str(gamma_point_files)
-
-# 3.2. Capture the matrix in each file
-# Structure is with complex numbers separated by spaces. 
-# Commas are separating real and imag parts!
-
-matrix_side=Z_electrons*nb_atoms+unocc_states
-matrixelements=np.multiply(np.zeros((matrix_side, matrix_side)), 0e0+0e0j)
-print "Info: size of coupling matrix elements: "+str(matrix_side)+"x"+str(matrix_side)
-
-for file_id in gamma_point_files: #
-    print "Info: opening file "+file_id
-    # remove the commas from file_id
-    ReplaceStringInFile(",", " ", file_id, "fixed_"+file_id)
-    # capture the splitted real imag terms
-    matrixelements_splitted = np.loadtxt("fixed_"+file_id, skiprows=4)
-    for i in np.arange(0,matrix_side):
-        for j in np.arange(0,matrix_side):
-            matrixelements[i,j]=matrixelements_splitted[i, j]+1.j*matrixelements_splitted[i,j+1]
-# 4. Plotting the dipolar transition matrices
-    #plt.matshow(np.abs(matrixelements))
-    #plt.title(file_id+", norm")
-    #plt.colorbar()
-    #plt.matshow(np.real(matrixelements))
-    #plt.title(file_id+", real")
-    #plt.colorbar()
-    #plt.matshow(np.imag(matrixelements))
-    #plt.title(file_id+", imag")
-    #plt.colorbar()
-#plt.show()
-#print matrixelements
-print "Info: successfull import of complex-valued dipolar matrix elements for m=-1, m=0, m=1."
-print "** Warning: we still don't know how to combine these."
-print "** Warning: therefore one selects only one file among m=-1,0,1 for now!"
-
-## 5. Extract eigen values at k-point <kpoints_index> from "info" file
-eigenvalues=GetEigenValue(kpoints_index, "info")
-#print eigenvalues
-
-## 6. Build then diagonalize the Floquet Hamiltonian. 
-# 6.1:Build the eigenvalued matrix
-H_GS=np.zeros((matrix_side, matrix_side))*1j
-#print np.size(H_GS[0])
-for i in np.arange(0,np.size(H_GS[0])):
-    H_GS[i,i]=eigenvalues[i]
-print "Info: matrix of eigenvalues for the selected k-point. Matrix shape is "+str(np.shape(H_GS))
-
-# 6.2: Add the dipolar matrix elements to the eigenvalues
-
-## Function that returns the light-perturbed GS Hamiltonian for a specific k-point
-def H_perturb(t, omega_AU, Efield_AU, H_GS,  matrixelements):
-    return np.add(H_GS, Efield_AU*np.cos(omega_AU*t)*matrixelements)
-
-# 6.3: introducing Fourier transform, multiphotonic levels and temporal averaging over one period.
-
-omega_SI  = 2.*np.pi*c / wavelength_SI #this is in SI...
-
-Efield_AU = Field_SI_to_AU(Efield_SI)
-omega_AU  = Energy_eV_to_Hartree(omega_SI*hbar/e)
-
-tmin=0.; tmax=2.*pi/omega_AU
-dt=(tmax-tmin)/num_time_steps
-
-# Initialization for t=0
-print "Info: H(t)=H_GS + dipolar_matrix * Efield(t)"
-H0=H_perturb(tmin, omega_AU, Efield_AU, H_GS, matrixelements)
-print "Info: shape of H(t): "+str(np.shape(H0))
-
-## Temporal integration of H_Floquet^{m,n}
-def H_Floquet_mn_func(tmin, tmax, dt, omega_AU, MPI_number, n, Efield_AU, H_GS, matrixelements): #{{{
-    H0_init = H_perturb(tmin, omega_AU, Efield_AU, H_GS, matrixelements) #just to initialize
-    H0_sum = np.zeros(np.shape(H0_init))*0j #initialization
-    for t in np.arange(tmin,tmax,dt): #integral
-        H0=H_perturb(t, omega_AU, Efield_AU, H_GS, matrixelements) #H(t)
-        H0_t1=omega_AU/2./np.pi * np.multiply(np.exp(1j*(MPI_number-n)*omega_AU*t), H0)*dt #e( i(m-n) omega t ) H(t)
-        H0_sum = np.add(H0_sum, H0_t1) #have to integrate this
-        
-    H0_sum = H0_sum + Kronecker(MPI_number,n)*MPI_number*omega_AU
-    return H0_sum
-#}}}
-
-H_Floquet_mn=H_Floquet_mn_func(tmin, tmax, dt, omega_AU, MPI_number, MPI_number, Efield_AU, H_GS, matrixelements)
-#print H_Floquet_mn 
-print "Info: element (m,n) of Floquet matrix constructed with success."
-print "Info: Now, one has to write the full matrix."
+OpticalIndex={ #data from Palik! 
+    483e-9: 4.4028, 484e-9: 4.3964,
+    800e-9: 3.6924167231905, 1600e-9: 3.4826, 
+    2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
+RefractiveIndex = OpticalIndex[wavelength_SI]
 
 
-print "Info: shape of element [m,n] of the matrix we want to write: "+str(np.shape(H_Floquet_mn))
-H_Floquet_shape = (MPI_number*2+1) * (matrix_side)
-print "Info: shape of the complete Floquet matrix"
-print H_Floquet_shape, H_Floquet_shape
-H_Floquet=np.zeros((H_Floquet_shape, H_Floquet_shape))*1j
-print np.shape(H_Floquet)
-for m in np.arange(-MPI_number,MPI_number+1,1):
-    for n in np.arange(-MPI_number,MPI_number+1,1):
-        H_Floquet_mn=H_Floquet_mn_func(tmin, tmax, dt, omega_AU, m, n, Efield_AU, H_GS, matrixelements) #tensor of 4th order...
-        #print "m="+str(m)
-        #print "m+MPI_number="+str(m+MPI_number)
-        #print "n="+str(n)
-        #print "n+MPI_number="+str(n+MPI_number)
-        for p in np.arange(0,matrix_side,1):
-            for q in np.arange(0,matrix_side,1):
-                #print p,q #OK
-                #print (m+MPI_number)*matrix_side+p, (n+MPI_number)*matrix_side+q
-                H_Floquet[(m+MPI_number)*matrix_side+p, (n+MPI_number)*matrix_side+q]=H_Floquet_mn[p,q]
-#print H_Floquet
-
-# 6.4: Diagonalize the Floquet matrix
-replicas, v = LA.eig(H_Floquet)
-print replicas
-
-## 7. Plot the splitted energy levels at Gamma.
+## Plot the splitted energy levels at Gamma.
 plt.figure()
-plt.title("Eigen values + replicas")
-plt.scatter(np.ones(np.size(replicas)), np.abs(replicas), c="red", s=15, label="Floquet")
-plt.scatter(np.ones(np.size(eigenvalues)), np.abs(eigenvalues), c="black", s=5, label="GS")
-plt.legend()
+plt.title("Laser dressing of electrons")
+unitx=1E-4
+for field in Efield_SI:
+    eigenvalues, replicas = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons, kpoints, unocc_states, MPI_number, field, wavelength_SI, num_time_steps, listoffiles)
+    # Plotting using external intensity, whence internal intensity acts on the sample
+    field  = 0.5*c*epsilon_0*field**2*RefractiveIndex
+    plt.scatter(np.ones(np.size(replicas))*field*unitx, Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet")
+Intensity_min = 0.5*c*epsilon_0*Efield_SI[0]**2*RefractiveIndex
+plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues)), c="black", s=10, label="GS")
+plt.xscale('log')
+plt.tight_layout()
+figurename="FloquetBandStructure-"+str(round(wavelength_SI*1E9,0))+"nm-k"+str(kpoints)+"MPI-"+str(round(MPI_number,0))
+plt.savefig(figurename+".eps")
+#plt.xlabel("Field (V/m)")
+plt.xlabel(r"Laser intensity (W/cm$^{2}$)")
+plt.ylabel(r"Energy levels (eV)")
+#plt.legend()
+plt.tight_layout()
 plt.show()
