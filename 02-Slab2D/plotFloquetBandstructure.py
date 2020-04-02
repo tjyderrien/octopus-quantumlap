@@ -39,12 +39,15 @@ print listoffiles
 
 # 2. Check consistency of the number of files with k-point employed in the computation
 print "Checking consistency on the number of files."
-nb_atoms   = 2 #number of atoms in simulation box
-Z_electrons= 2 #number of modeled valence electrons in the simulation box
-kpoints    = 8
-m_points   = 3 #m=-1, 0, +1: 1 file for each. 
-unocc_states=4
-
+nb_atoms      = 2 #number of atoms in simulation box
+Z_electrons   = 2 #number of modeled valence electrons in the simulation box
+kpoints       = 8
+m_points      = 3 #m=-1, 0, +1: 1 file for each. 
+unocc_states  = 4
+MPI_number    = 0
+Efield_SI     = 1E0 #a.u.
+wavelength_SI = 800e-9
+num_time_steps=1
 #Degenerated_Electrons=True #Do we describe 2 degenerated electron using 1 state? 
 #if(Degenerated_Electrons): 
     ##True --> 0.5. False: 1. 
@@ -142,11 +145,7 @@ def H_perturb(t, omega_AU, Efield_AU, H_GS,  matrixelements):
 
 # 6.3: introducing Fourier transform, multiphotonic levels and temporal averaging over one period.
 
-Efield_SI = 1E9 #a.u.
-wavelength_SI = 800e-9
 omega_SI  = 2.*np.pi*c / wavelength_SI #this is in SI...
-MPI_number=2
-num_time_steps=1000
 
 Efield_AU = Field_SI_to_AU(Efield_SI)
 omega_AU  = Energy_eV_to_Hartree(omega_SI*hbar/e)
@@ -179,25 +178,33 @@ print "Info: Now, one has to write the full matrix."
 
 
 print "Info: shape of element [m,n] of the matrix we want to write: "+str(np.shape(H_Floquet_mn))
-H_Floquet_shape = (MPI_number*2+1) * (Z_electrons+unocc_states)
+H_Floquet_shape = (MPI_number*2+1) * (matrix_side)
 print "Info: shape of the complete Floquet matrix"
-print H_Floquet_shape ** 2
-H_Floquet=np.array((H_Floquet_shape, H_Floquet_shape)) #2d-list of arrays is needed
-#print np.shape(H_Floquet)
+print H_Floquet_shape, H_Floquet_shape
+H_Floquet=np.zeros((H_Floquet_shape, H_Floquet_shape))*1j
+print np.shape(H_Floquet)
 for m in np.arange(-MPI_number,MPI_number+1,1):
     for n in np.arange(-MPI_number,MPI_number+1,1):
         H_Floquet_mn=H_Floquet_mn_func(tmin, tmax, dt, omega_AU, m, n, Efield_AU, H_GS, matrixelements) #tensor of 4th order...
-        print "m="+str(m)
-        print "m+MPI_number="+str(m+MPI_number)
-        print "n="+str(n)
-        print "n+MPI_number="+str(n+MPI_number)
-        H_Floquet[m+MPI_number,n+MPI_number]=H_Floquet_mn
-#exit()
-
-
+        #print "m="+str(m)
+        #print "m+MPI_number="+str(m+MPI_number)
+        #print "n="+str(n)
+        #print "n+MPI_number="+str(n+MPI_number)
+        for p in np.arange(0,matrix_side,1):
+            for q in np.arange(0,matrix_side,1):
+                #print p,q #OK
+                #print (m+MPI_number)*matrix_side+p, (n+MPI_number)*matrix_side+q
+                H_Floquet[(m+MPI_number)*matrix_side+p, (n+MPI_number)*matrix_side+q]=H_Floquet_mn[p,q]
+#print H_Floquet
 
 # 6.4: Diagonalize the Floquet matrix
-#w, v = LA.eig(H_perturb)
-#print v
+replicas, v = LA.eig(H_Floquet)
+print replicas
 
 ## 7. Plot the splitted energy levels at Gamma.
+plt.figure()
+plt.title("Eigen values + replicas")
+plt.scatter(np.ones(np.size(replicas)), np.abs(replicas), c="red", s=15, label="Floquet")
+plt.scatter(np.ones(np.size(eigenvalues)), np.abs(eigenvalues), c="black", s=5, label="GS")
+plt.legend()
+plt.show()
