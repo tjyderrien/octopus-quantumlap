@@ -23,6 +23,7 @@
 import sys
 import os
 import glob
+import itertools
 
 from libDatabase import * #uses symbolic link
 #from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
@@ -128,22 +129,29 @@ def GetLastLine(file):
 	 last = f.readline()       # Read last line.
 	 return last
 
-## Splitting, sorting and re-packing the table in a list of filenames.
+## Splitting, sorting and re-packing the table of ks_me_dipoles from octopus.
 def GetOrderedListOfFiles(Filename): #{{{
     filelist = glob.iglob(Filename) #makes selection over files, but not sorted
-    splitted_t = [[],[]]
-    numbers=[]; names=[]
+    #NOTE: names are like ks_me_dipole.k999_y
+    splitted_t = [[],[], []]
+    names=[]; numbers=[];  directions=[]
     for file in filelist: #{{{
         splited=file.split(".")
         names.append(splited[0])
-        numbers.append(int(splited[1]))
+        splited_2 = (splited[1].split("_"))
+        directions.append(splited_2[1])
+        splited_3 = splited_2[0].split("k")
+        numbers.append(int(splited_3[1]))
     #}}}
-    numbers.sort()
-    filelist = np.transpose([names, numbers])
+    # Sorting the table properly
+    lists = sorted(itertools.izip(*[names, numbers, directions]))
+    names_sorted, numbers_sorted, directions_sorted = list(itertools.izip(*lists))
+    #numbers.sort()
+    filelist = np.transpose([names_sorted, numbers_sorted, directions_sorted])
 
     finallist = []
     for line in filelist:
-        newline=str(line[0])+"."+str(line[1])
+        newline=str(line[0])+".k"+str(line[1])+"_"+str(line[2])
         finallist.append(newline)
     return finallist
 #}}}

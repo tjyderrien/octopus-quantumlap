@@ -29,27 +29,31 @@ from libPlottingSettings import *
 from libString           import *
 from libStark            import Kronecker, ComputeFloquetBandStructure
 
-Filenames = "ks_me_multipoles.*"
+#Filenames = "ks_me_multipoles.*"
+Filenames = "ks_me_dipole.*"
 LocalFolder="./"
 filename      = Filenames.split('.')[0]
-
-# 1. Capture the static/multipoles files. 
+print Filenames
+# 1. Capture the static/dipole files. 
 listoffiles=GetOrderedListOfFiles(Filenames)
 print listoffiles
 
 # 2. Check consistency of the number of files with k-point employed in the computation
 print "Checking consistency on the number of files."
-nb_atoms      = 2 #number of atoms in simulation box
-Z_electrons   = 2 #number of modeled valence electrons in the simulation box
-kpoints       = 8
-unocc_states  = 4
-MPI_number    = 1
-wavelength_SI = 3200e-9
-num_time_steps= 100
-num_fields    = 200
-Efield_SI_min = 1E9
-Efield_SI_max = 1E12
-SizeOfDots    = 1
+nb_atoms      = 1 #number of atoms #we actually treat a bulk, so it's one.
+Z_electrons   = 4 #number of modeled valence electrons in the simulation box (3s)²(3p)² for Si atoms. 
+kpoints                = 8 #k-point grid unit (assumes same in 3 directions)
+unocc_states           = 4 #this is defined in the inp. If not, then it's zero. 
+MPI_number             = 1
+wavelength_SI          = 3200e-9
+num_time_steps         = 100
+num_fields             = 300 #number of electric field values for the plotting
+Efield_SI_min          = 1E9
+Efield_SI_max          = 1E11
+SizeOfDots             = 0.5   #purely cosmetic!
+Complex_valued_ME      = False
+field_polarization_dir = 0 #0: x, 1: y, 2: z
+spin_occupation        = 1 #1: levels with same spin should split, 2: levels of different spins dont split.
 
 Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
 Efield_SI     = np.power(10., Efield_SI_log)
@@ -66,7 +70,7 @@ plt.figure()
 plt.title("Laser dressing of electrons")
 unitx=1E-4
 for field in Efield_SI:
-    eigenvalues, replicas = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons, kpoints, unocc_states, MPI_number, field, wavelength_SI, num_time_steps, listoffiles)
+    eigenvalues, replicas = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons, kpoints, unocc_states, MPI_number, field, wavelength_SI, num_time_steps, listoffiles, Complex_valued_ME, field_polarization_dir, spin_occupation)
     # Plotting using external intensity, whence internal intensity acts on the sample
     field  = 0.5*c*epsilon_0*field**2*RefractiveIndex
     plt.scatter(np.ones(np.size(replicas))*field*unitx, Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet")
