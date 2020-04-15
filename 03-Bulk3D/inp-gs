@@ -4,7 +4,7 @@
 
 CalculationMode = gs
 ExperimentalFeatures=yes
-FromScracth = yes
+FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! ;)
 # UnitsXYZFiles = Angstrom #TODO: this feature will be removed when we will have our branch
 PeriodicDimensions = 3
@@ -24,7 +24,7 @@ n = 1 #Z blocks: to be replaced by script
 # Optimization
 # PoissonFFTKernel = planar
 ParKPoints = auto
-# ParStates = auto
+ParStates = no
 ParDomains = no #crashes if made per state only
 
 # Mesh parameters
@@ -84,7 +84,12 @@ MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
-Output = dos + density + potential + geometry
+Output = dos + density + potential + geometry + el_pressure #+ matrix_elements + pol_density
+
+### GS matrix elements (useful for Floquet)
+# OutputMatrixElements=dipole # ks_multipoles # + momentum
+# OutputMEMultipoles = 0
+
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
 # FilterPotentials = filter_none        #this will be added automatically
