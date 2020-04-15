@@ -22,6 +22,8 @@
 #IMPORT LIBRARIES
 import sys
 import os
+import glob
+import itertools
 
 from libDatabase import * #uses symbolic link
 #from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
@@ -126,3 +128,82 @@ def GetLastLine(file):
 		f.seek(-2, 1)         # ...jump back the read byte plus one more.
 	 last = f.readline()       # Read last line.
 	 return last
+
+## Splitting, sorting and re-packing the table of ks_me_dipoles from octopus.
+def GetOrderedListOfFiles(Filename): #{{{
+    filelist = glob.iglob(Filename) #makes selection over files, but not sorted
+    #NOTE: names are like ks_me_dipole.k999_y
+    splitted_t = [[],[], []]
+    names=[]; numbers=[];  directions=[]
+    for file in filelist: #{{{
+        splited=file.split(".")
+        names.append(splited[0])
+        splited_2 = (splited[1].split("_"))
+        directions.append(splited_2[1])
+        splited_3 = splited_2[0].split("k")
+        numbers.append(int(splited_3[1]))
+    #}}}
+    # Sorting the table properly
+    lists = sorted(itertools.izip(*[names, numbers, directions]))
+    names_sorted, numbers_sorted, directions_sorted = list(itertools.izip(*lists))
+    #numbers.sort()
+    filelist = np.transpose([names_sorted, numbers_sorted, directions_sorted])
+
+    finallist = []
+    for line in filelist:
+        newline=str(line[0])+".k"+str(line[1])+"_"+str(line[2])
+        finallist.append(newline)
+    return finallist
+#}}}
+
+
+## Replaces a string from a source file in a new file
+# @param string: pattern to be replaced
+# @param string: new string replacing the pattern
+# @param file_inp: name of source file
+# @param file_out: name of target file
+def ReplaceStringInFile(string, replace_with, file_inp, file_out):
+    Header="libString: ReplaceStringInFile(): "
+    #print Header+"input file: "+file_inp
+    with open(file_inp, "rt") as fin:
+        with open(file_out, "wt") as fout:
+            for line in fin:
+                fout.write(line.replace(string, replace_with))
+    return 0
+
+## Parser by block
+# @param some_source: source file name
+# @param header: pattern to find the header
+def group_by_heading( some_source, header ):
+    buffer= []
+    for line in some_source:
+        if line.startswith( header ):
+            if buffer: yield buffer
+            buffer= [ line ]
+        else:
+            buffer.append( line )
+    yield buffer
+    
+
+## Capture eigenvalues for a given k-point from "info" file
+# @param kpoints_index: index of the k-point of interest
+# @param filename: "info" file.
+def GetEigenValue(kpoints_index, filename="info"):
+    print "Info: Construction of the eigen-values matrix."
+    pattern = "#k ="
+    print "Pattern of interest: \""+pattern+"\""
+    with open( filename, "r" ) as source:
+        for heading_and_lines in group_by_heading( source, pattern ):
+            heading = heading_and_lines[0]
+            lines = heading_and_lines[1:]
+            if(str(kpoints_index)) in heading:
+                #print heading
+                #print lines
+                break #only keep the first
+    print heading
+    eigenvalues=[]
+    for id in lines:
+        line = id.split()
+        eigenvalues.append(line[2])
+    #print eigenvalues
+    return np.asfarray(eigenvalues)
