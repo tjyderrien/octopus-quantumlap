@@ -8,17 +8,17 @@ FromScratch = yes
 PeriodicDimensions = 0
 
 # b = 4.03 #4.03 augstrum in z direction. 2.82930332580211 #2.467 Angstrums between atoms. 
-a = 2.87 #2.82930332580211 #Anstrums. He took it in Bohr. It should be angtrums in xy direction.
+a = 1890*angstrom #2.82930332580211 #Anstrums. He took it in Bohr. It should be angtrums in xy direction.
 # a = 2.467 #angstrums between atoms
 # a = 5.346612162095391 #this is in Bohr.
 m = 1
-Spacing = a/16
+Spacing = a/1000
 
 # Optimization
 # PoissonFFTKernel = planar
 # ParKPoints = auto
 # ParStates = auto
-# ParDomains = yes #crashes if made per state only
+ParDomains = auto #crashes if made per state only
 
 # Using external file
 XYZCoordinates = "Covid19_6vsb_entry.xyz"
@@ -33,8 +33,9 @@ kPointsValue=1
 
 # BoxShape = parallelepiped
 
-# ForceComplex = yes
-# LCAOComplexYlms = yes
+ForceComplex = yes
+LCAOComplexYlms = yes
+LCAOMaximumOrbitalRadius = 3500
 SpinComponents = polarized
 
 ExtraStates = 0
