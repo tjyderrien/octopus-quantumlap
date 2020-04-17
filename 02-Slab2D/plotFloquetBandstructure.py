@@ -40,7 +40,7 @@ listoffiles=GetOrderedListOfFiles(Filenames)
 print listoffiles
 
 ## Building materials dictionnary
-material="Si" #SiO2
+material="SiO2" #SiO2 | Si
 
 #exit()
 wavelength_SI_t        = [3200e-9, 1600e-9, 800e-9, 484e-9, 400e-9, 343e-9]
@@ -74,13 +74,15 @@ OpticalIndex_SiO2={ #NOTE: these are experimental data for SiO2 (from refractive
 
 Si={'MPI_numbers': [1, 2, 3], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 4, 
-    'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si}
+    'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 
+    'ymin_ymax': (3,8)}
 
 SiO2={'MPI_numbers': [1], 'kpoints_manual': 8, 
     'nb_atoms': 1, 'unocc_states': 6, 
-    'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2}
+    'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 
+    'ymin_ymax': (-8,8)}
 
-Materials={'Si': Si, 'SiO2': SiO2}
+Materials={'Si': Si, 'SiO2': SiO2} #this contains all materials properties we need to automatize
 
 # 2. Check consistency of the number of files with k-point employed in the computation
 nb_atoms      = Materials[material]['nb_atoms'] #1 #number of atoms #we actually treat a bulk, so it's one.
@@ -147,7 +149,7 @@ for wavelength_SI in wavelength_SI_t:
         #plt.xlabel("Field (V/m)")
         plt.xlabel(r"Laser intensity (W/cm$^{2}$)")
         plt.ylabel(r"Energy levels (eV)")
-        plt.ylim((3,8)) #Si
+        plt.ylim(Materials[material]['ymin_ymax']) #Si
         #plt.ylim((-8,8)) #SiO2
         plt.tight_layout()
         plt.savefig(figurename+".eps")
