@@ -19,7 +19,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.15 0.18 0.21 0.23" #0.23 Bohr, octopus-recommended value
+MeshSizeX_SI="0.10 0.12 0.14" #0.15 0.18 0.21 0.23" #0.23 Bohr, octopus-recommended value
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
@@ -29,7 +29,7 @@ NumNodes=2
 Mission="SiO2-GS_multiK"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16" # 12 16 20 24"
+kPoints="8" # 12 16 20 24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="PBE" #LDA does not contain 'O' specy!! Use PBE.". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha

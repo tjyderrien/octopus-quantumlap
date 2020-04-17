@@ -22,7 +22,7 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.15 0.23" # 0.20"
+MeshSizeX="0.10 0.12 0.14" #0.15 0.18 0.21 0.23" # 0.23" # 0.20" 0.15: very long...
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
@@ -45,7 +45,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="SiO2-PBE-TD-conv"
+Mission="SiO2-PBE-TD"
 
 
 # Phase
@@ -55,7 +55,7 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+delay="0.1e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
