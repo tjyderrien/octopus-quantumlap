@@ -271,8 +271,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
     
-    ### Checking if probe was enabled. Output the double pulse delay (or the probe delay). 
-    
+    ### Checking if probe was enabled. Output the probe amplitude.
     GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0!
