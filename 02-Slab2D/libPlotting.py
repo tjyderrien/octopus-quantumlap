@@ -272,7 +272,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       print Header+"Info: InducedFields was disabled."
     
     ### Checking if probe was enabled. Output the probe amplitude.
-    GaugeFieldAmplitude=0e0 #zero if it was not used.
+#    GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0!
     if "#" in GaugeVectorField_tmp[0]: 
@@ -283,6 +283,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         except:
             GaugeFieldAmplitude = 0e0
             print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
+    if(GaugeFieldAmplitude==''):
+        del GaugeFieldAmplitude
+        GaugeFieldAmplitude = 0e0
     
     GaugeFieldDelay=0e0 #zero if was not used
     GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
@@ -509,7 +512,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #print float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI)
     #print float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel)
     #print float(FieldInduced_enabled)
-    print "** Debug: GaugeFieldAmplitude"+str(GaugeFieldAmplitude)
+    print "** Debug: GaugeFieldAmplitude: "+str(GaugeFieldAmplitude)
     #print float(GaugeFieldDelay)
     #print float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max)
     #print float(density_proj_SI_final), float(density_irreversibility_ratio)
