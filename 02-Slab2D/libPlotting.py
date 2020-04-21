@@ -505,16 +505,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # One line is one octopus run. O_o
      
     print Header+"Checking integrity before adding to table..."
-    print float(runid), float(wavelength_SI), float(PulseDuration_SI)
-    print float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI)
-    print float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI)
-    print float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel)
-    print float(FieldInduced_enabled), float(GaugeFieldAmplitude), float(GaugeFieldDelay)
-    print float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max)
-    print float(density_proj_SI_final), float(density_irreversibility_ratio)
-    print float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax)
-    print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
-    print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
+    #print float(runid), float(wavelength_SI), float(PulseDuration_SI)
+    #print float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI)
+    #print float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI)
+    #print float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel)
+    print float(FieldInduced_enabled)
+    print float(GaugeFieldAmplitude)
+    print float(GaugeFieldDelay)
+    #print float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max)
+    #print float(density_proj_SI_final), float(density_irreversibility_ratio)
+    #print float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax)
+    #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
+    #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
 	      
     StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
