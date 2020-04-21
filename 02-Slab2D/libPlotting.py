@@ -282,6 +282,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
+            GaugeFieldAmplitude = 0e0
             print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
     
     GaugeFieldDelay=0e0 #zero if was not used
