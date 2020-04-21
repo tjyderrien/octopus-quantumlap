@@ -47,7 +47,7 @@ wavelength_SI_t        = [3200e-9] #, 1600e-9, 800e-9, 484e-9, 400e-9, 343e-9]
 #wavelength_SI_t        = [484e-9] #, 400e-9, 343e-9]
 
 num_time_steps         = 100
-num_fields             = 1 #number of electric field values for the plotting
+num_fields             = 100 #number of electric field values for the plotting
 
 Efield_SI_min          = IntensityToField(1E10*1E4)
 Efield_SI_max          = IntensityToField(1E15*1E4)
@@ -135,7 +135,7 @@ for wavelength_SI in wavelength_SI_t:
             eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons, kpoints, unocc_states, MPI_number, field, wavelength_SI, num_time_steps, listoffiles, Complex_valued_ME, field_polarization_dir, spin_occupation, verbose)
             # Plotting using external intensity, whence internal intensity acts on the sample
             field  = 0.5*c*epsilon_0*field**2*RefractiveIndex
-            plt.scatter(np.ones(np.size(replicas))*field*unitx, Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet")
+            plt.scatter(np.ones(np.size(replicas))*field*unitx, Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates") #these are the interesting lines for the final plot
             
             # TODO: Prepare the table [wavelength, n, E, Rabi Freq such as BesselJ(n,RabiFreqs_SI/omegaLaser)=0. #BruteForce method. 
             # TODO: Do we need the function BesselJZeros(n,x)? To search omegaLaser that induce a stop in tunneling! 
@@ -144,7 +144,7 @@ for wavelength_SI in wavelength_SI_t:
         Intensity_min = 0.5*c*epsilon_0*Efield_SI[0]**2*RefractiveIndex
         
         # Plotting eigenvalues at rest
-        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues)), c="black", s=10, label="GS")
+        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues)), c="black", s=10, label="GS eigenvalues")
         
         if(LogPlotting):
             plt.xscale('log')
@@ -160,8 +160,8 @@ for wavelength_SI in wavelength_SI_t:
         plt.savefig(figurename+".eps")
         plt.savefig(figurename+".png")
         # Plotting dressed levels directly on the figure
-        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues))+MPI_number*h*c/wavelength_SI/e, c="red", s=10, label="replicates")
-        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues))-MPI_number*h*c/wavelength_SI/e, c="green", s=10, label="replicates")
+        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues))+MPI_number*h*c/wavelength_SI/e, c="red", s=10, label="non-interacting replicates")
+        plt.scatter(np.ones(np.size(eigenvalues))*Intensity_min*unitx, Energy_Hartree_to_eV(np.real(eigenvalues))-MPI_number*h*c/wavelength_SI/e, c="blue", s=10, label="non-interacting replicates")
         
         plt.savefig(figurename+"-Suppl"+".eps")
         plt.savefig(figurename+"-Suppl"+".png")
