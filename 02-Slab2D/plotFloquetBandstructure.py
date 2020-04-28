@@ -22,6 +22,8 @@
 import numpy as np
 import glob
 import numpy.linalg as LA
+from scipy.special import jn_zeros as BesselJZeros
+from matplotlib.cm import get_cmap
 
 from libAtomicUnits      import *
 from libPlotting         import *
@@ -40,16 +42,18 @@ listoffiles=GetOrderedListOfFiles(Filenames)
 print listoffiles
 
 ## Building materials dictionnary
-material="Mo" #SiO2 | Si
+material="Si" #SiO2 | Si
 
 #exit()
-wavelength_SI_t        = [3200e-9] #, 1600e-9, 800e-9, 484e-9, 400e-9, 343e-9] #10e-6
+wavelength_SI_t        = [3200e-9] #, 1600e-9, 800e-9, 400e-9] #484e-9, 343e-9] #10e-6
 
 num_time_steps         = 100
 num_fields             = 300 #number of electric field values for the plotting
 
 Efield_SI_min          = IntensityToField(1E10*1E4)
-Efield_SI_max          = IntensityToField(1E20*1E4)
+Efield_SI_max          = IntensityToField(1E15*1E4)
+Efield_AU_min          = Field_SI_to_AU(Efield_SI_min)
+Efield_AU_max          = Field_SI_to_AU(Efield_SI_max)
 
 Complex_valued_ME      = False
 field_polarization_dir = 0 #0: x, 1: y, 2: z
@@ -60,6 +64,10 @@ PlotIntensity          = True  #True: plot with I. False: plot with E.
 SizeOfDots             = 0.5   #purely cosmetic!
 LogPlotting            = 1
 verbose                = 0 #Show info and debug messages. 
+SingleKpoint           = 1 #1: plotting the whole band structure for a certain field
+
+BesselRootsID_max      = 10
+
 
 ########### DONT TOUCH BELOW, thanks! #############
 
@@ -73,7 +81,7 @@ OpticalIndex_SiO2={ #NOTE: these are experimental data for SiO2 (from refractive
     800e-9: 1.5383, 1600e-9: 1.5270, 
     2200e-9: 1.5175, 2600e-9: 1.5094, 3200e-9: 1.4996}
 
-OpticalIndex_Mo={3200e-9: 1.6626}
+OpticalIndex_Mo={3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.6371, 400e-9: 0.42388}
 
 Si={'MPI_numbers': [1,2,3], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 4, 
@@ -126,16 +134,14 @@ except:
 print "Info: Capturing the file for the transition of interest."
 gamma_point_files, gamma_point_files_index = ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap, verbose, field_polarization_dir)
 
-# TODO: We don't need to do this each time. Get this out and do it once for all. 
 matrixelements, matrix_side = ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Complex_valued_ME)
 
 ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
-# TODO: this can also be put outside for optimization
 eigenvalues=GetEigenValue(gamma_point_files_index[0], "info", verbose)
 if(verbose==1):
     print eigenvalues
 
-tunneling_stops=[]
+#tunneling_stops=[]
 
 for wavelength_SI in wavelength_SI_t:
     
@@ -150,7 +156,6 @@ for wavelength_SI in wavelength_SI_t:
         Efield_SI     = np.power(10., Efield_SI_log)
     else:
         Efield_SI     = np.linspace(Efield_SI_min, Efield_SI_max, num_fields)
-
 
 ## Plot the splitted energy levels at Gamma.
     for MPI_number in MPI_numbers:
@@ -169,6 +174,7 @@ for wavelength_SI in wavelength_SI_t:
             # TODO: Prepare the table [wavelength, n, E, Rabi Freq such as BesselJ(n,RabiFreqs_SI/omegaLaser)=0. #BruteForce method. 
             # TODO: Do we need the function BesselJZeros(n,x)? To search omegaLaser that induce a stop in tunneling! 
             #tunneling_stops.append(np.sqrt(dipoles * field_AU / BesselJZeros(n,k)))
+            
         if(PlotIntensity):
             Intensity_min = 0.5*c*epsilon_0*Efield_SI[0]**2*RefractiveIndex
         else: 
@@ -206,3 +212,59 @@ for wavelength_SI in wavelength_SI_t:
     plt.show()
 #print Header+"Preparing (omega,Efield) values that should disable the tunneling in the sample..."
 #plt.figure()
+
+print "=== Assessing tunneling stopping possibilities... ==="
+Efield_AU_log = np.linspace(np.log10(Efield_AU_min), np.log10(Efield_AU_max), num_fields)
+Efield_AU     = np.power(10., Efield_AU_log)
+
+for MPI_number in [1,2,3]:
+    tunneling_stops=[]
+    
+    figurename = str(material)+"-MatrixElements-k-"+str(kpoints)+"MPI-"+str(round(MPI_number,0))
+    #for BesselRootsID in np.arange(1,BesselRootsID_max):
+    BesselZeros=BesselJZeros(MPI_number,BesselRootsID_max)
+    #print "BesselRoot #"+str(BesselRootsID_max)
+    print "BesselJZeros("+str(MPI_number)+", "+str(BesselRootsID_max)+")="+ str(BesselZeros)
+    for RootNumber in np.arange(0,np.size(BesselZeros)): #NOTE: we mix the various roots of Bessel function
+        tunneling_stops.append(np.divide(matrixelements, BesselZeros[RootNumber])) # = omega**2/E. #NOTE: concatenation of all the roots of Bessel. 
+    print np.shape(tunneling_stops)
+    #print tunneling_stops #omega**2/E (in at.u.)
+    #plt.figure()
+    plt.matshow(np.log10(tunneling_stops[0])) #omega**2/E
+    plt.title(r'$n=$'+str(MPI_number)) #+", slice "+str(BesselRootsID_max-1))
+    plt.colorbar()
+    plt.tight_layout()
+    plt.savefig(figurename+".eps")
+    plt.savefig(figurename+".png")
+    
+    figurename=str(material)+"-BesselTunnelingStop-"+str(kpoints)+"MPI-"+str(round(MPI_number,0))+"-BesselRoot-"+str(BesselRootsID_max)
+    
+    print "Plotting couples of (E, omega) that blocks transition with "+str(MPI_number)+" photons."
+    #for wavelength_SI in wavelength_SI_t: #for each wavelength
+    plt.figure()
+    
+    # Number of colors we need. 
+    NumberOfElements=(matrix_side/2)
+    cm = get_cmap('hsv')
+    colors=[cm(1.*i/(NumberOfElements)) for i in range(NumberOfElements)]
+    xy = range(NumberOfElements)
+    colorlist=[colors[x] for x in xy]
+    
+    plot1=[]
+    for trans_i in np.arange(0,matrix_side/2): #transition from i
+        for trans_j in np.arange(matrix_side/2,matrix_side): #transition to j
+            for RootNumber in np.arange(0,np.size(BesselZeros)):
+                plot_field = plt.scatter(Field_AU_to_SI(Efield_AU), Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j]*Efield_AU)), s=10*SizeOfDots, label=str(trans_i)+r"$\rightarrow$"+str(trans_j), c=colorlist[trans_i]) #*matrix_side+trans_j]) #energies [eV]
+            plot1+=[plot_field] #stores the last plot caption in a series of roots
+    
+    labels1 = [l.get_label() for l in plot1]
+    plt.ylabel(r"$\hbar \omega$ (eV)")
+    #plt.ylabel(r"$\lambda$ (m)")
+    plt.legend(plot1, labels1, loc="best", ncol=2)
+    plt.xlabel(r"$E$ (V/m)")
+    plt.xscale('log')
+    plt.ylim((0,4))
+    plt.title(r"Tunneling $(E,\omega)$, $n=$"+str(MPI_number))
+    plt.savefig(figurename+".eps")
+    plt.savefig(figurename+".png")
+    plt.show()
