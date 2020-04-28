@@ -77,6 +77,19 @@ remove_obf_files() {
   find . -name '*.obf' -mindepth 5 -maxdepth 5 #-delete  
 }
 
+remove_gs_restart() { 
+  echo "Removes all restart information from Ground States."
+  echo "Very useful to clean the inodes."
+  for folder in $(  find . -type d | grep 'restart/gs' | grep -v 'Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0' | grep -v 'Si-1x1x1-k-24x24x1-Mesh0.377945225092-Mesh0.377945225092-T0e0' )
+  do
+    cd $folder
+    pwd 
+    rm *
+    pro-fs
+    cd - > /dev/null
+  done
+}
+
 remove_td_restart() {
 #  find . -mindepth 5 | grep 'lambda' | grep 'obf' >& CanBeRemoved.log
   echo "Warning: THE FOLLOWING FILES WOULD BE REMOVED."
