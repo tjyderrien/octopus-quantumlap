@@ -42,7 +42,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
-from scipy.signal import find_peaks_cwt
+from scipy.signal import find_peaks
 from colorama import Fore
 from colorama import Style
 
@@ -1741,18 +1741,23 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         wavelengths1_sorted_show = wavelengths1_sorted
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted))
     
-    ## We look for min and max here. 
+    ## Returns position and value at the peaks and valley. 
     def FindMinAndMax(signal, width):
         Header="plotFinalQuantities: FindMinAndMax():"
         print Header
-        peakind = find_peaks_cwt(signal, width)
-        return peakind
+        #print np.shape(signal), np.shape(width)
+        width=np.asfarray(width)
+        #print width
+        peaks, prop_peaks = find_peaks(signal) #, width)
+        #print peaks, signal[peaks], width[peaks]
+        valleys, prop_valleys= find_peaks(-signal)
+        print "Min: "+str(valleys)
+        print "Max: "+str(peaks)
+        return width[peaks], signal[peaks], width[valleys], signal[valleys]
         
-    
     for Efield1_compare in FieldOfInterest: #{{{
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
-            extrema=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
-            print extrema
+            wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
             #exit()
         #### PLOTTING
             #n0 = 4.*Density
