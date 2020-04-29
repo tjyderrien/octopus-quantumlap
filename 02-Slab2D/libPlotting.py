@@ -610,6 +610,8 @@ def ExtractData(PlottingTable): #{{{
   return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'Energy_max': 26, 'Wpi': 27, 'PulseType': 28, 'RiseTime': 29, 'FinalTime': 30}
+
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
@@ -667,7 +669,6 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'Energy_max': 23, 'Wpi': 24, 'PulseType': 25, 'RiseTime': 26}
 
 #Selects single-color pulses of various wavelengths, with same field amplitude from a database
 # @param Database: the array with all the data, 
