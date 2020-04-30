@@ -42,6 +42,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
+from scipy.signal import find_peaks_cwt
 from colorama import Fore
 from colorama import Style
 
@@ -425,7 +426,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     print Header+"** Info: Computation of multi-photon excitation"
     
     ### Multiphotonic absorption law (used for fitting td-dft results)
-    #def MultiPhotonAbsorption(intensity, sigma_n):
+    # d e f MultiPhotonAbsorption(intensity, sigma_n):
         #n_photons=2 # is defined by inheriting its value
         #omega = 2.*np.pi*c/wavelengths1[0] #how come this value is taken outside, but not my n_photon quantity?
         ##n_photons #gets the number of photons in upper levels
@@ -998,7 +999,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1, 1.) #for gamma, ONE MUST NOT USE OPTICAL INDEX (because gamma is oscillation time divided by tunneling time, hence optical index must vanish)
     #ax2x2 = ax2.twiny()
     # We need to plot values of intensities for which gamma=0.1, 1, 3, 5, 10.
-    #def IntensityAtGamma(gamma, Egap_SI, meff, wavelength):
+    # d e f IntensityAtGamma(gamma, Egap_SI, meff, wavelength):
         #omega = 2.*np.pi * c / wavelength
         #Ipeak = meff*m_e*Egap_SI*omega**2*c*epsilon_0 / (2. * e**2 * gamma ** 2)
         #return Ipeak
@@ -1134,7 +1135,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
 
-  #def FitDrudeModelReal(n_exc, nu):
+  # d e f FitDrudeModelReal(n_exc, nu):
       #Epsilon = FitDrudeModel(n_exc, nu)
           ##1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
       ## the coupling/interference between interband and intraband motions is accounted for in the complete dielectric function!
@@ -1740,9 +1741,19 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         wavelengths1_sorted_show = wavelengths1_sorted
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted))
     
+    ## We look for min and max here. 
+    def FindMinAndMax(signal, width):
+        Header="plotFinalQuantities: FindMinAndMax():"
+        print Header
+        peakind = find_peaks_cwt(signal, width)
+        return peakind
+        
+    
     for Efield1_compare in FieldOfInterest: #{{{
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
-            
+            extrema=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
+            print extrema
+            #exit()
         #### PLOTTING
             #n0 = 4.*Density
             #if(not EnergyAxis):
@@ -3464,7 +3475,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 10e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
-    ## ABSORPTION PROBABILITY FOR 800 nm - Phys Rev B Derrien et al 2019
+    ## ABSORPTION PROBABILITY FOR 800 nm - Phys Rev B Derrien et al 2020
     plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
     
     ## RESONANT ABSORPTION - not published, not understood

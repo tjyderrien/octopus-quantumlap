@@ -39,7 +39,8 @@ source $QuantumLaPsources/machines.env
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 
 # source $QuantumLaPsources/03-Bulk3D/plotAll.sh >& plotting.$SLURM_JOB_ID.log
-backup_StH_fixed >& backup.$SLURM_JOB_ID.log
-
+backup_StH_fixed >& backup-StH.$SLURM_JOB_ID.log
+backup_SinSquared >& backup-SinSquared.$SLURM_JOB_ID.log
+backup_SinFourth >& backup-SinFourth.$SLURM_JOB_ID.log
 echo "Backup is finished."
 

@@ -9,7 +9,7 @@
 # Queue (Partition): #general, mpsd (3 days), express, or short
 #SBATCH --partition=prace
 # Number of nodes and MPI tasks per node:
-#SBATCH --nodes=4
+#SBATCH --nodes=16
 #SBATCH --ntasks-per-node=24
 #
 # Request 120 GB of main Memory per node in Units of MB:
@@ -19,7 +19,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 pwd >> $QuantumLaPruns/LastRuns.log
@@ -40,7 +40,7 @@ module load plgrid/libs/mkl/2018.0.0
 module load plgrid/libs/libxc/4.2.3
 
 # module load GSL/2.5-intel-2017a
-module load plgrid/libs/gsl/2.3
+module load plgrid/libs/gsl/2.4
 
 # module load FFTW/3.3.6-intel-2017a 
 module load plgrid/libs/fftw/3.3.7

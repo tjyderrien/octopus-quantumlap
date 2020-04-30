@@ -87,8 +87,10 @@ MaximumIter=200
 Output = dos + density + potential + geometry + el_pressure + matrix_elements + pol_density
 
 ### GS matrix elements (useful for Floquet)
-OutputMatrixElements= ks_multipoles + momentum
-OutputMEMultipoles = 1 #works in ParDomain. Fails in others.
+OutputMatrixElements = dipole #ks_multipoles + momentum
+# OutputMEMultipoles = 1 #works in ParDomain. Fails in others. #Warning: this is not what we need for Floquet. 
+OutputMEStart = 2
+OutputMEEnd = 7
 
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically

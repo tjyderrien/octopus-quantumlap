@@ -24,31 +24,15 @@
 
 pwd >> $QuantumLaPruns/LastRuns.log
 
-#module load intel/16.0 mkl/11.3 impi/5.1.3 gsl/2.1 fftw/3.3.4
+
 module purge
-# module load icc/2017.7.259-GCC-6.3.0-2.27
-# module load plgrid/tools/intel/17.0.5
 module load plgrid/tools/intel/18.0.0
-# module load ifort/2017.7.259-GCC-6.3.0-2.27
-# module load impi/2017.4.239-iccifort-2017.7.259-GCC-6.3.0-2.27
 module load plgrid/tools/impi/2018
-
-# module load imkl/2017.4.239-iimpi-2017c 
 module load plgrid/libs/mkl/2018.0.0
-
-# module load libxc/4.2.3-intel-2017a
 module load plgrid/libs/libxc/4.2.3
-
-# module load GSL/2.5-intel-2017a
 module load plgrid/libs/gsl/2.4
-
-# module load FFTW/3.3.6-intel-2017a 
 module load plgrid/libs/fftw/3.3.7
-
-# module load HDF5/1.10.2-intel-2017a
-module load plgrid/libs/hdf5/1.10.5
-
-# module load netCDF/4.4.1.1-intel-2017a
+module load plgrid/libs/hdf5/1.10.4
 module load plgrid/libs/netcdf/4.7.0
 
 module list

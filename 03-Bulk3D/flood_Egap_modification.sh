@@ -62,7 +62,7 @@ GaugeVectorFieldAmplitude="0.0" #0: no probe pulse. >0: probe pulse strength in 
 GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="StH" 
+PulseShape="SinFourth" 
 # StH: corrected one. 
 # StH4: soft top hat with 4th order sinus on ramp up/down
 # SinFourth: sin4(t)
@@ -80,7 +80,7 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Field amplitude
 Efield_fast="1E8 5E8 1E9 5E9 1E10"
 Efield_detailed="2E8 3E8 4E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-# Efield1="$Efield_fast $Efield_detailed"
+Efield1=$Efield_fast # $Efield_detailed"
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"
 # Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 # Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
@@ -94,7 +94,7 @@ Efield_detailed="2E8 3E8 4E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is f
 # Efield1="5E8" # 3E9 4E9"
 
 # STARK SHIFT VALUES.
-Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9 4E9 5E9" 
+# Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9 4E9 5E9" 
 # Efield2="0E0 1E8 5E8 1E9 5E9 1E10 5E10"
 Efield2="0E0"
 
@@ -115,7 +115,7 @@ tau2="30E-15"
 # lambda1="2200e-9 2600e-9 3200e-9 3600e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="3200e-9"
-lambda1="6.4e-6 8e-6 10e-6 12.4e-6 16e-6 19.2e-6 22.4e-6 25e-6" #how to see the band gap dynamics? See the photons between 5 and 10 um.
+lambda1="6.4e-6 8e-6" # 10e-6 12.4e-6 16e-6 19.2e-6 22.4e-6 25e-6" #how to see the band gap dynamics? See the photons between 5 and 10 um.
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
 # lambda1="407.58e-9" #1st harmonic of the band gap LDA: 483.70 nm. TB09: 407.58 nm.

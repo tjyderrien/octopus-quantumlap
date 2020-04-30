@@ -40,7 +40,7 @@ module load plgrid/libs/mkl/2018.0.0
 module load plgrid/libs/libxc/4.2.3
 
 # module load GSL/2.5-intel-2017a
-module load plgrid/libs/gsl/2.3
+module load plgrid/libs/gsl/2.4
 
 # module load FFTW/3.3.6-intel-2017a 
 module load plgrid/libs/fftw/3.3.7

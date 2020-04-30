@@ -271,9 +271,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
     
-    ### Checking if probe was enabled. Output the double pulse delay (or the probe delay). 
-    
-    GaugeFieldAmplitude=0e0 #zero if it was not used.
+    ### Checking if probe was enabled. Output the probe amplitude.
+#    GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0!
     if "#" in GaugeVectorField_tmp[0]: 
@@ -282,13 +281,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
+            GaugeFieldAmplitude = 0e0
             print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
+    if(GaugeFieldAmplitude==''):
+        del GaugeFieldAmplitude
+        GaugeFieldAmplitude = 0e0
     
     GaugeFieldDelay=0e0 #zero if was not used
     GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
     try:
         GaugeFieldDelay    = GaugeFieldDelay_tmp[1] #rhs
     except: 
+        GaugeFieldDelay=0e0
         print Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
@@ -503,7 +507,19 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # One line is one octopus run. O_o
      
     print Header+"Checking integrity before adding to table..."
-       
+    #print float(runid), float(wavelength_SI), float(PulseDuration_SI)
+    #print float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI)
+    #print float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI)
+    #print float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel)
+    #print float(FieldInduced_enabled)
+    print "** Debug: GaugeFieldAmplitude: "+str(GaugeFieldAmplitude)
+    #print float(GaugeFieldDelay)
+    #print float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max)
+    #print float(density_proj_SI_final), float(density_irreversibility_ratio)
+    #print float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax)
+    #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
+    #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
+	      
     StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
@@ -594,6 +610,8 @@ def ExtractData(PlottingTable): #{{{
   return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'Energy_max': 26, 'Wpi': 27, 'PulseType': 28, 'RiseTime': 29, 'FinalTime': 30}
+
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
@@ -651,7 +669,6 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'Energy_max': 23, 'Wpi': 24, 'PulseType': 25, 'RiseTime': 26}
 
 #Selects single-color pulses of various wavelengths, with same field amplitude from a database
 # @param Database: the array with all the data, 

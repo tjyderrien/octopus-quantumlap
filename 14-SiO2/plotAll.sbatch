@@ -28,9 +28,15 @@ pwd >> $QuantumLaPruns/LastRuns.log
 
 # . /etc/profile.d/modules.sh
 
+# TEMPORARY FIX
 module purge
-module load plgrid/tools/gnuplot/5.2.4 #temporary fix
+
+module load plgrid/tools/gnuplot/5.2.4
+module load plgrid/libs/python-numpy/1.14.2-python-2.7
+module load plgrid/libs/python-scipy/1.0.1-python-2.7
+
 source $QuantumLaPsources/machines.env
+CheckComputerName
 # export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 
 # module load octopus/nightly

@@ -27,7 +27,7 @@ MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=4
+NumNodes=2
 
 # Sample
 SampleLayers=1
@@ -60,13 +60,14 @@ delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse du
 
 # PROBE PULSE
 GaugeVectorFieldAmplitude="0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
+# GaugeVectorFieldAmplitude="2 5 10 50"
 GaugeFieldDelayValue="1e-15" #delay of probe pulse (in number of cycles?)
 
 
 
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="SinFourth" 
+PulseShape="SinSquared" 
 # StH: corrected one. 
 # StH4: soft top hat with 4th order sinus on ramp up/down
 # SinFourth: sin4(t)
