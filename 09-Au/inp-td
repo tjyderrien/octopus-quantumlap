@@ -245,6 +245,16 @@ TDOutput = geometry + laser + total_current + energy + total_heat_current + gaug
 
 # OUTPUT FOR EACH TIMESTEP (video)
 # Output = geometry + density + elf + current + kinetic_energy_density + potential #GENERATES LARGE NUMBER OF FILES.
+
+%CurrentThroughPlane #(yOz) plane (good for polarization along X).
+   0.0 | 0.0 | 0.0 #origin
+   0.0 | 1.0 | 0.0 # u
+   0.0 | 0.0 | 1.0 # v
+   0.06 # spacing 0.06 #we cover the full size of cell with this
+   0 | 50 # nu | mu
+   -50 | 50 # nv | mv
+%
+
 #OutputFormat = cube #VisIt
 # Output = geometry
 OutputFormat = xyz + vtk  #OpenDX, UCSF Chimera
