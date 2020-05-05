@@ -73,6 +73,17 @@ do
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
                 fi
 	fi
+
+        if [ -e dielectric_function ]; then
+                echo "Plotting dielectric permittivity..."
+                if [[ $UseScreen ]]; then
+                echo "*** Warning: screen is employed."
+                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivity.gnu"
+                else
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivit
+y.gnu"
+                fi
+        fi
 	echo ""
 	echo "** NEXT FOLDER"
 	echo ""
@@ -163,11 +174,11 @@ done
 
 
 echo "Plotting basic results..."
-plotBasicOutput #cleans up laser files also. 
+# plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-plotExcitation  #Prepare all plots for n_ex analysis.
+# plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
 # for folder in $( list_folders | grep -v 'lambda' ) 
@@ -176,7 +187,7 @@ echo " Have fun with Database.csv and plotHHGspectra.py after this."
 #  cd $folder
 
 # echo "** Plotting nice figure for post-processed density for $(pwd)..."
-# ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
 
 #   cd $prevFolder > /dev/null
 # done 
