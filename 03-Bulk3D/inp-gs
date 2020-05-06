@@ -25,7 +25,7 @@ n = 1 #Z blocks: to be replaced by script
 # PoissonFFTKernel = planar
 ParKPoints = auto
 ParStates = no
-ParDomains = no #crashes if made per state only
+ParDomains = no #no #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
@@ -60,10 +60,10 @@ BoxShape = parallelepiped
 %KPointsGrid
 #  12 | 12 | 12
    kPointsValue | kPointsValue | kPointsValue
-   0.5 | 0.5 | 0.5
-   0.5 | 0.0 | 0.0
-   0   | 0.5 | 0
-   0   | 0   | 0.5
+#   0.5 | 0.5 | 0.5
+#   0.5 | 0.0 | 0.0
+#   0   | 0.5 | 0
+#   0   | 0   | 0.5
 %
 
 ##### CONVERGENCE OPTIMIZATION
@@ -84,7 +84,7 @@ MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
-Output = dos + density + potential + geometry + el_pressure #+ matrix_elements + pol_density
+Output = dos + density + potential + geometry + el_pressure # + matrix_elements + pol_density
 
 ### GS matrix elements (useful for Floquet)
 # OutputMatrixElements=dipole # ks_multipoles # + momentum
