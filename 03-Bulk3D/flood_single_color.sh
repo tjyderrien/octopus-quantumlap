@@ -42,12 +42,12 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 ### MISSION #####
 # Mission="Drude"
-
+Mission="QuantumLaP"
 # Mission="CEP-tunneling"
 # Mission="InducedField"
 # Mission="MidIRGapModification"
 # Mission="Si-7PI-3200nm"
-Mission="Yamada0.8eV"
+# Mission="Yamada0.8eV"
 
 
 # Phase
@@ -66,7 +66,7 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="SinFourth" 
+PulseShape="StH" 
 # StH: corrected one. 
 # StH4: soft top hat with 4th order sinus on ramp up/down
 # SinFourth: sin4(t)
@@ -84,7 +84,7 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Field amplitude
 Efield_fast="1E8 5E8 1E9 5E9 1E10"
 Efield_detailed="2E8 3E8 4E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-Efield1="$Efield_fast $Efield_detailed"
+# Efield1="$Efield_fast $Efield_detailed"
 # Efield1="9E8 9.1E8 9.2E8 9.3E8 9.4E8 9.6E8 9.7E8 9.8E8 9.9E8 1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"
 # Efield1="1.5E8 2.5E8 3.5E8 4.5E8 5.5E8 6.5E8 7.5E8 8.5E8 9.5E8 1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 # Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
@@ -95,7 +95,7 @@ Efield1="$Efield_fast $Efield_detailed"
 # Efield1="5E8 7.5E9 1E9 2E9 3E9"
 # Efield1="5E8 3E9 4E9"
 # Efield1="5E10 1E11 5E11"
-# Efield1="5E8" # 3E9 4E9"
+Efield1="2.5E8" # 3E9 4E9"
 
 # STARK SHIFT VALUES.
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9 4E9 5E9" 
@@ -105,11 +105,11 @@ Efield2="0E0"
 # Pulse duration
 # Checking mid-IR band gap at 5-10 um
 # tau1="60E-15" # 20e-15 30E-15 10E-15"
-tau1="30E-15"
+tau1="20E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="30E-15"
+tau2="20E-15"
 
-# lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
+lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
 # lambda1="2470e-9 3100e-9 4100e-9 6200e-9 12400e-9"
 # lambda1="323e-9 448e-9 571e-9 652e-9 918e-9 954e-9 961e-9 968e-9 976e-9 2296e-9 2480e-9"
@@ -118,7 +118,7 @@ tau2="30E-15"
 
 # lambda1="2200e-9 2600e-9 3200e-9 3600e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"
-lambda1="1540e-9" #3200e-9" #Yabana wavelength for linear interband: 1.54 um. 
+# lambda1="1540e-9" #3200e-9" #Yabana wavelength for linear interband: 1.54 um. 
 # lambda1="6.4e-6 8e-6 10e-6 12.4e-6 16e-6 19.2e-6 22.4e-6 25e-6" #how to see the band gap dynamics? See the photons between 5 and 10 um.
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
