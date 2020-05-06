@@ -59,7 +59,7 @@ import libExcitationDatabase
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
@@ -3417,9 +3417,9 @@ def plotAdjustedCollisionFrequencies_wavelength(): #{{{
     plt.loglog(Efield*1E-9, 1E15*CollTime_400nm,  'b-+',  label=r"$\lambda=400$ nm")
     plt.loglog(Efield*1E-9, 1E15*CollTime_600nm,  'g-+',  label=r"$\lambda=600$ nm")
     plt.loglog(Efield*1E-9, 1E15*CollTime_800nm,  'k-+',  label=r"$\lambda=800$ nm")
-    plt.loglog(Efield*1E-9, 1E15*CollTime_1200nm, 'r-+', label=r"$\lambda=1200$ nm")
-    plt.tight_layout()
+    plt.loglog(Efield*1E-9, 1E15*CollTime_1200nm, 'r-+', label=r"$\lambda=1200$ nm") 
     plt.legend(loc="best")
+    plt.tight_layout()
     plt.savefig("CollisionFrequencies.eps")
     plt.show()
     
