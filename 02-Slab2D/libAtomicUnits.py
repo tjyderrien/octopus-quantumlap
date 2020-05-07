@@ -71,6 +71,17 @@ def Energy_Hartree_to_eV(Energy_Ha):#{{{
 def Energy_eV_to_Hartree(Energy_eV):#{{{
   return Energy_eV / Hartree_Energy
 #}}}
+
+## Converts electrical current from AU to SI
+def Current_AU_to_SI(Current_AU):
+    return Hartree_Energy/BohrRadius/e * Current_AU
+
+## Converts electrical current from SI to AU
+def Current_SI_to_AU(Current_SI):
+    return Current_SI * e * BohrRadius / Hartree_Energy
+
+Current_AU_to_SI = vectorize(Current_AU_to_SI)
+Current_SI_to_AU = vectorize(Current_SI_to_AU)
 Energy_Hartree_to_eV = vectorize(Energy_Hartree_to_eV)
 Energy_eV_to_Hartree = vectorize(Energy_eV_to_Hartree)
 Density_AU_to_SI = vectorize(Density_AU_to_SI)
