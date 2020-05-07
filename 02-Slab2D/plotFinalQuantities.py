@@ -1071,11 +1071,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
   ax2.set_yscale('log')
   pplt.tight_layout()
-  #ax4 = pplt.subplot(plotD)
   #ax2.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
   #ax2.axes.get_xaxis().set_visible(False)
   #ax2.axes.get_yaxis().set_visible(False)
   #else: 
+  
+  ## This should be the inset that we would put in Fig. 3a. 
+  # Previously, it was prepared using GNUplot file plotFieldWpiPeaks.gnu.
   
   #if(PlotVirtualExcitation): #{{{ #NOTE: no longer used, since it has no meaning. Gauge dependent quantity. 
     
@@ -1570,8 +1572,9 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Wpi is compared to analytical Keldysh theory. 
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
-  
   PlotStarkShift=False
+  PlotValleysInset=False #True: plot valleys, false: plot hills (max of Wpi)
+  AccountForOpticalIndex=False #trying without optical index
   global n0
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron
@@ -1711,7 +1714,24 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ax1 = pplt.subplot(plotA)
   #ax1.set_prop_cycle('color',Colors)
   
-  plot1 = [] #np.empty((0,0))
+  # Create inset in ax1 region. 
+  ax11 = inset_axes(ax1, width="40%", height="30%", loc="lower right", borderpad=2)
+  #ax11.set_xmargin(0.5)
+  #ax11.set_ymargin(2)
+  # Turning on labels for the inset
+  ax11.tick_params(top=True, left=True, bottom=False, labelleft=True, labeltop=True, labelbottom=False)
+  #ax11.tick_params(axis='both', top=True, left=True)
+  #wpi_peaks_wavelengths  =np.zeros((len(FieldOfInterest),20)); 
+  #wpi_valleys_wavelengths=np.zeros((len(FieldOfInterest),20)); 
+  #wpi_peaks_Efields      =np.zeros((len(FieldOfInterest),20)); 
+  #wpi_valleys_Efields    =np.zeros((len(FieldOfInterest),20)); 
+  #wpi_peaks_values       =np.zeros((len(FieldOfInterest),20)); 
+  #wpi_valleys_values     =np.zeros((len(FieldOfInterest),20));
+  
+  Peaks=[]; Valleys=[]
+  Keldysh_Peaks=[]; Keldysh_Valleys=[]
+  
+  plot1 = []; plot11=[] #np.empty((0,0))
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart #{{{
     #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
     PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
@@ -1742,7 +1762,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted))
     
     ## Returns position and value at the peaks and valley. 
-    def FindMinAndMax(signal, width):
+    def FindMinAndMax(signal, width): #{{{
         Header="plotFinalQuantities: FindMinAndMax():"
         print Header
         #print np.shape(signal), np.shape(width)
@@ -1751,14 +1771,31 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         peaks, prop_peaks = find_peaks(signal) #, width)
         #print peaks, signal[peaks], width[peaks]
         valleys, prop_valleys= find_peaks(-signal)
-        print "Min: "+str(valleys)
-        print "Max: "+str(peaks)
+        #print "Min: "+str(valleys)
+        #print "Max: "+str(peaks)
         return width[peaks], signal[peaks], width[valleys], signal[valleys]
-        
-    for Efield1_compare in FieldOfInterest: #{{{
+    #}}}   
+    #array_id=0
+    for Efield1_compare in FieldOfInterest: #{{{ #WARNING: Efield1_value should be considered randomized
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
             wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
-            #exit()
+            print "W_PI peaks are at: "+str(wavelengths_peaks)
+            print "W_PI hills are at: "+str(wavelengths_valleys)
+            NumberOfPeaks   = np.shape(wavelengths_peaks)
+            NumberOfValleys = np.shape(wavelengths_valleys)
+            print "Adding extrema to a list for plotting..."
+            for element in wavelengths_peaks:
+                Peaks.append(  [Efield1_compare, element]) #one line per datapoint
+            for element in wavelengths_valleys:
+                Valleys.append([Efield1_compare, element]) #one line per datapoint
+            #wpi_peaks_wavelengths  [array_id]=wavelengths_peaks  
+            #wpi_peaks_values       [array_id]=wpi_peaks          
+            #wpi_peaks_Efields      [array_id]=Efield1_compare    
+            #wpi_valleys_wavelengths[array_id]=wavelengths_valleys
+            #wpi_valleys_values     [array_id]=wpi_valleys        
+            #wpi_valleys_Efields    [array_id]=Efield1_compare    
+            
+            #array_id+=1 #we need something to localize the values
         #### PLOTTING
             #n0 = 4.*Density
             #if(not EnergyAxis):
@@ -1796,7 +1833,18 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #}}} #end for
     del PlottingSinglePulses_Efield
   #}}} #end for
+        
+  Peaks=np.array(Peaks).T; Valleys=np.array(Valleys).T
+  print np.shape(Peaks), np.shape(Valleys)
+  ##Peaks_wavelengths=Peaks[0]
+  if(PlotValleysInset):
+    ax11.scatter(np.multiply(1E-9,Valleys[0,:]), Valleys[1,:], s=10, c="red", marker='^', label="Valleys TDDFT")
+  else: 
+    ax11.scatter(np.multiply(1E-9,Peaks[0,:]), Peaks[1,:], s=10, c="red", marker='^', label="Peaks TDDFT")
+  #plot11+=[plot_field]
+  #ax11.plot(wpi_peaks_Efields,   wpi_peaks_wavelengths  )
   
+  #exit()
   # We separate TDDFT and Keldysh predictions now. 
   ax2 = pplt.subplot(plotB)
   # Create inset in ax2 region. 
@@ -1851,8 +1899,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   print "[Palik] | [Reining et al PRL 2002]"
   print str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
     
-  for Efield1_compare in FieldOfInterest: #{{{
-    
+  
+  if(not AccountForOpticalIndex): 
+         OpticalIndex = np.divide(OpticalIndex, OpticalIndex)
+         
+  for Efield1_compare in FieldOfInterest: #{{{ #INFO: good for Fig3b. 
+    #NOTE: actually we can build comparison using Keldysh for much more data points. Only TDDFT limits us in number of points. And there is nothing about TDDFT in this loop! 
     
     ### I will need intermerdiate Keldysh coefficients
     #gamma = gammaKeldysh(Egap, meff, PeakField, wavelength, RefractiveIndex.real) #valid for scalar data
@@ -1891,7 +1943,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show = list(itertools.izip(*lists_frozen)) 
     
     plot_field, = ax2.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}^{\mathrm{KG}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/cm$^2$')
-    
     plot1 += [plot_field]
     
     ## Plotting Keldysh-Gruzdev theory in inset of Fig (bottom) (ax22). 
@@ -1900,12 +1951,67 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #plot_field, = ax1.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$ [Gruzdev], I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
     
     plot1 += [plot_field]
-  #}}} #end for
+  #}}} #end for plotting Fig2b
+  
+  #INFO: provides the Keldysh analysis part for Fig3a (inset).
+  #WARNING: here we have disabled the contribution of optical index. Then one obtain the match for gap resonances with TDDFT. 
+  # However, it seems W_PI amplitude is good only if we account for optical index. How the optical index should be treated in Keldysh theory or in TDDFT ?
+  for Efield1_compare in np.linspace(0,np.max(FieldOfInterest),100):
+    
+    PeakWpi_Gruzdev_continuous = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order, 1., False) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
+    
+    # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
+    if(EnergyAxis):
+        wavelengths1_Keldysh_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
+        wavelengths1_Keldysh_frozen_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
+    else:
+        wavelengths1_Keldysh_Show = np.multiply(1E9, wavelengths1_Keldysh)
+        wavelengths1_Keldysh_frozen_Show = np.multiply(1E9, wavelengths1_Keldysh)
+    
+    # resorting the results to plot as function of energy if necessary
+    lists = sorted(itertools.izip(*[wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_continuous]))
+    wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show = list(itertools.izip(*lists)) 
+    
+    lists_frozen = sorted(itertools.izip(*[wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen]))
+    wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show = list(itertools.izip(*lists_frozen)) 
+    
+    print np.shape(PeakWpi_Gruzdev_Show), np.shape(wavelengths1_Keldysh_Show)
+    wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(np.array(PeakWpi_Gruzdev_Show), np.array(wavelengths1_Keldysh_Show))
+    
+    print "W_PI peaks are at: "+str(wavelengths_peaks)
+    print "W_PI hills are at: "+str(wavelengths_valleys)
+    NumberOfPeaks   = np.shape(wavelengths_peaks)
+    NumberOfValleys = np.shape(wavelengths_valleys)
+    print "Adding extrema to a list for plotting..."
+    for element in wavelengths_peaks:
+        Keldysh_Peaks.append(  [Efield1_compare, element]) #one line per datapoint
+    for element in wavelengths_valleys:
+        Keldysh_Valleys.append([Efield1_compare, element]) #one line per datapoint
+    
+    
+    plot1 += [plot_field]
+  #}}} #end for plotting Fig1a inset.
+  
+  Keldysh_Peaks=np.array(Keldysh_Peaks).T; Keldysh_Valleys=np.array(Keldysh_Valleys).T
+  print np.shape(Keldysh_Peaks), np.shape(Keldysh_Valleys)
+  
+  if(PlotValleysInset):
+      ax11.scatter(np.multiply(1E-9,Keldysh_Valleys[0,:]), Keldysh_Valleys[1,:], s=0.3, c="blue", marker='*', label="Valleys Keldysh")
+  else:
+      ax11.scatter(np.multiply(1E-9,Keldysh_Peaks[0,:]), Keldysh_Peaks[1,:], s=0.3, c="blue", marker='*', label="Peaks Keldysh")
     
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
   ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
+  ax11.set_xlabel(r'$E_{\mathrm{field}}$ (V/nm)')
+  ax11.set_ylabel(r'$\hbar \omega$ (eV)')
+  #if(PlotValleysInset):
+      #ax11.set_title(r"Min of $\tilde{w}_{PI}$")
+  #else:
+      #ax11.set_title(r"Max of $\tilde{w}_{PI}$")
+  ##ax11.set_xscale('log')
+  #ax11.set_yscale('log')
   ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
   ax2.set_yscale('log')
   ax22.set_yscale('log')
@@ -1957,12 +2063,15 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   if(not EnergyAxis): 
     ax1.set_xlabel('Laser wavelength (nm)')
     ax1.set_xlim([wavelengths1_min, wavelengths1_max])
+    ax11.set_ylim([wavelengths1_min,wavelengths1_max])
     ax2.set_xlabel('Laser wavelength (nm)')
     ax2.set_xlim([wavelengths1_min, wavelengths1_max])
     ax22.set_xlim([wavelengths1_min,wavelengths1_max])
   else: 
     ax1.set_xlabel('Photon energy (eV)')
     ax1.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
+    #ax11.set_ylim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
+    ax11.set_ylim([h*c/wavelengths1_max/e, 1.5])
     ax2.set_xlabel('Photon energy (eV)')
     ax2.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
     ax22.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
@@ -1996,6 +2105,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax11.axhline(y=Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax11.axhline(y=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax11.axhline(y=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    ax11.axhline(y=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
     
     ax2.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
     ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
@@ -2010,6 +2123,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ## Saving this first double figure
   pplt.tight_layout()
   filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-Keldysh-'+str(int(pulseDuration*1E15))
+  if(PlotValleysInset):
+      filename+="-Valleys"
+  else:
+      filename+="-Hills"
+  if(AccountForOpticalIndex): 
+      filename+="-WithOpticalIndex"
+  else:
+      filename+="-NoOpticalIndex"
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   
@@ -3421,7 +3542,7 @@ def plotAdjustedCollisionFrequencies_wavelength(): #{{{
     plt.tight_layout()
     plt.legend(loc="best")
     plt.savefig("CollisionFrequencies.eps")
-    plt.show()
+    #plt.show()
     
 #}}}                                                           
 
