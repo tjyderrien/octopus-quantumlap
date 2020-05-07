@@ -35,7 +35,7 @@ from libAtomicUnits import *
 from libPlottingSettings import *
 from libString import *
 from libPlotting import *
-import libMaterial
+import libMaterials
 
 ## Materials properties
 

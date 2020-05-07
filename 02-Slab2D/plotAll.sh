@@ -73,6 +73,16 @@ do
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
                 fi
 	fi
+
+        if [ -e dielectric_function ]; then
+                echo "Plotting dielectric permittivity..."
+                if [[ $UseScreen ]]; then
+                echo "*** Warning: screen is employed."
+                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivity.gnu"
+                else
+                gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivity.gnu"
+                fi
+        fi
 	echo ""
 	echo "** NEXT FOLDER"
 	echo ""
@@ -150,7 +160,30 @@ done
 
 }
 
+plotLinearAbsorption () {
+for folder in $( list_folders | grep 'td.general' | grep 'field0E0' | grep 'Probe' ) #check only the places where we do have a pump-probe
+do
+        echo "Found folder $folder"
+        prevFolder=$( pwd )
+        cd $folder
+        if [ -e total_current ]; then
+          if [ -e gauge_field ]; then
+            echo "** Plotting the Linear Response results... $(pwd)" 
+            if [[ $UseScreen ]]; then
+              screen -d -m ${QuantumLaPsources}/02-Slab2D/plotLinearResponse.py
+            else
+              ${QuantumLaPsources}/02-Slab2D/plotLinearResponse.py
+            fi
+          fi
+        fi
 
+        echo ""
+
+        cd $prevFolder > /dev/null
+done
+
+
+}
 # Cleans the octopus files and prepare simple plots for all. 
 # plotBasicOutput
 
@@ -165,9 +198,11 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-plotExcitation  #Prepare all plots for n_ex analysis.
+# plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
+echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
+plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
 # for folder in $( list_folders | grep -v 'lambda' ) 
