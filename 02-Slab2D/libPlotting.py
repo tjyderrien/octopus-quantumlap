@@ -102,9 +102,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,32))
+    Database = np.empty((0,34))
 
-  PlottingTable = np.empty((0,32)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,34)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -457,6 +457,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
     IonEnergy      = np.asfarray(Energy[:,3]) #Hartree
     Hartree        = np.asfarray(Energy[:,7]) #Hartree
+    Exchange       = np.asfarray(Energy[:,9]) #Hartree
+    Eigenvalues    = np.asfarray(Energy[:,6]) #Hartree
     
     # Normalizing the database energies
     
@@ -467,6 +469,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalEnergy    = TotalEnergy    - TotalEnergy[0]
     IonEnergy      = IonEnergy      - IonEnergy[0]
     Hartree        = Hartree        - Hartree[0]
+    Exchange       = Exchange       - Exchange[0]
+    Eigenvalues    = Eigenvalues    - Eigenvalues[0]
     
     # Extracting the FINAL shift current (!!!)
     #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
@@ -497,11 +501,20 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     HartreeEnergy_AU_final = Hartree[Hartree.size-1]
     HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
     
+    ExchangeEnergy_AU_final = Exchange[Exchange.size-1]
+    ExchangeEnergy_SI_final = float(Energy_Hartree_to_eV(ExchangeEnergy_AU_final))
+    
+    EigenvaluesEnergy_AU_final = Eigenvalues[Eigenvalues.size-1]
+    EigenvaluesEnergy_SI_final = float(Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
+    
     ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1] 
     ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
     
-    print Header+"Final electron energy (eV)     = "+str(ElectronEnergy_SI_final)
-    print Header+"Final Hartree  energy (eV)     = "+str(ElectronEnergy_SI_final)
+    print Header+"Final electron energy   increase (eV)     = "+str(ElectronEnergy_SI_final)
+    print Header+"Final Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_final)
+    print Header+"Final exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final)
+    print Header+"Final eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
+    EigenvaluesEnergy_SI_final
     # Append to the table
     # Structure: 
     # wavelength1, wavelength2, tau1, tau2, 
@@ -534,7 +547,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
 	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
 	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), 
-	      float(HartreeEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
+	      float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final) float(density_proj_SI_final/PulseDuration_SI), PulseType, 
 	      RiseTime, float(timeNe[len(timeNe)-1]) ]
 
     
@@ -610,21 +623,23 @@ def ExtractData(PlottingTable): #{{{
   TotalCurrent_AU_Ymax = PlottingTable[:,24]
   TotalCurrent_AU_Zmax = PlottingTable[:,25]
   ElectronEnergy_max =   PlottingTable[:,26]
-  TotalEnergy_max    =   PlottingTable[:,27]
-  Wpi                =   PlottingTable[:,28]
-  PulseType          =   PlottingTable[:,29]
-  RiseTime           =   PlottingTable[:,30]
-  FinalTime          =   PlottingTable[:,31]
+  EigenvaluesEnergy_max =PlottingTable[:,27]
+  HartreeEnergy_max  =   PlottingTable[:,28]
+  ExchangeEnergy_max =   PlottingTable[:,29]
+  Wpi                =   PlottingTable[:,30]
+  PulseType          =   PlottingTable[:,31]
+  RiseTime           =   PlottingTable[:,32]
+  FinalTime          =   PlottingTable[:,33]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, TotalEnergy_max, Wpi, PulseType, RiseTime, FinalTime
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, Wpi, PulseType, RiseTime, FinalTime
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'ElectronEnergy_final': 26, 'Energy_max': 27, 'Wpi': 28, 'PulseType': 29, 'RiseTime': 30, 'FinalTime': 31}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'ElectronEnergy_final': 26, 'EigenvaluesEnergy_max': 27 , 'HartreeEnergy_max': 28, 'ExchangeEnergy_max': 29, 'Wpi': 30, 'PulseType': 31, 'RiseTime': 32, 'FinalTime': 33}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
