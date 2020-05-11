@@ -493,15 +493,15 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
     
     # Extracting the final energy increase (total, and electronic)
-    # TODO: to clean
-    TotalEnergy_AU_final = TotalEnergy[TotalEnergy.size-1]
-    TotalEnergy_SI_final = float(Energy_Hartree_to_eV(TotalEnergy_AU_final))
+    # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
+    HartreeEnergy_AU_final = Hartree[Hartree.size-1]
+    HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
     
-    ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1] # TotalEnergy[TotalEnergy_size-1] #selects last value of energy
+    ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1] 
     ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
     
     print Header+"Final electron energy (eV)     = "+str(ElectronEnergy_SI_final)
-    print Header+"Final total    energy (eV)     = "+str(TotalEnergy_SI_final)
+    print Header+"Final Hartree  energy (eV)     = "+str(ElectronEnergy_SI_final)
     # Append to the table
     # Structure: 
     # wavelength1, wavelength2, tau1, tau2, 
@@ -534,7 +534,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
 	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
 	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), 
-	      float(TotalEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
+	      float(HartreeEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
 	      RiseTime, float(timeNe[len(timeNe)-1]) ]
 
     
