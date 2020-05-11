@@ -142,6 +142,7 @@ E_probe_Fourier_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1
 # E_probe_Fourier_AU_duration=1./E_probe_Fourier_AU_omega
 
 # 8. Extract the conductivity tensor elements. Let's see if one need symmetries. 
+# WARNING: this is based on Ohm law, that must be approximative !!!!
 # Fourier(J)(omega) = Conductivity(omega) x Fourier ( Field ) ( omega )
 conductivity_AU = np.divide(current_probe_Fourier_AU[:len(E_probe_Fourier_AU)], E_probe_Fourier_AU)
 
