@@ -79,12 +79,7 @@ xscale = 1E-4 #convert W/m2 to W/cm2.
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/td.general/'
 
-PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #attempts to write a new DB. 
-#if(len(PlottingTable) > 1): 
-  #print Header+"** Info: capturing data from old PATH1." #BUG: destroys the previous database! 
-#else:
-  #PlottingTable = GetExcitationDatabase(path2)
-  #print Header+"** Info: capturing data from novel path PATH2."
+PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
 
 print PlottingTable
 
