@@ -30,10 +30,12 @@ Header="[libExcitationDatabase] "
 def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv'):
 #  path='*/*/td.general/'
   #DatabaseName = 'Database.csv'
-  FromScratch = False #always try to re-use the existing DB. 
+  FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
+  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v1.4\n#JobID\tlambda1\ttau1\tEfield1\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\t\t\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\t\t\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tWpi\tSTH\tRiseCycles\tFinalTime"
+"
   print Header+"Attempting to load previous results..."
   try:
-    print Header+"** Info: loading existing database. "
+    print Header+"** Info: just loading existing database. "
     Database = np.loadtxt(DatabaseName, skiprows=0)
     print Database
     print Header+"** Info: Previous database was found. Attempting to complete it."
@@ -45,5 +47,5 @@ def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv')
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
 
     print Header+"Save the table to a new file..."
-    libDatabase.ExportToTxt(NewDatabase, DatabaseName)
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
   return NewDatabase
