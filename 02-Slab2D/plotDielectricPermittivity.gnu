@@ -10,6 +10,9 @@ set ylabel 'Permittivity {/Symbol e}'
 
 Hartree_to_eV=27.21138602
 
+set yrange [-30:50]
+set xrange [0:25]
+
 file = "dielectric_function"
 
 p file u ($1*Hartree_to_eV):2 w l lt 1 lc "red" t 'Re({/Symbol e}_x)', \

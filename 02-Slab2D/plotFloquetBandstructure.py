@@ -45,7 +45,7 @@ print listoffiles
 material="Si" #SiO2 | Si
 
 #exit()
-wavelength_SI_t        = [3200e-9] #, 1600e-9, 800e-9, 400e-9] #484e-9, 343e-9] #10e-6
+wavelength_SI_t        = [3200e-9, 1600e-9, 800e-9, 484e-9, 400e-9] #484e-9, 343e-9] #10e-6
 
 num_time_steps         = 100
 num_fields             = 300 #number of electric field values for the plotting
@@ -60,7 +60,7 @@ field_polarization_dir = 0 #0: x, 1: y, 2: z
 spin_occupation        = 2 #1: levels with same spin should split, 2: levels of different spins don't split.
 
 Renormalize            = False #True: limits the plots maximum as function of wavelength
-PlotIntensity          = True  #True: plot with I. False: plot with E. 
+PlotIntensity          = False  #True: plot with I. False: plot with E. 
 SizeOfDots             = 0.5   #purely cosmetic!
 LogPlotting            = 1
 verbose                = 0 #Show info and debug messages. 
@@ -88,10 +88,10 @@ Si={'MPI_numbers': [1,2,3], 'kpoints_manual': 16,
     'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 
     'ymin_ymax': (3,8), 'CaptureDirectGap': True}
 
-SiO2={'MPI_numbers': [1], 'kpoints_manual': 8, 
+SiO2={'MPI_numbers': [1,2], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 6, 
     'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 
-    'ymin_ymax': (-8,8), 'CaptureDirectGap': True}
+    'ymin_ymax': (-8,16), 'CaptureDirectGap': True}
 
 Mo={'MPI_numbers': [1], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 4, 
@@ -209,7 +209,7 @@ for wavelength_SI in wavelength_SI_t:
         plt.savefig(figurename+"-Suppl"+".eps")
         plt.savefig(figurename+"-Suppl"+".png")
         #plt.legend()
-    plt.show()
+    #plt.show()
 #print Header+"Preparing (omega,Efield) values that should disable the tunneling in the sample..."
 #plt.figure()
 
@@ -217,7 +217,7 @@ print "=== Assessing tunneling stopping possibilities... ==="
 Efield_AU_log = np.linspace(np.log10(Efield_AU_min), np.log10(Efield_AU_max), num_fields)
 Efield_AU     = np.power(10., Efield_AU_log)
 
-for MPI_number in [1,2,3]:
+for MPI_number in np.arange(-np.max(MPI_numbers), np.max(MPI_numbers)+1): #[Kato, PRB 100 081203(R) tells to use -MPI_numbers..MPI_numbers]
     tunneling_stops=[]
     
     figurename = str(material)+"-MatrixElements-k-"+str(kpoints)+"MPI-"+str(round(MPI_number,0))
@@ -252,9 +252,9 @@ for MPI_number in [1,2,3]:
     
     plot1=[]
     for trans_i in np.arange(0,matrix_side/2): #transition from i
-        for trans_j in np.arange(matrix_side/2,matrix_side): #transition to j
+        for trans_j in np.arange(matrix_side/2,matrix_side,1): #transition to j
             for RootNumber in np.arange(0,np.size(BesselZeros)):
-                plot_field = plt.scatter(Field_AU_to_SI(Efield_AU), Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j]*Efield_AU)), s=10*SizeOfDots, label=str(trans_i)+r"$\rightarrow$"+str(trans_j), c=colorlist[trans_i]) #*matrix_side+trans_j]) #energies [eV]
+                plot_field = plt.scatter(Field_AU_to_SI(Efield_AU), Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j]*Efield_AU)), s=10*SizeOfDots, label=str(trans_i)+r"$\rightarrow$"+str(trans_j), c=colorlist[trans_j-matrix_side/2]) #colorlist[trans_j] is also possible #*matrix_side+trans_j]) #energies [eV]
             plot1+=[plot_field] #stores the last plot caption in a series of roots
     
     labels1 = [l.get_label() for l in plot1]
@@ -267,4 +267,4 @@ for MPI_number in [1,2,3]:
     plt.title(r"Tunneling $(E,\omega)$, $n=$"+str(MPI_number))
     plt.savefig(figurename+".eps")
     plt.savefig(figurename+".png")
-    plt.show()
+    #plt.show()
