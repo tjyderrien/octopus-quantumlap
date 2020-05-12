@@ -282,7 +282,7 @@ def ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap=T
         #kpoints_index_array = kpoints_index_inp.split(" ")
         ##print kpoints_index_array
         print "** Warning: kpoints_index selection is MANUAL."
-        kpoints_index       = -1
+        kpoints_index       = 1
         gamma_point_files_index=[kpoints_index]
     # Managing filenames for dipolar matrix elements
     gamma_point_files = []
