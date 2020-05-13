@@ -46,7 +46,7 @@ def LoadRunOutputs(path):
   try:
       laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
   except: 
-      print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "
+      print(Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. ")
       exit()
   
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
@@ -57,7 +57,7 @@ def LoadRunOutputs(path):
       Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
-      print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
+      print(Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field.")
       Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
   return Ne, laser, TotalCurrent, Energy
@@ -73,10 +73,10 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
     try:
         wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
     except: 
-        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp)
+        print(Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp))
         exit()
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    print wavelength_SI_tmp3
+    print(wavelength_SI_tmp3)
     try: 
       wavelength_SI   = float(wavelength_SI_tmp3[1])
     except: 
@@ -97,52 +97,52 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   #Load the existing database                                                                    # 1. Load the existing database
   try: 
     Database = np.loadtxt(DatabaseName, skiprows=0)
-    print Header+"** Info: the existing database was found. We will reuse the existing DB. "
+    print(Header+"** Info: the existing database was found. We will reuse the existing DB. ")
     FromScratch = False
   except: 
-    print Header+"** Error: the existing database is empty. We will generate new DB. "
+    print(Header+"** Error: the existing database is empty. We will generate new DB. ")
     FromScratch = True
     Database = np.empty((0,34))
 
   PlottingTable = np.empty((0,34)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
-  print Header+"Fetching all subfolders...\n"
+  print(Header+"Fetching all subfolders...\n")
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
-    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
+    print(Header+"** Info: entering folder: "+str(FolderName)+"\n")
 
     # Import the quantities from the subfolders
     try:
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
-      print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
+      print(Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName))
       continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters
     filename             = FolderName+"../inp"
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
-    print Header+"** Capturing the RUN ID of octopus on Draco..."
+    print(Header+"** Capturing the RUN ID of octopus on Draco...")
     runid=LookUpLatestLogFile(FolderName+"../octopus-td")
-    print Header+"LogFile="+str(runid)+", folder = "+FolderName 
+    print(Header+"LogFile="+str(runid)+", folder = "+FolderName )
     try: #there is quite much loss here, 30% maybe. 
       int(runid)
     except:
-      print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
+      print(Header+"** Warning: JOB ID could not be captured. Jumping to next computation.")
       continue
     
     TheoryLevel          = 1 #default value
     ## Checking the theory level
     TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
     try:
-	 TheoryLevel_string   = TheoryLevel_inp[14:]
+         TheoryLevel_string   = TheoryLevel_inp[14:]
     except:
-	 TheoryLevel_string   = ''
+         TheoryLevel_string   = ''
     if(TheoryLevel_string == "independent_particles"):
-	 TheoryLevel = 0 #independent particles
-    else: 
-	 TheoryLevel = 1 #dft
+         TheoryLevel = 0 #independent particles
+    else:
+         TheoryLevel = 1 #dft
 	 
     ##TODO: Getting k-grid value
     
@@ -155,39 +155,39 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
     try:
-	 FieldInduced_string = FieldInduced_inp[0]
+         FieldInduced_string = FieldInduced_inp[0]
     except:
-	 FieldInduced_string = ''
+         FieldInduced_string = ''
 	 
     CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then empty
     if(CrossPolarization_inp):
-	 CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
+         CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
     else: 
-	 CrossPolarization_angle = 0.
-    print Header+"CrossPol"+str(CrossPolarization_angle)
+         CrossPolarization_angle = 0.
+    print(Header+"CrossPol"+str(CrossPolarization_angle))
     
     ## Import CEP data
     try:
       CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
-      print Header+"** CEP1_inp: "+str(CEP1_inp)
+      print(Header+"** CEP1_inp: "+str(CEP1_inp))
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
       #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
         #CEP1_SI = 0.5*pi
         #print Header+"** Exception on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
-      print Header+"** Exception: CEP1 was se to 0 due to failure."
+      print(Header+"** Exception: CEP1 was se to 0 due to failure.")
       CEP1_SI              = 0.5*pi
 
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    print Header+"** Info: CEP1: "+CEP1_inp[7:]
+    print(Header+"** Info: CEP1: "+CEP1_inp[7:])
        
     #Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield1_SI_input     = GetParameterValueFromInputFile(filename, "EfieldAsi = ")
     Efield2_SI_input     = GetParameterValueFromInputFile(filename, "EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI_input > 1.0):#{ #get the second pulse data
-      print Header+"** Entering second pulse input."
+      print(Header+"** Entering second pulse input.")
       #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = GetParameterValueFromInputFile(filename, "lambdaB = ")
 	 
@@ -202,7 +202,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       wavelength2_SI=wavelength_SI
       PulseDuration2_SI=PulseDuration_SI
       CEP2_SI=CEP1_SI
-      print Header+"Info: Pulse 2 was not used. "
+      print(Header+"Info: Pulse 2 was not used. ")
     #}}}
     
     ######## Identify the type of the pulse envelope 
@@ -211,30 +211,30 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 #    del PulseType_inp, PulseType_value
     PulseType_inp   = LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
     PulseType_value = PulseType_inp[48:] #this allows to have unique solution
-    print Header+"** Debug info: PulseType_value = "+str(PulseType_value)
+    print(Header+"** Debug info: PulseType_value = "+str(PulseType_value))
     if("Gaussian" in PulseType_value):
-      print Header+"** Info: Gaussian pulse detected..."
+      print(Header+"** Info: Gaussian pulse detected...")
       PulseTypeName="gaussian"
     elif ("SinSquared" in PulseType_value):
-      print Header+"** Info: Squared Sinus pulse detected..."
+      print(Header+"** Info: Squared Sinus pulse detected...")
       PulseTypeName="SinSquared"
     elif ("SinFourth" in PulseType_value): 
-      print Header+"** Info: Sinus**4 pulse detected..."
+      print(Header+"** Info: Sinus**4 pulse detected...")
       PulseTypeName="SinFourth"
     elif ("STH" in PulseType_value):
-      print Header+"** Info: BUGGY Soft Top Hat pulse detected..."
+      print(Header+"** Info: BUGGY Soft Top Hat pulse detected...")
       PulseTypeName="STH"
     elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope #comes first in priority
-      print Header+"** Info: SIN4 soft top hat pulse detected..."
+      print(Header+"** Info: SIN4 soft top hat pulse detected...")
       PulseTypeName="StH4"
     elif ("StH" in PulseType_value): #fixed STH 
-      print Header+"** Info: FIXED Soft Top Hat pulse detected..."
+      print(Header+"** Info: FIXED Soft Top Hat pulse detected...")
       PulseTypeName="StH"
     else:
-      print Header+"** Error: pulse type was not recognized."
-      print Header+"** Error PulseType_value = "+str(PulseType_value)
+      print(Header+"** Error: pulse type was not recognized.")
+      print(Header+"** Error PulseType_value = "+str(PulseType_value))
       exit()
-    print Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)
+    print(Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName))
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
     del PulseType_inp, PulseType_value
 
@@ -244,7 +244,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
         RiseTime = int(RiseTime_name)
-        print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+        print(Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s).")
       except: 
         RiseTime = 0
     elif(PulseType == 3): 
@@ -252,7 +252,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
         RiseTime = int(RiseTime_name)
-        print Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s)."
+        print(Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s).")
       except: 
         RiseTime = 0
     else: 
@@ -263,13 +263,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     FieldInduced_enabled = 0 # default value
     if(FieldInduced_string == "#"):
       FieldInduced_enabled = 0
-      print Header+"Info: InducedFields was disabled."
+      print(Header+"Info: InducedFields was disabled.")
     elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
       FieldInduced_enabled = 1
-      print Header+"Info: InducedFields was enabled."
+      print(Header+"Info: InducedFields was enabled.")
     else:
       FieldInduced_enabled = 0
-      print Header+"Info: InducedFields was disabled."
+      print(Header+"Info: InducedFields was disabled.")
     
     ### Checking if probe was enabled. Output the probe amplitude.
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
@@ -282,7 +282,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
             GaugeFieldAmplitude = 0e0
-            print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
+            print(Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp))
     if(GaugeFieldAmplitude==''):
         del GaugeFieldAmplitude
         GaugeFieldAmplitude = 0e0
@@ -293,7 +293,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         GaugeFieldDelay    = GaugeFieldDelay_tmp[1] #rhs
     except: 
         GaugeFieldDelay=0e0
-        print Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)
+        print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
@@ -301,7 +301,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       Functional_string = LookUpStringInFile(filename, "XCFunctional")
     except:
       Functional_string = 'lda'
-      print Header+"** Warning: search of XCFunctional failed. Default value was set: lda"
+      print(Header+"** Warning: search of XCFunctional failed. Default value was set: lda")
     
     if( len(Functional_string) > 0 ): #should be run only if Functional_string is defined. 
       Functional_value = Functional_string[13:] #capturing name of the functional
@@ -310,18 +310,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       Functional_gga_position  = Functional_value.find("GGA")
       if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
         Functional = 0 #lda
-        print Header+"** Info: Functional LDA detected."
+        print(Header+"** Info: Functional LDA detected.")
       elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
         Functional = 1 #mgga
-        print Header+"** Info: Functional MGGA detected."
+        print(Header+"** Info: Functional MGGA detected.")
       elif(Functional_gga_position >= 0 and Functional_mgga_position == -1 and Functional_lda_position == -1): #GGA was found, not MGGA.
         Functional = 2 #GGA
-        print Header+"** Info: Functional GGA detected."
+        print(Header+"** Info: Functional GGA detected.")
       else: 
-        print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
+        print(Header+"** Error: XCFunctional contained unknown case."+str(Functional_value))
         exit(-1)
     elif ( Functional_string == 'lda' ): #XCFunctional was not specified: assuming LDA.
-      print Header+"Warning: XCFunctional was not specified. Assuming default value: lda."
+      print(Header+"Warning: XCFunctional was not specified. Assuming default value: lda.")
       Functional = 0
     
     
@@ -329,29 +329,29 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     FreezeHXC = 0
     try:
       FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
-      print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
+      print(Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string))
     except:
-      print Header+"** Info: TDFreezeHXC was not found in the input file."
+      print(Header+"** Info: TDFreezeHXC was not found in the input file.")
       #FreezeHXC_string = ''
     if("yes" in FreezeHXC_string): #We shall not make a strict test, which was failing. 
       FreezeHXC = 1
-      print Header+"Info: TDFreezeHXC enabled."
+      print(Header+"Info: TDFreezeHXC enabled.")
     else:
       FreezeHXC = 0
-      print Header+"Info: TDFreezeHXC not found."
+      print(Header+"Info: TDFreezeHXC not found.")
     
     # Captures if MoveIon was enabled. 
     MoveIon = 0
     try: 
       MoveIonString = LookUpStringInFile(filename, "MoveIons")
-      print Header+"Info: MoveIon_string: "+str(MoveIonString)
+      print(Header+"Info: MoveIon_string: "+str(MoveIonString))
     except:
-      print Header+"Info: MoveIon was not found in the input file."
+      print(Header+"Info: MoveIon was not found in the input file.")
     if("yes" in MoveIonString):
       MoveIon=1
     else:
       MoveIon=0
-      print Header+"Info: MoveIon was not found in the input file."
+      print(Header+"Info: MoveIon was not found in the input file.")
     
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
@@ -387,10 +387,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   #    print "SINGLE-PULSE MODE"
 	 # Remove the pulses with double
 
-    print Header+"Wavelength (nm): "+str(wavelength_SI)
-    print Header+"Pulse duration (s): "+str(PulseDuration_SI)
-    print Header+"Double pulse delay (s): "+str(DoublePulseDelay_SI)
-    print Header+"Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi)
+    print(Header+"Wavelength (nm): "+str(wavelength_SI))
+    print(Header+"Pulse duration (s): "+str(PulseDuration_SI))
+    print(Header+"Double pulse delay (s): "+str(DoublePulseDelay_SI))
+    print(Header+"Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi))
     
     # Catch the peak field #We could also take the one of input file..
     time                = np.asfarray(laser[:,1]) #column 2
@@ -405,32 +405,32 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
     Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
     
-    print Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
-    print Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."
+    print(Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm.")
+    print(Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm.")
     
     # Capturing cell volume
     try:
 	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
     except:
-	 print Header+"** Warning: sample computation volume was jumped!"
+	 print(Header+"** Warning: sample computation volume was jumped!")
 	 continue
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
     
-    print Header+"** Sample volumes **"
-    print Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
-    print Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
-    print Header+""
-    print Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
-    print Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
-    print Header+""
-    print Header+"Cell volume = "+str(CellVolume_AU)+" Bohr**3."
-    print Header+"Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
-    print Header+"" 
+    print(Header+"** Sample volumes **")
+    print(Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
+    print(Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." )
+    print(Header+"")
+    print(Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3.")
+    print(Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
+    print(Header+"")
+    print(Header+"Cell volume = "+str(CellVolume_AU)+" Bohr**3.")
+    print(Header+"Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
+    print(Header+"")
     
-    print Header+"** Importing simulation data..."
+    print(Header+"** Importing simulation data...")
     
     # Catch the final excited electron density. 
     try: 
@@ -447,10 +447,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     density_proj_SI_max           = density_proj_SI.max()
     density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
     
-    print Header+"** Electron density analysis "
-    print Header+"Final electron density = "+str(density_proj_SI_final)
-    print Header+"Max.  electron density = "+str(density_proj_SI_max)
-    print Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
+    print(Header+"** Electron density analysis ")
+    print(Header+"Final electron density = "+str(density_proj_SI_final))
+    print(Header+"Max.  electron density = "+str(density_proj_SI_max))
+    print(Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio))
     ##==== Prepare plotting of energies ====
     timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
     ElectronEnergy = np.asfarray(Energy[:,5]) #Hartree
