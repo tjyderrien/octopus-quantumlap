@@ -8,4 +8,4 @@ do
   NumOfCases=$(find . -maxdepth 2 -mindepth 2 -type d | wc -l)
   echo -e "$NumOfCases\t$folder"
   cd - > /dev/null
-done 
+done | sort -g
