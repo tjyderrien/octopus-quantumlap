@@ -41,7 +41,7 @@ Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
-Mission="QuantumLaP"
+Mission="Bicolor"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -73,7 +73,7 @@ Efield1="2.5E8"
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
 # Efield2="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
 # Efield2="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10"
-Efield2="1E9"
+Efield2="5E9" #1E10 #IMPORTANT FOR STARK SHIFT IN BICOLOR FIELD
 
 
 # Pulse duration
