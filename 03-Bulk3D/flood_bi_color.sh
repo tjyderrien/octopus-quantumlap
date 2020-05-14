@@ -51,7 +51,12 @@ CEP2="0.0" # 0.5 0.333333333 0.25 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+delay="0e-15" #sets a delay, BUG: unless using the SoftTopHat mode then it's pulse duration??
+
+# PROBE PULSE
+GaugeVectorFieldAmplitude="0" #0.01 0.1 #0: no probe pulse. >0: probe pulse strength in Hartree. 
+# GaugeVectorFieldAmplitude="2 5 10 50"
+GaugeFieldDelayValue="1e-15" #delay of probe pulse (in number of cycles?)
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
@@ -107,7 +112,10 @@ lambda1="1030e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
-
+for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
+do
+for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
+do
 for iTheoryLevel in ${TheoryLevel};
 do
 for iCrossPola in ${CrossPolarization}; 
@@ -144,7 +152,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue}
 #           done
           done
 #          done
@@ -156,6 +164,8 @@ do
    done
   done
  done
+done
+done
 done
 done
 done
