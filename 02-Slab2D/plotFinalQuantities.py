@@ -42,7 +42,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
-from scipy.signal import find_peaks
 from colorama import Fore
 from colorama import Style
 
@@ -56,6 +55,9 @@ from libKeldysh import *
 from libDatabase import *
 import libExcitationDatabase
 
+
+
+
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
@@ -64,6 +66,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
+EnablePeakFinder           = 0
 ShowFinalPlot              = 0
 
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, 'NexcGrad': 5}
@@ -78,6 +81,9 @@ xscale = 1E-4 #convert W/m2 to W/cm2.
 # For histocal reasons, two locations are possilbe.
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/td.general/'
+
+if(EnablePeakFinder): 
+  from scipy.signal import find_peaks
 
 PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
 
@@ -1760,9 +1766,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         #print np.shape(signal), np.shape(width)
         width=np.asfarray(width)
         #print width
-        peaks, prop_peaks = find_peaks(signal) #, width)
+        if(EnablePeakFinder): 
+          peaks, prop_peaks = find_peaks(signal) #, width)
+          valleys, prop_valleys= find_peaks(-signal)
+        else: 
+          peaks=[]; prop_peaks=[]
+          valleys=[]; prop_valleys=[]
         #print peaks, signal[peaks], width[peaks]
-        valleys, prop_valleys= find_peaks(-signal)
+ 
         #print "Min: "+str(valleys)
         #print "Max: "+str(peaks)
         return width[peaks], signal[peaks], width[valleys], signal[valleys]
