@@ -2390,7 +2390,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   antialias=True
   
   #FieldOfInterest = [5e8, 1e9, 2e9, 3E9, 4E9, 5e9, 1e10]
-  FieldOfInterest = [2.5E8, 5E8, 1E9, 5E9] #[0E0, 1.0E9] #, 1e10] # NOTE: this should be used only for Efield2
+  FieldOfInterest = [2.5E8, 5E8, 1E9] #, 5E9] #[0E0, 1.0E9] #, 1e10] # NOTE: this should be used only for Efield2
   NumberOfColors=len(FieldOfInterest)
   ColorList=[plt.cm.seismic(i) for i in np.linspace(0, 1, NumberOfColors)] 
   # Not bad! RdYlBu, coolwarm, seismic
@@ -3862,11 +3862,11 @@ def plot_HHG():
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
 
-#plot_Zhukov_SingleColor_LDA()
+plot_Zhukov_SingleColor_LDA()
 #plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
-plot_Zhukov_BicolorMaps() #LDA gap
+#plot_Zhukov_BicolorMaps() #LDA gap
 
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
