@@ -32,7 +32,7 @@ def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv')
   #DatabaseName = 'Database.csv'
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
   fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v1.4\n#JobID\tlambda1\ttau1\tEfield1\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\t\t\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\t\t\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tWpi\tSTH\tRiseCycles\tFinalTime"
-"
+
   print Header+"Attempting to load previous results..."
   try:
     print Header+"** Info: just loading existing database. "
