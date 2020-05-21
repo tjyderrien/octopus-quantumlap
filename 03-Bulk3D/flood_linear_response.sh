@@ -22,12 +22,12 @@ echo "Note: In this file, you can define all laser pulses of the run you may lik
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
+MeshSizeX="0.20" #0.23" #In general: 0.23 was used. Better precision: 0.20."
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=2
+NumNodes=4
 
 # Sample
 SampleLayers=1
@@ -37,7 +37,7 @@ CrossPolarization=0 #1
 
 InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="TB09" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
@@ -47,7 +47,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 # Mission="InducedField"
 # Mission="MidIRGapModification"
 # Mission="Si-7PI-3200nm"
-Mission="Si-Linear-IF"
+Mission="Si-Linear-IF-TB09"
 
 
 # Phase
@@ -59,7 +59,7 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 # PROBE PULSE
-GaugeVectorFieldAmplitude="0.01 0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
+GaugeVectorFieldAmplitude="0.01 0.001" #0.01 0.1 #0: no probe pulse. >0: probe pulse strength in Hartree. 
 # GaugeVectorFieldAmplitude="2 5 10 50"
 GaugeFieldDelayValue="1e-15" #delay of probe pulse (in number of cycles?)
 
