@@ -557,7 +557,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     print(Header+"** INTEGRITY control: checking time derivative of latest frames")
     # Take the latest frame of energy, and check that we have finished the laser pulse. 
-    Efield_SI = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)])
+    Efield_SI = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-1])
     print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI))
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     
