@@ -562,8 +562,11 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     except: 
         Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-1])
    
-    print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI))
+    print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI_final))
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
+    if(Efield_SI_final > 1.): 
+        print(Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB.")
+        continue
     
     if(FromScratch): #We construct a new database from scratch
       try:
