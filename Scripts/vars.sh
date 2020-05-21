@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export QuantumLaPsources="/home/thibault/Documents/octopus-slabs"
-export QuantumLaPruns="/home/thibault/Documents/octopus"
+export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
+export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 
