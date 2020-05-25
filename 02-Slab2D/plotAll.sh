@@ -211,7 +211,7 @@ echo " Have fun with Database.csv and plotHHGspectra.py after this."
 #  cd $folder
 
 # echo "** Plotting nice figure for post-processed density for $(pwd)..."
-# ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+${QuantumLaPsources}/02-Slab2D/plotFinalQuantities.py
 
 #   cd $prevFolder > /dev/null
 # done 
