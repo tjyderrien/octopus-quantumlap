@@ -107,7 +107,8 @@ current_probe_Z_AU=current1_Z_AU
     #plot_current_PumpProbe, = ax2.plot(current1_time_SI, current2_X_AU, '--', label=r'$J_{P+p}(t)$ (a.u.)')
     #plot_current_probe,     = ax2.plot(current1_time_SI, current_probe_X_AU, '-', label=r'$J_p(t)$ (a.u.)')
 
-# 6. Fourier Transform the J_probe. 
+# 6. Fourier Transform the J_probe.
+#TODO: added a starting filter as well [S. Sato, JCP 143, 224116 (2015)] 
 current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, StopAt*current1_time_SI[len(current1_time_SI)-1]) #tMaxSimulation_SI) #WARNING: we might create a problem here by using SI! #TODO: Change maximum duration to the 3/4th of the way to end of simulation
 plot_current_probe_damped, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, 'r-', linewidth=LineWidthAll, label=r'$J_{p}^{(damped)}(t)$')
 plot12 += [plot_current_probe_damped]
