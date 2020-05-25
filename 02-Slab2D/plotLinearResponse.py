@@ -35,6 +35,7 @@ EnergyMax=25 #eV
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 StopAt = 0.9 #damping starts at 90% of the available timeline
+FilterBeforeKick=False
 
 # Switch in plotB
 plotEomega=False #< 1E-10 a.u.
@@ -143,8 +144,11 @@ try:
 except: 
   GaugeFieldDelay=0e0
   print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
-    
-KickInstant=int(Time_SI_to_AU(float(GaugeFieldDelay))/TimeStep)
+
+if(FilterBeforeKick):    
+	KickInstant=int(Time_SI_to_AU(float(GaugeFieldDelay))/TimeStep+1) #This removes the signal before the kick
+else:
+	KickInstant=0 #keeps the kick: no filtering
 print(Header+"** Info: Kick was performed at instant #"+str(KickInstant))
 
 A1probe_X_AU    = A1tot_X_AU[KickInstant:] #-Asource_X_AU[:len(A1tot_X_AU)] + A1tot_X_AU
