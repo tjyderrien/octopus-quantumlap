@@ -10,16 +10,8 @@
 
 cd $PBS_O_WORKDIR
 
-module purge
-module load icc/2017.7.259-GCC-6.3.0-2.27
-module load ifort/2017.7.259-GCC-6.3.0-2.27
-module load impi/2017.4.239-iccifort-2017.7.259-GCC-6.3.0-2.27
-module load imkl/2017.4.239-iimpi-2017c
-module load libxc/4.2.3-intel-2017a
-module load GSL/2.5-intel-2017a
-module load FFTW/3.3.6-intel-2017a
-module load HDF5/1.10.2-intel-2017a
-module load netCDF/4.4.1.1-intel-2017a
+source ${QuantumLaPsources}/modules.env
+LoadOctopusSalomonModulesFortran2020
 
 # LD_LIBRARY_PATH=/scratch/tjyderriien/nfft/3.2.4/lib:$LD_LIBRARY_PATH
 

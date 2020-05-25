@@ -5,7 +5,10 @@ set terminal postscript eps enhanced color font 'Helvetica, 24' size 15cm,8cm
 
 set format "%g"
 
-set xrange [:60] #tau50fs: 120, tau30fs: 70, tau10fs: 25
+xmax=system("grep 'tauAsi =' ../inp | awk '{ print $3*1E15 }'")
+print xmax
+
+set xrange [:3*xmax] #tau50fs: 120, tau30fs: 70, tau10fs: 25
 
 set key top left
 

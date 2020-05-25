@@ -31,6 +31,11 @@ do
 	echo "Found folder $folder"
 	cd $folder
 	if [ -e laser ]; then
+#		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
+		echo "** Fixing bad output octopus problems..."
+		${QuantumLaPsources}/fixOutputFile.sh laser
+        fi
+	if [ -e laser ]; then
 		echo "** Plotting laser..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -59,11 +64,6 @@ do
                 gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
                 fi
 	fi
-	if [ -e laser ]; then
-#		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
-		echo "** Fixing bad output octopus problems..."
-		${QuantumLaPsources}/fixOutputFile.sh laser
-        fi
         if [ -e n_ex ]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
@@ -198,7 +198,7 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-# plotExcitation  #Prepare all plots for n_ex analysis.
+plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
 # plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."

@@ -84,7 +84,9 @@ PseudopotentialSet = pseudodojo_lda
 SmearingFunction = fermi_dirac
 Smearing = SmearingTe*eV #300 K
 
-Output = geometry + dos
+Output = geometry + dos #+ matrix_elements
+# OutputMatrixElements=dipole #generates HUGE load on the I/O
+
 OutputFormat = xyz
 
 DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei

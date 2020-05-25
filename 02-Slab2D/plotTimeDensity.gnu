@@ -11,7 +11,12 @@ set terminal postscript eps enhanced color font 'Helvetica, 24'
 
 set format "%g"
 
-set xrange [:70]
+xmax=system("grep 'tauAsi =' ../inp | awk '{ print $3*1E15 }'")
+print xmax
+
+set xrange [:3*xmax] #tau50fs: 120, tau30fs: 70, tau10fs: 25
+
+# set xrange [:70]
 
 set xlabel 'Time [fs]'
 set ylabel 'A(t) (a.u.)'

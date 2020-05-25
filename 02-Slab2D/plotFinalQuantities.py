@@ -42,7 +42,6 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 #from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.interpolate import interp2d
 from scipy.optimize import curve_fit
-from scipy.signal import find_peaks
 from colorama import Fore
 from colorama import Style
 
@@ -56,6 +55,9 @@ from libKeldysh import *
 from libDatabase import *
 import libExcitationDatabase
 
+
+
+
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
@@ -64,6 +66,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
+EnablePeakFinder           = 0
 ShowFinalPlot              = 0
 
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, 'NexcGrad': 5}
@@ -78,6 +81,9 @@ xscale = 1E-4 #convert W/m2 to W/cm2.
 # For histocal reasons, two locations are possilbe.
 path1='*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/td.general/'
+
+if(EnablePeakFinder): 
+  from scipy.signal import find_peaks
 
 PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
 
@@ -1151,7 +1157,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  W_pi, PulseType, RiseTime, FinalTime = ExtractData(PlottingSinglePulses_pulses)
         
-        lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Energy_final, pulses1, Ne_final]))
+        lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), ElectronEnergy_max, pulses1, Ne_final]))
         Intensity_sorted, Energy_final_sorted, pulses1_sorted, Ne_final_sorted = list(itertools.izip(*lists))
         #print Header+"Ready to plot: "
         
@@ -1744,7 +1750,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ## Sorting data before plotting. 
     # If using Energies, then we sort by energy. 
     # If using wavelengths, sorting is made by wavelengths. 
-    lists = sorted(itertools.izip(*[wavelengths1_Show, Ne_final, pulses1, Energy_max]))
+    lists = sorted(itertools.izip(*[wavelengths1_Show, Ne_final, pulses1, ElectronEnergy_max]))
     wavelengths1_sorted, Ne_final_sorted, pulses1_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     
     if(not EnergyAxis):
@@ -1760,9 +1766,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         #print np.shape(signal), np.shape(width)
         width=np.asfarray(width)
         #print width
-        peaks, prop_peaks = find_peaks(signal) #, width)
+        if(EnablePeakFinder): 
+          peaks, prop_peaks = find_peaks(signal) #, width)
+          valleys, prop_valleys= find_peaks(-signal)
+        else: 
+          peaks=[]; prop_peaks=[]
+          valleys=[]; prop_valleys=[]
         #print peaks, signal[peaks], width[peaks]
-        valleys, prop_valleys= find_peaks(-signal)
+ 
         #print "Min: "+str(valleys)
         #print "Max: "+str(peaks)
         return width[peaks], signal[peaks], width[valleys], signal[valleys]
@@ -2026,7 +2037,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         if(EnergyAxis): #very dirty!
           wavelengths1=np.divide(2.*np.pi*c*hbar/e, wavelengths1)
         
-        lists = sorted(itertools.izip(*[wavelengths1, Ne_final, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
+        lists = sorted(itertools.izip(*[wavelengths1, Ne_final, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
         wavelengths1_sorted, Ne_final_sorted, Energy_max_sorted = list(itertools.izip(*lists))
         if(not EnergyAxis): 
             wavelengths1_sorted = np.multiply(1e9, wavelengths1_sorted)
@@ -2189,7 +2200,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     else: 
         wavelengths1_Show = np.multiply(1e9, wavelengths1)
     
-    lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
+    lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
     wavelengths1_sorted_show, wavelengths1_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield1_value
     
@@ -2273,7 +2284,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         else: 
             wavelengths1_Show = np.multiply(1e9, wavelengths1)
     
-        lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
+        lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
         wavelengths1_sorted_show, wavelengths1_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield1_value
     
@@ -2390,7 +2401,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   antialias=True
   
   #FieldOfInterest = [5e8, 1e9, 2e9, 3E9, 4E9, 5e9, 1e10]
-  FieldOfInterest = [2.5E8, 5E8] #[0E0, 1.0E9] #, 1e10] #this should be used only for Efield2
+  FieldOfInterest = [2.5E8, 5E8, 1E9] #, 5E9] #[0E0, 1.0E9] #, 1e10] # NOTE: this should be used only for Efield2
   NumberOfColors=len(FieldOfInterest)
   ColorList=[plt.cm.seismic(i) for i in np.linspace(0, 1, NumberOfColors)] 
   # Not bad! RdYlBu, coolwarm, seismic
@@ -2426,8 +2437,8 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
   
-  if(RiseTime >= 1): #select by RiseTime only if it is defined
-    PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseTime, IndexTable['RiseTime'])
+  #if(RiseTime >= 1): #select by RiseTime only if it is defined
+    #PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseTime, IndexTable['RiseTime'])
   
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, CEP1, IndexTable['CEP1']) #keeps only CEP = 0. 
   
@@ -2485,7 +2496,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     ## Sorting data before plotting. 
     # If using Energies, then we sort by energy. 
     # If using wavelengths, sorting is made by wavelengths. 
-    lists = sorted(itertools.izip(*[wavelengths2_Show, Ne_final, pulses1, Energy_max]))
+    lists = sorted(itertools.izip(*[wavelengths2_Show, Ne_final, pulses1, ElectronEnergy_max]))
     wavelengths2_sorted, Ne_final_sorted, pulses1_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     
     if(not EnergyAxis):
@@ -2583,7 +2594,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
         if(EnergyAxis): #very dirty!
           wavelengths2=np.divide(2.*np.pi*c*hbar/e, wavelengths2)
         
-        lists = sorted(itertools.izip(*[wavelengths2, Ne_final, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
+        lists = sorted(itertools.izip(*[wavelengths2, Ne_final, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
         wavelengths2_sorted, Ne_final_sorted, Energy_max_sorted = list(itertools.izip(*lists))
         if(not EnergyAxis): 
             wavelengths2_sorted = np.multiply(1e9, wavelengths2_sorted)
@@ -2739,7 +2750,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   ## TODO: TDDFT vs Drude should become another figure. We don't need to have them side by side. 
   del labels1; del plot1
-  plt.figure()
+  plt.figure(figsize=(12,6))
   
   plot1=[]
   
@@ -2763,7 +2774,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     else: 
         wavelengths2_Show = np.multiply(1e9, wavelengths2)
     
-    lists = sorted(itertools.izip(*[wavelengths2_Show, wavelengths2, Ne_final, W_pi, Energy_max])) #NOTE: Ne_max makes more sense than Ne_final
+    lists = sorted(itertools.izip(*[wavelengths2_Show, wavelengths2, Ne_final, W_pi, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
     wavelengths2_sorted_show, wavelengths2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield2_value
     
@@ -2856,7 +2867,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
         else: 
             wavelengths2_Show = np.multiply(1e9, wavelengths2)
     
-        lists = sorted(itertools.izip(*[wavelengths2_Show, wavelengths2, Ne_final, W_pi, Energy_max])) #NOTE: Ne_max makes less sense than Ne_final
+        lists = sorted(itertools.izip(*[wavelengths2_Show, wavelengths2, Ne_final, W_pi, ElectronEnergy_max])) #NOTE: Ne_max makes less sense than Ne_final
         wavelengths2_sorted_show, wavelengths2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield2_value
     
@@ -2996,7 +3007,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   
   #plot_field, = ax1.plot(FieldToIntensity(Efield1), Ne_final, '-', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
   #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final]))
-  lists = sorted(itertools.izip(*[CEP2, Ne_final, W_pi, Energy_max, Efield2]))
+  lists = sorted(itertools.izip(*[CEP2, Ne_final, W_pi, ElectronEnergy_max, Efield2]))
   CEP2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted, Efield2_sorted = list(itertools.izip(*lists))
   plot_field, = ax1.plot(np.multiply(CEP2_sorted,180./pi), Ne_final_sorted, 'r-+', label=r'$n_{\mathrm{exc}}^{\mathrm{final}}$, $E^{\mathrm{peak}}_{1,2}=$'+str(round(FieldAmplitude1*1E-9))+' V/nm.')
   print plot_field
@@ -3025,7 +3036,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   
   #plot_field, = ax1.plot(FieldToIntensity(Efield1), Ne_final, '-', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
   #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final]))
-  lists = sorted(itertools.izip(*[CEP2, Ne_final, W_pi, Energy_max, pulses2, Efield2]))
+  lists = sorted(itertools.izip(*[CEP2, Ne_final, W_pi, ElectronEnergy_max, pulses2, Efield2]))
   CEP2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted, pulses1_sorted, Efield2_sorted  = list(itertools.izip(*lists))
   #plt.plot(np.multiply(CEP2_sorted,180./pi), np.divide(Ne_final_sorted, pulses1_sorted), '-') #, label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
   plot_field, = ax12.plot(np.multiply(CEP2_sorted,180./pi), Energy_max_sorted, 'b-', label=r'$\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ , $E^{\mathrm{peak}}_{1,2}=$'+str(round(FieldAmplitude2*1E-9,0))+' V/nm')
@@ -3148,10 +3159,11 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 # THIS FIGURE IS THE ONE THAT CAN BE COMPARED WITH VLADIMIR ZHUKOV. 
 # From this function, we perform a  wish to GENERATE a 1D section in this figure to analyze the role of Stark effect in bicolor absorption.
 def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e, RemoveTunneling=True): #{{{
-  LogWpi=True                                                                                                                                                                                                                
-  gammaLimit = 1E-2
+  LogWpi=False                                                                                                                                                                                                                
+  LogPlotXY=False
+  gammaLimit = 1E-10
   meff = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
-  CEP2=-pi/2.
+  CEP2_request=-pi/2.
   print "====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) ====="
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
@@ -3162,7 +3174,16 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
-  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, CEP2, IndexTable['CEP2']) # Must have same CEP
+  
+  if(CEP2_request >= 0):
+      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
+      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+  else:
+      PlottingDoublePulses = FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), IndexTable['CEP2'])
+      PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+  # TODO: we shall clean CEP2 as well, as it must influence the results. 
+  
+  #PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, CEP2, IndexTable['CEP2']) # Must have same CEP
   
   if(RiseCycles != 0): #0 selects all the possible types
     PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseCycles, IndexTable['RiseTime']) # Selecting Rise Time
@@ -3204,7 +3225,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
             ToBeAdded       =np.array([Efield1[0], Efield2[0], Ne_final[0]])                       #BUG: removes some results, not clean enough!
             ToBeAddedGrad   =np.array([.5*c*epsilon_0*np.power(Efield1[0],2), .5*c*epsilon_0*np.power(Efield2[0],2), Ne_final[0]]) #meant to find d(Nexc)/dI_1,2
             ToBeAddedCurrent=np.array([Efield1[0], Efield2[0], TotalCurrent_final[0]]) #BUG: removes some results, not clean enough!
-            ToBeAddedEnergy =np.array([Efield1[0], Efield2[0], Energy_max[0]]) #BUG: removes some results, not clean enough!
+            ToBeAddedEnergy =np.array([Efield1[0], Efield2[0], ElectronEnergy_max[0]]) #BUG: removes some results, not clean enough!
             if(LogWpi):
                 ToBeAddedWpi    =np.array([Efield1[0], Efield2[0], np.log10(W_pi[0])]) #BUG: removes some results, not clean enough!
             else: 
@@ -3220,7 +3241,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
             del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi, ToBeAddedField
     #}}}
   #}}}
-  PulseTypeName = np.asfarray(PulseType)
+  PulseTypeName = int(np.asfarray(PulseType)[0])
   # Stack is built. Export, show and plot on a heat map. 
   print "** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)..."
   print "** Info: useful to visualize available data with GNUplot. "
@@ -3271,7 +3292,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       QuantityTitle=r"$\xi_{end}$ (eV), $(\lambda_1, \lambda_2) = $("+str(round(wavelength1*1E9,0))+", "+str(round(wavelength2*1E9,0))+") nm."
       ExportToTxt(EnergyMax2Dsorted, filename+".csv")
   elif(WhatToPlot == BicolorE1E2plotDictionnary['Wpi']): 
-      PlotGradient=False
+      PlotGradient=True
       DensityMax2Dsorted = WpiMax2Dsorted
       filename = filename_wpi
       QuantityTitle=r'$w_{PI}$ (W$^{-1}$.m$^{-1}$), $(\lambda_1, \lambda_2) = $('+str(round(wavelength1*1E9,0))+', '+str(round(wavelength2*1E9,0))+') nm'
@@ -3287,7 +3308,11 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   BrutZ = DensityMax2Dsorted[:,2]      #Quantity to plot
   
   ### One need to extract interpolation of BrutZ on a regular mapping. 
-  RegX, RegY, RegZ = plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
+  if(not len(BrutZ)==0): 
+      RegX, RegY, RegZ = plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
+  else: 
+      print(Header+"** Error: Selected database is empty.")
+      exit()
   
   ## SPECIAL CASE: preparing figure to support Nadya's idea that BICOLOR induces higher absorption than separed single-colors. 
   ## AbsorbedEnergy(Field or intensity)
@@ -3397,7 +3422,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
       if(len(Ne_final) >= 1):
         ToBeAdded        = np.array([wavelengths1[0], wavelengths2[0], Ne_final[0]])
         ToBeAddedCurrent = np.array([wavelengths1[0], wavelengths2[0], TotalCurrent_final[0]])
-        ToBeAddedEnergy  = np.array([wavelengths1[0], wavelengths2[0], Energy_max[0]])
+        ToBeAddedEnergy  = np.array([wavelengths1[0], wavelengths2[0], ElectronEnergy_max[0]])
         ToBeAddedWpi     = np.array([wavelengths1[0], wavelengths2[0], W_pi[0]])
         print ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
@@ -3407,7 +3432,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
         del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
         
   # Stack is built. Export, show and plot on a heat map. 
-  print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field), TotalCurrent_Final(), Energy_max()..."
+  print "** Info: exporting the sub-plot2D: Ne_final(wavelength, Field), TotalCurrent_Final(), ElectronEnergy_max()..."
   print "** Info: useful to visualize available data with GNUplot. "
   filename         = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-NeFinal"
   filename_current = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-JeFinal"
@@ -3613,12 +3638,13 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
     
-    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
+    ## Checking what is happening in the mid-IR world. NOTE: NOT ENOUGH DATA? 
+    #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
     #plotEffectOfWavelength_Tolerance(PlottingTable, 0.05, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect) #ALMOST NO DATA for this one
 
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
-    ## Plots the N_exc(wavelength, field) (2D plot) #NOTE: this can be compared with GrojoPRB2013. 
+    ## Plots the N_exc(wavelength, field) (2D plot) # NOTE: this can be compared with GrojoPRB2013. 
     
     ## MID-IR: Preparation of the mid-IR experiment: measuring the cross section absorption in mid-IR 
     #wavelength = 1600e-9
@@ -3738,9 +3764,10 @@ def plot_Zhukov_BicolorMaps(): #{{{
         ##VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
         ##plot_VZ_Bicolor()
         
-        ##exit()
-        ### Commensurable
-        wavelength1 = 1030e-9; wavelength2 = 515e-9
+        ### Commensurable ## NOTE: these results will never reveal multiphotonic steps, because of free-carrier absorption, but also because of the multiple bands. Only possibility is to make sections for a given field, and to analyze the number of multiphoton absorption. 
+        ## BUG: some new runs on Prometheus keep RiseCycle=0 although they should be RiseCycle=2. 
+        ## Then, I impose RiseCycles = 0 to avoid selecting them. TODO: fix it when duplicates with various RISE cycles would appear. 
+        wavelength1 = 1030e-9; wavelength2 = 515e-9; RiseCycles=0 #NOTE: just to lift selection
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Nexc'])
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['NexcGrad'])
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['J'])
@@ -3764,15 +3791,16 @@ def plot_Zhukov_BicolorMaps(): #{{{
     # Plotting f(wavelength2) for several fields, and a given wavelength1    
     for tau in [30e-15]: #{{{
         ShowPlot=1
-        FieldLimit=5E9
+        FieldLimit=1E10 #5E9
         wavelength1 = 1030e-9;
-        PulseType  = 3; RiseCycles = 2 #StH corrected. 
-        for Field1 in [2.5E8]: #, 1.0E9]:
+        PulseType  = 3; RiseCycles = 0 #NOTE: RiseCycles=2 would be better #StH corrected. 
+        for Field1 in [2.5E8]: #, 1.0E9]: # TODO: how to add the E2=0 & E1!=0 ?
             #try:
             Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, 1E-5, Field1, FieldLimit, tau, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
             print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() success for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E-9)+" V/nm)")
             #except:
                 #print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() failed for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E9)+" V/nm)")
+    exit()
     #}}}
     #VPZ_Wpi2D(wavelength1, wavelength2, 0.8E10, 1E10)
     
@@ -3823,7 +3851,6 @@ def plot_HHG():
 #plotEffectOfIntensity_wavelengths(PlottingTable, 40e-15, 0) #validated
 #plotEffectOfIntensity_wavelengths(PlottingTable, 50e-15, 0) #validated
 #plotEffectOfIntensity_PulseDuration(PlottingTable, 800e-9, 1) #TODO: remove the different CEPs and keep only tau dependence. 
-
 
 # TYPICAL RUNS
 #plotEffectOfWavelength_2dMap(PlottingTable) #VALID works, but not enough data for now. 

@@ -555,6 +555,19 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print StackToAdd
     print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
+    print(Header+"** INTEGRITY control: checking time derivative of latest frames")
+    # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse. 
+    try: 
+        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-1])
+    except: 
+        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-1])
+   
+    print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI_final))
+    ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
+    if(Efield_SI_final > 1.): 
+        print(Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB.")
+        continue
+    
     if(FromScratch): #We construct a new database from scratch
       try:
         PlottingTable = np.vstack(( PlottingTable, StackToAdd )) 
@@ -688,7 +701,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "====== RESULTS ====="
   print "** Ne_final           size = "+str(len(Ne_final))
   print "** Irreversibility    size = "+str(len(irreversibility))
-  print "** Total energy       size = "+str(len(Energy_max))
+  print "** Total energy       size = "+str(len(ElectronEnergy_max))
   
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
@@ -856,6 +869,8 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       levels = np.linspace(np.min(BrutZ), np.max(BrutZ), 10)
       #cmap = cm.get_cmaps(name='terrain', lut=None)
       cmap = cm.get_cmap(name='Blues', lut=None)
+      #cmap = cm.get_cmap(name='seismic', lut=None)
+      #print("Colormap:", cmap)
       plt.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
       #plt.tricontour(tri_refi, z_test_refi, levels=levels,
               #colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
@@ -878,6 +893,17 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #CS = ax.contour(XX, YY, Z, cmap=plt.cm.Blues) #WORKS
       #plt.colorbar(CS)
       
+      ## Create a diverging colormap centered on zero.
+      #def DefineGradientColorMap(Z):
+        #print(Header+"** Debug:"+np.min(Z))
+        #cvals  = [np.min(Z), 0, np.max(Z)]
+        #colors = ["red","white","blue"]
+   
+        #norm=plt.Normalize(min(cvals),max(cvals))
+        #tuples = list(zip(map(norm,cvals), colors))
+        #cmap = mp.colors.LinearSegmentedColormap.from_list("", tuples)
+      #return cmap
+      
       plt.savefig(filename+'.eps')
       plt.savefig(filename+'.png')
       print Header+"** Info: saved "+filename+"eps|png."
@@ -892,10 +918,15 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
         print Header+"** Debug: Shape of the grad(interpolated field Y): "+str(np.shape(Nexc_t_grad[1]))
         
         fig2=plt.figure()
-        plt.title(r"$\nabla_{I_1}$"+QuantityTitle)
-        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
-        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
-        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[0], cmap=plt.cm.Blues)
+        plt.title(r"$\nabla_{E_1}$"+QuantityTitle)
+        #plt.xlabel(r'$I_1$ (W/m$^{2}$)')
+        #plt.ylabel(r'$I_2$ (W/m$^{2}$)')
+        plt.xlabel(r'$E_1$ (V/m)')
+        plt.ylabel(r'$E_2$ (V/m)')
+        data_Z=Nexc_t_grad[0]
+        #print(Header+"** Debug"+str(np.shape(data_Z)))
+        #cmap=DefineGradientColorMap(data_Z)
+        CS = plt.contourf(E1_t, E2_t, data_Z, cmap=cmap)
         plt.triplot(triang, lw=0.1, color='grey')
         plt.colorbar(CS)
         plt.tight_layout()
@@ -905,10 +936,13 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
             plt.show()
             
         fig3=plt.figure()
-        plt.title(r"$\nabla_{I_2}$"+QuantityTitle)
-        plt.xlabel(r'$I_1$ (W/m$^{2}$)')
-        plt.ylabel(r'$I_2$ (W/m$^{2}$)')
-        CS = plt.contourf(E1_t, E2_t, Nexc_t_grad[1], cmap=plt.cm.Blues)
+        plt.title(r"$\nabla_{E_2}$"+QuantityTitle)
+        plt.xlabel(r'$E_1$ (V/m)')
+        plt.ylabel(r'$E_2$ (V/m)')
+        data_Z=Nexc_t_grad[1]
+        #cmap=DefineGradientColorMap(data_Z)
+        #CS = plt.contourf(E1_t, E2_t, data_Z, cmap=cmap)
+        CS = plt.contourf(E1_t, E2_t, data_Z, cmap=cmap)
         plt.triplot(triang, lw=0.1, color='grey')
         plt.colorbar(CS)
         plt.tight_layout()
