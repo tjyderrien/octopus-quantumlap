@@ -39,8 +39,8 @@ StopAt = 0.9 #damping starts at 90% of the available timeline
 # Switch in plotB
 plotEomega=False #< 1E-10 a.u.
 plotJomega=False #<1E-2 a.u.
-plotConductivity=False #should be max(J)/max(E). Should be 1E3 in experiments.
-plotPermittivity=True #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
+plotConductivity=True #should be max(J)/max(E). Should be 1E3 in experiments.
+plotPermittivity=False #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
 
 # 1. Select 2 ruOutput = geometry + density + elf + current + kinetic_energy_density + potential #GENERATES LARGE NUMBER OF FILES.ns,
 
@@ -51,9 +51,11 @@ plotPermittivity=True #should be close to 1E10 in a.u. Strange. Should not depen
 path_run1   = "../td.general/"
 current1    =np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
 gauge_field1=np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
+laser       =np.loadtxt(path_run1+"laser", dtype='str', skiprows=4)
 
 A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU             = GetTotalGaugeField(gauge_field1) #BUG? Do we want the probe field here? It is actually equal to A_tot(t)=A_probe*Dirac(t-t0) + A_induced(t)
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
+Asource_time_AU, Asource_X_AU, Asource_Y_AU, Asource_Z_AU     = GetTotalCurrent(laser) #no worries, GetTotalCurrent just selects columns. No conversion. 
 
 A1tot_time_SI    = Time_AU_to_SI(A1tot_time_AU)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
@@ -132,12 +134,16 @@ if(plotJomega):
 #    plot_spectrum_probe_Im, = ax2.semilogy(Xaxis, Yaxis_Im, '--', linewidth=LineWidthAll, label=r'$Im(J(\omega)),$ $\Delta t =$'+str(np.round(1E15*float(delay),0))+' fs')
   plot2 += [plot_spectrum_probe]
 
+# 6. Extracting A_probe from A_tot=A_probe + A_source
+A1probe_X_AU    = A1tot_X_AU - Asource_X_AU[:len(A1tot_X_AU)]
+A1probe_Y_AU    = A1tot_Y_AU - Asource_Y_AU[:len(A1tot_Y_AU)]
+A1probe_Z_AU    = A1tot_Z_AU - Asource_Z_AU[:len(A1tot_Z_AU)]
 
 # 7. Converting A_field into E_field
 E1probe_time_AU = A1tot_time_AU #we keep the same time grid for E and A.
-E1probe_X_AU    = -1./c_AU * np.divide( np.diff(A1tot_X_AU), np.diff(E1probe_time_AU) )
-E1probe_Y_AU    = -1./c_AU * np.divide( np.diff(A1tot_Y_AU), np.diff(E1probe_time_AU) )
-E1probe_Z_AU    = -1./c_AU * np.divide( np.diff(A1tot_Z_AU), np.diff(E1probe_time_AU) )
+E1probe_X_AU    = -1./c_AU * np.divide( np.diff(A1probe_X_AU), np.diff(E1probe_time_AU) ) #BUG: we have to use induced field, not A_laser+A_induced.
+E1probe_Y_AU    = -1./c_AU * np.divide( np.diff(A1probe_Y_AU), np.diff(E1probe_time_AU) )
+E1probe_Z_AU    = -1./c_AU * np.divide( np.diff(A1probe_Z_AU), np.diff(E1probe_time_AU) )
 
 E1probe_time_SI = Time_AU_to_SI(1.)*E1probe_time_AU
 # Keeping the beginning of the signal
@@ -190,8 +196,8 @@ print np.abs(np.imag(permittivity_SI))
 Xaxis =  current_probe_Fourier_SI_omega[:maxHHG]*hbar/e #energy of the harmonics
 X0axis = E_probe_Fourier_SI_omega[:maxHHG]*hbar/e #energy of the harmonics (same result as before?)
 Y0axis = np.abs(E_probe_Fourier_AU[:maxHHG])
-Yaxis =  np.abs(np.real(conductivity_AU[:maxHHG]))
-Y2axis = np.abs(np.imag(conductivity_AU[:maxHHG]))
+Yaxis =  np.real(conductivity_AU[:maxHHG])
+Y2axis = np.imag(conductivity_AU[:maxHHG])
 Y3axis = np.real(permittivity_AU[:maxHHG]) #imag(permittivity) is taken as example in Otobe & Yabana PRB 2012 (Ohm law based calculation). 
 Y4axis = np.imag(permittivity_AU[:maxHHG])
 
