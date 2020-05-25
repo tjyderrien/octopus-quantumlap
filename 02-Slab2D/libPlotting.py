@@ -547,7 +547,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
 	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
 	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), 
-	      float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final) float(density_proj_SI_final/PulseDuration_SI), PulseType, 
+	      float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), float(density_proj_SI_final/PulseDuration_SI), PulseType, 
 	      RiseTime, float(timeNe[len(timeNe)-1]) ]
 
     
@@ -688,7 +688,7 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "====== RESULTS ====="
   print "** Ne_final           size = "+str(len(Ne_final))
   print "** Irreversibility    size = "+str(len(irreversibility))
-  print "** Total energy       size = "+str(len(Energy_max))
+  print "** Total energy       size = "+str(len(ElectronEnergy_max))
   
   return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
 #}}}
