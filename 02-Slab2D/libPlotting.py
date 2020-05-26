@@ -514,42 +514,50 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"End exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final)
     print Header+"End eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
 
-    print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: ")
+    try: 
 
-    ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
+        print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: ")
 
-    Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1]
-    Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]
+        ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
 
-    ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
-    FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
-    FieldDiffEqualZero = (Efield_AU_diff == 0)
-    print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
+        Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1]
+        Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]
 
-    Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
-   
-    # print(np.any(Mask))
-    print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
-    timeEnergies2=timeEnergies[:len(timeEnergies)-2]
-    timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
-    FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation 
-    timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
-    timeToFilterFrom=timeEnergies4[0]
-    timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
-    # We filter ElectronEnergy using these two conditions: 
-    ElectronEnergyRightAfterPulse=ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
+        ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
+        FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
+        FieldDiffEqualZero = (Efield_AU_diff == 0)
+        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
+
+        Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
     
-    print(ElectronEnergyRightAfterPulse)
+        # print(np.any(Mask))
+        print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
+        timeEnergies2=timeEnergies[:len(timeEnergies)-2]
+        timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
+        FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation 
+        timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
+        timeToFilterFrom=timeEnergies4[0]
+        timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
+        # We filter ElectronEnergy using these two conditions: 
+        ElectronEnergyRightAfterPulse=ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
+        
+        print(ElectronEnergyRightAfterPulse)
 
-#     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
-    # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
-          
+    #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
+        # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
+            
 
-## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
-    ElectronEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(ElectronEnergyRightAfterPulse))
-    HartreeEnergy_SI_afterpulse    = float(Energy_Hartree_to_eV(Hartree    [timeEnergiesCondition][0]))
-    ExchangeEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(Exchange   [timeEnergiesCondition][0]))
-    EigenvaluesEnergy_SI_afterpulse= float(Energy_Hartree_to_eV(Eigenvalues[timeEnergiesCondition][0]))
+    ## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
+        ElectronEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(ElectronEnergyRightAfterPulse))
+        HartreeEnergy_SI_afterpulse    = float(Energy_Hartree_to_eV(Hartree    [timeEnergiesCondition][0]))
+        ExchangeEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(Exchange   [timeEnergiesCondition][0]))
+        EigenvaluesEnergy_SI_afterpulse= float(Energy_Hartree_to_eV(Eigenvalues[timeEnergiesCondition][0]))
+    except:
+        print(Header+"** Warning: energy after pulse could not be captured.")
+        ElectronEnergy_SI_afterpulse   = 0e0
+        HartreeEnergy_SI_afterpulse    = 0e0
+        ExchangeEnergy_SI_afterpulse   = 0e0
+        EigenvaluesEnergy_SI_afterpulse= 0e0
     
     print Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse)
     print Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse)
