@@ -507,7 +507,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     EigenvaluesEnergy_AU_final = Eigenvalues[Eigenvalues.size-1]
     EigenvaluesEnergy_SI_final = float(Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
     
-    ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1] 
+    ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1]  # WARNING: we shall select the first moment after the laser pulse comes back to zero [because induced fields can actually decrease the energy AFTER the pulse, for obscure reasons.
+    print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: "+str(ElectronEnergy[(Field_AU_to_SI(Efield_AU[:])==0) and ElectronEnergy.diff !=0])
+          
     ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
     
     print Header+"Final electron energy   increase (eV)     = "+str(ElectronEnergy_SI_final)
