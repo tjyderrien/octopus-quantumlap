@@ -499,24 +499,59 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
     HartreeEnergy_AU_final = Hartree[Hartree.size-1]
-    HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
+#    HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
     
     ExchangeEnergy_AU_final = Exchange[Exchange.size-1]
-    ExchangeEnergy_SI_final = float(Energy_Hartree_to_eV(ExchangeEnergy_AU_final))
+#    ExchangeEnergy_SI_final = float(Energy_Hartree_to_eV(ExchangeEnergy_AU_final))
     
     EigenvaluesEnergy_AU_final = Eigenvalues[Eigenvalues.size-1]
-    EigenvaluesEnergy_SI_final = float(Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
+#    EigenvaluesEnergy_SI_final = float(Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
     
     ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1]  # WARNING: we shall select the first moment after the laser pulse comes back to zero [because induced fields can actually decrease the energy AFTER the pulse, for obscure reasons.
-    print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: "+str(ElectronEnergy[(Field_AU_to_SI(Efield_AU[:])==0) and ElectronEnergy.diff !=0])
+
+    print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: ")
+
+    ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
+
+    Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1]
+    Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]
+
+    ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
+    FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
+    FieldDiffEqualZero = (Efield_AU_diff == 0)
+    print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
+
+    Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
+   
+    # print(np.any(Mask))
+    print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
+    timeEnergies2=timeEnergies[:len(timeEnergies)-2]
+    timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
+    FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation 
+    timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
+    timeToFilterFrom=timeEnergies4[0]
+    timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
+    # We filter ElectronEnergy using these two conditions: 
+    ElectronEnergyRightAfterPulse=ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
+    
+    print(ElectronEnergyRightAfterPulse)
+
+#     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
+    # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
           
-    ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
+#    ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
+
+## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
+    ElectronEnergy_SI_final  = float(Energy_Hartree_to_eV(ElectronEnergyRightAfterPulse))
+    HartreeEnergy_SI_final   = float(Energy_Hartree_to_eV(Hartree    [timeEnergiesCondition][0]))
+    ExchangeEnergy_SI_final  = float(Energy_Hartree_to_eV(Exchange   [timeEnergiesCondition][0]))
+    EigenvaluesEnergy_SI_final=float(Energy_Hartree_to_eV(Eigenvalues[timeEnergiesCondition][0]))
     
     print Header+"Final electron energy   increase (eV)     = "+str(ElectronEnergy_SI_final)
     print Header+"Final Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_final)
     print Header+"Final exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final)
     print Header+"Final eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
-    EigenvaluesEnergy_SI_final
+#     EigenvaluesEnergy_SI_final
     # Append to the table
     # Structure: 
     # wavelength1, wavelength2, tau1, tau2, 
@@ -558,11 +593,17 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
     print(Header+"** INTEGRITY control: checking time derivative of latest frames")
-    # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse. 
-    try: 
-        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-1])
+    # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse.
+    try:
+        print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
+        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-2])
     except: 
-        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-1])
+        print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
+        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
+
+
+    
+   #     print(Header+"** Warning: unable to check if laser pulse was finished.")
    
     print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI_final))
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
