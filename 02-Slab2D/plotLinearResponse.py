@@ -35,12 +35,13 @@ EnergyMax=25 #eV
 ShrinkBy=0
 maxHHG = 10*200 #maximum number of samples to cut the spectrum with
 StopAt = 0.9 #damping starts at 90% of the available timeline
+FilterBeforeKick=False
 
 # Switch in plotB
 plotEomega=False #< 1E-10 a.u.
 plotJomega=False #<1E-2 a.u.
-plotConductivity=True #should be max(J)/max(E). Should be 1E3 in experiments.
-plotPermittivity=False #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
+plotConductivity=False #should be max(J)/max(E). Should be 1E3 in experiments.
+plotPermittivity=True #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
 
 # 1. Select 2 ruOutput = geometry + density + elf + current + kinetic_energy_density + potential #GENERATES LARGE NUMBER OF FILES.ns,
 
@@ -50,12 +51,12 @@ plotPermittivity=False #should be close to 1E10 in a.u. Strange. Should not depe
 # path_run1   = "lambda800e-9-tau20E-15-field0E0-CEP0.0-SinSquared-SinPower2-2-Probe1E-3-ProbeDelay1e-15/lambda400e-9-tau20E-15-field0E0-CEP0.0-delay0.5e-15-SinSquared-InducedFields/td.general/"
 path_run1   = "../td.general/"
 current1    =np.loadtxt(path_run1+"total_current", dtype='str', skiprows=4)
-gauge_field1=np.loadtxt(path_run1+"gauge_field", dtype='str', skiprows=4)
-laser       =np.loadtxt(path_run1+"laser", dtype='str', skiprows=4)
+gauge_field1=np.loadtxt(path_run1+"gauge_field",   dtype='str', skiprows=4)
+# laser       =np.loadtxt(path_run1+"laser",         dtype='str', skiprows=4)
 
 A1tot_time_AU, A1tot_X_AU, A1tot_Y_AU, A1tot_Z_AU             = GetTotalGaugeField(gauge_field1) #BUG? Do we want the probe field here? It is actually equal to A_tot(t)=A_probe*Dirac(t-t0) + A_induced(t)
 current1_time_AU, current1_X_AU, current1_Y_AU, current1_Z_AU = GetTotalCurrent(current1)
-Asource_time_AU, Asource_X_AU, Asource_Y_AU, Asource_Z_AU     = GetTotalCurrent(laser) #no worries, GetTotalCurrent just selects columns. No conversion. 
+# Asource_time_AU, Asource_X_AU, Asource_Y_AU, Asource_Z_AU     = #Have to reconstruct the kick signal and to remove it
 
 A1tot_time_SI    = Time_AU_to_SI(A1tot_time_AU)
 current1_time_SI = Time_AU_to_SI(current1_time_AU)
@@ -106,8 +107,9 @@ current_probe_Z_AU=current1_Z_AU
     #plot_current_PumpProbe, = ax2.plot(current1_time_SI, current2_X_AU, '--', label=r'$J_{P+p}(t)$ (a.u.)')
     #plot_current_probe,     = ax2.plot(current1_time_SI, current_probe_X_AU, '-', label=r'$J_p(t)$ (a.u.)')
 
-# 6. Fourier Transform the J_probe. 
-current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, StopAt*tMaxSimulation_SI) #WARNING: we might create a problem here by using SI! #TODO: Change maximum duration to the 3/4th of the way to end of simulation
+# 6. Fourier Transform the J_probe.
+#TODO: added a starting filter as well [S. Sato, JCP 143, 224116 (2015)] 
+current_probe_X_AU_damped = SignalDampR(current1_time_SI, current_probe_X_AU,  wavelength_SI, StopAt*current1_time_SI[len(current1_time_SI)-1]) #tMaxSimulation_SI) #WARNING: we might create a problem here by using SI! #TODO: Change maximum duration to the 3/4th of the way to end of simulation
 plot_current_probe_damped, = ax12.plot(current1_time_SI, current_probe_X_AU_damped, 'r-', linewidth=LineWidthAll, label=r'$J_{p}^{(damped)}(t)$')
 plot12 += [plot_current_probe_damped]
     
@@ -135,23 +137,37 @@ if(plotJomega):
   plot2 += [plot_spectrum_probe]
 
 # 6. Extracting A_probe from A_tot=A_probe + A_source
-A1probe_X_AU    = A1tot_X_AU - Asource_X_AU[:len(A1tot_X_AU)]
-A1probe_Y_AU    = A1tot_Y_AU - Asource_Y_AU[:len(A1tot_Y_AU)]
-A1probe_Z_AU    = A1tot_Z_AU - Asource_Z_AU[:len(A1tot_Z_AU)]
+
+GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
+GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
+try:
+  GaugeFieldDelay      = GaugeFieldDelay_tmp[1] #rhs
+except: 
+  GaugeFieldDelay=0e0
+  print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
+
+if(FilterBeforeKick):    
+	KickInstant=int(Time_SI_to_AU(float(GaugeFieldDelay))/TimeStep+1) #This removes the signal before the kick
+else:
+	KickInstant=0 #keeps the kick: no filtering
+print(Header+"** Info: Kick was performed at instant #"+str(KickInstant))
+
+A1probe_X_AU    = A1tot_X_AU[KickInstant:] #-Asource_X_AU[:len(A1tot_X_AU)] + A1tot_X_AU
+A1probe_Y_AU    = A1tot_Y_AU[KickInstant:] #-Asource_Y_AU[:len(A1tot_Y_AU)] + A1tot_Y_AU
+A1probe_Z_AU    = A1tot_Z_AU[KickInstant:] #-Asource_Z_AU[:len(A1tot_Z_AU)] + A1tot_Z_AU
 
 # 7. Converting A_field into E_field
-E1probe_time_AU = A1tot_time_AU #we keep the same time grid for E and A.
-E1probe_X_AU    = -1./c_AU * np.divide( np.diff(A1probe_X_AU), np.diff(E1probe_time_AU) ) #BUG: we have to use induced field, not A_laser+A_induced.
+E1probe_time_AU = A1tot_time_AU[KickInstant:] #we keep the same time grid for E and A, but remove everything before the kick starts
+E1probe_X_AU    = -1./c_AU * np.divide( np.diff(A1probe_X_AU), np.diff(E1probe_time_AU) ) 
 E1probe_Y_AU    = -1./c_AU * np.divide( np.diff(A1probe_Y_AU), np.diff(E1probe_time_AU) )
 E1probe_Z_AU    = -1./c_AU * np.divide( np.diff(A1probe_Z_AU), np.diff(E1probe_time_AU) )
 
 E1probe_time_SI = Time_AU_to_SI(1.)*E1probe_time_AU
 # Keeping the beginning of the signal
-E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_AU)-1], E1probe_X_AU[:len(E1probe_time_AU)-1], wavelength_SI, StopAt*tMaxSimulation_SI)
+E_probe_X_AU_damped = SignalDampR(E1probe_time_SI[:len(E1probe_time_AU)-1], E1probe_X_AU[:len(E1probe_time_AU)-1], wavelength_SI, StopAt*E1probe_time_SI[len(E1probe_time_SI)-1]) # StopAt*tMaxSimulation_SI) #this does not work well. 
 plot_field_probe_damped, = ax1.plot(E1probe_time_SI[:len(E1probe_time_AU)-1], c_AU*E_probe_X_AU_damped, 'b-', linewidth=LineWidthAll, label=r'$c \times E_{p}^{(damped)}(t)$')
 plot1  += [plot_field_probe_damped]
 plot12 += [plot_current_probe_damped]
-
 
 # 7. Fourier transform of the E_field
 E_probe_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
