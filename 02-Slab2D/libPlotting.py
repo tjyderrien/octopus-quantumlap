@@ -608,6 +608,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     print(Header+"** INTEGRITY control: checking time derivative of latest frames")
     # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse.
+    print(Header+"Debug: Length of Efield_AU: "+str(len(Efield_AU)))
     try:
         print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
         Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-2])
