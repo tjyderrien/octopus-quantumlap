@@ -102,9 +102,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,38))
+    Database = np.empty((0,39))
 
-  PlottingTable = np.empty((0,38)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,39)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -599,7 +599,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), 
 	      float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), float(ExchangeEnergy_SI_afterpulse), 
 	      float(density_proj_SI_final/PulseDuration_SI), PulseType, 
-	      RiseTime, float(timeNe[len(timeNe)-1]) ]
+	      RiseTime, float(timeNe[len(timeNe)-1]), float(timeToFilterFrom) ]
 
     
     print Header+"Stack contains:"
@@ -708,11 +708,12 @@ def ExtractData(PlottingTable): #{{{
   PulseType                    = PlottingTable[:,35]
   RiseTime                     = PlottingTable[:,36]
   FinalTime                    = PlottingTable[:,37]
+  timeToFilterFrom             = PlottingTable[:,38]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, Wpi, PulseType, RiseTime, FinalTime
+  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'ElectronEnergy_final': 26, 'EigenvaluesEnergy_max': 27 , 'HartreeEnergy_max': 28, 'ExchangeEnergy_max': 29, 'ElectronEnergy_afterpulse': 30, 'EigenvaluesEnergy_afterpulse': 31, 'HartreeEnergy_afterpulse': 32, 'ExchangeEnergy_afterpulse': 33, 'Wpi': 34, 'PulseType': 35, 'RiseTime': 36, 'FinalTime': 37}
+IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'ElectronEnergy_final': 26, 'EigenvaluesEnergy_max': 27 , 'HartreeEnergy_max': 28, 'ExchangeEnergy_max': 29, 'ElectronEnergy_afterpulse': 30, 'EigenvaluesEnergy_afterpulse': 31, 'HartreeEnergy_afterpulse': 32, 'ExchangeEnergy_afterpulse': 33, 'Wpi': 34, 'PulseType': 35, 'RiseTime': 36, 'FinalTime': 37, 'FilterTime': 38}
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
