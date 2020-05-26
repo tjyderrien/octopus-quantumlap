@@ -19,14 +19,14 @@ case "${ComputerName}" in
 		export QuantumLaPruns=/scratch/work/project/open-16-27/octopus-slabs.data
 	;;
 
-        ${BIATRI}*)
+    ${BIATRI}*)
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
 
 	*)
 		export QuantumLaPsources="~/Documents/octopus-slabs"
-                export QuantumLaPruns="~/Documents/octopus.data"
+        export QuantumLaPruns="~/Documents/octopus.data"
 	;;
 esac
 
