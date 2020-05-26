@@ -491,7 +491,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalCurrent_AU_Ymax  = np.max(TotalCurrent_Y_AU)
     TotalCurrent_AU_Zmax  = np.max(TotalCurrent_Z_AU)
     
-    print Header+"******* WARNING: Here we neglect other polarization directions than X ! ******"
     print Header+"Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
     print Header+"** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
@@ -622,7 +621,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
    
     print(Header+"   Efield at end of simulation V/m: "+str(Efield_SI_final))
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
-    if(Efield_SI_final > 1.): 
+    if(np.abs(Efield_SI_final) > 1.): 
         print(Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB.")
         continue
     
