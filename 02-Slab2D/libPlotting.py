@@ -714,7 +714,7 @@ IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1':
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, Wpi, PulseType, RiseTime, FinalTime = ExtractData(Database)
+  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, Wpi, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
