@@ -527,11 +527,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
         FieldDiffEqualZero = (Efield_AU_diff == 0)
         print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
+        print ElectronEnergy_diffLowerThanZero
 
         Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
     
         # print(np.any(Mask))
-        print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
+#        print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
         timeEnergies2=timeEnergies[:len(timeEnergies)-2]
         timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
         FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation 
@@ -541,7 +542,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         # We filter ElectronEnergy using these two conditions: 
         ElectronEnergyRightAfterPulse=ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
         
-        print(ElectronEnergyRightAfterPulse)
+        print(Header+"** Info: energy right after the pulse"+str(ElectronEnergyRightAfterPulse))
 
     #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
         # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
@@ -611,12 +612,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse. # WARNING: This assumes timestep for Ne = timestep for Energy = timeStep for Laser.
     print(Header+"Debug: Length of Efield_AU: "+str(len(Efield_AU)))
 
-    try:
-        print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
-        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-2])
-    except: 
-        print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
-        Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
+#    try:
+    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
+    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+    Efield_SI_final = Field_AU_to_SI(Efield_AU[minLength])
+ #   except: 
+  #      print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
+   #     Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
 
 
     
