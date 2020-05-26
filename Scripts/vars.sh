@@ -1,12 +1,12 @@
 #!/bin/bash
-
-source ../machines.env
+LocalFolder=$(dirname $BASH_SOURCE) #Should work on any computer.
+source $LocalFolder/../machines.env
 CheckComputerName
 
 case "${ComputerName}" in 
 	${LenovoTibo})
-		export QuantumLaPsources="~/Documents/octopus-slabs"
-		export QuantumLaPruns="~/Documents/octopus.data"
+		export QuantumLaPsources="/home/hilase/Documents/octopus-slabs"
+		export QuantumLaPruns="/home/hilase/Documents/octopus"
 	;;
 
 	${PrometheusLogin}*)
