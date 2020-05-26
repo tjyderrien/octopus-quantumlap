@@ -607,7 +607,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Info: Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+".\nSizeof(StackToAdd)="+str(np.shape(StackToAdd))
     
     print(Header+"** INTEGRITY control: checking time derivative of latest frames")
-    # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse.
+    # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse. # WARNING: This assumes timestep for Ne = timestep for Energy = timeStep for Laser.
     try:
         print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
         Efield_SI_final = Field_AU_to_SI(Efield_AU[len(ElectronEnergy)-2])
