@@ -1241,7 +1241,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       del ax3
 #}}}
 
-def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
+def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, area=1., OpticalIndex=1.0, MoveIon=0): #{{{
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = True #PRL: False. #PRB: True.
   ShowPulseDurations=True
@@ -1288,25 +1288,37 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse,  W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
         
         ## build the internal laser peak fluence here
-        fluence1 = 0.5*c*epsilon_0*Efield1**2*pulses1 #J/cm2 #NOTE: exact while sin² envelope is used. 
+        intensity1 = 0.5*c*epsilon_0*Efield1**2 #W/m2
+        fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
+        
+        RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
+        intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2
+        fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
         
         ## build the external laser peak fluence here
-        fluence_ext1 = fluence1 * OpticalIndex #J/cm2 #still exact
         
         ## build the laser peak fluence here
-        lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_max, pulses1, Ne_final]))        
-        #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_afterpulse, pulses1, Ne_final]))
-        Intensity_sorted, fluence1_sorted, fluence_ext1_sorted, Energy_final_sorted, pulses1_sorted, Ne_final_sorted = list(itertools.izip(*lists))
+        incident_energy1 = fluence1 * area / e #WARNING: to be verified. Should be in eV.
+        incident_energy1_ext = fluence_ext1 * area / e
+        
+        ## absorbed energy relative to laser pulse energy
+        relative_absorbed_energy1 = np.divide(ElectronEnergy_afterpulse, incident_energy1_ext) #eV over eV
+        
+        #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_max, pulses1, Ne_final]))        
+        
+        lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_afterpulse, relative_absorbed_energy1, pulses1, Ne_final]))
+        
+        Intensity_sorted, fluence1_sorted, fluence_ext1_sorted, Energy_final_sorted, relative_absorbed_energy1_sorted, pulses1_sorted, Ne_final_sorted = list(itertools.izip(*lists))
         #print Header+"Ready to plot: "
         
         plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), Energy_final_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\tau=$'+str(int(pulse_value*1E15))+" fs")
         plot1 += [plot_field]
         
-        plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), Energy_final_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+        #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
         plot2 += [plot_field]
         
-        #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), Energy_final_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        #plot1 += [plot_field]
+        plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+        plot1 += [plot_field]
   #}}}
   
   labels1 = [l.get_label() for l in plot1]
@@ -1315,22 +1327,22 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
   ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
   
   ax1.set_xscale('log')
-  ax1.set_yscale('log')
-  #ax1.set_yscale('symlog', linthreshy=1e-5)
+  #ax1.set_yscale('log')
+  ax1.set_yscale('symlog', linthreshy=1e-5)
   
   ax1.set_xlabel(r'Peak intensity (W/cm$^2$)')
   ax1.set_ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
   
   ax2.set_xscale('log')
-  ax2.set_yscale('symlog', linthreshy=1e-5)
+  #ax2.set_yscale('symlog', linthreshy=1e-5)
   ax2.set_xlabel(r'Peak fluence (J/cm$^2$)')
-  ax2.set_ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
+  ax2.set_ylabel(r'Rel. abs. $\xi_{\mathrm{el}}^{\mathrm{TDDFT}} / \xi_{\mathrm{laser}}$')
   
   plt.tight_layout()
   
   ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png."
   
   if(ShowFinalPlot==1):
@@ -3948,8 +3960,9 @@ def plot_Vorobyev_Au():
     Egap_SI=0e0; Egap_SI_indirect=0e0 #metal
     OpticalIndex_Mo={1030e-9: 2.4201,  800e-9: 3.6371, 515e-9: 3.7362} #Ordal
     OpticalIndex_Au={1030e-9: 0.24212, 800e-9: 0.15352, 515e-9: 0.71912}
+    PrimitiveCellArea = 6.52E-20 #m2
     #try:
-    plotEffectOfIntensity_PulseDuration_Au(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex_Au[wavelength1], MoveIon)
+    plotEffectOfIntensity_PulseDuration_Au(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea, OpticalIndex_Au[wavelength1], MoveIon)
         #except:
             #print Header+"** Warning: no data could be found, or bug took place for 800 nm."
 
