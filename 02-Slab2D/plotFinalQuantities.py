@@ -1241,7 +1241,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       del ax3
 #}}}
 
-def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, area=1., OpticalIndex=1.0, MoveIon=0): #{{{
+def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, area=1., OpticalIndex=1.0, RatioExternal=1., MoveIon=0): #{{{
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = True #PRL: False. #PRB: True.
   ShowPulseDurations=True
@@ -1280,6 +1280,7 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
   ax2 = pplt.subplot(212)
   plot1 = []; plot2=[]
   
+  print(Header, "** Info: plotting...")
   PlottingSinglePulses_Normal = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
   for pulse_value in pulses_uniq: #{{{
         # select the corresponding wavelength in results
@@ -1325,7 +1326,7 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
   #}}}
   
   ## We can now filter and plot the FreezeHXC results
-  
+  print(Header, "** Info: plotting effect of Hxc...")
   PlottingSinglePulses_HXC = FilterDatabase(PlottingSinglePulses, 1., IndexTable['FreezeHXC']) #keep only fields where FreezeHXC != 0. 
   for pulse_value in pulses_uniq: #{{{
         # select the corresponding wavelength in results
@@ -1333,6 +1334,10 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
         wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
+        
+        if(len(Efield1_uniq)==0): 
+            print(Header, "** Warning: no data available for this run.")
+            continue
 
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse,  W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
         
@@ -4011,8 +4016,9 @@ def plot_Vorobyev_Au(material):
     OpticalIndex_Au={1030e-9: 0.24212, 800e-9: 0.15352, 515e-9: 0.71912}
     OpticalIndex={'Mo': OpticalIndex_Mo, 'Au': OpticalIndex_Au}
     PrimitiveCellArea = {'Au': 6.52E-20, 'Mo': 7.07E-20} #m2
+    RatioExternal={'Au': 24.06, 'Mo': 1.91}
     #try:
-    plotEffectOfIntensity_PulseDuration_Au(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], MoveIon)
+    plotEffectOfIntensity_PulseDuration_Au(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
         #except:
             #print Header+"** Warning: no data could be found, or bug took place for 800 nm."
 
@@ -4058,7 +4064,9 @@ def plot_Vorobyev_Au(material):
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-# plot_Vorobyev_Au('Au')
+
+#plot_Vorobyev_Au('Au')
+
 plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
