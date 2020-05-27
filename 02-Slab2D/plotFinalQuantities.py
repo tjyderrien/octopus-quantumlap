@@ -4058,8 +4058,8 @@ def plot_Vorobyev_Au(material):
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-plot_Vorobyev_Au('Au')
-#plot_Vorobyev_Au('Mo')
+# plot_Vorobyev_Au('Au')
+plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
 exit()
