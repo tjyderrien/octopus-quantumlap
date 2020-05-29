@@ -1,6 +1,8 @@
 #!/bin/bash
-LocalFolder=$(dirname $BASH_SOURCE) #Should work on any computer.
-source $LocalFolder/../machines.env
+## WARNING: don't call this program using "source", otherwise bugs like SCP file transfers get blocked.
+
+LocalFolder=$(dirname $BASH_SOURCE) #Should work on any computer. 
+$LocalFolder/../machines.env #BUG: Using "source" here kills transfers via scp or rsync 
 CheckComputerName
 
 case "${ComputerName}" in 
