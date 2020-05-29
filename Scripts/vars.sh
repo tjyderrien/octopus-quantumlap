@@ -1,9 +1,9 @@
 #!/bin/bash
 ## WARNING: don't call this program using "source", otherwise bugs like SCP file transfers get blocked.
 
-LocalFolder=$(dirname $BASH_SOURCE) #Should work on any computer. 
-$LocalFolder/../machines.env #BUG: Using "source" here kills transfers via scp or rsync 
-CheckComputerName
+LocalFolder=$(dirname ${BASH_SOURCE} ) #Should work on any computer but can generate many problems
+source $LocalFolder/../machines.env 
+ComputerName=CheckComputerName
 
 case "${ComputerName}" in 
 	${LenovoTibo})
@@ -21,14 +21,16 @@ case "${ComputerName}" in
 		export QuantumLaPruns=/scratch/work/project/open-16-27/octopus-slabs.data
 	;;
 
-    ${BIATRI}*)
+        ${BIATRI}*)
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
+        *)
+            ## DO NOTHING
+        ;;
 
-	*)
-		export QuantumLaPsources="~/Documents/octopus-slabs"
-        export QuantumLaPruns="~/Documents/octopus.data"
-	;;
+
+#		export QuantumLaPsources="~/Documents/octopus-slabs"
+#        export QuantumLaPruns="~/Documents/octopus.data"
 esac
 
