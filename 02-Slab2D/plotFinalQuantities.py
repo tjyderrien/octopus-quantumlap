@@ -66,7 +66,7 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-EnablePeakFinder           = 0
+EnablePeakFinder           = 1
 ShowFinalPlot              = 0
 
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, 'NexcGrad': 5}
@@ -1241,7 +1241,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       del ax3
 #}}}
 
-def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, area=1., OpticalIndex=1.0, RatioExternal=1., MoveIon=0): #{{{
+def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=1, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, area=1., OpticalIndex=1.0, RatioExternal=1., MoveIon=0): #{{{
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = True #PRL: False. #PRB: True.
   ShowPulseDurations=True
@@ -1295,7 +1295,7 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         intensity1 = 0.5*c*epsilon_0*Efield1**2 #W/m2
         fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
         
-        RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
+        #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
         intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2
         fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
         
@@ -1319,10 +1319,10 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         plot1 += [plot_field]
         
         #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot2 += [plot_field]
+        #plot2 += [plot_field]
         
         plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot1 += [plot_field]
+        plot2 += [plot_field]
   #}}}
   
   ## We can now filter and plot the FreezeHXC results
@@ -1345,7 +1345,7 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         intensity1 = 0.5*c*epsilon_0*Efield1**2 #W/m2
         fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
         
-        RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
+        #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
         intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2
         fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
         
@@ -1369,10 +1369,10 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
         plot1 += [plot_field]
         
         #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot2 += [plot_field]
+        #plot2 += [plot_field]
         
         plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+r" fs, $H_{xc}$")
-        plot1 += [plot_field]
+        plot2 += [plot_field]
   #}}}
   
   labels1 = [l.get_label() for l in plot1]
@@ -1393,8 +1393,8 @@ def plotEffectOfIntensity_PulseDuration_Au(PlottingTable, pulseWavelength=800e-9
   ax2.set_ylabel(r'Rel. abs. $\xi_{\mathrm{el}}^{\mathrm{TDDFT}} / \xi_{\mathrm{laser}}$')
   
   plt.tight_layout()
-  
-  ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile
+  #print(Header, "Debug: PulseType: ", PulseType)
+  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+MoveIonFile
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png."
@@ -1731,7 +1731,7 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
-  PlotValleysInset=False #True: plot valleys, false: plot hills (max of Wpi)
+  PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
   AccountForOpticalIndex=False #trying without optical index
   global n0
   
@@ -4006,7 +4006,6 @@ def plot_Vorobyev_Au(material):
     PlottingTable_filtered = PlottingTable
     #for tau in [30e-15, 60e-15]:
     ShowPlot=1
-    PulseType=PulseTypeID['SinSquared'] #0: Gaussian; 1: SinSquared
     RiseCycles=0 #does not matter here
     MoveIon=0
     PlotWpiAxis=False #we are interested in energy
@@ -4018,7 +4017,9 @@ def plot_Vorobyev_Au(material):
     PrimitiveCellArea = {'Au': 6.52E-20, 'Mo': 7.07E-20} #m2
     RatioExternal={'Au': 24.06, 'Mo': 1.91}
     #try:
-    plotEffectOfIntensity_PulseDuration_Au(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
+    for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
+        #0: Gaussian; 1: SinSquared
+        plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
         #except:
             #print Header+"** Warning: no data could be found, or bug took place for 800 nm."
 
@@ -4064,8 +4065,8 @@ def plot_Vorobyev_Au(material):
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-#plot_Vorobyev_Au('Au')
-plot_Vorobyev_Au('Mo')
+plot_Vorobyev_Au('Au')
+#plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
 exit()
