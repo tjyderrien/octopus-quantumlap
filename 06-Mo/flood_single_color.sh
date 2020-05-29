@@ -3,7 +3,8 @@ set -e
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
-
+LoadOctopusSalomonModulesFortran2020
+LoadEnvLibraries
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
 
@@ -36,7 +37,7 @@ InitialTemperature="0e0"
 SmearingTe="0.025" # 1 2 5 10 20"
 CrossPolarization=0 #1
 
-InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
+InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
@@ -86,10 +87,15 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 
 # Efield1="2E10 3E10 4E10 6E10 7E10 8E10 9E10 2E11 3E11 4E11" #REFINING THE WEIRD ENERGY TRANSITION. W/O INDUCED FIELDS
 
-Efield1="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11 1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12 1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
+Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8"
+Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
+Efield1_1E10="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11"
+Efield1_1E12="1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12"
+Efield1_1E13="1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
 # Efield1="9.5E11 1.5E12 2.5E12 3.5E12 4.5E12"
 
-
+Efield1="$Efield1_1E9"
 
 # Efield2="0E0 1E8 5E8 1E9 5E9 1E10 5E10"
 Efield2="0E0"
@@ -173,7 +179,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/06-Mo/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${iSmearingTe}
+            ${QuantumLaPsources}/06-Mo/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${iSmearingTe}
 #           done
           done
 #          done

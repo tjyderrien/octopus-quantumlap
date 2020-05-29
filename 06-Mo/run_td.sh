@@ -5,6 +5,9 @@
 set -e
 source $QuantumLaPsources/machines.env
 CheckComputerName
+LoadOctopusSalomonModulesFortran2020
+LoadEnvLibraries
+
 source $QuantumLaPsources/03-Bulk3D/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
