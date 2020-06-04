@@ -21,6 +21,7 @@
 
 from numpy import genfromtxt, loadtxt, chararray
 import glob
+import os.path
 import numpy as np
 import matplotlib as mp
 import matplotlib.pyplot as plt
@@ -628,6 +629,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         print(Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB.")
+        continue
+    
+    ## HERE, if we find a file named "DISABLED" in the folder, then we shall jump the folder, to avoid polluting the database. 
+    # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
+    if(os.path.isfile(FolderName+"../DISABLED")):
+        print(Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. ")
         continue
     
     if(FromScratch): #We construct a new database from scratch

@@ -86,7 +86,7 @@ autoreconf -i
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/home/tjyderrien/octopus.clean/"
+   --prefix="/home/tjyderrien/octopus.git/"
 
 #   --with-netcdf-prefix=$NETCDF_HOME \ #attempting in manual because this loads $NETCDF_HOME/lib not $NETCDF_HOME/lib64
 #    --with-fftw-prefix="$FFTW_HOME" \

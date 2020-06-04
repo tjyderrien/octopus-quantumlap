@@ -2,13 +2,17 @@
 # module purge
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
-#module load anaconda/2/5.1 #we shall use machines.env library load for this.
+
+
 
 echo " **** SH loads modules ****"
 
 source $QuantumLaPsources/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 LoadEnvLibraries
+
+
+# module load anaconda/2/5.1 #we shall use machines.env library load for this.
 
 echo "** Info: UseScreen? [${UseScreen}]"
 
@@ -21,11 +25,6 @@ echo "Current folder: $( pwd )"
 
 export OctopusSlabsSources=${QuantumLaPsources}
 echo "** Debug: OctopusSlabsSources=${OctopusSlabsSources}"
-
-# export ListOfRuns="lambda1600e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E8-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda1600e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda2200e-9-tau30E-15-field1E10-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field5E9-CEP0.0-StH2 lambda3200e-9-tau30E-15-field1E10-CEP0.0-StH2"
-
-export ListOfRuns="lambda800e-9-tau20E-15-field9E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.1E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.2E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.3E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.4E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.6E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.7E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.8E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field9.9E8-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.1E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.2E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.3E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.4E9-CEP0.0-StH2 lambda800e-9-tau20E-15-field1.6E9-CEP0.0-StH2"
-
 
 plotBasicOutput () {
 
