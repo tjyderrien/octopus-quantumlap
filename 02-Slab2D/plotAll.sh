@@ -1,14 +1,24 @@
 #!/bin/bash
 
+
 set -e 
 
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
-
+echo " **** SH loads modules ****"
 source ${QuantumLaPsources}/machines.env
+
+# module purge
+# module load git
+# module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
+
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 LoadEnvLibraries
+
+
+# module load anaconda/2/5.1 #we shall use machines.env library load for this.
+
 echo "** Info: UseScreen? [${UseScreen}]"
 
 source $QuantumLaPsources/02-Slab2D/functions.sh
@@ -209,7 +219,7 @@ echo " Have fun with Database.csv and plotHHGspectra.py after this."
 #  cd $folder
 
 # echo "** Plotting nice figure for post-processed density for $(pwd)..."
-# ${OctopusSlabsSources}/02-Slab2D/plotFinalQuantities.py
+${QuantumLaPsources}/02-Slab2D/plotFinalQuantities.py
 
 #   cd $prevFolder > /dev/null
 # done 
