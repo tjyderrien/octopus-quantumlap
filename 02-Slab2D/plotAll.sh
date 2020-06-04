@@ -1,9 +1,12 @@
 #!/bin/bash
-module purge
+
+set -e 
+
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
-source $QuantumLaPsources/machines.env
+
+source ${QuantumLaPsources}/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 LoadEnvLibraries
 echo "** Info: UseScreen? [${UseScreen}]"
