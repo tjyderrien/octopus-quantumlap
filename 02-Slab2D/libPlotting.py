@@ -20,6 +20,7 @@
 # Define shared functions for plotting routines and database construction
 
 from numpy import genfromtxt, loadtxt, chararray
+from scipy.integrate import cumtrapz
 import glob
 import os.path
 import numpy as np
@@ -493,18 +494,19 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalCurrent_AU_Zmax  = np.max(TotalCurrent_Z_AU)
     
     # Computing External field reconstructed using the current. Work in atomic units. 
-    
-    Ein_AU     = Efield_AU
-    PolarizationField_AU = np.cumsum(TotalCurrent_X_AU)*TimeStep #integral of the current in time
-    Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU #builds E_ext(t) = E_in(t)+P(t)/epsilon_0
+    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+    Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
+    Ein_AU     = Efield_AU[:minLength]
+    PolarizationField_AU = cumtrapz(TotalCurrent_X_AU,x=None, dx=TimeStep) #*TimeStep #integral of the current in time
+    Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0
     Eext_SI    = Field_AU_to_SI(Eext_AU)
     Eext_SI_max= np.max(np.max(Eext_SI)) #this gives the amplitude of the corresponding external field
     
     print(Header+"** Info: maximum external field (V/m): "+str(float(Eext_SI_max)))
     
     # Computing integral(J(t).E(t) dt)
-    EnergyPoynting_AU = Efield_AU * TotalCurrent_X_AU
-    EnergyPoynting_AU_sum = np.cumsum(EnergyPoynting_AU)*TimeStep
+    EnergyPoynting_AU = np.multiply(Ein_AU, TotalCurrent_X_AU[len(ElectronEnergy)-1]) #J.E in a.u.
+    EnergyPoynting_AU_sum = cumtrapz(EnergyPoynting_AU, x=None, dx=TimeStep) #int(J.E, dt) (Hartree) # WARNING: unit problem?
     EnergyPoynting_AU_sum_max = np.max(np.max(EnergyPoynting_AU_sum)) #maximum absorbed energy
     EnergyPoynting_AU_sum_final = EnergyPoynting_AU_sum[len(EnergyPoynting_AU_sum)-1] #final absorbed energy
     
@@ -544,7 +546,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
         ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
 
-        Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1]
         Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]
 
         ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
@@ -641,7 +642,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
 #    try:
     print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
-    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+    
     Efield_SI_final = Field_AU_to_SI(Efield_AU[minLength])
  #   except: 
   #      print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))

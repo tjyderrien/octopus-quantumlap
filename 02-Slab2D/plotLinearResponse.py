@@ -29,6 +29,8 @@ SizeY = 8
 plotA = 121; plotB=122
 LineWidthAll=1
 
+ShowPlot=0
+
 EnergyMin=0. #eV
 EnergyMax=25 #eV
 
@@ -40,8 +42,8 @@ FilterBeforeKick=False
 # Switch in plotB
 plotEomega=False #< 1E-10 a.u.
 plotJomega=False #<1E-2 a.u.
-plotConductivity=False #should be max(J)/max(E). Should be 1E3 in experiments.
-plotPermittivity=True #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
+plotConductivity=True #should be max(J)/max(E). Should be 1E3 in experiments.
+plotPermittivity=False #should be close to 1E10 in a.u. Strange. Should not depend on unit system.
 
 # 1. Select 2 ruOutput = geometry + density + elf + current + kinetic_energy_density + potential #GENERATES LARGE NUMBER OF FILES.ns,
 
@@ -249,4 +251,5 @@ ax2.legend(labels2, loc="best")
 # plt.savefig("Current_Fourier_omega-delay-"+str(float(delay)*1E15)+"fs.eps")
 plt.tight_layout()
 plt.savefig("LinearResponse_Current_Fourier_omega.eps")
-plt.show()
+if(ShowPlot==1):
+     plt.show()
