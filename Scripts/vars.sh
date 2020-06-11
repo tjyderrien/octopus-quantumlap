@@ -2,13 +2,16 @@
 ## WARNING: don't call this program using "source", otherwise bugs like SCP file transfers get blocked.
 
 LocalFolder=$(dirname ${BASH_SOURCE} ) #Should work on any computer but can generate many problems
-source $LocalFolder/../machines.env 
-ComputerName=CheckComputerName
+source ${LocalFolder}/../machines.env 
+
+CheckComputerName
+LoadEnvLibraries
 
 case "${ComputerName}" in 
 	${LenovoTibo})
 		export QuantumLaPsources="/home/hilase/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/hilase/Documents/octopus"
+		echo "Stored variables for local laptop."
 	;;
 
 	${PrometheusLogin}*)
@@ -27,6 +30,7 @@ case "${ComputerName}" in
 	;;
         *)
             ## DO NOTHING
+	    echo "Case not covered."
         ;;
 
 
