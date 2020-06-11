@@ -655,14 +655,15 @@ ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-# plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
-plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
+plot_current,      = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
+plot_polarization, = ax12.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$ (a.u.) (cumsum)')
+plot_polarization2, = ax12.plot(timeCurrent[:len(timeCurrent], cumtrapz(CurrentX,x=timeCurrent), 'r-.', label=r'$P(t)$ (a.u.) (trapz)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
 
 # Building the shared legend for subfig1
-plot1   = [plot_field, plot_current]
+plot1   = [plot_field, plot_current, plot_polarization, plot_polarization2]
 labels1 = [l.get_label() for l in plot1]
 # ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha) #NOTE: plot is clear enough, no caption is necessary. 
 
@@ -802,7 +803,7 @@ epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant
 ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
-TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
+TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #Conform to Jackson, Classical Electrodynamics, Chap.6, p. 264 
 
 ## if we integrate in time
 TotalEnergyPoynting_AU      = np.multiply(np.cumsum(TotalEnergy_diff),  dtCurrent)
