@@ -515,10 +515,21 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
     Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0 
 
+    EextMinus_AU=Ein_AU - 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0
+
     Eext_SI    = Ein_SI[:minLength-1] + PolarizationField_SI[:minLength]/epsilon_0 
-    Eext_SI_max= np.max(np.max(Eext_SI)) #this gives the amplitude of the corresponding external field
-    
-    print(Header+"** Info: maximum external field (V/m): "+str(float(Eext_SI_max)))
+    EextMinus_SI= Ein_SI[:minLength-1] - PolarizationField_SI[:minLength]/epsilon_0
+
+    Eext_AU_max=Eext_AU[minLength/2] #this gives the amplitude of the corresponding external field 
+    EextMinus_AU_max=EextMinus_AU[minLength/2]
+    Eext_SI_max=Eext_SI[minLength/2] #this gives the amplitude of the corresponding external field
+    EextMinus_SI_max=EextMinus_SI[minLength/2] #this gives the amplitude of the corresponding external field
+
+    print(Header+"** Info: maximum external field +P (a.u.): "+str(float(Eext_AU_max)))
+    print(Header+"** Info: maximum external field -P (a.u.): "+str(float(EextMinus_AU_max)))
+ 
+    print(Header+"** Info: maximum external field +P (V/m): "+str(float(Eext_SI_max)))
+    print(Header+"** Info: maximum external field -P (V/m): "+str(float(EextMinus_SI_max)))
     
     # Computing integral(J(t).E(t) dt)
     EnergyPoynting_AU = np.multiply(Ein_AU[:minLength], TotalCurrent_X_AU[:minLength]) #J.E in a.u.
