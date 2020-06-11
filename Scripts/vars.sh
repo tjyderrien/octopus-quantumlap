@@ -1,7 +1,11 @@
 #!/bin/bash
-## WARNING: don't call this program using "source", otherwise bugs like SCP file transfers get blocked.
+## WARNING: it seems ${BASH_SOURCE} generates serious mistakes, such as bugs like SCP file transfers get blocked.
 
-LocalFolder=$(dirname ${BASH_SOURCE} ) #Should work on any computer but can generate many problems
+# LocalFolder=$(dirname ${BASH_SOURCE} ) #Should work on any computer but can generate many problems
+# source ${LocalFolder}/../machines.env 
+
+SourcePath="${BASH_SOURCE[0]}"
+LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers.
 source ${LocalFolder}/../machines.env 
 
 CheckComputerName
