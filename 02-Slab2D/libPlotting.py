@@ -38,7 +38,7 @@ Header = "[libPlotting]"
 
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
-def LoadRunOutputs(path):
+def LoadRunOutputs(path): #{{{
   
   #geometry = path+"../Si.xyz" #static method
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
@@ -62,6 +62,7 @@ def LoadRunOutputs(path):
       Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
   return Ne, laser, TotalCurrent, Energy
+#}}}
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
 # Hence, localize yourself in td.general before using this function. 
@@ -996,7 +997,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #plt.colorbar(CS)
       
       ## Create a diverging colormap centered on zero.
-      #def DefineGradientColorMap(Z):
+      # d e f DefineGradientColorMap(Z):
         #print(Header+"** Debug:"+np.min(Z))
         #cvals  = [np.min(Z), 0, np.max(Z)]
         #colors = ["red","white","blue"]

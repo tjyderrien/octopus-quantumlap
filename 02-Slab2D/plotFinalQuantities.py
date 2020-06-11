@@ -4108,7 +4108,7 @@ def plot_Vorobyev_Au(material):
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
 
-#plot_Zhukov_SingleColor_LDA()
+plot_Zhukov_SingleColor_LDA()
 #plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
@@ -4121,7 +4121,7 @@ def plot_Vorobyev_Au(material):
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-plot_Vorobyev_Au('Au')
+#plot_Vorobyev_Au('Au')
 #plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
