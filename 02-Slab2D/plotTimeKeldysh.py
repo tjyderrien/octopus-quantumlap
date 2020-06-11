@@ -114,8 +114,8 @@ if(PlottingMode == "auto"):
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
-    LastNexcLine = GetLastLine("../td.general/n_ex") 
-    LastNexcLineArray = np.array([ float(x) for x in LastNexcLine.split() ])
+    # LastNexcLine = GetLastLine("../td.general/n_ex")
+    # LastNexcLineArray = np.array([ float(x) for x in LastNexcLine.split() ])
     
     if(Efield2_SI > 1E0): #double pulse enabled
       PlottingMode="doublepulse" #priority 1
@@ -657,7 +657,7 @@ plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
 plot_current,      = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
 plot_polarization, = ax12.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$ (a.u.) (cumsum)')
-plot_polarization2, = ax12.plot(timeCurrent[:len(timeCurrent], cumtrapz(CurrentX,x=timeCurrent), 'r-.', label=r'$P(t)$ (a.u.) (trapz)')
+plot_polarization2, = ax12.plot(timeCurrent[:len(timeCurrent)-1], cumtrapz(CurrentX,x=timeCurrent), 'r-.', label=r'$P(t)$ (a.u.) (trapz)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
