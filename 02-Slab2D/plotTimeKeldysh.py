@@ -657,8 +657,8 @@ plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
 plot_current,      = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-plot_polarization, = ax12.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'b-', label=r'$P(t)$ (a.u.) (cumsum)')
-plot_polarization2, = ax12.plot(timeCurrent[:len(timeCurrent)-1], cumtrapz(CurrentX,x=timeCurrent), 'b--', label=r'$P(t)$ (a.u.) (trapz)')
+plot_polarization, = ax1.plot(timeCurrent, TimeStep * np.cumsum(CurrentX) * 4 * np.pi, 'b-.', label=r'$4 \pi P(t)$ (a.u.) (cumsum)')
+plot_polarization2, = ax1.plot(timeCurrent[:len(timeCurrent)-1], cumtrapz(CurrentX,x=timeCurrent)*4*np.pi, 'b--', label=r'$4 \pi P(t)$ (a.u.) (trapz)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
@@ -845,18 +845,21 @@ if(PlotPoynting):
 	plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 	plot3+=[plot_energy_IntraBandEnergy]
 
-# Add samples to n_exc_interp? 
-n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
-n_exc_i = n_exc_interp(timeCurrent)
+# Ad samples to n_exc_interp? 
+# n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+# n_exc_i = n_exc_interp(timeCurrent)
 # FITTING DRUDE MODEL AUTOMATICALLY?
 # This function should provide nu, but integration on t may be missing.
-# try:
+try:
 # Or rather decrease precision over Energy? 
-ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
-FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+  ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
+  FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print np.divide(1.,FitDrudeModel_parameters[0])
+  print np.divide(1.,FitDrudeModel_parameters[0])
+except: 
+  print(Header+"** Warning: gave up on auto fitting Energy and excited density.")
 # nu_t = FitDrudeModel_parameters[0]
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
