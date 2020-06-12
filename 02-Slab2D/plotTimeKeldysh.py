@@ -659,12 +659,13 @@ plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
 plot_current,      = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
 plot_polarization, = ax1.plot(timeCurrent, TimeStep * np.cumsum(CurrentX) * 4 * np.pi, 'b-.', label=r'$4 \pi P(t)$ (a.u.) (cumsum)')
 plot_polarization2, = ax1.plot(timeCurrent[:len(timeCurrent)-1], cumtrapz(CurrentX,x=timeCurrent)*4*np.pi, 'b--', label=r'$4 \pi P(t)$ (a.u.) (trapz)')
+plot_Eext         , = ax1.plot(timeCurrent[:len(timeCurrent)-1], np.add(cumtrapz(CurrentX,x=timeCurrent)*4*np.pi, Efield_X_SI[:len(timeCurrent)-1]), 'g-', label=r"$E_{in}(t)+4 \pi P(t)$")
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
 
 # Building the shared legend for subfig1
-plot1   = [plot_field, plot_current, plot_polarization, plot_polarization2]
+plot1   = [plot_field, plot_current, plot_polarization, plot_polarization2, plot_Eext]
 labels1 = [l.get_label() for l in plot1]
 # ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha) #NOTE: plot is clear enough, no caption is necessary. 
 
