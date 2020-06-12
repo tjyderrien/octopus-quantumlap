@@ -109,6 +109,9 @@ print Header+"** Preparing the summary plots..."
 #### Plotting: parameters for controlling the canvas
 # if(EnableDoublePulseAnalysis==0):
   # 2 plots
+  
+output_format='slides' #'publication'
+
 plotA=211; plotB=212; #plotC=313
 # elif (wavelength_numbers > 1):
 # plotA=311; plotB=312; plotC=313;
@@ -345,7 +348,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # ElectronEnergy (intensity) is given. 
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
-  PlotEnergy = True #PRL: False. #PRB: True.
+  PlotEnergy = False #PRL: False. #PRB: True.
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. 
   ShowPulseDurations=False
@@ -372,6 +375,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions. 
   
+  if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
   if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
@@ -505,46 +510,18 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       return nexc_mpi
     #}}}
     
-    ## 2-photon and 3-photon absorption fitting function
-    def TwoAndThreePhotonAbsorption(intensity, sigma_2, sigma_3): 
-    #{{{
-      n=2; #wavelengths1=800e-9; #is captured by parental legacy
-      omega = 2.*np.pi*c/wavelengths1[0]
-      #nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelengths1[0], pulses1_sorted[0])
-      nexc_mpi = sigma_2 * intensity**2 / (2*hbar*omega) * pulses1_sorted[0] + sigma_3 * intensity**3 / (3*hbar*omega) * pulses1_sorted[0]
-      return nexc_mpi
-    #}}}
+    ### 2-photon and 3-photon absorption fitting function
+    #def TwoAndThreePhotonAbsorption(intensity, sigma_2, sigma_3): 
+    ##{{{
+      #n=2; #wavelengths1=800e-9; #is captured by parental legacy
+      #omega = 2.*np.pi*c/wavelengths1[0]
+      ##nexc_mpi = MultiPhotonAbsorption(intensity, sigma_n, n, wavelengths1[0], pulses1_sorted[0])
+      #nexc_mpi = sigma_2 * intensity**2 / (2*hbar*omega) * pulses1_sorted[0] + sigma_3 * intensity**3 / (3*hbar*omega) * pulses1_sorted[0]
+      #return nexc_mpi
+    ##}}}
     
-    ## Filters a part of the data and fit using the given function
-    def FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument
-    #{{{
-        print Header+"** Info: Filtering the fitting region..."
-        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
-        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
-        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
-        
-        Ne_final_sorted_np  = np.array(Ne_final_sorted)
-        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
-        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
-        
-        TwoPhotonAbsorption_params = curve_fit(TwoPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-        #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0])
-        
-        print Header+"** Info: adding the fitted curve to the plot"
-        Nexc_2PI = TwoPhotonAbsorption(Intensity_sorted_mask, TwoPhotonAbsorption_params[0])
-        #print Nexc_2PI
-        if(ShowPulseDurations):
-            tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
-        else: 
-            tau_text=""
-        if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+'--', label=r'$\sigma_2=$'+str('%.4g'%TwoPhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_2 here
-        else: 
-            plot_field = []
-        del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
-        return plot_field
-    #}}}
+    LineType_MPIfitArray={1: '-', 2: '--', 3: ':', 4: '-', 5: '-.', 6: ':', 7: '--'}
+    #LineType_MPIfitArray={1: 'solid', 2: 'dotted', 3: 'dashed', 4: 'dashdot', 5: 'losely dashed', 6: 'densely dashed', 7: 'densely dashdotted'} #see https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html
     
     ## Filters a part of the data and fit using the given function
     def FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument
@@ -570,12 +547,44 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+'-.', label=r'$\sigma_1=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_1 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+LineType_MPIfitArray[1], label=r'$\sigma_1=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_1 here
         else:
             plot_field = []
         del Nexc_1PI, OnePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
+    
+    ## Filters a part of the data and fit using the given function
+    def FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument --> Pointer? 
+    #{{{
+        print Header+"** Info: Filtering the fitting region..."
+        Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists. 
+        #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
+        Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
+        
+        Ne_final_sorted_np  = np.array(Ne_final_sorted)
+        Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
+        print Intensity_sorted_mask, Ne_final_sorted_mask #Works well
+        
+        TwoPhotonAbsorption_params = curve_fit(TwoPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
+        print Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0])
+        
+        print Header+"** Info: adding the fitted curve to the plot"
+        Nexc_2PI = TwoPhotonAbsorption(Intensity_sorted_mask, TwoPhotonAbsorption_params[0])
+        #print Nexc_2PI
+        if(ShowPulseDurations):
+            tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
+        else: 
+            tau_text=""
+        if(plotMe):
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+LineType_MPIfitArray[2], label=r'$\sigma_2=$'+str('%.4g'%TwoPhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_2 here
+        else: 
+            plot_field = []
+        del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
+        return plot_field
+    #}}}
+    
     
     ## ==== FITTING THE 3-photon ionization plot
     def FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max): #TODO: pass function name in argument instead of copying this function... :-(
@@ -601,7 +610,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+':', label=r'$\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+LineType_MPIfitArray[3], label=r'$\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -629,7 +638,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         print Header+"** Info: adding the fitted curve to the plot"
         Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+'--', label=r'$\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+LineType_MPIfitArray[4], label=r'$\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
         del Nexc_4PI, FourPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -658,7 +667,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
         
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+'-.', label=r'$\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+LineType_MPIfitArray[5], label=r'$\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
         del Nexc_5PI, FivePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -687,7 +696,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
             
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+':', label=r'$\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+LineType_MPIfitArray[6], label=r'$\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
         del Nexc_6PI, SixPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -716,7 +725,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
             
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+'--', label=r'$\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+LineType_MPIfitArray[7], label=r'$\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
         del Nexc_7PI, SevenPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -802,7 +811,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
         
         OnePhotonIntensityRegime_min = 3.41E16
-        OnePhotonIntensityRegime_max = 7.3E16 #W/m2
+        OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
         
         ListOfInterestingGammas = [0.10, 1.0, 10.]
     else: 
@@ -1788,8 +1797,10 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
   PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
-  AccountForOpticalIndex=False #trying without optical index
+  AccountForOpticalIndex=True #trying without optical index
   global n0
+  
+  DrawOrders=6
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron
   #[Laflamme Janssen, J.; Gillet, Y.; Poncé, S.; Martin, A.; Torrent, M. & Gonze, X. Precise effective masses from density functional perturbation theory Physical Review B, 2016, 93, 205147]
@@ -1910,9 +1921,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
-  if(RiseTime >= 1): #select by RiseTime only if it is defined
+  if(RiseTime >= 1): #select by RiseTime only if it is defined in parameters
       PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #keeps only CEP = 0. 
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #remove fields computed with InducedFields enabled.
   PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, wavelengths1_max, IndexTable['wavelengths1']) #we will try to add data from 3200 nm.
 
   ## TODO: check if CEP could count at smaller wavelength. 
@@ -1922,8 +1934,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
   
-  pplt.figure(figsize=(6,10)) #new figure
-  plotA=211; plotB=212
+  if(output_format=='publication'):
+    pplt.figure(figsize=(8.6,2*6)) #new figure
+    plotA=211; plotB=212 #vertical figures (adequate for PRL)
+  else: 
+    pplt.figure(figsize=(2*6,6)) #new figure
+    plotA=121; plotB=122 #horizontal figures (adequate for presentation)
   
   ax1 = pplt.subplot(plotA)
   #ax1.set_prop_cycle('color',Colors)
@@ -2118,9 +2134,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   print "[Palik] | [Reining et al PRL 2002]"
   print str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA"))
     
-  
-  if(not AccountForOpticalIndex): 
-         OpticalIndex = np.divide(OpticalIndex, OpticalIndex)
          
   for Efield1_compare in FieldOfInterest: #{{{ #INFO: good for Fig3b. 
     #NOTE: actually we can build comparison using Keldysh for much more data points. Only TDDFT limits us in number of points. And there is nothing about TDDFT in this loop! 
@@ -2172,12 +2185,15 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     plot1 += [plot_field]
   #}}} #end for plotting Fig2b
   
+  # Main figure will account for field, but the inset should not account for field [why?]
+  #if(not AccountForOpticalIndex):
+  OpticalIndex_disabled = np.divide(OpticalIndex, OpticalIndex)
   #INFO: provides the Keldysh analysis part for Fig3a (inset).
   #WARNING: here we have disabled the contribution of optical index. Then one obtain the match for gap resonances with TDDFT. 
   # However, it seems W_PI amplitude is good only if we account for optical index. How the optical index should be treated in Keldysh theory or in TDDFT ?
   for Efield1_compare in np.linspace(0,np.max(FieldOfInterest),100):
     
-    PeakWpi_Gruzdev_continuous = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex), order, 1., False) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
+    PeakWpi_Gruzdev_continuous = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex_disabled), order, 1., False) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
     
     # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
     if(EnergyAxis):
@@ -2232,8 +2248,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ##ax11.set_xscale('log')
   #ax11.set_yscale('log')
   ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
-  ax2.set_yscale('log')
-  ax22.set_yscale('log')
+  ax2.set_yscale('symlog', linthreshy=1E20)
+  ax22.set_yscale('symlog', linthreshy=1E20)
   
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
@@ -2304,40 +2320,41 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ResonantWavelength = h*c/Egap_SI
   print "** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm."
   
-  if(not EnergyAxis):
-    ax1.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    
-    ax2.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    
-    ax22.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-  else:
-    ax1.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax11.axhline(y=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax11.axhline(y=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax11.axhline(y=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax11.axhline(y=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    
-    ax2.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    
-    ax22.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax22.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+  for order in np.arange(1,DrawOrders+1):
+    if(not EnergyAxis):
+      ax1.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      
+      ax2.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      
+      ax22.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    else:
+      ax1.axvline(x=Egap_SI/e/float(order), color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax1.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      ax11.axhline(y=Egap_SI/e/float(order), color='k', linestyle='--', linewidth=1)
+      #ax11.axhline(y=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax11.axhline(y=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax11.axhline(y=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      
+      ax2.axvline(x=Egap_SI/e/float(order), color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      
+      ax22.axvline(x=Egap_SI/e/float(order), color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+      #ax22.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   
   ## Saving this first double figure
   pplt.tight_layout()
@@ -2563,16 +2580,17 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ResonantWavelength = h*c/Egap_SI
   print "** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm."
   
-  if(not EnergyAxis):
-    ax3.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
-  else:
-    ax3.axvline(x=Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
-    ax3.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+  for order in np.arange(1,DrawOrders+1):
+    if(not EnergyAxis):
+      ax3.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+    else:
+      ax3.axvline(x=Egap_SI/e/float(order), color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1./2.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1./3.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
+    #ax3.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   #ax2.legend(loc=2, borderaxespad=0.)
   #ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   #ax22.legend(loc=1, borderaxespad=0.)
@@ -3834,8 +3852,8 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 10e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     #plotEffectOfIntensity_CEP(PlottingTable_filtered, wavelength, 30e-15, False, 0.0, PulseType, RiseCycles, ShowPlot)
     
-    ## ABSORPTION PROBABILITY FOR 800 nm - Phys Rev B Derrien et al 2020
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
+    ### ABSORPTION PROBABILITY FOR 800 nm - Phys Rev B Derrien et al 2020
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #This one construct the ionization probabilities! 
     
     ## RESONANT ABSORPTION - not published, not understood
     wavelength = 483e-9 #Resonant wavelength results for LDA.
@@ -3872,22 +3890,13 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 2600e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength]) #contains MoveIon, yes?
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
-    ## We now control in presence in MoveIons
-    try:
-        wavelength = 800e-9
+    #for wavelength in [3200E-9, 2600e-9, 2200e-9, 1600e-9, 800e-9]: 
+    for wavelength in [3200E-9, 1600e-9, 800e-9]: 
+      try:
         plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
-    except:
-        print Header+"** Warning: no data could be found, or bug took place for 800 nm."
-    try:
-        wavelength = 1600e-9
-        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
-    except:
-        print Header+"** Warning: no data could be found, or bug took place for 1600 nm."
-    #try:
-    wavelength = 3200e-9
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
-    #except:
-        #print Header+"** Warning: no data could be found, or bug took place for 3200 nm."
+      except:
+        print Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm."
+    
 #}}}
 def plot_Zhukov_SingleColor_TB09(): #{{{
     Egap_SI = 3.04*e
@@ -4108,7 +4117,7 @@ def plot_Vorobyev_Au(material):
 #====================================== EXECUTION ZONE ============================
 ## Zhukov single color plotting [Phys. Rev. B]
 
-plot_Zhukov_SingleColor_LDA()
+#plot_Zhukov_SingleColor_LDA()
 #plot_Zhukov_SingleColor_TB09()
 
 ## Zhukov bicolor plotting
@@ -4121,9 +4130,9 @@ plot_Zhukov_SingleColor_LDA()
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-#plot_Vorobyev_Au('Au')
+plot_Vorobyev_Au('Au')
 #plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
-exit()
+#exit()
 
