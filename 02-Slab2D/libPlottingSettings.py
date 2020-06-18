@@ -26,7 +26,7 @@ from matplotlib import rc, rcParams
 from matplotlib.legend_handler import HandlerLine2D
 
 rc('mathtext', default='regular')
-rc('text', usetex=False)
+rc('text', usetex=True)
 rcParams['font.family']='serif'
 rcParams['font.size']  = 14
 rcParams['font.serif'] =['Times-Roman', 'Bitstream Charter', 'Palatino', 'DejaVu Serif']

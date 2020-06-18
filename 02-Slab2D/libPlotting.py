@@ -39,7 +39,7 @@ Header = "[libPlotting]"
 
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
-def LoadRunOutputs(path):
+def LoadRunOutputs(path): #{{{
   
   #geometry = path+"../Si.xyz" #static method
   #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
@@ -48,7 +48,7 @@ def LoadRunOutputs(path):
   try:
       laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
   except: 
-      print Header+"** Critical error: Laser file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "
+      print(Header+"** Critical error: file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. ")
       exit()
   
   # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
@@ -63,6 +63,7 @@ def LoadRunOutputs(path):
       Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
   return Ne, laser, TotalCurrent, Energy
+#}}}
 
 ## Captures the value of a laser parameter in the Octopus input file located in FILEPATH.
 # Hence, localize yourself in td.general before using this function. 
@@ -428,8 +429,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
     print Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
     print Header+""
-    print Header+"Cell volume = "+str(CellVolume_AU)+" Bohr**3."
-    print Header+"Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+    print Header+"Numerical cell volume = "+str(CellVolume_AU)+" Bohr**3."
+    print Header+"Numerical cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
     print Header+"" 
     
     print Header+"** Importing simulation data..."
@@ -452,7 +453,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"** Electron density analysis "
     print Header+"Final electron density = "+str(density_proj_SI_final)
     print Header+"Max.  electron density = "+str(density_proj_SI_max)
-    print Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
+#    print Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
     ##==== Prepare plotting of energies ====
     timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
     TotalEnergy    = np.asfarray(Energy[:,2]) #Hartree
@@ -475,12 +476,17 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     Eigenvalues    = Eigenvalues    - Eigenvalues[0]
     
     # Extracting the FINAL shift current (!!!)
-    #timeCurrent          = np.asfarray(TotalCurrent[:, 1]) #atomic units
+    timeCurrent           = np.asfarray(TotalCurrent[:,1]) #atomic units
     TotalCurrent_X_AU     = np.asfarray(TotalCurrent[:,2]) #atomic units
     TotalCurrent_Y_AU     = np.asfarray(TotalCurrent[:,3]) #a. u.
     TotalCurrent_Z_AU     = np.asfarray(TotalCurrent[:,4]) #a. u. 
     TotalCurrent_size     = TotalCurrent_X_AU.size
-    
+ 
+    timeCurrent_SI        = Time_AU_to_SI(timeCurrent)
+    TotalCurrent_X_SI     = Current_AU_to_SI(TotalCurrent_X_AU)
+    TotalCurrent_Y_SI     = Current_AU_to_SI(TotalCurrent_Y_AU) 
+    TotalCurrent_Z_SI     = Current_AU_to_SI(TotalCurrent_Z_AU) 
+
     ## Selecting last value of the current
     TotalCurrent_X_AU_final = TotalCurrent_X_AU[TotalCurrent_size-1] 
     TotalCurrent_Y_AU_final = TotalCurrent_Y_AU[TotalCurrent_size-1]
@@ -492,35 +498,81 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     TotalCurrent_AU_Xmax  = np.max(TotalCurrent_X_AU)
     TotalCurrent_AU_Ymax  = np.max(TotalCurrent_Y_AU)
     TotalCurrent_AU_Zmax  = np.max(TotalCurrent_Z_AU)
-    
+
+    TotalCurrent_SI_norm  = np.sqrt( np.power(TotalCurrent_X_SI,2)+np.power(TotalCurrent_Y_SI,2)+np.power(TotalCurrent_Z_SI,2) ) #computes norm of the current
+ 
     # Computing External field reconstructed using the current. Work in atomic units. 
     minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+
     Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
+
     Ein_AU     = Efield_AU[:minLength]
-    PolarizationField_AU = cumtrapz(TotalCurrent_X_AU,x=None, dx=TimeStep) #*TimeStep #integral of the current in time
-    Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0
-    Eext_SI    = Field_AU_to_SI(Eext_AU)
-    Eext_SI_max= np.max(np.max(Eext_SI)) #this gives the amplitude of the corresponding external field
-    
-    print(Header+"** Info: maximum external field (V/m): "+str(float(Eext_SI_max)))
+    PolarizationField_AU = cumtrapz(TotalCurrent_X_AU,x=timeCurrent)
+    PolarizationField_AU_checkint = np.cumsum(TotalCurrent_X_AU)*TimeStep #integral of the current in time
+
+    Ein_SI     = Field_AU_to_SI(Ein_AU)
+    PolarizationField_SI = cumtrapz(TotalCurrent_X_SI[:minLength],x=timeCurrent_SI[:minLength])
+    PolarizationField_SI_checkint = np.cumsum((TotalCurrent_X_SI[:minLength])*Time_AU_to_SI(TimeStep))
+
+    Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0 
+
+    EextMinus_AU=Ein_AU - 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0
+
+    Eext_SI    = Ein_SI[:minLength-1] + PolarizationField_SI[:minLength]/epsilon_0 
+    EextMinus_SI= Ein_SI[:minLength-1] - PolarizationField_SI[:minLength]/epsilon_0
+
+    Eext_AU_max=Eext_AU[minLength/2] #this gives the amplitude of the corresponding external field 
+    EextMinus_AU_max=EextMinus_AU[minLength/2]
+    Eext_SI_max=Eext_SI[minLength/2] #this gives the amplitude of the corresponding external field
+    EextMinus_SI_max=EextMinus_SI[minLength/2] #this gives the amplitude of the corresponding external field
+
+    print(Header+"** Info: maximum external field +P (a.u.): "+str(float(Eext_AU_max)))
+    print(Header+"** Info: maximum external field -P (a.u.): "+str(float(EextMinus_AU_max)))
+ 
+    print(Header+"** Info: maximum external field +P (V/m): "+str(float(Eext_SI_max)))
+    print(Header+"** Info: maximum external field -P (V/m): "+str(float(EextMinus_SI_max)))
     
     # Computing integral(J(t).E(t) dt)
-    EnergyPoynting_AU = np.multiply(Ein_AU, TotalCurrent_X_AU[len(ElectronEnergy)-1]) #J.E in a.u.
-    EnergyPoynting_AU_sum = cumtrapz(EnergyPoynting_AU, x=None, dx=TimeStep) #int(J.E, dt) (Hartree) # WARNING: unit problem?
-    EnergyPoynting_AU_sum_max = np.max(np.max(EnergyPoynting_AU_sum)) #maximum absorbed energy
-    EnergyPoynting_AU_sum_final = EnergyPoynting_AU_sum[len(EnergyPoynting_AU_sum)-1] #final absorbed energy
-    
-    EnergyPoynting_SI         = Energy_Hartree_to_eV(EnergyPoynting_AU)
-    EnergyPoynting_SI_sum     = Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
-    EnergyPoynting_SI_sum_max = Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
-    EnergyPoynting_SI_sum_final=Energy_Hartree_to_eV(EnergyPoynting_AU_sum_final)
+    EnergyPoynting_AU = np.multiply(Ein_AU[:minLength], TotalCurrent_X_AU[:minLength]) #J.E in a.u.
+    EnergyPoynting_AU_sum = SampleCellVolume_AU*cumtrapz(EnergyPoynting_AU[:minLength], x=timeCurrent[:minLength]) #int(J.E, dt) (Hartree)
+    EnergyPoynting_AU_sum_checkint = SampleCellVolume_AU*np.cumsum(EnergyPoynting_AU[:minLength])*TimeStep #int(J.E, dt) (Hartree)
 
-    print(Header+'** Info: max absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_max))
-    print(Header+'** Info: final absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_final))
+    EnergyPoynting_AU_sum_max = np.max(np.max(EnergyPoynting_AU_sum)) #maximum absorbed energy (in Hartree)
+    EnergyPoynting_AU_sum_final = EnergyPoynting_AU_sum[len(EnergyPoynting_AU_sum)-1] #final absorbed energy #NOTE: false result!
+ 
+    # Computing integral(J(t).E(t) dt)
+    EnergyPoynting_SI = np.multiply(Ein_SI[:minLength], TotalCurrent_X_SI[:minLength]) #J.E in a.u.
+    EnergyPoynting_SI_sum = SampleCellVolume_SI/e*cumtrapz(EnergyPoynting_SI[:minLength], x=timeCurrent_SI[:minLength]) #int(J.E, dt) [J/m3] * Vol[m-3] = Joules. #BUG: Integration on too small numbers? Divergenc²    EnergyPoynting_SI_sum_max = np.max(np.max(EnergyPoynting_SI_sum)) #maximum absorbed energy
+    EnergyPoynting_SI_sum_checkint = SampleCellVolume_SI/e*np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)
     
-    print Header+"Final DC current: X: "+str(float(TotalCurrent_X_AU_final))+", Y: "+str(float(TotalCurrent_Y_AU_final))+", Z: "+str(float(TotalCurrent_Z_AU_final))+" a.u."
+    EnergyPoynting_SI_sum_final = EnergyPoynting_SI_sum[len(EnergyPoynting_SI_sum)-1] #final absorbed energy
+   
+    EnergyPoynting_SI_check           =Energy_Hartree_to_eV(EnergyPoynting_AU)
+    EnergyPoynting_SI_sum_check       =Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
+    EnergyPoynting_SI_sum_max_check   =Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
+    EnergyPoynting_SI_sum_final_check =Energy_Hartree_to_eV(EnergyPoynting_AU_sum_final)
+#    print(Header+'** Info: max absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_max))
+#    print(Header+'** Info: max absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_max))
+#    print(Header+'** Info: max absorbed Poynting energy CHECK (eV): '+str(EnergyPoynting_SI_sum_max_check))
+    print("\n")
+#    print(Header+"** Debug: timestep (AU): "+str(timeCurrent[1]-timeCurrent[0]))
+#    print(Header+"** Debug: timestep (AU): "+str(TimeStep))
+    print(Header+"** Debug integral (AU): "+str(np.max(np.max(PolarizationField_AU)))+", "+str(np.max(np.max(PolarizationField_AU_checkint)))) #VALID: well converges when sufficiently large
+    print(Header+"** Debug integral (SI): "+str(np.max(np.max(PolarizationField_SI)))+", "+str(np.max(np.max(PolarizationField_SI_checkint)))) #NOTE: well converges when sufficiently large
+
+    print(Header+"** Debug: Energy Poynting integration: "+str(np.max(np.max(EnergyPoynting_AU_sum)))+", "+str(np.max(np.max(EnergyPoynting_AU_sum_checkint)))) #NOTE: converges well when sufficiently large.
+    print(Header+"** Debug: Energy Poynting integration (SI): "+str(np.max(np.max(EnergyPoynting_SI_sum)))+", "+str(np.max(np.max(EnergyPoynting_SI_sum_checkint))))
+    print("\n")
+
+    print(Header+'** Info: final absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_final))
+    print(Header+'** Info: final absorbed Poynting energy (Hartree->eV): '+str(EnergyPoynting_SI_sum_final_check))
+    print(Header+'** Info: final absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_final))
+
+    
+    
+    print Header+"Final DC current (SI): X: "+str(float(Current_AU_to_SI(TotalCurrent_X_AU_final)))+", Y: "+str(float(Current_AU_to_SI(TotalCurrent_Y_AU_final)))+", Z: "+str(float(Current_AU_to_SI(TotalCurrent_Z_AU_final)))+" C/m²/s."
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
-    print Header+"** Missing: Final DC current: "+str(float(TotalCurrent_SI_final))+" TO BE CONVERTED TO S.I. "
+    print Header+"** Final DC current: "+str(float(Current_AU_to_SI(TotalCurrent_SI_final)))+" (S.I.) "
     
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
@@ -542,7 +594,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
     try: 
 
-        print(Header+"** Debug: trying condition for computing ElectronEnergy right after the pulse: ")
+        print(Header+"** Info: trying condition for computing ElectronEnergy right after the pulse: ")
 
         ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
 
@@ -551,8 +603,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
         FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
         FieldDiffEqualZero = (Efield_AU_diff == 0)
-        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
-        print ElectronEnergy_diffLowerThanZero
+#        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
+#        print ElectronEnergy_diffLowerThanZero
 
         Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
     
@@ -601,13 +653,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     # NeMax, NeEnd, density_irreversibility_ratio, EnergyMax
     # One line is one octopus run. O_o
      
-    print Header+"Checking integrity before adding to table..."
+#    print Header+"Checking integrity before adding to table..."
     #print float(runid), float(wavelength_SI), float(PulseDuration_SI)
     #print float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI)
     #print float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI)
     #print float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel)
     #print float(FieldInduced_enabled)
-    print "** Debug: GaugeFieldAmplitude: "+str(GaugeFieldAmplitude)
+#    print "** Debug: GaugeFieldAmplitude: "+str(GaugeFieldAmplitude)
     #print float(GaugeFieldDelay)
     #print float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max)
     #print float(density_proj_SI_final), float(density_irreversibility_ratio)
@@ -638,10 +690,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print(Header+"** INTEGRITY control: checking time derivative of latest frames")
 
     # Take the latest frame of energy or n_exc, and check that we have finished the laser pulse. # WARNING: This assumes timestep for Ne = timestep for Energy = timeStep for Laser.
-    print(Header+"Debug: Length of Efield_AU: "+str(len(Efield_AU)))
+#    print(Header+"Debug: Length of Efield_AU: "+str(len(Efield_AU)))
 
 #    try:
-    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
+#    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
     
     Efield_SI_final = Field_AU_to_SI(Efield_AU[minLength])
  #   except: 
@@ -997,7 +1049,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
       #plt.colorbar(CS)
       
       ## Create a diverging colormap centered on zero.
-      #def DefineGradientColorMap(Z):
+      # d e f DefineGradientColorMap(Z):
         #print(Header+"** Debug:"+np.min(Z))
         #cvals  = [np.min(Z), 0, np.max(Z)]
         #colors = ["red","white","blue"]

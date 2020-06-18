@@ -3,6 +3,8 @@ reset
 set output 'Energy.eps'
 set terminal postscript eps enhanced color font 'Helvetica, 24'
 
+set key outside top center
+
 set format "%g"
 
 xmax=system("grep 'tauAsi =' ../inp | awk '{ print $3*1E15 }'")
@@ -14,11 +16,19 @@ set ytics nomirror
 set y2tics nomirror
 
 set xlabel 'Time [fs]'
-set ylabel 'Ion Energy [a.u]'
-set y2label 'Electron Energy [a.u]'
+set ylabel 'Electron and Ion Energy [a.u.]'
+# set y2label 'Electron Energy [a.u]'
+set y2label 'Laser energy [a.u.]'
 
 xscale=2.74e-17*1E15
 
 plot "energy" u ($2*xscale):4 w l lw 5 lc 1 t 'Ions (kin)', \
-"energy" u ($2*xscale):6 w l lw 5 lc 3 t 'Electrons' axis x1y2
+"laser" u ($2*xscale):3   w l lw 5 lc 7 t 'Laser' axis x1y2, \
+"energy" u ($2*xscale):6  w l lw 5 lc 3 t 'Electrons', \
+"energy" u ($2*xscale):7  w p lw 3 lc 4 t 'Eigenvalues', \
+"energy" u ($2*xscale):8  w p lw 3 lc 5 t 'Hartree', \
+"energy" u ($2*xscale):9  w p lw 3 lc 6 t 'v_{xc}', \
+"energy" u ($2*xscale):10 w p lw 3 lc 7 t 'Exchange', \
+"energy" u ($2*xscale):11 w p lw 3 lc 8 t 'Correlation'
+
 # "energy" u ($2*xscale):3 w l lw 5 lc 7 t 'Total', \

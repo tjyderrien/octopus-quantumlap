@@ -1,8 +1,9 @@
 #!/bin/bash
-set -e 
+# set -e 
 
-source $QuantumLaPsources/machines.env
+source ${QuantumLaPsources}/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 
@@ -44,7 +45,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="Au-CurrentMap-24-IF"
+Mission="Au-IF-jump"
 
 # Phase
 CEP1="0.0"
@@ -53,7 +54,7 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="SinSquared" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
@@ -83,7 +84,12 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
 Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
 Efield1_1E10="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
-Efield1="$Efield1_1E8 $Efield1_1E9 $Efield1_1E10"
+Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11"
+# Efield1thresh="4.5E11 4.75E11 5.25E11 5.5E11 5.75E11" #"4.25E11"
+# Efield1thresh="4.6E11 4.65E11 4.7E11"
+Efield1thresh="4.8E11" # 4.85E11 4.9E11"
+# Efield1="$Efield1_1E8 $Efield1_1E9 $Efield1_1E10"
+Efield1="${Efield1thresh}"
 
 # Efield1="2E11 3E11 4E11 6E11 7E11 8E11 9E11 1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12 1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
 # Efield1="9.5E11 1.5E12 2.5E12 3.5E12 4.5E12"
@@ -103,7 +109,7 @@ Efield2="0E0"
 # Pulse duration
 tau1="60E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="60E-15"
+tau2="30E-15"
 
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
@@ -140,9 +146,11 @@ lambda2="400e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
-for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude}
+
+for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
 do
-for iGaugeFieldDelayValue in ${GaugeFieldDelayValue}
+
+for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
 do
 for iTheoryLevel in ${TheoryLevel};
 do
@@ -150,22 +158,30 @@ for iCrossPola in ${CrossPolarization};
 do
 for iLambda1 in ${lambda1};
 do
+
+
+
  for iLambda2 in ${lambda2};
  do
+
   for iEfield1 in ${Efield1}; 
   do
+echo "Submitting..."
    for iEfield2 in ${Efield2};
    do
+
     for itau1 in ${tau1};
     do
      for itau2 in ${tau2};
      do
+
       for iCEP1 in ${CEP1};
       do
        for iCEP2 in ${CEP2};
        do
         for iDelay in ${delay}
         do
+
 #          for iVacuumSize in ${VacuumSize}
 #          do
           for iMeshSizeX in ${MeshSizeX}
@@ -179,8 +195,8 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time!
-#             echo "Submitting..." 
-            $QuantumLaPsources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe}
+            echo "Submitting 1 job..." 
+            ${QuantumLaPsources}/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe}
 #           done
           done
 #          done
