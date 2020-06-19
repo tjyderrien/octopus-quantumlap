@@ -267,7 +267,10 @@ elif(PulseType == "gaussian"):
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0 #then 0...
-  tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  if(PlottingMode!="doublepulse"):
+    tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  else:
+    tmax = PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI
 else: 
   print Header+"** Error: pulse type was not recognized. "
   print Header+"** Error details: PulseType = "+str(PulseType)
