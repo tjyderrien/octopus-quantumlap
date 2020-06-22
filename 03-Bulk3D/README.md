@@ -16,10 +16,41 @@ For each work, we indicate the date of the latest progress.
 
 ## Single color Keldysh theory in Si
 
+June 22nd 2020: 
+* WARNING: after suppression of refined k-point grid, some runs had to be disabled (database jumps folders with filename DISABLED) are incomplete. 
+* Experiment should be planned on the transmission of light through Si film, to observe MPI peaks in the mid-IR regime. 
+* Video of potential(r,t) should be prepared to develop further intuition on dressing [IT4I only].
+
 ## Bicolor Keldysh theory in Si
+
+### Repeatability with some runs generated on Draco
+
+June 22nd 2020: it seems some recent bicolor runs at E2=1.5 V/nm were not reached same value than neighbours. Repeatability problem (between octopus-slabs versions?) or simply unexpected physics? 
+
+### Bicolor analytical Keldysh-like theory
+
+June 22nd 2020: status is that theory from VP Zhukov does not repeat results. 
+* Improvment can be done by working with a solid instead of atomic gas.   
+* Computing the Floquet energy levels upon bicolor irradiation would also be necessary.
 
 ## Low intensity MPI rate: bad convergence or un-predicted phenomenon?
 
+June 22nd 2020: tried to run low intensities with StH and SinFourth pulses with lower mesh grid. Results were obtained. Run: larger intensities now, to check the required number of photons. 
+
 ## High intensity saturation: Burnstein effect and band-filling: study by single and double-pulse
 
-##  
+## Linear absorption spectrum
+
+June 22nd 2020
+
+* Linear response of Si was obtained. Long-range effects were not accounted. Linear absorption spectrum is quite noisy (spurious oscillations). Try larger amplitude for perturbation (A/omega should not be too small).
+
+## Transient optical absorptivity
+
+* Not attempted yet.  
+
+## Ohm law verified in solids? 
+
+June 22nd 2020
+
+* When enabling induced fields, Ohm law seems satisfied for any laser intensity (lower agreement obtained at low intensity due to lack of numerical precision). When disabling induced fields, Ohm law is no longer satisfied. 
