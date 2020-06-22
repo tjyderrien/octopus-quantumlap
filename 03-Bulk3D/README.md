@@ -9,3 +9,17 @@ To run expensive simulations prepared for BULK Si:
 3. Check flood_zhukov.sh and run_td.sh to generate multiple TD evolutions. 
 
 4. Run the analysis tools prepared in 02-Slabs/plotTimeKeldysh.py, 03-Bulk/plotAll.sh and 02-Slabs/plotFinalQuantities.py. 
+
+# Current status on various works
+
+For each work, we indicate the date of the latest progress. 
+
+## Single color Keldysh theory in Si
+
+## Bicolor Keldysh theory in Si
+
+## Low intensity MPI rate: bad convergence or un-predicted phenomenon?
+
+## High intensity saturation: Burnstein effect and band-filling: study by single and double-pulse
+
+##  
