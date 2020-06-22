@@ -24,8 +24,8 @@ set grid
 xscale=2.74e-17*1E15
 
 plot "total_current" u ($2*xscale):3 w l lw 5 lc 7 t 'Jx' axis x1y2, \
-"laser" u ($2*xscale):3 w l lc 1 lw 3 t 'Laser 1', \
-"laser" u ($2*xscale):6 w l lc 3 lw 3 t 'Laser 2'
+"laser" u ($2*xscale):3 w l lc 1 lw 1 t 'Laser 1', \
+"laser" u ($2*xscale):6 w l lc 3 lw 1 t 'Laser 2'
 
 # "total_current" u ($2*xscale):4 w p lw 1 lc 1 t 'Jy', \
 # "total_current" u ($2*xscale):($5) w p lw 1 lc 3 t 'Jz', \

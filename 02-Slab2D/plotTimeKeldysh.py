@@ -267,7 +267,10 @@ elif(PulseType == "gaussian"):
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0 #then 0...
-  tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  if(PlottingMode!="doublepulse"):
+    tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  else:
+    tmax = PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI
 else: 
   print Header+"** Error: pulse type was not recognized. "
   print Header+"** Error details: PulseType = "+str(PulseType)
@@ -292,7 +295,7 @@ elif(PulseType == "STH" or PulseType=="StH"):
   #here, we don't compute the density but just output the W_PI, because there is not analytical solution for dNe/dt. 
   #As a result, we only put one instant into the pulse to obtain a scalar at the peak intensity. 
   #IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0) #BUG: we just need the peak amplitude of the field
-  FieldEnvelope      = np.multiply(np.ones(instants), Efield_amplitude_SI) #Keldysh.IntensityToField(IntensityEnvelope) # ERROR : this should be an envelope, not a scalar. This makes the case for metals crashing somehow. 
+  FieldEnvelope      = np.multiply(np.ones(instants), Efield_amplitude_SI) #Keldysh.IntensityToField(IntensityEnvelope) # ERROR : this should be an envelope, not a scalar. This makes the case for metals crashing with StH
   #IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
   FieldEnvelope2     = Efield2_norm_SI #Keldysh.IntensityToField(IntensityEnvelope2)
 else: 
@@ -598,7 +601,7 @@ ymax2=5E0;
 
 ymax11value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
 ymax11valueMax = ymax11value.max()*1E-9
-ymax12valueMax = CurrentX.max()
+ymax12valueMax = Current_AU_to_SI(CurrentX.max())
 #if(ymax2valueMax < ymax2 / 100.):
   #ymax2 = ymax2 / 100.
 #elif(ymax2valueMax < ymax2 / 10.):
@@ -641,6 +644,7 @@ plt.ylabel('Field amplitude (V/nm)')
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax11valueMax,ymax11valueMax))
 
+plot1=[]
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
 ### Showing vector potential is only useful to observe shift with materials excitation. 
 # plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD 
@@ -648,23 +652,47 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+
+PlotField=True; PlotPolarizations=True; PlotExternalField=True; PlotCurrent=False
+
+if(PlotField): 
+    plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t) [S.I.]$") #E ~ i A omega / c
+    plot1+=[plot_field]
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
 ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
-plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-plot_current,      = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-plot_polarization, = ax12.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'b-', label=r'$P(t)$ (a.u.) (cumsum)')
-plot_polarization2, = ax12.plot(timeCurrent[:len(timeCurrent)-1], cumtrapz(CurrentX,x=timeCurrent), 'b--', label=r'$P(t)$ (a.u.) (trapz)')
-ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
-ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
-ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
+plt.ylabel(r'$J_{tot}(t)$ (SI)')
+if(PlotCurrent): 
+    plot_current,         = ax12.plot(timeCurrent, Current_AU_to_SI(CurrentX), 'r-', label=r'$J(t)$ (SI)')
+    plot1+=[plot_current]
+    ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
+    ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
+    ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
+
+
+
+PolarizationField_AUthenSI_simple = Field_AU_to_SI(TimeStep * np.cumsum(CurrentX) * 4 * np.pi)
+PolarizationField_AUthenSI = Field_AU_to_SI(cumtrapz(CurrentX,x=timeCurrent)*4*np.pi)
+# PolarizationField_SIdirect = cumtrapz(Current_AU_to_SI(CurrentX), x=Time_AU_to_SI(timeCurrent) )/epsilon_0 #/!\ PolarizationField_AUthenSI != PolarizationField_SIdirect /!\
+# ErrorValue=PolarizationField_SIdirect/PolarizationField_AUthenSI
+
+if(PlotPolarizations):
+    plot_polarization2,    = ax1.plot(timeCurrent, 1E-9*PolarizationField_AUthenSI_simple, 'b--', label=r'$P(t)/\varepsilon_0 (\int \rightarrow$ SI) (cumsum)'); plot1+=[plot_polarization2]
+
+    plot_polarization,   = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*PolarizationField_AUthenSI, 'b:', label=r'$P(t) / \varepsilon_0 (\int \rightarrow $SI) (trapz)'); plot1+=[plot_polarization]
+
+#    plot_polarization_SI, = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*PolarizationField_SIdirect, 'g--', label=r"$P(t)/\varepsilon_0$ (SI$\rightarrow \int)$"); plot1+=[plot_polarization_SI]
+
+#    plot_error, = ax1.plot(timeCurrent[:len(timeCurrent)-1], ErrorValue, 'r--', label=r'Error ratio'); plot1+=[plot_error]
+
+if(PlotExternalField): 
+    plot_Eext, = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*Field_AU_to_SI(np.add(cumtrapz(CurrentX,x=timeCurrent)*4.*np.pi, Efield_X_AU[:len(timeCurrent)-1])), 'g-', label=r"$E_{in}(t)+\pi P(t)/\varepsilon_0$ (SI)"); plot1+=[plot_Eext]
 
 # Building the shared legend for subfig1
-plot1   = [plot_field, plot_current, plot_polarization, plot_polarization2]
+# plot1   = [plot_field, plot_current, plot_polarization, plot_polarization_SI, plot_Eext]
 labels1 = [l.get_label() for l in plot1]
 # ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha) #NOTE: plot is clear enough, no caption is necessary. 
 
@@ -845,18 +873,21 @@ if(PlotPoynting):
 	plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 	plot3+=[plot_energy_IntraBandEnergy]
 
-# Add samples to n_exc_interp? 
-n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
-n_exc_i = n_exc_interp(timeCurrent)
+# Ad samples to n_exc_interp? 
+# n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+# n_exc_i = n_exc_interp(timeCurrent)
 # FITTING DRUDE MODEL AUTOMATICALLY?
 # This function should provide nu, but integration on t may be missing.
-# try:
+try:
 # Or rather decrease precision over Energy? 
-ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
-FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+  ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
+  FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print np.divide(1.,FitDrudeModel_parameters[0])
+  print np.divide(1.,FitDrudeModel_parameters[0])
+except: 
+  print(Header+"** Warning: gave up on auto fitting Energy and excited density.")
 # nu_t = FitDrudeModel_parameters[0]
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."
