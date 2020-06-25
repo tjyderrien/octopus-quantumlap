@@ -31,6 +31,8 @@ June 24th 2020
 
 June 22nd 2020: it seems some recent bicolor runs at E2=1.5 V/nm were not reached same value than neighbours. Repeatability problem (between octopus-slabs versions?) or simply unexpected physics? Or timestep problem? We didn't have problem with these runs on Draco. And k-grid was complete for all...  
 
+June 25th 2020: checking some bicolor runs (1030+515 nm), it is clear that n_ex is still varying AFTER the laser pulses. Temporal divergence? or physical effect. But then, did we have such variation with runs prepared on Draco? 
+
 ### Bicolor analytical Keldysh-like theory
 
 June 22nd 2020: status is that theory from VP Zhukov does not repeat results. 
