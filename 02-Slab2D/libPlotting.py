@@ -519,6 +519,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     Eext_SI_max= np.max(np.max(Eext_SI)) #this gives the amplitude of the corresponding external field
     
     print(Header+"** Info: maximum external field (V/m): "+str(float(Eext_SI_max)))
+    print(Header+"**       maximum internal field (V/m): "+str(float(np.max(np.max(Ein_SI)))))
     
     # Computing integral(J(t).E(t) dt)
     EnergyPoynting_AU = np.multiply(Ein_AU[:minLength], TotalCurrent_X_AU[:minLength]) #J.E in a.u.
