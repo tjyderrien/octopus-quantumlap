@@ -45,22 +45,22 @@ import libMaterials
 Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
 
 # Z_at    = 2 #Number of atoms per unit cell #This may be misleading!!!
-#Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+# Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 
-#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
-#0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
+# meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+# 0.18 # Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
-FigureName='Fig2a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
+FigureName    = 'Fig2a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
 
-Figs_Legend={'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
-Figs_Xmax={'Fig2a': 1.0, 'Fig2b': 1.0, 'Fig6a': 0.66, 'Fig6b': 1.0, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
-Figs_CollTime={'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
-#OpticalIndex={
+Figs_Legend   = {'Fig2a': 'upper left', 'Fig2b': 'upper left', 'Fig6a': 'center right', 'Fig6b': 'center right', 'Fig9a': 'lower right', 'Fig9b': 'lower right', 'Fig9c': 'lower right'}
+Figs_Xmax     = {'Fig2a': 1.0, 'Fig2b': 1.0, 'Fig6a': 0.66, 'Fig6b': 1.0, 'Fig9a': 0.5, 'Fig9b': 0.5, 'Fig9c': 0.5}
+Figs_CollTime = {'Fig2a': 5, 'Fig2b': 7, 'Fig6a': 12.6, 'Fig6b': 2.6, 'Fig9a': 0 , 'Fig9b': 0, 'Fig9c': 0.57}
+# OpticalIndex={
         #400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
         #600e-9: 3.947144634525661,
         #800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
         #2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999} #Palik. TODO: change for linear response. 
-Fig_PlotLocalField={'Fig2a': True, 'Fig2b': True, 'Fig6a': False, 'Fig6b': False, 'Fig9a': False, 'Fig9b': False, 'Fig9c': False}
+Fig_PlotLocalField = {'Fig2a': True, 'Fig2b': True, 'Fig6a': False, 'Fig6b': False, 'Fig9a': False, 'Fig9b': False, 'Fig9c': False}
 Fig_PlotPoynting=Fig_PlotLocalField
 
 PlotLocalFieldEffects=Fig_PlotLocalField[FigureName]
@@ -114,8 +114,8 @@ if(PlottingMode == "auto"):
     MoveIonChain = LookUpStringInFile(filename, "MoveIons = ")
     MoveIonValue = MoveIonChain[11:15]
     MoveIonClean = MoveIonValue.strip()
-    LastNexcLine = GetLastLine("../td.general/n_ex") 
-    LastNexcLineArray = np.array([ float(x) for x in LastNexcLine.split() ])
+    # LastNexcLine = GetLastLine("../td.general/n_ex")
+    # LastNexcLineArray = np.array([ float(x) for x in LastNexcLine.split() ])
     
     if(Efield2_SI > 1E0): #double pulse enabled
       PlottingMode="doublepulse" #priority 1
@@ -267,7 +267,10 @@ elif(PulseType == "gaussian"):
 elif(PulseType == "STH" or PulseType=="StH"): 
   t0   =  2.*PulseDuration_SI
   tmin = -2.*PulseDuration_SI + t0 #then 0...
-  tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  if(PlottingMode!="doublepulse"):
+    tmax =  tmin + 2*PulseDuration_SI #then 2xtau = 60 fs
+  else:
+    tmax = PulseDuration_SI + DoublePulseDelay_SI + PulseDurationB_SI
 else: 
   print Header+"** Error: pulse type was not recognized. "
   print Header+"** Error details: PulseType = "+str(PulseType)
@@ -292,7 +295,7 @@ elif(PulseType == "STH" or PulseType=="StH"):
   #here, we don't compute the density but just output the W_PI, because there is not analytical solution for dNe/dt. 
   #As a result, we only put one instant into the pulse to obtain a scalar at the peak intensity. 
   #IntensityEnvelope  = Keldysh.PulseGaussianTemporalShape(t0, PulseDuration_SI,  Keldysh.FieldToIntensity(Efield_amplitude_SI), t0) #BUG: we just need the peak amplitude of the field
-  FieldEnvelope      = Efield_amplitude_SI #Keldysh.IntensityToField(IntensityEnvelope)
+  FieldEnvelope      = np.multiply(np.ones(instants), Efield_amplitude_SI) #Keldysh.IntensityToField(IntensityEnvelope) # ERROR : this should be an envelope, not a scalar. This makes the case for metals crashing with StH
   #IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
   FieldEnvelope2     = Efield2_norm_SI #Keldysh.IntensityToField(IntensityEnvelope2)
 else: 
@@ -305,6 +308,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   print Header+"Computing Keldysh for Pulse 1: "
   timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
   PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order) #NOTE: we have now corrected Keldysh model. It should help.
+  print(Header+"** Debug: Dimension of timeKeldysh and N_Gruzdev_SI: "+str(np.shape(timeKeldysh))+","+str(np.shape(N_Gruzdev_SI)))
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print Header+"Computing Keldysh for Pulse 2: "
@@ -597,7 +601,7 @@ ymax2=5E0;
 
 ymax11value = (Efield_X_SI+Efield2_X_SI) #TODO: this is not optimum when not overlapping.  
 ymax11valueMax = ymax11value.max()*1E-9
-ymax12valueMax = CurrentX.max()
+ymax12valueMax = Current_AU_to_SI(CurrentX.max())
 #if(ymax2valueMax < ymax2 / 100.):
   #ymax2 = ymax2 / 100.
 #elif(ymax2valueMax < ymax2 / 10.):
@@ -640,6 +644,7 @@ plt.ylabel('Field amplitude (V/nm)')
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax11valueMax,ymax11valueMax))
 
+plot1=[]
 # plt.plot(time[1:], c*EtotX, 'k-', label='c x E(t)')
 ### Showing vector potential is only useful to observe shift with materials excitation. 
 # plt.plot(time, (A1x+A2x)/RatioA, 'b-', label=r'$A(t)$/'+str(RatioA)) #GOOD 
@@ -647,22 +652,47 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+
+PlotField=True; PlotPolarizations=True; PlotExternalField=True; PlotCurrent=False
+
+if(PlotField): 
+    plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t) [S.I.]$") #E ~ i A omega / c
+    plot1+=[plot_field]
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
 ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
-plt.ylabel(r'$J_{tot}(t)$ (arb. u.)')
-# plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
-plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
-ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
-ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
+plt.ylabel(r'$J_{tot}(t)$ (SI)')
+if(PlotCurrent): 
+    plot_current,         = ax12.plot(timeCurrent, Current_AU_to_SI(CurrentX), 'r-', label=r'$J(t)$ (SI)')
+    plot1+=[plot_current]
+    ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
+    ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
+    ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
+
+
+
+PolarizationField_AUthenSI_simple = Field_AU_to_SI(TimeStep * np.cumsum(CurrentX) * 4 * np.pi)
+PolarizationField_AUthenSI = Field_AU_to_SI(cumtrapz(CurrentX,x=timeCurrent)*4*np.pi)
+# PolarizationField_SIdirect = cumtrapz(Current_AU_to_SI(CurrentX), x=Time_AU_to_SI(timeCurrent) )/epsilon_0 #/!\ PolarizationField_AUthenSI != PolarizationField_SIdirect /!\
+# ErrorValue=PolarizationField_SIdirect/PolarizationField_AUthenSI
+
+if(PlotPolarizations):
+    plot_polarization2,    = ax1.plot(timeCurrent, 1E-9*PolarizationField_AUthenSI_simple, 'b--', label=r'$P(t)/\varepsilon_0 (\int \rightarrow$ SI) (cumsum)'); plot1+=[plot_polarization2]
+
+    plot_polarization,   = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*PolarizationField_AUthenSI, 'b:', label=r'$P(t) / \varepsilon_0 (\int \rightarrow $SI) (trapz)'); plot1+=[plot_polarization]
+
+#    plot_polarization_SI, = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*PolarizationField_SIdirect, 'g--', label=r"$P(t)/\varepsilon_0$ (SI$\rightarrow \int)$"); plot1+=[plot_polarization_SI]
+
+#    plot_error, = ax1.plot(timeCurrent[:len(timeCurrent)-1], ErrorValue, 'r--', label=r'Error ratio'); plot1+=[plot_error]
+
+if(PlotExternalField): 
+    plot_Eext, = ax1.plot(timeCurrent[:len(timeCurrent)-1], 1E-9*Field_AU_to_SI(np.add(cumtrapz(CurrentX,x=timeCurrent)*4.*np.pi, Efield_X_AU[:len(timeCurrent)-1])), 'g-', label=r"$E_{in}(t)+\pi P(t)/\varepsilon_0$ (SI)"); plot1+=[plot_Eext]
 
 # Building the shared legend for subfig1
-plot1   = [plot_field, plot_current]
+# plot1   = [plot_field, plot_current, plot_polarization, plot_polarization_SI, plot_Eext]
 labels1 = [l.get_label() for l in plot1]
 # ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=framealpha) #NOTE: plot is clear enough, no caption is necessary. 
 
@@ -731,10 +761,11 @@ if(QuantityOfInterest == "density"):
   ## If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
   if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
     # Checking sizes of the data to plot. 
-    if(len(timeKeldysh) != len(N_Gruzdev_SI)):
+    print(Header+"** Debug: value of N_Gruzdev_SI: "+str(N_Gruzdev_SI))
+    if(np.size(timeKeldysh) != np.size(N_Gruzdev_SI)):
       print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
       print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
-      print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
+      print Header+"Length(N_Gruzdev_SI) = "+str(np.size(N_Gruzdev_SI))
     else: 
       timeKeldysh  = instants
       timeKeldyshB = instants
@@ -745,7 +776,10 @@ if(QuantityOfInterest == "density"):
       ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
     else: #single pulse case
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+      try:
+        ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI, 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
+      except: 
+        print(Header+"** Warning: could not plot Keldysh Gruzdev plot.")
   #elif(PulseType=="STH"): #if STH, we only plot w_PI. 
     #ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
     
@@ -802,7 +836,7 @@ epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant
 ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
 # print Header+"Checking sizes: "+str(CurrentX.size)+" "+str(Efield_X_AU_interp.size)
-TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #BUG? the sign MINUS ensures to have a positive energy. 
+TotalEnergy_diff = -np.multiply(CurrentX, Efield_X_AU_interp) #Current is in a.u. #Conform to Jackson, Classical Electrodynamics, Chap.6, p. 264 
 
 ## if we integrate in time
 TotalEnergyPoynting_AU      = np.multiply(np.cumsum(TotalEnergy_diff),  dtCurrent)
@@ -839,18 +873,21 @@ if(PlotPoynting):
 	plot_energy_IntraBandEnergy, = ax3.plot(timeCurrent, TotalEnergyPoynting, 'k--', label=r"$\int dt' J(t').E(t')$")
 	plot3+=[plot_energy_IntraBandEnergy]
 
-# Add samples to n_exc_interp? 
-n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
-n_exc_i = n_exc_interp(timeCurrent)
+# Ad samples to n_exc_interp? 
+# n_exc_interp = InterpolatedUnivariateSpline(timeNe, observable_proj) #mapping time of timeNe on timeCurrent. 
+# n_exc_i = n_exc_interp(timeCurrent)
 # FITTING DRUDE MODEL AUTOMATICALLY?
 # This function should provide nu, but integration on t may be missing.
-# try:
+try:
 # Or rather decrease precision over Energy? 
-ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
-FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+  ElectronEnergy_inter = InterpolatedUnivariateSpline(timeCurrent, Energy_Hartree_to_eV(ElectronEnergy)) 
+  FitDrudeModel_parameters = curve_fit(FitDrudeModelReal, observable_proj, ElectronEnergy_inter(timeNe))
+
 # We have to minimize ElectronEnergy - 
 #print Header+"FITTING DRUDE MODEL."
-print np.divide(1.,FitDrudeModel_parameters[0])
+  print np.divide(1.,FitDrudeModel_parameters[0])
+except: 
+  print(Header+"** Warning: gave up on auto fitting Energy and excited density.")
 # nu_t = FitDrudeModel_parameters[0]
 # except: 
 #  print Header+"** WARNING: auto-fit of collision frequency failed."

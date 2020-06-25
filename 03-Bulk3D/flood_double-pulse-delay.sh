@@ -1,0 +1,175 @@
+#!/bin/bash
+# set -e 
+
+source $QuantumLaPsources/machines.env
+CheckComputerName
+
+echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
+
+echo "Description: Massive job submitter for QuantumLaP."
+echo "WARNING:     1 job ~ 19,200 core-hours per job."
+echo " ** HANDLE WITH CARE. ** "
+echo ""
+echo "Usage: ./flood.sh"
+echo "** This file uses run_td.sh."
+echo "** DRY-RUN: run_td.sh contains a dry-run for safety."
+
+echo "Note: In this file, you can define all laser pulses of the run you may like to submit."
+
+## ========= COMMON PARTS =============
+# Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
+#VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
+# VacuumSize="24." #Hopefully sufficient for TD runs
+#VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
+MeshSizeX="0.23" # 0.20"
+# MeshSizeZ=$MeshSizeX
+#"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
+
+# Number of nodes
+NumNodes=8
+
+# Sample
+SampleLayers=1
+SampleXY=1
+InitialTemperature="0e0"
+CrossPolarization=0 #1
+
+InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
+TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
+Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
+
+### MISSION #####
+Mission="QuantumLaP-dblepulse"
+
+# Phase
+CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
+# CEP2="0.0"
+CEP2="0.0" # 0.5 0.333333333 0.25 0.142857142857143 0.125"
+# CEP2="0.5 0.16666667" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
+
+# delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
+# delay="0e-15" 
+delay="40e-15" #sets a delay for the Efield1, unless using the SoftTopHat mode then it's pulse duration.
+
+# PROBE PULSE
+GaugeVectorFieldAmplitude="0e0" #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree.
+GaugeFieldDelayValue="0e0"
+# GaugeFieldDelayValue="5e-15 10e-15 15e-15 30e-15" #1e-15 #delay of probe pulse (in number of cycles?)
+
+## ========== ZHUKOV LASER PARAMETERS ============
+PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
+
+RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
+# lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
+# lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
+# lambda2="800e-9"
+# lambda2="515e-9 700e-9 900e-9 1030e-9 1060e-9 1100e-9 1300e-9 1500e-9 1700e-9 1900e-9 2100e-9"
+# lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
+
+# Field amplitude
+# Efield1="1E9 1.5E9 2E9 2.5E9 3E9 3.5E9 4E9" # 5E9 6E9 7E9 8E9 9E9 1E10" #ZHUKOV
+# Efield1="1E8 5E8 1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield2="3E8 1E9 3E9" #1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
+# Efield1="2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+# Efield1="2.5E8" #5E10 W/cm²
+# Efield2="5E8 7.5E8 1E9 1.25E9 1.5E9 1.75E9 2E9" #1E8 5E8 1E9 5E9"
+# Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
+# Efield2="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
+# Efield2="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10"
+Efield1="1E9" #1E11 W/cm²
+
+# Pulse duration
+tau1="30E-15" # 20e-15 30E-15 10E-15"
+# tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
+tau2="30E-15"
+
+# lambda2="515e-9"
+#lambda2="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 550e-9 600e-9 700e-9 750e-9 800e-9 850e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1150e-9 1200e-9 1250e-9 1300e-9 1350e-9 1400e-9 1450e-9 1500e-9 1600e-9 1650e-9 1700e-9 1750e-9 1800e-9 1900e-9 2000e-9 2100e-9"
+lambda1="800e-9"
+lambda2="800e-9"
+# lambda2="1005e-9 1010e-9 1015e-9 1020e-9 1025e-9 1030e-9 1035e-9 1040e-9 1045e-9 1050e-9"
+# lambda2="1600e-9"
+# lambda2="1600e-9 1030e-9"
+
+# ============ SHIFT CURRENT LASER PARAMETERS =========
+#PulseShape="SinSquared"
+#lambda1="800e-9"
+#lambda2="1850e-9 1950e-9 2050e-9 2150e-9"
+
+# ============ MERDJI LASER PARAMETERS =========
+# PulseShape="SinSquared" 
+
+# lambda1="3100e-9" #HAMED wavelength
+# lambda2="1550e-9" #detuned 2.18: 1422e-9
+# lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
+
+## Field amplitude
+# Efield1="9e9" #MERDJI
+# Efield2="9e9"
+
+## Pulse duration
+# tau1="30e-15"
+# tau2="30e-15"
+
+echo "Parameters were defined. Entering submission loop..."
+
+for iGaugeFieldAmplitude in ${GaugeVectorFieldAmplitude};
+do
+for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
+do
+for iTheoryLevel in ${TheoryLevel};
+do
+for iCrossPola in ${CrossPolarization}; 
+do
+for iLambda1 in ${lambda1};
+do
+ for iLambda2 in ${lambda2};
+ do
+  for iEfield1 in ${Efield1}; 
+  do
+   for iEfield2 in ${Efield2};
+   do
+    for itau1 in ${tau1};
+    do
+     for itau2 in ${tau2};
+     do
+      for iCEP1 in ${CEP1};
+      do
+       for iCEP2 in ${CEP2};
+       do
+        for iDelay in ${delay}
+        do
+#          for iVacuumSize in ${VacuumSize}
+#          do
+          for iMeshSizeX in ${MeshSizeX}
+          do
+		iMeshSizeZ=$iMeshSizeX
+           for iRiseCycle in ${RiseCycle}
+           do
+#           for iMeshSizeZ in ${MeshSizeZ}
+#           do 
+            # Create the working folder
+            ## run_td.sh usually does that. 
+	    # Prepare the ground state
+            # Propagate the pulse in time!
+             echo "Submitting..." 
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeFieldAmplitude} ${iGaugeFieldDelayValue}
+
+#           done
+          done
+          done
+        done
+       done
+      done
+     done
+    done
+   done
+  done
+ done
+done
+done
+done
+done
+done

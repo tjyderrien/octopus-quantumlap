@@ -1,16 +1,23 @@
 #!/bin/bash
 ## WARNING: it seems ${BASH_SOURCE} generates serious mistakes, such as bugs like SCP file transfers get blocked.
 
-SourcePath="${BASH_SOURCE[0]}"
+# LocalFolder=$(dirname ${BASH_SOURCE} ) #Should work on any computer but can generate many problems
+# source ${LocalFolder}/../machines.env 
+
+SourcePath="${BASH_SOURCE}[0]"
 LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers.
 source ${LocalFolder}/../machines.env 
-CheckComputerName
-LoadEnvLibraries
+
+# Because of SSH transfers, this file must not emit any return. 
+
+CheckComputerName > /dev/null
+LoadEnvLibraries  > /dev/null
 
 case "${ComputerName}" in 
 	${LenovoTibo})
 		export QuantumLaPsources="/home/hilase/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/hilase/Documents/octopus"
+		echo "Stored variables for local laptop."
 	;;
 
 	${PrometheusLogin}*)
@@ -29,6 +36,7 @@ case "${ComputerName}" in
 	;;
         *)
             ## DO NOTHING
+	    echo "Case not covered."
         ;;
 
 

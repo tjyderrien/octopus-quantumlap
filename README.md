@@ -3,6 +3,10 @@ Thibault J.-Y. Derrien <derrien@fzu.cz>
 HiLASE Centre, Institute of Physics (Prague, Czech Academy of Sciences)
 Max Planck Institute for Structure and Dynamics of Matter (Hamburg, Germany)
 
+# Coding standards
+
+To converge and merge with Atomic Environment Simulation (ASE) in future, one adopts same coding standards detailed here: <https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html>
+
 # Description
 
 Private repository made to develop Octopus simulations for: 
