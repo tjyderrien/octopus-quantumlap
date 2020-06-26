@@ -33,6 +33,9 @@ June 22nd 2020: it seems some recent bicolor runs at E2=1.5 V/nm were not reache
 
 June 25th 2020: checking some bicolor runs (1030+515 nm), it is clear that n_ex is still varying AFTER the laser pulses. Temporal divergence? or physical effect. But then, did we have such variation with runs prepared on Draco? 
 
+June 26th 2020: I think I found the BUG. It comes from octopus. TDPropagationTime seems to CHANGE the value of n_exc. If this is true: more or less ALL THE RUNS have to be recomputed. 
+* There IS a clear dependence to TDPropagationTime anyhow. Strange is that I have a dependence to pulseDelay, a variable that does not exist in documentation. 
+
 ### Bicolor analytical Keldysh-like theory
 
 June 22nd 2020: status is that theory from VP Zhukov does not repeat results. 
