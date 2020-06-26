@@ -105,9 +105,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,41))
+    Database = np.empty((0,42))
 
-  PlottingTable = np.empty((0,41)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,42)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -135,14 +135,17 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
       continue
     
-    machinename_t=LookUpStringInFile(filename, "swim")
+    LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
+
+    machinename_t=LookUpStringInFile(LOG_newest, "swim")
+    print(Header+"** Debug: "+str(machinename_t))
     MachineName  =machinename_t.split()[5]
     print(Header+" ** Name of the machine which produced the result: "+str(MachineName))
     #MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
     #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
     #if(MachineName)
-    
-    RunDate_t = LookUpStringInFile(filename, "started")
+
+    RunDate_t = LookUpStringInFile(LOG_newest, "started")
     RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
     print(Header+"** Date of the run: "+str(RunDate))
     
@@ -288,10 +291,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ### Checking if probe was enabled. Output the probe amplitude.
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
-    # if a "#" is found, then set 0!
+    # if a "#" is found, then set 0 ! #WARNING: this is treated differently in Octopus. If norm(GaugeVectorField)==0, InducedFields is automatically enabled. 
     if "#" in GaugeVectorField_tmp[0]: 
         GaugeFieldAmplitude = 0e0
     else: 
+        # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
+        FieldInduced_enabled = 1 #This should stay AFTER FieldInduced_enabled detection.
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:

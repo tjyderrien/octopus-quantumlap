@@ -40,6 +40,7 @@ NumNodes=${23}
 GaugeVectorFieldAmplitude=${24}
 GaugeFieldDelayValue=${25}
 SmearingTe=${26}
+UseLinearResponse=${27}
  
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -125,7 +126,9 @@ DefineParameters () {
   fi
 
 # PROBE INPUT
-  if [ ${GaugeVectorFieldAmplitude} == 0 ]; then
+#   if [ ${GaugeVectorFieldAmplitude} == 0 ]; then
+
+if [ ${UseLinearResponse} == 0 ]; then
     GaugeVectorFieldText=""
   else 
     GaugeVectorFieldText="-Probe${GaugeVectorFieldAmplitude}-ProbeDelay${GaugeFieldDelayValue}"
@@ -218,10 +221,20 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
-  sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp
-  sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
   sed -i.bak s/SmearingTe/${SmearingTe}/g inp
 
+  if [ ${UseLinearResponse} == 1 ]; then
+echo "# Linear response probing" >> inp
+echo "%GaugeVectorField #useful for probing" >> inp
+echo "   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script" >> inp
+echo "%" >> inp
+echo "GaugeFieldDelaySI = GaugeFieldDelayValue" >> inp
+echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
+    sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp #THIS GENERATES HUGE BUG if used for usual TD propagation
+    sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
+
+  fi
+  
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
 	echo "MoveIons = yes" >> inp
