@@ -126,7 +126,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     filename             = FolderName+"../inp"
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
-    print Header+"** Capturing the RUN ID of octopus on Draco..."
+    print Header+"** Capturing the RUN ID of octopus..."
     runid=LookUpLatestLogFile(FolderName+"../octopus-td")
     print Header+"LogFile="+str(runid)+", folder = "+FolderName 
     try: #there is quite much loss here, 30% maybe. 
@@ -134,6 +134,17 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     except:
       print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
       continue
+    
+    machinename_t=LookUpStringInFile(filename, "swim")
+    MachineName  =machinename_t.split()[5]
+    print(Header+" ** Name of the machine which produced the result: "+str(MachineName))
+    #MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
+    #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
+    #if(MachineName)
+    
+    RunDate_t = LookUpStringInFile(filename, "started")
+    RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
+    print(Header+"** Date of the run: "+str(RunDate))
     
     TheoryLevel          = 1 #default value
     ## Checking the theory level
@@ -667,7 +678,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
 	      
-    StackToAdd = [ float(runid), float(wavelength_SI), float(PulseDuration_SI), 
+    StackToAdd = [ float(runid), float(RunDate), float(wavelength_SI), float(PulseDuration_SI), 
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
@@ -758,56 +769,99 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 # /!\ The size of the table must match the one given in ListAllOutput()
 def ExtractData(PlottingTable): #{{{
   runid                        = PlottingTable[:,0]
-  wavelengths1                 = PlottingTable[:,1]
-  pulses1                      = PlottingTable[:,2]
-  Efield1                      = PlottingTable[:,3]
-  CEP1                         = PlottingTable[:,4]
-  wavelengths2                 = PlottingTable[:,5]
-  pulses2                      = PlottingTable[:,6]
-  Efield2                      = PlottingTable[:,7]
-  CEP2                         = PlottingTable[:,8]
-  Delay                        = PlottingTable[:,9]
-  CrossPolarization            = PlottingTable[:,10]
-  TheoryLevel                  = PlottingTable[:,11]
-  FieldInduced                 = PlottingTable[:,12]
-  GaugeFieldAmplitude          = PlottingTable[:,13]
-  GaugeFieldDelay              = PlottingTable[:,14]
-  Functional                   = PlottingTable[:,15]
-  FreezeHXC                    = PlottingTable[:,16]
-  MoveIon                      = PlottingTable[:,17]
-  Ne_max                       = PlottingTable[:,18]
-  Ne_final                     = PlottingTable[:,19]
-  irreversibility              = PlottingTable[:,20]
-  TotalCurrent_final           = PlottingTable[:,21]
-  TotalCurrent_max             = PlottingTable[:,22]
-  TotalCurrent_AU_Xmax         = PlottingTable[:,23]
-  TotalCurrent_AU_Ymax         = PlottingTable[:,24]
-  TotalCurrent_AU_Zmax         = PlottingTable[:,25]
-  ElectronEnergy_max           = PlottingTable[:,26]
-  EigenvaluesEnergy_max        = PlottingTable[:,27]
-  HartreeEnergy_max            = PlottingTable[:,28]
-  ExchangeEnergy_max           = PlottingTable[:,29]
-  ElectronEnergy_afterpulse    = PlottingTable[:,30]
-  EigenvaluesEnergy_afterpulse = PlottingTable[:,31]
-  HartreeEnergy_afterpulse     = PlottingTable[:,32]
-  ExchangeEnergy_afterpulse    = PlottingTable[:,33]
-  Eext_SI_max                  = PlottingTable[:,34]
-  EnergyPoynting_SI_sum_final  = PlottingTable[:,35]
-  Wpi                          = PlottingTable[:,36]
-  PulseType                    = PlottingTable[:,37]
-  RiseTime                     = PlottingTable[:,38]
-  FinalTime                    = PlottingTable[:,39]
-  timeToFilterFrom             = PlottingTable[:,40]
+  RunDate                      = PlottingTable[:,1]
+  wavelengths1                 = PlottingTable[:,2]
+  pulses1                      = PlottingTable[:,3]
+  Efield1                      = PlottingTable[:,4]
+  CEP1                         = PlottingTable[:,5]
+  wavelengths2                 = PlottingTable[:,6]
+  pulses2                      = PlottingTable[:,7]
+  Efield2                      = PlottingTable[:,8]
+  CEP2                         = PlottingTable[:,9]
+  Delay                        = PlottingTable[:,10]
+  CrossPolarization            = PlottingTable[:,11]
+  TheoryLevel                  = PlottingTable[:,12]
+  FieldInduced                 = PlottingTable[:,13]
+  GaugeFieldAmplitude          = PlottingTable[:,14]
+  GaugeFieldDelay              = PlottingTable[:,15]
+  Functional                   = PlottingTable[:,16]
+  FreezeHXC                    = PlottingTable[:,17]
+  MoveIon                      = PlottingTable[:,18]
+  Ne_max                       = PlottingTable[:,19]
+  Ne_final                     = PlottingTable[:,20]
+  irreversibility              = PlottingTable[:,21]
+  TotalCurrent_final           = PlottingTable[:,22]
+  TotalCurrent_max             = PlottingTable[:,23]
+  TotalCurrent_AU_Xmax         = PlottingTable[:,24]
+  TotalCurrent_AU_Ymax         = PlottingTable[:,25]
+  TotalCurrent_AU_Zmax         = PlottingTable[:,26]
+  ElectronEnergy_max           = PlottingTable[:,27]
+  EigenvaluesEnergy_max        = PlottingTable[:,28]
+  HartreeEnergy_max            = PlottingTable[:,29]
+  ExchangeEnergy_max           = PlottingTable[:,30]
+  ElectronEnergy_afterpulse    = PlottingTable[:,31]
+  EigenvaluesEnergy_afterpulse = PlottingTable[:,32]
+  HartreeEnergy_afterpulse     = PlottingTable[:,33]
+  ExchangeEnergy_afterpulse    = PlottingTable[:,34]
+  Eext_SI_max                  = PlottingTable[:,35]
+  EnergyPoynting_SI_sum_final  = PlottingTable[:,36]
+  Wpi                          = PlottingTable[:,37]
+  PulseType                    = PlottingTable[:,38]
+  RiseTime                     = PlottingTable[:,39]
+  FinalTime                    = PlottingTable[:,40]
+  timeToFilterFrom             = PlottingTable[:,41]
 
-  return runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
+  return runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
 #}}}
 
-IndexTable = {'runid': 0, 'wavelengths1': 1, 'pulses1': 2, 'Efield1': 3, 'CEP1': 4, 'wavelengths2': 5, 'pulses2': 6, 'Efield2': 7, 'CEP2': 8, 'Delay':  9, 'CrossPolarization': 10, 'TheoryLevel': 11, 'FieldInduced': 12, 'GaugeFieldAmplitude':13, 'GaugeFieldDelay':14, 'Functional': 15, 'FreezeHXC':16, 'MoveIon': 17, 'Ne_max': 18, 'Ne_final': 19, 'irreversibility': 20, 'Current_final': 21, 'Current_max': 22, 'CurrentX_max': 23, 'CurrentY_max': 24, 'CurrentZ_max': 25, 'ElectronEnergy_final': 26, 'EigenvaluesEnergy_max': 27 , 'HartreeEnergy_max': 28, 'ExchangeEnergy_max': 29, 'ElectronEnergy_afterpulse': 30, 'EigenvaluesEnergy_afterpulse': 31, 'HartreeEnergy_afterpulse': 32, 'ExchangeEnergy_afterpulse': 33, 'EnergyPoynting_final': 34, 'Eext_SI': 35, 'Wpi': 36, 'PulseType': 37, 'RiseTime': 38, 'FinalTime': 39, 'FilterTime': 40}
+IndexTable = {'runid':                        0, 
+              'rundate':                      1, 
+              'wavelengths1':                 2, 
+              'pulses1':                      3, 
+              'Efield1':                      4, 
+              'CEP1':                         5, 
+              'wavelengths2':                 6, 
+              'pulses2':                      7, 
+              'Efield2':                      8, 
+              'CEP2':                         9, 
+              'Delay':                        10,
+              'CrossPolarization':            11, 
+              'TheoryLevel':                  12, 
+              'FieldInduced':                 13, 
+              'GaugeFieldAmplitude':          14, 
+              'GaugeFieldDelay':              15, 
+              'Functional':                   16, 
+              'FreezeHXC':                    17, 
+              'MoveIon':                      18, 
+              'Ne_max':                       19, 
+              'Ne_final':                     20, 
+              'irreversibility':              21, 
+              'Current_final':                22, 
+              'Current_max':                  23, 
+              'CurrentX_max':                 24, 
+              'CurrentY_max':                 25, 
+              'CurrentZ_max':                 26, 
+              'ElectronEnergy_final':         27, 
+              'EigenvaluesEnergy_max':        28, 
+              'HartreeEnergy_max':            29, 
+              'ExchangeEnergy_max':           30, 
+              'ElectronEnergy_afterpulse':    31, 
+              'EigenvaluesEnergy_afterpulse': 32, 
+              'HartreeEnergy_afterpulse':     33, 
+              'ExchangeEnergy_afterpulse':    34, 
+              'EnergyPoynting_final':         35, 
+              'Eext_SI':                      36, 
+              'Wpi':                          37, 
+              'PulseType':                    38, 
+              'RiseTime':                     39, 
+              'FinalTime':                    40,  
+              'FilterTime':                   41
+              }
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
+  runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
