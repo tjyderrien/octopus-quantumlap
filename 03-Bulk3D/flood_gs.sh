@@ -4,6 +4,7 @@ set -e
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "Massive job submitter for QuantumLaP."
 echo "WARNING: 1 job ~ 19,200 core-hours per job."
@@ -19,7 +20,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.20 0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-recommended value
+MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-recommended value
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
