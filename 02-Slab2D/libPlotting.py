@@ -288,10 +288,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ### Checking if probe was enabled. Output the probe amplitude.
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
-    # if a "#" is found, then set 0!
+    # if a "#" is found, then set 0 ! #WARNING: this is treated differently in Octopus. If norm(GaugeVectorField)==0, InducedFields is automatically enabled. 
     if "#" in GaugeVectorField_tmp[0]: 
         GaugeFieldAmplitude = 0e0
     else: 
+        # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
+        FieldInduced_enabled = 1 #This should stay AFTER FieldInduced_enabled detection.
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
