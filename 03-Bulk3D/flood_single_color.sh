@@ -36,7 +36,7 @@ InitialTemperature="0e0"
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
-UseLinearResponse="1"
+UseLinearResponse="0"
 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
