@@ -223,12 +223,13 @@ tR = tauRise
 #  "envelope_sin2" | tdf_from_expr | "-Iau/omega*c*sin(pi*t/Tpulse)^2*(1-step(t-Tpulse))"
 # %
 
-%GaugeVectorField #useful for probing
-   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script
-%
-
-GaugeFieldDelaySI = GaugeFieldDelayValue
-GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
+### NEVER USE OUT OF LINEAR RESPONSE
+# %GaugeVectorField #useful for probing
+#    GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script
+# %
+# 
+# GaugeFieldDelaySI = GaugeFieldDelayValue
+# GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
 
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
