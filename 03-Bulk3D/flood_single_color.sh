@@ -36,13 +36,17 @@ InitialTemperature="0e0"
 CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
+UseLinearResponse="0"
+
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
 # Mission="Drude"
+
 Mission="QLaP-1600"
+# Mission="3200nm-LinearResponse"
 # Mission="CEP-tunneling"
 # Mission="InducedField"
 # Mission="MidIRGapModification"
@@ -56,14 +60,11 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
+delay="0.25e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 # PROBE PULSE
 GaugeVectorFieldAmplitude="0.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
 GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
-
-
-
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="StH" 
@@ -98,6 +99,7 @@ Efield1="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11"
 # Efield1="5E8 3E9 4E9"
 # Efield1="5E10 1E11 5E11"
 # Efield1="1E8 2.5E8" # 3E9 4E9"
+# Efield1="0E0" #"3E9" #2.5E8" # 3E9 4E9"
 
 # STARK SHIFT VALUES.
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9 4E9 5E9" 
@@ -111,8 +113,10 @@ tau1="30E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
 tau2="30E-15"
 
-lambda1="1600e-9"
+
+# lambda1="1600e-9"
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9 2600e-9" # 3200e-9"
+# lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
 # lambda1="2470e-9 3100e-9 4100e-9 6200e-9 12400e-9"
 # lambda1="323e-9 448e-9 571e-9 652e-9 918e-9 954e-9 961e-9 968e-9 976e-9 2296e-9 2480e-9"
@@ -126,6 +130,7 @@ lambda1="1600e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
 # lambda1="407.58e-9" #1st harmonic of the band gap LDA: 483.70 nm. TB09: 407.58 nm.
+lambda1="3200e-9"
 lambda2="400e-9"
 # lambda2="1030e-9 1600e-9"
 
@@ -190,7 +195,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse}
 #           done
           done
 #          done
