@@ -168,6 +168,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
 	 
     FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
+    GaugeVectorField_inp2= LookUpStringInFile(filename, "GaugeVectorField")
     GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
     GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
@@ -289,6 +290,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       print Header+"Info: InducedFields was disabled."
     
     ### Checking if probe was enabled. Output the probe amplitude.
+    if "#" in GaugeVectorField_inp2: #then it is disabled
+        FieldInduced_enabled = 0 #This should stay AFTER FieldInduced_enabled detection.
+        print Header+"** Info: InducedFields was ACTUALLY enabled."
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0 ! #WARNING: this is treated differently in Octopus. If norm(GaugeVectorField)==0, InducedFields is automatically enabled. 
@@ -296,8 +300,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         GaugeFieldAmplitude = 0e0
     else: 
         # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
-        FieldInduced_enabled = 1 #This should stay AFTER FieldInduced_enabled detection.
-        print Header+"** Info: InducedFields was ACTUALLY enabled."
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
