@@ -25,6 +25,9 @@ June 24th 2020
 * WARNING: at 1600 nm, I found some runs that have same parameters but that don't provide the same final n_exc. These all are the one who ran on Prometheus. 
 * HOWEVER: runs that ran on Prometheus in January were not problematic. Therefore, problem can be in two things: (i) refined grid in input file, (ii) change in the code. 
 
+June 25th 2020
+* Found one run which provided SAME results between Prometheus and Draco: #17608283. I decided to re-run this one using Salomon, and the exact version that was used at that time. Still impossible to find the same result. Therefore, I priviledge an error from my side.   
+
 ## Bicolor Keldysh theory in Si
 
 ### Repeatability with some runs generated on Draco
