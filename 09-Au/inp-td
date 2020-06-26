@@ -233,7 +233,7 @@ GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
 
-TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
 TDPropagator = etrs #it was aetrs
 TDExponentialMethod = lanczos
