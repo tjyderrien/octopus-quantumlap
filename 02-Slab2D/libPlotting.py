@@ -105,9 +105,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,41))
+    Database = np.empty((0,42))
 
-  PlottingTable = np.empty((0,41)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,42)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -294,6 +294,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     else: 
         # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
         FieldInduced_enabled = 1 #This should stay AFTER FieldInduced_enabled detection.
+        print Header+"** Info: InducedFields was ACTUALLY enabled."
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
