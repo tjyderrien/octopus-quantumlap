@@ -22,7 +22,7 @@ LoadOctopusSalomonModulesFortran2020
 ## see https://software.intel.com/en-us/articles/dapl-ud-support-in-intel-mpi-library
 # export I_MPI_DAPL_UD=1
 
-export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes an MPI problem with Draco.
+# export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes an MPI problem with Draco.
 
 ##gather MPI statistics to be analyzed with itac's mps tool
 # export I_MPI_STATS=all
@@ -36,7 +36,7 @@ export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes an MPI problem with Draco.
 
 # JUST TO EXECUTE ONE RUN
 RunningTrunc=/home/tjyderrien/octopus.git/bin
-
+DebugTrunc=/home/tjyderrien/octopus.clean/bin
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # sleep 5
