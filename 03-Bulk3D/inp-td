@@ -182,6 +182,7 @@ Aa = amplitudeA
 # Enable the induced field
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
+# USE ONLY WITH OPTICAL PROPERTIES
 # Linear response probing
 # %GaugeVectorField #useful for probing
 #   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script
