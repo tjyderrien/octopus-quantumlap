@@ -25,6 +25,9 @@ June 24th 2020
 * WARNING: at 1600 nm, I found some runs that have same parameters but that don't provide the same final n_exc. These all are the one who ran on Prometheus. 
 * HOWEVER: runs that ran on Prometheus in January were not problematic. Therefore, problem can be in two things: (i) refined grid in input file, (ii) change in the code. 
 
+June 25th 2020
+* Found one run which provided SAME results between Prometheus and Draco: #17608283. I decided to re-run this one using Salomon, and the exact version that was used at that time. Still impossible to find the same result. Therefore, I priviledge an error from my side.   
+
 ## Bicolor Keldysh theory in Si
 
 ### Repeatability with some runs generated on Draco
@@ -32,6 +35,9 @@ June 24th 2020
 June 22nd 2020: it seems some recent bicolor runs at E2=1.5 V/nm were not reached same value than neighbours. Repeatability problem (between octopus-slabs versions?) or simply unexpected physics? Or timestep problem? We didn't have problem with these runs on Draco. And k-grid was complete for all...  
 
 June 25th 2020: checking some bicolor runs (1030+515 nm), it is clear that n_ex is still varying AFTER the laser pulses. Temporal divergence? or physical effect. But then, did we have such variation with runs prepared on Draco? 
+
+June 26th 2020: I think I found the BUG. It comes from octopus. TDPropagationTime seems to CHANGE the value of n_exc. If this is true: more or less ALL THE RUNS have to be recomputed. 
+* There IS a clear dependence to TDPropagationTime anyhow. Strange is that I have a dependence to pulseDelay, a variable that does not exist in documentation. 
 
 ### Bicolor analytical Keldysh-like theory
 

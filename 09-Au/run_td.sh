@@ -2,11 +2,10 @@
 # Input: $1: SampleLayers, $2: SampleXY
 # Purpose: TD-evolution. 
 
-set -e
-source $QuantumLaPsources/machines.env
+# set -e
+source ${QuantumLaPsources}/machines.env
 CheckComputerName
-source $QuantumLaPsources/03-Bulk3D/machines.env
-echo "[Checking] Variable basePath: $basePath"
+LoadEnvLibraries
 
 source $QuantumLaPsources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 

@@ -58,12 +58,11 @@ BoxShape = parallelepiped
 
 
 %KPointsGrid
-#  12 | 12 | 12
    kPointsValue | kPointsValue | kPointsValue
-#   0.5 | 0.5 | 0.5
-#   0.5 | 0.0 | 0.0
-#   0   | 0.5 | 0
-#   0   | 0   | 0.5
+   0.5 | 0.5 | 0.5
+   0.5 | 0.0 | 0.0
+   0.0 | 0.5 | 0.0  
+   0.0 | 0.0 | 0.5
 %
 
 ##### CONVERGENCE OPTIMIZATION
