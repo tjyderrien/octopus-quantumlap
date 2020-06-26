@@ -51,7 +51,7 @@ CEP2="0.0" # 0.5 0.333333333 0.25 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15" 
-delay="40e-15" #sets a delay for the Efield1, unless using the SoftTopHat mode then it's pulse duration.
+delay="50e-15" #sets a delay for the Efield1, unless using the SoftTopHat mode then it's pulse duration.
 
 # PROBE PULSE
 GaugeVectorFieldAmplitude="0e0" #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree.
@@ -78,7 +78,7 @@ Efield2="3E8 1E9 3E9" #1.5E9 2.5E9 3.5E9 4.5E9 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9"
 # Efield1="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
 # Efield2="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
 # Efield2="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9 1E10"
-Efield1="1E9" #1E11 W/cm²
+Efield1="5E9 1E10" #1E11 W/cm²
 
 # Pulse duration
 tau1="30E-15" # 20e-15 30E-15 10E-15"
