@@ -45,7 +45,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="Au-IF-jump"
+Mission="Au-IF-zero"
 
 # Phase
 CEP1="0.0"
@@ -87,9 +87,9 @@ Efield1_1E10="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11"
 # Efield1thresh="4.5E11 4.75E11 5.25E11 5.5E11 5.75E11" #"4.25E11"
 # Efield1thresh="4.6E11 4.65E11 4.7E11"
-Efield1thresh="4.8E11" # 4.85E11 4.9E11"
+Efield1thresh="4.85E11 4.9E11"
 # Efield1="$Efield1_1E8 $Efield1_1E9 $Efield1_1E10"
-Efield1="${Efield1thresh}"
+Efield1="0E0" # "${Efield1thresh}"
 
 # Efield1="2E11 3E11 4E11 6E11 7E11 8E11 9E11 1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12 1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
 # Efield1="9.5E11 1.5E12 2.5E12 3.5E12 4.5E12"
