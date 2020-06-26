@@ -188,7 +188,7 @@ GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 # %
 
 # Delay for the probing
-GaugeFieldDelaySI = GaugeFieldDelayValue
+# GaugeFieldDelaySI = GaugeFieldDelayValue
 # GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
 
 # Building up pulses
