@@ -172,10 +172,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
     GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
-    try:
-	 FieldInduced_string = FieldInduced_inp[0]
-    except:
-	 FieldInduced_string = ''
+#    try:
+#	 FieldInduced_string = FieldInduced_inp[0]
+#    except:
+#	 FieldInduced_string = ''
 	 
     CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then empty
     if(CrossPolarization_inp):
@@ -278,25 +278,39 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
 
     ######## Filter the induced fields #TODO: reshape these tests: lets filter in POST collection of data. Let just put 1 or 0 in the table. Then we can generate all the plots. 
+
+## BOOLEAN: GaugeFieldPropagate <-- GaugeFieldPropagate (FieldInduced_enabled) OR GaugeVectorField
+
+## 1. Define the simple boolean from input file (intent) given by GaugeFieldPropagate of the Input file.
     FieldInduced_enabled = 0 # default value
-    if(FieldInduced_string == "#"):
+#    if("#" in FieldInduced_string[0:5]):
+    if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
-    elif(FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
+    elif("yes" in FieldInduced_inp and "=" in FieldInduced_inp): # "=" and "yes" are found in the line. 
       FieldInduced_enabled = 1
       print Header+"Info: InducedFields was enabled."
-    else:
-      FieldInduced_enabled = 0
-      print Header+"Info: InducedFields was disabled."
-    
+#    else: #any other case should check if GaugeVectorField is present
+#      FieldInduced_enabled = 0
+#      print Header+"Info: InducedFields was disabled."
+      
+## 2. Then define a simple boolean checking if GaugeVectorField is present. WARNING: even if amplitude is zero, octopus will enable GaugeFieldPropagate.
+
     ### Checking if probe was enabled. Output the probe amplitude.
-    if "#" in GaugeVectorField_inp2: #then it is disabled
-        FieldInduced_enabled = 0 #This should stay AFTER FieldInduced_enabled detection.
-        print Header+"** Info: InducedFields was ACTUALLY enabled."
+    if "#" in GaugeVectorField_inp2[0:5]: #then it is disabled
+        GaugeVectorField_enabled = 0
+        print(Header+"** Info: GaugeVectorField was commented.")
+    elif("GaugeVectorField" in GaugeVectorField_inp2): #there is no # in line beginning and GaugeVectorField is ON
+        GaugeVectorField_enabled = 1
+        print Header+"** Info: GaugeVectorField was enabled." 
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
+    
+## 3. Now we re-affect FieldInduced_enabled as follows. 
+    FieldInduced_enabled = (GaugeVectorField_enabled or FieldInduced_enabled)
+    del GaugeVectorField_enabled
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0 ! #WARNING: this is treated differently in Octopus. If norm(GaugeVectorField)==0, InducedFields is automatically enabled. 
-    if "#" in GaugeVectorField_tmp[0]: 
+    if "#" in GaugeVectorField_tmp[0:5]: 
         GaugeFieldAmplitude = 0e0
     else: 
         # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
