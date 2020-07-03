@@ -284,12 +284,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 ## 1. Define the simple boolean from input file (intent) given by GaugeFieldPropagate of the Input file.
     FieldInduced_enabled = 0 # default value
 #    if("#" in FieldInduced_string[0:5]):
+    FieldInduced_inp_tab = FieldInduced_inp.split(" ")
     if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
       FieldInduced_enabled = 0
       print Header+"Info: InducedFields was disabled."
-    elif("yes" in FieldInduced_inp and "=" in FieldInduced_inp): # "=" and "yes" are found in the line. 
+    elif("yes" in FieldInduced_inp_tab[2]): # "Yes is found right after sign "="
       FieldInduced_enabled = 1
-      print Header+"Info: InducedFields was enabled."
+      print Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"]."
 #    else: #any other case should check if GaugeVectorField is present
 #      FieldInduced_enabled = 0
 #      print Header+"Info: InducedFields was disabled."
@@ -297,12 +298,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 ## 2. Then define a simple boolean checking if GaugeVectorField is present. WARNING: even if amplitude is zero, octopus will enable GaugeFieldPropagate.
 
     ### Checking if probe was enabled. Output the probe amplitude.
+    GaugeVectorField_enabled=0
     if "#" in GaugeVectorField_inp2[0:5]: #then it is disabled
         GaugeVectorField_enabled = 0
-        print(Header+"** Info: GaugeVectorField was commented.")
+        print(Header+"** Info: GaugeVectorField was commented [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+"].")
     elif("GaugeVectorField" in GaugeVectorField_inp2): #there is no # in line beginning and GaugeVectorField is ON
         GaugeVectorField_enabled = 1
-        print Header+"** Info: GaugeVectorField was enabled." 
+        print Header+"** Info: GaugeVectorField was enabled [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+"." 
 #    GaugeFieldAmplitude=0e0 #zero if it was not used.
     
 ## 3. Now we re-affect FieldInduced_enabled as follows. 
