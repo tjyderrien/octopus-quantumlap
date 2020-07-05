@@ -3411,6 +3411,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e, RemoveTunneling=False): #{{{
   LogWpi=False                                                                                                                                                                                                                
   LogPlotXY=False
+  InducedFields=0.0 #we dont want to enable this for now
   gammaLimit = 1E-10
   meff = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   CEP2_request=-pi/2.
@@ -3424,6 +3425,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
+  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, InducedFields, IndexTable['FieldInduced']) #Removing the induced fields. Yeah because they should not be mixed!
   
   if(CEP2_request >= 0):
       PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
@@ -4134,14 +4136,40 @@ def plot_Vorobyev_Au(material):
 
 
 #====================================== EXECUTION ZONE ============================
+
+print("Welcome to Octopus-slab plotter.")
+print("================================\n")
+print("** Info: Automatic detection of the routine to run...")
+
+
+
+dirname=os.path.realpath(".")
+
+print("** Info: directory name: "+str(dirname))
+
 ## Zhukov single color plotting [Phys. Rev. B]
 
-plot_Zhukov_SingleColor_LDA()
-#plot_Zhukov_SingleColor_TB09()
-
-## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps() #LDA gap
-
+if "BicolorSummaries" in dirname:
+    ## Zhukov bicolor plotting
+    print(Header+"** Info: running bicolor analyses of Si LDA...")
+    plot_Zhukov_BicolorMaps() #LDA gap
+    
+elif "03-Bulk3D" in dirname:
+    if "TB09" in dirname: 
+        print(Header+"** Info: detected TB09 computations for Si...")
+        plot_Zhukov_SingleColor_TB09()
+    else: 
+        print(Header+"** Info: running LDA single-color Keldysh analyses...")
+        plot_Zhukov_SingleColor_LDA()
+elif "09-Au" in dirname: 
+    print(Header+"** Info: detected computations for Au...")
+    plot_Vorobyev_Au('Au')
+elif "06-Mo" in dirname: 
+    print(Header+"** Info: detected computations for Mo...")
+    plot_Vorobyev_Au('Mo')
+else: 
+    print("Other routines are available, but may not be up to date.")
+    
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
 
@@ -4149,8 +4177,6 @@ plot_Zhukov_SingleColor_LDA()
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-#plot_Vorobyev_Au('Au')
-#plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
 #exit()
