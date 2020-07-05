@@ -10,9 +10,10 @@ To run expensive simulations prepared for BULK Si:
 
 4. Run the analysis tools prepared in 02-Slabs/plotTimeKeldysh.py, 03-Bulk/plotAll.sh and 02-Slabs/plotFinalQuantities.py. 
 
-# Current status on various works
+# Current status on various works [solved problems are removed]
 
 For each work, we indicate the date of the latest progress. 
+In principle, Issues should be rather employed for this on BitBucket (linked to Trello) to avoid duplication.
 
 ## Single color Keldysh theory in Si
 
@@ -28,6 +29,9 @@ June 24th 2020
 June 25th 2020
 * Found one run which provided SAME results between Prometheus and Draco: #17608283. I decided to re-run this one using Salomon, and the exact version that was used at that time. Still impossible to find the same result. Therefore, I priviledge an error from my side.   
 
+July 3rd 2020
+* Problem was resolved: when GaugeVectorField (=0) is enabled, then GaugeFieldPropagate becomes enabled by octopus. Issue seem now solved. Have to export all problems to check this feature. 
+
 ## Bicolor Keldysh theory in Si
 
 ### Repeatability with some runs generated on Draco
@@ -38,6 +42,8 @@ June 25th 2020: checking some bicolor runs (1030+515 nm), it is clear that n_ex 
 
 June 26th 2020: I think I found the BUG. It comes from octopus. TDPropagationTime seems to CHANGE the value of n_exc. If this is true: more or less ALL THE RUNS have to be recomputed. 
 * There IS a clear dependence to TDPropagationTime anyhow. Strange is that I have a dependence to pulseDelay, a variable that does not exist in documentation. 
+
+July 5th 2020: issue seem resolved. All seemingly erroneous runs were simply prepared using GaugeVectorField, that sets GaugeFieldPropagate to yes. Database was then regenerated using the right mindset.  
 
 ### Bicolor analytical Keldysh-like theory
 
