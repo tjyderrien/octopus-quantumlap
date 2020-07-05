@@ -55,13 +55,10 @@ from libKeldysh import *
 from libDatabase import *
 import libExcitationDatabase
 
-
-
-
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
@@ -110,7 +107,7 @@ print Header+"** Preparing the summary plots..."
 # if(EnableDoublePulseAnalysis==0):
   # 2 plots
   
-output_format='slides' #'publication'
+output_format='publication' #'slides' #'publication'
 
 plotA=211; plotB=212; #plotC=313
 # elif (wavelength_numbers > 1):
@@ -352,7 +349,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. 
   ShowPulseDurations=False
-  PlotSaturation=True
+  PlotSaturation=False
   
   Ntotal=5.0E28 
   meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
@@ -945,7 +942,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #pplt.ylabel(r'Final exc. density (m$^{-3}$)')
   ax1.set_xscale('log')
   ax1.set_yscale('log')
-  
+  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   labels1 = [l.get_label() for l in plot1]
   ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
   
@@ -1066,7 +1063,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
     PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
     #NOTE: tunneling barrier does not change as function of refractive index. Hence, we remove the optical index in case of tunneling limit. 
-    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{Tunnel}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+    plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{tunnel}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
     plot2    += [plot23]
     
     ## TUNNELING WITH INDIRECT BAND GAP.
@@ -1089,11 +1086,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax2.set_ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
   ax2.set_yscale('log')
-  pplt.tight_layout()
+  ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax2.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
   #ax2.axes.get_xaxis().set_visible(False)
   #ax2.axes.get_yaxis().set_visible(False)
   #else: 
+  pplt.tight_layout()
   
   ## This should be the inset that we would put in Fig. 3a. 
   # Previously, it was prepared using GNUplot file plotFieldWpiPeaks.gnu.
@@ -1811,7 +1810,7 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTime=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
   PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
-  PlotSaturation=True
+  PlotSaturation=False
   AccountForOpticalIndex=True #trying without optical index
   global n0
   
@@ -1950,7 +1949,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # Complexity level: 2
   
   if(output_format=='publication'):
-    pplt.figure(figsize=(8.6,2*6)) #new figure
+    pplt.figure(figsize=(6,2*5)) #new figure
     plotA=211; plotB=212 #vertical figures (adequate for PRL)
   else: 
     pplt.figure(figsize=(2*6,6)) #new figure
@@ -1960,7 +1959,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax1.set_prop_cycle('color',Colors)
   
   # Create inset in ax1 region. 
-  ax11 = inset_axes(ax1, width="40%", height="30%", loc="lower right", borderpad=2)
+  ax11 = inset_axes(ax1, width="37%", height="30%", loc="lower right", borderpad=1.3)
+  #ax11 = inset_axes([0.5, 0.05, 0.95, 0.5])
   #ax11.set_xmargin(0.5)
   #ax11.set_ymargin(2)
   # Turning on labels for the inset
@@ -2074,7 +2074,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # We separate TDDFT and Keldysh predictions now. 
   ax2 = pplt.subplot(plotB)
   # Create inset in ax2 region. 
-  ax22 = inset_axes(ax2, width="30%", height="40%", loc="lower right", borderpad=2)
+  ax22 = inset_axes(ax2, width="35%", height="35%", loc="lower right", borderpad=1.5)
   
   # Turning on labels for the inset
   ax22.tick_params(labelleft=True, labelbottom=True)
@@ -2255,6 +2255,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
   ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
+  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator())
   ax11.set_xlabel(r'$E_{\mathrm{field}}$ (V/nm)')
   ax11.set_ylabel(r'$\hbar \omega$ (eV)')
   #if(PlotValleysInset):
@@ -2265,6 +2267,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax11.set_yscale('log')
   ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
   ax2.set_yscale('symlog', linthreshy=1E20)
+  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   ax22.set_yscale('symlog', linthreshy=1E20)
   
   if(ShowDensities): #{{{
@@ -2338,12 +2341,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   for order in np.arange(1,DrawOrders+1):
     if(not EnergyAxis):
-      ax1.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      ax1.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=0.5)
       #ax1.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
       #ax1.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
       #ax1.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
       
-      ax2.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=1)
+      ax2.axvline(x=1e9*order*ResonantWavelength, color='k', linestyle='--', linewidth=0.5)
       #ax2.axvline(x=1e9*2*ResonantWavelength, color='k', linestyle='--', linewidth=1)
       #ax2.axvline(x=1e9*3*ResonantWavelength, color='k', linestyle='--', linewidth=1)
       #ax2.axvline(x=1e9*4*ResonantWavelength, color='k', linestyle='--', linewidth=1)
@@ -2585,6 +2588,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax22.set_ylim((0,1))
   ax3.set_xscale("log")
   ax3.set_yscale("symlog", linthreshy=1e-9)
+  ax3.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
   if(not EnergyAxis): 
@@ -3411,6 +3415,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1=800e-9, wavelength2=1600e-9, PulseDuration=20e-15, PulseType=3, RiseCycles=2, WhatToPlot=0, Egap_SI=2.56*e, RemoveTunneling=False): #{{{
   LogWpi=False                                                                                                                                                                                                                
   LogPlotXY=False
+  InducedFields=0.0 #we dont want to enable this for now
   gammaLimit = 1E-10
   meff = 0.2226 #effective mass of electron [Waroquiers, D. et al, Physical Review B, 2013, 87, 075121]
   CEP2_request=-pi/2.
@@ -3424,6 +3429,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
   PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
+  PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, InducedFields, IndexTable['FieldInduced']) #Removing the induced fields. Yeah because they should not be mixed!
   
   if(CEP2_request >= 0):
       PlottingDoublePulses = FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
@@ -4134,14 +4140,38 @@ def plot_Vorobyev_Au(material):
 
 
 #====================================== EXECUTION ZONE ============================
+
+print("Welcome to Octopus-slab plotter.")
+print("================================\n")
+print("** Info: Automatic detection of the routine to run...")
+
+dirname=os.path.realpath(".")
+
+print("** Info: directory name: "+str(dirname))
+
 ## Zhukov single color plotting [Phys. Rev. B]
 
-plot_Zhukov_SingleColor_LDA()
-#plot_Zhukov_SingleColor_TB09()
-
-## Zhukov bicolor plotting
-#plot_Zhukov_BicolorMaps() #LDA gap
-
+if "BicolorSummaries" in dirname:
+    ## Zhukov bicolor plotting
+    print(Header+"** Info: running bicolor analyses of Si LDA...")
+    plot_Zhukov_BicolorMaps() #LDA gap
+    
+elif "03-Bulk3D" in dirname:
+    if "TB09" in dirname: 
+        print(Header+"** Info: detected TB09 computations for Si...")
+        plot_Zhukov_SingleColor_TB09()
+    else: 
+        print(Header+"** Info: running LDA single-color Keldysh analyses...")
+        plot_Zhukov_SingleColor_LDA()
+elif "09-Au" in dirname: 
+    print(Header+"** Info: detected computations for Au...")
+    plot_Vorobyev_Au('Au')
+elif "06-Mo" in dirname: 
+    print(Header+"** Info: detected computations for Mo...")
+    plot_Vorobyev_Au('Mo')
+else: 
+    print("Other routines are available, but may not be up to date.")
+    
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
 
@@ -4149,8 +4179,6 @@ plot_Zhukov_SingleColor_LDA()
 #plot_HHG()
 
 ## Preparing plots for Vorobyev
-#plot_Vorobyev_Au('Au')
-#plot_Vorobyev_Au('Mo')
 
 print Header+"End of program."
 #exit()
