@@ -261,18 +261,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
-        RiseTime = int(RiseTime_name)
+        RiseTime = int(RiseTime_name) #BUG: this method is no longer working. Where to get the RiseTime? 
         print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
       except: 
         RiseTime = 0
     elif(PulseType == 3): 
       RiseTime_position = FolderName.find("StH") #returns the position of STH chain in folder name
-      RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
+      RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/" #BUG: this method is not working for the recent runs. It works with the old times when we had tested the RiseTime. 
       try: 
         RiseTime = int(RiseTime_name)
         print Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s)."
       except: 
-        RiseTime = 0
+        RiseTime = 2
     else: 
       RiseTime = 0
     
