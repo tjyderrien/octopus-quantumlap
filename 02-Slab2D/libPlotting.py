@@ -299,23 +299,23 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
     ### Checking if probe was enabled. Output the probe amplitude.
     GaugeVectorField_enabled=0
-    if "#" in GaugeVectorField_inp2[0:5]: #then it is disabled
+    if "#" in GaugeVectorField_inp2[0:5]: #NOTE: GaugeVectorField_inp2 contains the keyword declaration  (not the amplitude). Then GaugeFieldAmplitude is disabled
         GaugeVectorField_enabled = 0
         print(Header+"** Info: GaugeVectorField was commented [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+"].")
+        GaugeFieldAmplitude=0e0 #zero if GaugeVectorField is undefined (useful for database)
     elif("GaugeVectorField" in GaugeVectorField_inp2): #there is no # in line beginning and GaugeVectorField is ON
         GaugeVectorField_enabled = 1
         print Header+"** Info: GaugeVectorField was enabled [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+"." 
-#    GaugeFieldAmplitude=0e0 #zero if it was not used.
     
 ## 3. Now we re-affect FieldInduced_enabled as follows. 
     FieldInduced_enabled = (GaugeVectorField_enabled or FieldInduced_enabled)
     del GaugeVectorField_enabled
     GaugeVectorField_tmp   = GaugeVectorField_inp.split('|') #structure: X|Y|Z #comment
     # if a "#" is found, then set 0 ! #WARNING: this is treated differently in Octopus. If norm(GaugeVectorField)==0, InducedFields is automatically enabled. 
-    if "#" in GaugeVectorField_tmp[0:5]: 
+    if ("#" in GaugeVectorField_tmp[0:5] or GaugeVectorField_inp2[0:2]): #NOTE: GaugeVectorField_tmp contains the amplitudes. GaugeVectorField_inp2 contains the keyword declaration. 
         GaugeFieldAmplitude = 0e0
     else: 
-        # No "#" can be found in GaugeVectorField, therefore Octopus switches to compute InducedFields without notifying. 
+        # No "#" can be found in GaugeVectorField keyword, therefore Octopus switches to compute InducedFields without notifying. 
         try: 
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
@@ -706,7 +706,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), float(GaugeFieldAmplitude), float(GaugeFieldDelay), 
+	      float(FieldInduced_enabled), 
+	      float(GaugeFieldAmplitude), 
+	      float(GaugeFieldDelay), 
 	      float(Functional),  float(FreezeHXC), float(MoveIon), 
 	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
 	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
