@@ -329,8 +329,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     GaugeFieldDelay_tmp    = GaugeFieldDelay_inp.split("=")
     try:
         GaugeFieldDelay    = GaugeFieldDelay_tmp[1] #rhs
+        GaugeFieldDelay    = float(GaugeFieldDelay) #if this fails, we set -1. 
     except: 
-        GaugeFieldDelay=0e0
+        GaugeFieldDelay=float('nan')
         print Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
