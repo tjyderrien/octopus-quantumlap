@@ -139,8 +139,11 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 
     machinename_t=LookUpStringInFile(LOG_newest, "swim")
     print(Header+"** Debug: "+str(machinename_t))
-    MachineName  =machinename_t.split()[5]
-    print(Header+" ** Name of the machine which produced the result: "+str(MachineName))
+    try: 
+        MachineName  =machinename_t.split()[5]
+        print(Header+" ** Name of the machine which produced the result: "+str(MachineName))
+    except: 
+        print(Header+"** Warning: machine name could not be extracted.")
     #MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
     #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
     #if(MachineName)
@@ -261,7 +264,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_position = FolderName.find("STH") #returns the position of STH chain in folder name
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
-        RiseTime = int(RiseTime_name) #BUG: this method is no longer working. Where to get the RiseTime? 
+        RiseTime = int(RiseTime_name) #BUG: this method is no longer working. Where to get the RiseTime? Maybe in tauRise = 2*pi/omega in inp ?
         print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
       except: 
         RiseTime = 0
