@@ -147,10 +147,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
     #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
     #if(MachineName)
-
-    RunDate_t = LookUpStringInFile(LOG_newest, "started")
-    RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
-    print(Header+"** Date of the run: "+str(RunDate))
+    try: 
+        RunDate_t = LookUpStringInFile(LOG_newest, "started")
+        RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
+        print(Header+"** Date of the run: "+str(RunDate))
+    except: 
+        RunDate = float("nan")
     
     TheoryLevel          = 1 #default value
     ## Checking the theory level
