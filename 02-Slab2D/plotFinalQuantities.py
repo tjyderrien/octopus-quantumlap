@@ -433,6 +433,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
     plot1 += [plot_field]
     
+    pplt.xlim((1E10,1E15))
+    
     #==== CURVE FITTING SHOULD COME HERE === as it is for each pulse duration. 
     print Header+"** Info: Computation of multi-photon excitation"
     
@@ -1082,6 +1084,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #plot2    += [plot24]
   #}}}
   pplt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
+  pplt.xlim((1E10,1E15))
   # Interpolation of a joint law of photoionization
   #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
@@ -1277,6 +1280,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ShowPulseDurations=True
   PlotFrozenHxc=False
   UseFinalInstantData=False #True: we plot results at final time. False: we plot results right after the pulse. 
+  EnableInducedFields = False
   meff = 1. 
   
   if(MoveIon): 
@@ -1313,8 +1317,13 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ax2 = pplt.subplot(212)
   plot1 = []; plot2=[]
   
-  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced'])
-  #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1, IndexTable['FieldInduced'])
+  WithInducedFields_txt=""
+  if(EnableInducedFields):
+      PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1, IndexTable['FieldInduced'])
+      WithInducedFields_txt="-WithInducedFields"
+  else:
+      PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced'])
+      WithInducedFields_txt="-NoInducedFields"
   
   print(Header, "** Info: plotting...")
   PlottingSinglePulses_Normal = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
@@ -1332,8 +1341,11 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
         fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
         
         #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
-        intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 # WARNING : may be false!
+        if(EnableInducedFields):
+            intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 # WARNING : may be false!
         #intensity1_ext = 0.5*c*epsilon_0*(RatioExternal*Efield1)**2 #W/m2 
+        else:
+            intensity1_ext = 0.5*c*epsilon_0*(Efield1)**2 #W/m2 
         fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
         
         ## build the external laser peak fluence here
@@ -1408,8 +1420,11 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
             
             #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
-            intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 #ERROR?
+            if(EnableInducedFields):
+                intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 #ERROR?
             #intensity1_ext = 0.5*c*epsilon_0*(RatioExternal*Efield1)**2 #W/m2
+            else:
+                intensity1_ext = 0.5*c*epsilon_0*(Efield1)**2
             fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
             
             ## build the external laser peak fluence here
@@ -1484,7 +1499,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   
   plt.tight_layout()
   #print(Header, "Debug: PulseType: ", PulseType)
-  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+MoveIonFile
+  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+WithInducedFields_txt
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png."
