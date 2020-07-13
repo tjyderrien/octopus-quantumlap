@@ -58,12 +58,20 @@ def length_AU_to_SI(length_AU): #{{{
 ## Converts Electric field (Hartree / Bohr) to SI (V/m).
 def Field_AU_to_SI(Field_SI):#{{{
   return Hartree_Energy / BohrRadius * Field_SI
-#}}}
+#}}} #NOTE: e is not there since Hartree energy in eV.
 
 ## Converts Electric field SI (V/m) to (Hartree / Bohr).
 def Field_SI_to_AU(Field_AU):#{{{
   return (Hartree_Energy / BohrRadius) ** (-1.) * Field_AU
 #}}}
+
+## Converts magnetic induction B (at. u.) to SI (Teslas).
+def Magnetic_Field_AU_to_SI(Bfield_AU):
+    return hbar/(e*BohrRadius**2) * Bfield_AU
+
+## Converts magnetic induction B (Tesla) to AU
+def Magnetic_Field_SI_to_AU(Bfield_SI):
+    return (hbar/(e*BohrRadius**2))**(-1) * Bfield_SI
 
 def Energy_Hartree_to_eV(Energy_Ha):#{{{
   return Energy_Ha * Hartree_Energy
