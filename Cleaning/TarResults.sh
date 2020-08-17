@@ -33,6 +33,14 @@ backup_SinFourth() {
   tar --exclude='*.obf' -cv -T backup_SinFourth.txt -f $filename
 }
 
+backup_matrixelements() {
+  DATE=`date +%Y-%m-%d`
+  echo "== Saving the matrix elements."
+  filename=$DATE-MatrixElements.tar
+  list_folders | grep 'static' >& backup_ME.txt
+  tar --exclude='*.obf' -cv -T backup_ME.txt -f $filename
+}
+
 ###### EPS BACKUPS ###########
 
 backup_eps_STH() {
