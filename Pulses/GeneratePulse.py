@@ -149,7 +149,7 @@ tauRise = 2.*pi*RiseCycle / (omega)
 
 tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant zero !
 
-ComputingT_min = tauSafe+tauRise+tau+tauRise+tauSafe
+ComputingT_min = 7./5.*(tauRise+tau+tauRise)
 if(ComputingT_min > ComputingT):
     print Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min)
     print Header+"** TODO: replace the total value of computing time in inp as well."
