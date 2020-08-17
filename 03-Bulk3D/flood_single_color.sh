@@ -52,7 +52,8 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 # Mission="MidIRGapModification"
 # Mission="Si-7PI-3200nm"
 # Mission="Yamada0.8eV"
-Mission="PRL-Fig2"
+Mission="PRLFig2-1cycl"
+# Mission="Fig2-20fsSat"
 
 
 # Phase
@@ -84,9 +85,13 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda2="515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1060e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #ZHUKOV
 
 # Field amplitude
-Efield_fast="1E8 5E8 1E9 5E9 1E10"
-Efield_detailed="2E8 3E8 4E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-Efield1="9.95E8 1E9 1.05E9"
+Efield_fast="5E8" # 1E9 5E9 1E10"
+Efield_detailed="9.75E9 1E9 1.5E9 2E9"
+# Efield_detailed="2E8 2.5E8 3E8 3.5E8 4E8 4.5E8 5.5E8 6E8 6.5E8 7E8 7.5E8 8E8 8.5E8 9E8 9.5E8 2.5E9 3.5E9 4.5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield_superdetailed="1.1E9 1.2E9 1.3E9 1.4E9 1.6E9 1.7E9 1.8E9 1.9E9 2.1E9 2.2E9 2.3E9 2.4E9" 
+Efield_saturation="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+Efield1=${Efield_detailed}
+# Efield1="9.95E8 1E9 1.05E9"
 # Efield1="5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9"
 # Efield1="$Efield_fast $Efield_detailed"
 # Efield1="9.2E9 9.3E9 9.4E9 9.5E9 9.6E9 9.7E9 9.8E9 9.9E9" #1.1E9 1.2E9 1.3E9 1.4E9 1.6E9"
@@ -98,7 +103,7 @@ Efield1="9.95E8 1E9 1.05E9"
 # Efield1="3E8 4E8 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9" 
 # Efield1="1E7 5E7 1E8 2E8 3E8" # Super low intensity runs, to be better converged.
 
-# Series of runs for PRL
+# Series of runs for PRL Fig3
 # Efield1="5E8 7.5E9 1E9 2E9 3E9"
 # Efield1="5E8 3E9 4E9"
 # Efield1="5E10 1E11 5E11"
@@ -115,9 +120,11 @@ Efield1="9.95E8 1E9 1.05E9"
 ## PRL (intensity) figure
 # Checking mid-IR band gap at 5-10 um
 # tau1="60E-15" # 20e-15 30E-15 10E-15"
-tau1="30E-15"
+tau1="10.674E-15" #(1 optical cycle at 3200 nm)
+# tau1="20E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="30E-15"
+# tau2="20E-15"
+tau2="10.674E-15"
 Efield2="0E0"
 
 # lambda1="1600e-9"
@@ -136,7 +143,7 @@ Efield2="0E0"
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
 # lambda1="407.58e-9" #1st harmonic of the band gap LDA: 483.70 nm. TB09: 407.58 nm.
-lambda1="1600e-9"
+lambda1="3200e-9"
 lambda2="400e-9"
 # lambda2="1030e-9 1600e-9"
 
