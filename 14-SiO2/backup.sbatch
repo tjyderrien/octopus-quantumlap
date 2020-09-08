@@ -7,7 +7,8 @@
 # Job Name:
 #SBATCH -J backup
 # Queue (Partition): #general, mpsd (3 days), express, or short
-#SBATCH --partition=plgrid-testing
+#SBATCH --partition=prace  
+# plgrid-testing
 # Number of nodes and MPI tasks per node:
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
@@ -19,7 +20,7 @@
 #SBATCH --mail-user=derrien@fzu.cz
 #
 # Wall clock limit:
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 # sbatch -d afternotok:$SLURM_JOB_ID submit.sbatch
 
 pwd >> $QuantumLaPruns/LastRuns.log
@@ -31,6 +32,9 @@ pwd >> $QuantumLaPruns/LastRuns.log
 module purge
 
 source $QuantumLaPsources/machines.env
+CheckComputerName
+LoadEnvLibraries
+
 # export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 
 # module load octopus/nightly

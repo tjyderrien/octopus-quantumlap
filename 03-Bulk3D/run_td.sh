@@ -85,7 +85,8 @@ DefineParameters () {
 #  TimeAUtoSI=$( python_calc " 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0 " )
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
-  ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
+#  ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
+  ComputingTime=$( python_calc " float ( ( 8./5. * ( 4*${lambda1}/299792458.0 +  ${tau1}) ) ) " )
 #   tauRiseA=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
 #   tauRiseB=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda2} ) ) "  )
   if [ ${PulseShape} == "StH4" ]; then

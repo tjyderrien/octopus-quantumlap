@@ -3,6 +3,7 @@ set -e
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
@@ -43,7 +44,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 ### MISSION #####
 # Mission="Drude"
-Mission="QLaP-3200"
+Mission="PRL-Fig3"
 # Mission="CEP-tunneling"
 # Mission="InducedField"
 # Mission="MidIRGapModification"
@@ -67,7 +68,7 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="SinFourth" 
+PulseShape="StH" 
 # StH: corrected one. 
 # StH4: soft top hat with 4th order sinus on ramp up/down
 # SinFourth: sin4(t)
@@ -92,7 +93,8 @@ Efield_detailed="2E8 3E8 4E8 6E8 7E8 8E8 9E8 2E9 3E9 4E9 6E9 7E9 8E9 9E9" # is f
 # Efield1="9E11" #"1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11"
 # Efield1="5.5E8 5E8 6E8 6.5E8 7E8 7.5E8 8.5E8 8E8 9E8 9.5E8 1.5E9 2E9 2.5E9 3E9 3.5E9 4E9 4.5E9 6E9 7E9 8E9 9E9" #Exceptionally, run a series of runs which did not finish. 
 # Efield1="3E8 4E8 5.5E9 6.5E9 7.5E9 8.5E9 9.5E9" 
-Efield1="1E7 5E7 1E8 2E8 3E8" # Super low intensity runs, to be better converged.
+# Efield1="1E7 5E7 1E8 2E8 3E8" # Super low intensity runs, to be better converged.
+Efield1="2.5E9"
 
 # Series of runs for PRL
 # Efield1="5E8 7.5E9 1E9 2E9 3E9"
@@ -108,12 +110,12 @@ Efield2="0E0"
 # Pulse duration
 # Checking mid-IR band gap at 5-10 um
 # tau1="60E-15" # 20e-15 30E-15 10E-15"
-tau1="30E-15"
+tau1="20E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="30E-15"
+tau2="20E-15"
 
-lambda1="3200e-9"
-# lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9 2600e-9" # 3200e-9"
+# lambda1="3200e-9"
+lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9 2200e-9 2600e-9 3200e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
 # lambda1="2470e-9 3100e-9 4100e-9 6200e-9 12400e-9"
 # lambda1="323e-9 448e-9 571e-9 652e-9 918e-9 954e-9 961e-9 968e-9 976e-9 2296e-9 2480e-9"

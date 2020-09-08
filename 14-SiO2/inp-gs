@@ -10,10 +10,8 @@ PeriodicDimensions = 3
 # Initial temperature
 # RandomVelocityTemp = 300e0
 
-# Conversion factors
 aAngstrom = 4.91343*angstrom #interactomic distance, experimental value from Landolt-Bornstein
 cAngstrom = 5.40506*angstrom #idem 
-
 
 ## DATA FROM AVOGADRO 
 a = 5.02778*angstrom #aAngstrom 
@@ -90,12 +88,12 @@ kpts | kpts | kpts | kpts | kpts | kpts
 
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
-KPointsUseSymmetries = yes
-%SymmetryBreakDir #laser direction, where we gonna break symmetry
-  1 | 0 | 0
-%
+KPointsUseSymmetries = no
+# %SymmetryBreakDir #laser direction, where we gonna break symmetry
+#  1 | 0 | 0
+# %
 
-ExtraStates =0 #16 is enough for band structure.
+ExtraStates = 6 #0 #16 is enough for band structure.
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
@@ -106,14 +104,15 @@ MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
-Output = dos + density + potential + geometry
+Output = dos + density + potential + geometry + matrix_elements
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
+
+OutputMatrixElements=dipole
 
 DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
 DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei
 
-
-PseudopotentialSet = pseudodojo_pbe
+# PseudopotentialSet = pseudodojo_pbe
 # XCFunctional = GGA_X_PBE + GGA_C_PBE
 FilterPotentials = filter_none        #this will be added automatically
