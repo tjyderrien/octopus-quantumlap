@@ -58,7 +58,7 @@ import libExcitationDatabase
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
-rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
+rc('text', usetex=True) #True: Does not work on Draco. Just put False, then, and it will be smooth. 
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
@@ -364,6 +364,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
       FileName_opt=""
       
+  x_min  ={800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
   
   
   print "====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
@@ -384,11 +385,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   ## We simply select the pulse duration larger than 21 fs (to not overload pics). 
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
+      #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
+      #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
   if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 11e-15, IndexTable['pulses1'])
+      #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
   
   ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures. 
   ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs. 
@@ -413,8 +417,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax1 = pplt.subplot(plotA)
   
   plot1 = []
-  Symbols={10e-15: '+', 20e-15: 'o', 30e-15: '^'}
-  Colors={10e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
+  Symbols={10e-15: '+', 10.674e-15: '+', 20e-15: 'o', 30e-15: '^'}
+  Colors={10e-15: 'g', 10.674e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
+  LineWidth={10e-15: '10.', 10.674e-15: '10.', 20e-15: '0.1', 30e-15: '2.'}
   for pulse_value in pulses_uniq: #{{{
     # select the corresponding wavelength in results
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
@@ -430,10 +435,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     pulses1_sorted, Efield1_sorted, Intensity_sorted, Ne_final_sorted = list(itertools.izip(*lists))
     #print Header+"Ready to plot: "
     
-    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
     plot1 += [plot_field]
-    
-    pplt.xlim((1E10,1E15))
+    pplt.xlim(x_min[pulseWavelength])
     
     #==== CURVE FITTING SHOULD COME HERE === as it is for each pulse duration. 
     print Header+"** Info: Computation of multi-photon excitation"
@@ -949,7 +953,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ax1.axhline(y=4*Density, color='k', linestyle='--', linewidth=0.25)
   #}}}
   ax1.set_xlabel(r"Intensity (W/cm$^{2}$)")
-  ax1.set_ylabel(r"Final exc. density (m$^{-3}$)")
+  #ax1.set_ylabel(r"Final exc. density (m$^{-3}$)")
+  ax1.set_ylabel(r"n$_{\textrm{exc}}$ (m$^{-3}$)")
   #pplt.xlabel(r'Peak intensity (W/m$^2$)')
   #pplt.ylabel(r'Final exc. density (m$^{-3}$)')
   ax1.set_xscale('log')
@@ -993,7 +998,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(itertools.izip(*lists))
       
-      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       plot2 += [plot21]
       
       #plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), Saturation, Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{sat.}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
@@ -1071,6 +1076,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     EffectiveMassList=[meff_Waroquiers_LDA]
   wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34}
   
+  
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
   #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach. 
     PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
@@ -1084,7 +1090,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #plot2    += [plot24]
   #}}}
   pplt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
-  pplt.xlim((1E10,1E15))
+  pplt.xlim(x_min[pulseWavelength])
   # Interpolation of a joint law of photoionization
   #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
   
@@ -1218,7 +1224,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
     pplt.xlabel(r'Peak intensity (W/cm$^2$)')
     pplt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
-    #pplt.ylim((0,1))
+    #pplt.xlim((0,1))
     #locmin = mp.ticker.LogLocator(base=10.0, subs=(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 2, 3,4,5,6,7,8,9,10)) 
     #locmin = mp.ticker.LogLocator(base=10.0,numticks=4)
     #ax1.get_xaxis().set_major_locator(mp.ticker.LogLocator(base=10.0,numticks=4))
@@ -1261,7 +1267,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   # Saving the plot
   pplt.tight_layout()
-  ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+FileName_opt
+  
+  
+  if(PlotSaturation):
+      Filename_Sat = "-WithSaturation"
+  else:
+      Filename_Sat = ""
+  
+  ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+FileName_opt+Filename_Sat
   pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png."
@@ -1313,6 +1326,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   Symbols={20e-15: '+', 30e-15: 'o', 60e-15: '^'}
   Colors= {20e-15: 'g', 30e-15: 'r', 60e-15: 'b'}
   
+  pplt.figure(figsize=(7,6))
   ax1 = pplt.subplot(211)
   ax2 = pplt.subplot(212)
   plot1 = []; plot2=[]
@@ -1361,7 +1375,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
         else: 
             ElectronEnergy_use    = ElectronEnergy_afterpulse
             EigenvaluesEnergy_use = EigenvaluesEnergy_afterpulse
-            CaptionText           = r'$(t \gtrsim \tau)$'
+            CaptionText           = r'$(t \geq \tau)$'
         
         ## absorbed energy relative to laser pulse energy
         relative_absorbed_energy1 = np.divide(ElectronEnergy_use, incident_energy1_ext) #eV over eV
@@ -1396,6 +1410,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
         #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy_eigenvalues1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'eig., $\xi_{eig}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
         #plot2 += [plot_field]
         
+
         del lists
   #}}}
   if(PlotFrozenHxc):
@@ -1454,13 +1469,13 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             pulses1_sorted, Intensity_sorted, fluence_ext1_sorted, ElectronEnergy_use_sorted, EigenvaluesEnergy_use_sorted, relative_absorbed_energy1_sorted, relative_absorbed_energy_eigenvalues1_sorted = list(itertools.izip(*lists))
             #print Header+"Ready to plot: "
             
-            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_use_sorted, Colors[pulse_value]+'-^', label=r'abs.'+CaptionText+r', $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_use_sorted, Colors[pulse_value]+'-^', label=r'abs.'+CaptionText+r', $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+r" fs")
             plot1 += [plot_field]
             
             #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_afterpulse_sorted, Colors[pulse_value]+'-o', label=r'abs.$(t_{\mathrm{end}})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
             #plot1 += [plot_field]
             
-            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_use_sorted, Colors[pulse_value]+'--', label=r'eig.'+CaptionText+r', $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_use_sorted, Colors[pulse_value]+'--', label=r'eig.'+CaptionText+r', $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+r" fs")
             plot1 += [plot_field]
             
             #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_afterpulse_sorted, Colors[pulse_value]+'-.', label=r'eig. $t>\tau$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
@@ -1469,7 +1484,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
             #plot2 += [plot_field]
             
-            plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}$'+CaptionText+r'$[F_{ext}]$, $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}$'+CaptionText+r'$[F_{ext}]$, $H_{xc}$ frozen, $\tau=$'+str(int(pulse_value*1E15))+r" fs")
             plot2 += [plot_field]
             
             #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy_eigenvalues1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'eig., $\xi_{eig}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
@@ -1486,16 +1501,20 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ax1.set_xscale('log')
   #ax1.set_yscale('log')
   ax1.grid()
-  ax1.set_yscale('symlog', linthreshy=1e-5)
+  ax1.set_yscale('symlog', linthreshy=1e-3)
   
   ax1.set_xlabel(r'Peak intensity (W/cm$^2$)')
   ax1.set_ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
   
   ax2.set_xscale('log')
-  ax2.set_yscale('symlog', linthreshy=1e-10)
+  # ax2.set_yscale('symlog', linthreshy=1e-10)
   ax2.grid()
   ax2.set_xlabel(r'Peak fluence (J/cm$^2$)')
   ax2.set_ylabel(r'Rel. abs. $\xi_{\mathrm{el}}^{\mathrm{TDDFT}} / \xi_{\mathrm{laser}}$')
+  
+  #ax1.yaxis.set_major_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax1.yaxis.set_major_locator(mp.ticker.FixedLocator([-1E4, -1E2, -10, -1, -1E-2, -1E-3, 0, 1E-3, 1E-2, 1E0, 1E2, 1E4])) #base=10.0, subs='auto', numticks=None))
+  
   
   plt.tight_layout()
   #print(Header, "Debug: PulseType: ", PulseType)
@@ -2415,6 +2434,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       filename+="-WithOpticalIndex"
   else:
       filename+="-NoOpticalIndex"
+  if(PlotSaturation):
+      filename+="-WithSaturation"
   pplt.savefig(filename+'.eps')
   pplt.savefig(filename+'.png')
   
@@ -2501,7 +2522,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #pplt.ylabel('Irreversibility factor')
   ax3.set_ylabel('Electron excess energy (eV)')
   #pplt.ylim((0,1))
-  #ax2.set_xscale('log')
+  if(not EnergyAxis): 
+    ax3.set_xlim([wavelengths1_min, wavelengths1_max])
+    pplt.xlim((wavelengths1_min, wavelengths1_max))#ax2.set_xscale('log')
+  else: 
+    ax3.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
+    pplt.xlim((h*c/wavelengths1_max/e, h*c/wavelengths1_min/e))#ax2.set_xscale('log')
   
   ## TODO: this can be removed, since irreversibility is gauge-dependent. 
   #if(PlotIrreversibility): #{{{
