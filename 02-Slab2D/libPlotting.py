@@ -574,17 +574,21 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print(Header+"** Info: maximum external field -P (V/m): "+str(float(EextMinus_SI_max)))
     
     # Computing integral(J(t).E(t) dt)
-    EnergyPoynting_AU = np.multiply(Ein_AU[:minLength], TotalCurrent_X_AU[:minLength]) #J.E in a.u.
-    EnergyPoynting_AU_sum = SampleCellVolume_AU*cumtrapz(EnergyPoynting_AU[:minLength], x=timeCurrent[:minLength]) #int(J.E, dt) (Hartree)
-    EnergyPoynting_AU_sum_checkint = SampleCellVolume_AU*np.cumsum(EnergyPoynting_AU[:minLength])*TimeStep #int(J.E, dt) (Hartree)
+    EnergyPoynting_AU = np.multiply(Ein_AU[:minLength], TotalCurrent_X_AU[:minLength]) #J(t).E(t) in a.u.
+    
+    # Sept 2020: Lets get rid of the volume here
+    #EnergyPoynting_AU_sum = SampleCellVolume_AU*cumtrapz(EnergyPoynting_AU[:minLength], x=timeCurrent[:minLength]) #int(J.E, dt) (Hartree) # WARNING: in plotTimeKeldysh.py, we didnt multiply by the volume. J(t) already contains the volume and field is homogeneous... This must be a mistake. 
+    EnergyPoynting_AU_sum = cumtrapz(EnergyPoynting_AU[:minLength], x=timeCurrent[:minLength]) #int(J.E, dt) (Hartree)
+    EnergyPoynting_AU_sum_checkint = np.cumsum(EnergyPoynting_AU[:minLength])*TimeStep #int(J.E, dt) (Hartree)
 
     EnergyPoynting_AU_sum_max = np.max(np.max(EnergyPoynting_AU_sum)) #maximum absorbed energy (in Hartree)
     EnergyPoynting_AU_sum_final = EnergyPoynting_AU_sum[len(EnergyPoynting_AU_sum)-1] #final absorbed energy #NOTE: false result!
  
     # Computing integral(J(t).E(t) dt)
     EnergyPoynting_SI = np.multiply(Ein_SI[:minLength], TotalCurrent_X_SI[:minLength]) #J.E in a.u.
-    EnergyPoynting_SI_sum = SampleCellVolume_SI/e*cumtrapz(EnergyPoynting_SI[:minLength], x=timeCurrent_SI[:minLength]) #int(J.E, dt) [J/m3] * Vol[m-3] = Joules. #BUG: Integration on too small numbers? Divergenc²    EnergyPoynting_SI_sum_max = np.max(np.max(EnergyPoynting_SI_sum)) #maximum absorbed energy
-    EnergyPoynting_SI_sum_checkint = SampleCellVolume_SI/e*np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)
+    # EnergyPoynting_SI_sum = SampleCellVolume_SI/e*cumtrapz(EnergyPoynting_SI[:minLength], x=timeCurrent_SI[:minLength]) #int(J.E, dt) [J/m3] * Vol[m3] = Joules. #BUG: Integration on too small numbers? WARNING Divergenc²    EnergyPoynting_SI_sum_max = np.max(np.max(EnergyPoynting_SI_sum)) #maximum absorbed energy
+    #EnergyPoynting_SI_sum_checkint = SampleCellVolume_SI/e*np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)
+    EnergyPoynting_SI_sum_checkint = np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)/e #volume was removed here
     
     EnergyPoynting_SI_sum_final = EnergyPoynting_SI_sum[len(EnergyPoynting_SI_sum)-1] #final absorbed energy
    
