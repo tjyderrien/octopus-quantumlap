@@ -41,10 +41,10 @@ Filenames = "ks_me_dipole.*"
 bandstructure="bandstructure" #NOTE: file may be absent sometimes
 LocalFolder="./"
 filename      = Filenames.split('.')[0]
-print Filenames
+#print Filenames
 # 1. Capture the static/dipole files. 
 listoffiles=GetOrderedListOfFiles(Filenames)
-print listoffiles
+#print listoffiles
 
 ## Building materials dictionnary
 material="Au" #SiO2 | Si
@@ -94,23 +94,23 @@ OpticalIndex_Au={1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.
 Si={'MPI_numbers': [1,2,3], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 4, 
     'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 
-    'ymin_ymax': (3,8), 'CaptureDirectGap': True}
+    'ymin_ymax': (3,8), 'CaptureDirectGap': True, 'KpointPath_len': 301}
 
 SiO2={'MPI_numbers': [1,2], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 6, 
     'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 
-    'ymin_ymax': (-8,16), 'CaptureDirectGap': True}
+    'ymin_ymax': (-8,16), 'CaptureDirectGap': True, 'KpointPath_len': 301}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
 Mo={'MPI_numbers': [1], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 4, 
     'Z_electrons': 11-4, 'OpticalIndex': OpticalIndex_Mo, 
-    'ymin_ymax': (-30,30), 'CaptureDirectGap': False}
+    'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 301}
 
-Au={'MPI_numbers': [1], 'kpoints_manual': 16, 
+Au={'MPI_numbers': [5], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 3, 
     'Z_electrons': 14-3, 'OpticalIndex': OpticalIndex_Au, 
-    'ymin_ymax': (-30,30), 'CaptureDirectGap': False}
+    'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 301}
 
 Materials={'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au} #this contains all materials properties we need to automatize
 
@@ -126,6 +126,7 @@ CaptureDirectGap        = Materials[material]['CaptureDirectGap']
 MPI_numbers             = Materials[material]['MPI_numbers'] #[1, 2, 3]
 kpoints_manual          = Materials[material]['kpoints_manual'] #16 #number of kpoints in the grid
 OpticalIndex            = Materials[material]['OpticalIndex']
+KpointPath_len          = Materials[material]['KpointPath_len']
 #print 
 
 
@@ -149,7 +150,7 @@ def SingleKpointManyFields(): #{{{
         #exit()
 
     print "Info: Capturing the file for the transition of interest."
-    gamma_point_files, gamma_point_files_index = ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap, verbose, field_polarization_dir)
+    gamma_point_files, gamma_point_files_index = ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [1], CaptureDirectGap, verbose, field_polarization_dir)
 
     matrixelements, matrix_side = ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Complex_valued_ME)
 
@@ -301,11 +302,29 @@ def SingleKpointManyFields(): #{{{
 #}}}
 
 def MultipleKpointsOneField(field): #{{{
-    global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure
+    Header="[plotFloquetBandStructure: MultipleKpointsOneField()] "
+    global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
     # Capture all the k-point files for one direction
     #try: 
     kpoints_number_inp   = LookUpStringInFile("info", "Total number of k-points")
     kpoints_number=int(kpoints_number_inp.split("=")[1].strip()) #integer
+    
+    # Loading the bandstructure given by octopus (contains: kpointpath_index, kx, ky, kz, eigenvalues)
+    bands=np.loadtxt(bandstructure, skiprows=1)
+    print(len(bands))
+    #bands_t=np.zeros()
+    #exit()
+    # 1. Build list of kpoint-index employed by octopus in <info> from the <bandstructure>.
+    
+    # It seems kpointpath is actually available in info: it is just located at the end of the last kpoints_number_array. 
+    
+    #kpointpath_index=bands[0,:]
+    #kpointpath_kx   =bands[1,:]
+    #kpointpath_ky   =bands[2,:]
+    #kpointpath_kz   =bands[3,:]
+        
+    #bands_t = np.array(kpointpath_index, kpointpath_kid, kpointpath_kx, kpointpath_ky, kpointpath_kz, bands[4:,:]) #just adding a column to the object
+    # 2. Plot the bandstructure
     
     #print("kpoints_number"+str(kpoints_number))^
     #kpoints_number_array = kpoints_number_inp #.split("_")
@@ -319,45 +338,46 @@ def MultipleKpointsOneField(field): #{{{
         #print Header+"** Error: failed to capture the number of k points automatically."
     #exit()
     
+    # KpointPath_list: we know it is located after the kgrid description. No need for searching it. More efficient than searching algorithm with N**2 complexity. 
+    KpointPath_list=np.arange(kpoints_manual**3+1, kpoints_manual**3+KpointPath_len+1)
+    print("KPointPath_list: "+str(len(KpointPath_list)))
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
     print "Info: Capturing the files for the transition at given k-points."
-    k_point_files, gamma_point_files_index = ExtractFileForGivenKpoint(filename, kpoints_number, listoffiles, CaptureDirectGap, verbose, field_polarization_dir)
+    k_point_files, gamma_point_files_index = ExtractFileForGivenKpoints(filename, kpoints_manual, listoffiles, KpointPath_list, CaptureDirectGap, verbose, field_polarization_dir)
     
     #k_point_files contains a table of names for all k-point files in a single direction.
     #gamma_point_files_index contains a table of indices matching with the k_points_files. Only selection in X direction was made. 
     
     plt.figure()
-    ax1 = plt.subplot(211)
-    plt.title("Band structure")
+    ax1 = plt.subplot(212)
+    plt.title("Full unsorted band structure")
     
-    ax2 = plt.subplot(212)
     ax1.set_xlabel("k-point id")
     ax1.set_ylabel("Energy (eV)")
     
+    ax2 = plt.subplot(211)
+    plt.title("Band structure")
     
     ## NOTE: if we assume that laser light only REMOVES some high-symmetry points from the ones of the space group, 
     ## NOTE: then we have to get the k-points from the file <bandstructure> since interpolation is needed between the points of high-symmetry). INP file does not provide this. 
     
     ## Plotting the band structure
-    bands=np.loadtxt(bandstructure, skiprows=1)
-    print bands[0,4:] #shows all eigenvalues of 1st line
-    print bands[:,0] #shows all kpoints norm
+    #print bands[0,4:] #shows all eigenvalues of 1st line
+    #print bands[:,0] #shows all kpoints norm
     #exit()
     
-    #plt.title("Band structure")
+    ## THIS IS the proper BAND STRUCTURE from <bandstructure>. We just plot it. 
+    plt.title("Band structure")
     ax2.set_xlabel("k-point path")
     ax2.set_ylabel("Energy (eV)")
     for eig in np.arange(4,len(bands[0,:])):
         ax2.scatter(bands[:,0], Energy_Hartree_to_eV(bands[:,eig]), s=2) #each band will be plotted with a different color
-    plt.show()
+    #plt.show()
+    
+    ## TO ENSURE THAT KPointPath is well located at the end of k_id in <info>, we plot them both. 
     
     # Build a table that associates the path of k-point (found in inp or bandstructure file) with index of the corresponding k-points.
     ## Index matching will be done by comparing reduced kx,ky,kz between info and bandstructure. 
-    
-    #for line in bands:
-        # Check if line[1] can be found in 
-    
-    #kpointpath_kx=bands[:,1]; kpointpath_ky=bands[:,2]; kpointpath_kz=bands[:,3] #ordered in kpoint path order
     
     # for each kpointpath k-point, we need to search the index that matches with <info_kx, info_ky, info_kz>
     #for kpt_id in np.arange(0,kpointpath_kx): 
@@ -369,28 +389,66 @@ def MultipleKpointsOneField(field): #{{{
     ### Then we simply change the loop below to work on this list of k-point indices. We will construct the Floquet bandstructure quite easily then. 
     
     ## NOTE: In case laser would change the high-symmetry points, we would need to visualize all the k-points. We need to access dipolar matrices anyway, not given by the bandstructure file. 
-    for idx in np.arange(0,len(gamma_point_files_index)): #going through each kpoint #NOTE: index starts at 0 up to N-1, N: number of k-points. # TODO: we can here restrict the Floquet computation to the path of k-points.
-        print("** Info: fetching matrix elements from "+str(k_point_files[idx]))
-        #continue
+    idx_t = []
+    #print(np.shape(idx_t))
+    #exit()
+    print(Header+"** Info: size of k_point_files: "+str(len(k_point_files)))
+    print(Header+"         size of gamma_point_files_index: "+str(len(gamma_point_files_index)))
+    #print(Header+"         content of k_point_files: "+str(k_point_files))
+    #print(Header+"         content of gamma_point_files_index: "+str(gamma_point_files_index))
+    
+    ## DOUBLE PARSING: 
+    ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
+    ## - k_point_files[k_idx] belongs to KPointGrid (sync with info and ks_me_dipole*)
+    for k_idx in np.arange(0,len(k_point_files)): #fake index for parsing the KPointPath
+    #for k_point_file in k_point_files: #going through each kpoint. We here restrict the Floquet computation to the path of k-points.
+        print(Header+"** Info: k_idx in path: "+str(k_idx))
+        print(Header+"** Info: k_point_file: "+str(k_point_files[k_idx]))
+        print("** Info: fetching matrix elements from "+str(k_point_files[k_idx]))
+        print("** Info: k_idx in full list is: "+str(gamma_point_files_index[k_idx]))
         
-        print(Z_electrons, unocc_states, k_point_files[idx], Complex_valued_ME)
-        matrixelements, matrix_side = ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[idx]], Complex_valued_ME)
+        #print(Z_electrons, unocc_states, k_point_file, Complex_valued_ME)
 
         ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
-        print("** Fetching eigenvalues for k-point "+str(idx+1))
-        eigenvalues=GetEigenValue(gamma_point_files_index[idx], Z_electrons+unocc_states, "info", verbose)
-        if(verbose==1):
-            print eigenvalues
+        print("** Fetching eigenvalues for k-point "+str(k_point_files[k_idx]))
+        eigenvalues=GetEigenValue(gamma_point_files_index[k_idx], Z_electrons+unocc_states, "info", verbose)
+        #if(verbose==1):
+        print eigenvalues
         
         # Plot the band structure at rest using provided k-point path
-        idx_t=np.ones(np.shape(eigenvalues))*idx
+        print(Header+"** Info: shapes: "+str(np.shape(idx_t))+", "+str(np.shape(eigenvalues)))
+        #idx_t=eigenvalues
         
         print(Header+str(np.shape(idx_t))+", "+str(np.shape(eigenvalues)))
         
-        ax1.scatter(idx_t, Energy_Hartree_to_eV(eigenvalues), c="black", s=2)
-    #plt.show()
-    
-    # Compute the Floquet band structure for each selected k-point file, but only for one field
+        # X: we shall plot as function of bands[0,:]. 
+        ax1.scatter(bands[k_idx,0]*np.ones(len(eigenvalues)), Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1)
+        #continue
+        
+        ## Loading matrix elements for the k-point.
+        print(Header+"** Info: fetching matrix elements.")
+        matrixelements, matrix_side = ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]], Complex_valued_ME)
+        # Compute the Floquet band structure for each selected k-point file, but only for one field
+        wavelength_SI=wavelength_SI_t[0]
+        RefractiveIndex = OpticalIndex[wavelength_SI]
+        if(Renormalize): 
+            Efield_SI = field/np.sqrt(OpticalIndex[wavelength_SI])
+        else:
+            Efield_SI     = field
+        #for MPI_number in MPI_numbers:
+        MPI_number=MPI_numbers[0]
+        eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons, gamma_point_files_index[k_idx], unocc_states, MPI_number, Efield_SI, wavelength_SI, num_time_steps, eigenvalues, matrixelements, Complex_valued_ME, field_polarization_dir, spin_occupation, verbose)
+        
+        if(PlotIntensity):
+            unitx=1E-4
+            Efield_SI  = 0.5*c*epsilon_0*Efield_SI**2*RefractiveIndex
+        else:
+            unitx=1E0
+            Efield_SI = Efield_SI*np.sqrt(RefractiveIndex)
+        ax1.scatter(np.ones(np.size(replicas))*bands[k_idx,0], Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates") #these are the interesting lines for the final plot
+    ax1.set_ylim(Materials[material]['ymin_ymax'])
+    ax2.set_ylim(Materials[material]['ymin_ymax'])
+    plt.show()
     # Plot the Floquet band structure for this field
     
     
@@ -399,4 +457,4 @@ def MultipleKpointsOneField(field): #{{{
 if(SingleKpoint==1): 
     SingleKpointManyFields()
 else: 
-    MultipleKpointsOneField(0.)
+    MultipleKpointsOneField(1E9)
