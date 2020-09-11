@@ -110,7 +110,7 @@ Mo={'MPI_numbers': [1], 'kpoints_manual': 16,
 Au={'MPI_numbers': [1], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 3, 
     'Z_electrons': 14-3, 'OpticalIndex': OpticalIndex_Au, 
-    'ymin_ymax': (-2,35), 'CaptureDirectGap': False, 'KpointPath_len': 1001}
+    'ymin_ymax': (-2,35), 'CaptureDirectGap': False, 'KpointPath_len': 1001, 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$' , r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$',  r'$K|U$', r'$X$']}
 
 Materials={'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au} #this contains all materials properties we need to automatize
 
@@ -128,7 +128,7 @@ kpoints_manual          = Materials[material]['kpoints_manual'] #16 #number of k
 OpticalIndex            = Materials[material]['OpticalIndex']
 KpointPath_len          = Materials[material]['KpointPath_len']
 #print 
-
+K_labels                = Materials[material]['K_labels']
 
 def SingleKpointManyFields(): #{{{
     global Efield_SI_min, Efield_SI_max
@@ -452,6 +452,10 @@ def MultipleKpointsOneField(field): #{{{
         ax1.scatter(np.ones(np.size(replicas))*bands[k_idx,0], Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates") #these are the interesting lines for the final plot
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
+    ax1.set_xticks(np.linspace(0.,1.,len(K_labels)))
+    ax2.set_xticks(np.linspace(0.,1.,len(K_labels)))
+    ax1.set_xticklabels(K_labels, fontsize='15')
+    ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
     plt.show()
     # Plot the Floquet band structure for this field
