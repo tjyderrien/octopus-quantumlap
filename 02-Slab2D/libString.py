@@ -187,8 +187,9 @@ def group_by_heading( some_source, header ):
 
 ## Capture eigenvalues for a given k-point from "info" file
 # @param kpoints_index: index of the k-point of interest
+# @param NumberOfEigenValues: limits the capture of number of eigenvalues.
 # @param filename: "info" file.
-def GetEigenValue(kpoints_index, filename="info", verbose=1):
+def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
     Header="[libString: GetEigenValue(): ]"
     pattern= "#k ="
     if(verbose==1): 
@@ -198,22 +199,24 @@ def GetEigenValue(kpoints_index, filename="info", verbose=1):
     with open( filename, "r" ) as source:
         for heading_and_lines in group_by_heading( source, pattern ):
             heading = heading_and_lines[0]
-            lines = heading_and_lines[1:] #BUG ? It seems we select 1 k point too far in the list
+            lines = heading_and_lines[1:] #NOTE: assumes header is one line. 
             if(str(kpoints_index)) in heading:
                 #print heading
                 #print lines
-                break #only keep the first
+                break #we stop iteration when pattern is found
     print Header+str(heading)
+    if(verbose==1): 
+        print Header+str(lines[0:NumberOfEigenValues])
     eigenvalues=[]
-    for id in lines:
+    for id in lines[:NumberOfEigenValues]:
         line = id.split()
         eigenvalues.append(line[2])
     #print eigenvalues
     return np.asfarray(eigenvalues)
 
-## Among a list of files, extract the one that matches with the Gamma point
+## Among a list of files, extract the one(s) that matches with direct transition, gamma point or all dipolar data for a single direction.
 # @param filename: common part of the multiple filenames
-# @param kpoints: number of kpoints in the simulation
+# @param kpoints: indicative number of kpoints in the simulation
 # @listoffiles: full list of the dipolar files
 # @CaptureDirectGap: bool for automatic detection.
 def ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
@@ -230,7 +233,7 @@ def ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap=T
     # 2. Check consistency of the number of files with k
     expected_num_files = spatial_directions * kpoints**3
     if(len(listoffiles) != expected_num_files):
-        print "Error: set of data may be incomplete. Expected number of files: "+str(expected_num_files)
+        print "Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files)
     else: 
         if(verbose==1): 
             print "Info: number of files is correct."
@@ -247,11 +250,11 @@ def ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap=T
     ## METHOD 1: trusting the choice of octopus
     info_file = "info"
     
-    print "Capturing the Gamma point."
     # NOTE: eigen values are sorted by norm. Then taking the first k point should be sufficient. 
     if(CaptureDirectGap):
+        print "Capturing the Gamma point."
         print "Is there a direct gap value?"    
-        try: 
+        try: #we try to capture direct gap automatically.
             kpoints_index_inp   = LookUpStringInFile(info_file, "Direct gap")
             for i in np.arange(0,10):
                 kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
@@ -263,27 +266,31 @@ def ExtractFileForGivenKpoint(filename, kpoints, listoffiles, CaptureDirectGap=T
             kpoints_index       = int(kpoints_index_array[4])
             gamma_point_files_index=[kpoints_index]
             print "** Info: found a direct gap: "+str(gamma_point_files_index)
-        except:
-            print "** ERROR: could not find a direct gap. Looking for an indirect gap then."
-            exit()
+        except: #we select Gamma point by hand
+            print "** WARNING: could not find a direct gap. Fetching the Gamma point."
+            print "Selecting the first k-point, corresponding to Gamma."
+            #kpoints_index_inp   = LookUpStringInFile(info_file, "k #1")
+            #for i in np.arange(0,10):
+                #kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
+                #if(verbose==1):
+                    #print Header+"** Info: decreasing number of spaces"
+                    #print kpoints_index_inp
+            #kpoints_index_array = kpoints_index_inp.split(" ")
+            ##print kpoints_index_array
+            print "** Warning: kpoints_index selection is MANUAL."
+            kpoints_index       = 1
+            gamma_point_files_index=[kpoints_index]
+            #exit()
             #kpoints_index_inp   = LookUpStringInFile(info_file, "Indirect gap")
             #kpoints_index_array = kpoints_index_inp.split(" ")
             #kpoints_index       = int(kpoints_index_array[7]) #BUG: dangerous...
             #gamma_point_files_index=[kpoints_index]
             ##gamma_point_files_index=[kpoints_index*spatial_directions, kpoints_index*spatial_directions+1, kpoints_index*spatial_directions+2]
-    else:
-        print "Selecting the first k-point, corresponding to Gamma."
-        #kpoints_index_inp   = LookUpStringInFile(info_file, "k #1")
-        #for i in np.arange(0,10):
-            #kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
-            #if(verbose==1):
-                #print Header+"** Info: decreasing number of spaces"
-                #print kpoints_index_inp
-        #kpoints_index_array = kpoints_index_inp.split(" ")
-        ##print kpoints_index_array
-        print "** Warning: kpoints_index selection is MANUAL."
-        kpoints_index       = 1
-        gamma_point_files_index=[kpoints_index]
+    else: #we will here output all k-points corresponding to the direction of polarization. 
+        print("** Info: capturing all the k-points...")
+        print("** Info: number of k points: "+str(len(listoffiles)/3.))
+        gamma_point_files_index=np.arange(1,len(listoffiles)/3+1) #NOTE: name is misleading. We don't want only gamma points here but all k-points.
+        
     # Managing filenames for dipolar matrix elements
     gamma_point_files = []
     for num in gamma_point_files_index:
@@ -304,7 +311,8 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
     if(verbose==1): 
         print "Info: size of coupling matrix elements: "+str(matrix_side)+"x"+str(matrix_side)
 
-    for file_id in gamma_point_files: #
+    for file_id in gamma_point_files: #gamma_point_files should be an array of strings
+        print("** Info: opening file "+file_id)
         if(verbose==1): 
             print "Info: opening file "+file_id
         if(Complex_valued_ME): 
