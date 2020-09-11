@@ -33,7 +33,7 @@ from libKeldyshZhukov    import IntensityToField
 from libStark            import Kronecker, ComputeFloquetBandStructure
 
 PlotMatrixElements       =True
-PlotFloquetBandStructure =True  #Provide field dependent band structure at Gamma Point
+PlotFloquetBandStructure =False  #Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices=False #for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 
 #Filenames = "ks_me_multipoles.*"
@@ -107,10 +107,10 @@ Mo={'MPI_numbers': [1], 'kpoints_manual': 16,
     'Z_electrons': 11-4, 'OpticalIndex': OpticalIndex_Mo, 
     'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 301}
 
-Au={'MPI_numbers': [5], 'kpoints_manual': 16, 
+Au={'MPI_numbers': [1], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 3, 
     'Z_electrons': 14-3, 'OpticalIndex': OpticalIndex_Au, 
-    'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 301}
+    'ymin_ymax': (-2,35), 'CaptureDirectGap': False, 'KpointPath_len': 1001}
 
 Materials={'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au} #this contains all materials properties we need to automatize
 
@@ -301,6 +301,8 @@ def SingleKpointManyFields(): #{{{
             #plt.show()
 #}}}
 
+## Plot the band structure at rest, along with the Floquet band structure for 1 value of field. 
+## BUG: Hypothesis that KpointPath.line_id = Kgrid.k_id is wrong. TODO: Find where this is employed in the algorithm. 
 def MultipleKpointsOneField(field): #{{{
     Header="[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
@@ -339,7 +341,7 @@ def MultipleKpointsOneField(field): #{{{
     #exit()
     
     # KpointPath_list: we know it is located after the kgrid description. No need for searching it. More efficient than searching algorithm with N**2 complexity. 
-    KpointPath_list=np.arange(kpoints_manual**3+1, kpoints_manual**3+KpointPath_len+1)
+    KpointPath_list=np.arange(kpoints_manual**3+1, kpoints_manual**3+KpointPath_len+1) #WARNING: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id
     print("KPointPath_list: "+str(len(KpointPath_list)))
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
     print "Info: Capturing the files for the transition at given k-points."
@@ -352,7 +354,7 @@ def MultipleKpointsOneField(field): #{{{
     ax1 = plt.subplot(212)
     plt.title("Full unsorted band structure")
     
-    ax1.set_xlabel("k-point id")
+    #ax1.set_xlabel("k-point id")
     ax1.set_ylabel("Energy (eV)")
     
     ax2 = plt.subplot(211)
@@ -368,6 +370,7 @@ def MultipleKpointsOneField(field): #{{{
     
     ## THIS IS the proper BAND STRUCTURE from <bandstructure>. We just plot it. 
     plt.title("Band structure")
+    #ax2.set_xticklabels([])
     ax2.set_xlabel("k-point path")
     ax2.set_ylabel("Energy (eV)")
     for eig in np.arange(4,len(bands[0,:])):
@@ -423,7 +426,8 @@ def MultipleKpointsOneField(field): #{{{
         
         # X: we shall plot as function of bands[0,:]. 
         ax1.scatter(bands[k_idx,0]*np.ones(len(eigenvalues)), Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1)
-        #continue
+        if(not PlotFloquetBandStructure):
+            continue
         
         ## Loading matrix elements for the k-point.
         print(Header+"** Info: fetching matrix elements.")
@@ -448,6 +452,7 @@ def MultipleKpointsOneField(field): #{{{
         ax1.scatter(np.ones(np.size(replicas))*bands[k_idx,0], Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates") #these are the interesting lines for the final plot
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
+    plt.tight_layout()
     plt.show()
     # Plot the Floquet band structure for this field
     
