@@ -94,9 +94,9 @@ OriginZ=0. #complete slab: 0, just the top: -0.25
 
 # MaxValue=4e4  # Au, 10V/nm, induced fields (difference must be from field enhancement)
 # MaxValue=0.02 # Au, 10V/nm, no induced fields
-
+MaxValue = 2e-3 # Au, 10V/nm, induced fields, currents.
 # MaxValue=5e-3 # Mo, 10V/nm, no induced fields.
-MaxValue=1e-2 # Mo, 10V/nm, induced fields
+# MaxValue=1e-2 # Mo, 10V/nm, induced fields
 # MaxValue=4e-2 # Mo, 100V/nm, induced fields (no field enhancement in Mo... !)
 # MaxValue = 5e-3 # Mo, 100V/nm, induced fields
 # MaxValue=3e-2 # Mo, 1000V/nm, no induced fields. 
