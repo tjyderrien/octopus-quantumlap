@@ -10,6 +10,7 @@ DryRun=0
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
+LoadEnvLibraries
 source $QuantumLaPsources/03-Bulk3D/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
