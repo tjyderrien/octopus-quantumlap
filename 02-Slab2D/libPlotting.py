@@ -839,7 +839,7 @@ def ExtractData(PlottingTable): #{{{
   ElectronEnergy_afterpulse    = PlottingTable[:,31]
   EigenvaluesEnergy_afterpulse = PlottingTable[:,32]
   HartreeEnergy_afterpulse     = PlottingTable[:,33]
-  ExchangeEnergy_afterpulse    = PlottingTable[:,34] 
+  ExchangeEnergy_afterpulse    = PlottingTable[:,34]
   EnergyPoynting_SI_sum_final  = PlottingTable[:,35]
   Eext_SI_max                  = PlottingTable[:,36]
   Wpi                          = PlottingTable[:,37]
@@ -848,7 +848,14 @@ def ExtractData(PlottingTable): #{{{
   FinalTime                    = PlottingTable[:,40]
   timeToFilterFrom             = PlottingTable[:,41]
 
-  return runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
+  return runid, RunDate, wavelengths1, pulses1, Efield1, \
+      CEP1, wavelengths2, pulses2, Efield2, CEP2, \
+      Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude,\
+      GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, \
+      Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, \
+      TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, \
+      ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, \
+      EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
 #}}}
 
 IndexTable = {'runid':                        0, 
