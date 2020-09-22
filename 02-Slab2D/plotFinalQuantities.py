@@ -1291,10 +1291,14 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = True #PRL: False. #PRB: True.
   ShowPulseDurations=True
-  PlotFrozenHxc=False
+  PlotFrozenHxc=True
   UseFinalInstantData=False #True: we plot results at final time. False: we plot results right after the pulse. 
-  EnableInducedFields = False
+  ShowPoynting        = True
+  EnableInducedFields = False #True: useful for plasmonics and spectroscopy. False: useful for energy absorption. 
+  MinPulseDuration=29E-15
   meff = 1. 
+  
+  Header="[plotFinalQuantities: plotEffectOfIntensity_PulseDuration_Metals()] "
   
   if(MoveIon): 
       MoveIonTitle=", w/ phonons."
@@ -1302,6 +1306,12 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   else: 
       MoveIonTitle=""
       MoveIonFile=""
+  
+  if(PlotFrozenHxc):
+      FreezeHXC_name="-FrozenHXC-"
+  else: 
+      FreezeHXC_name=""
+  
   
   print "====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======"
   #Filter: double pulses, same wavelengths, same polarization
@@ -1317,11 +1327,11 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions.
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['GaugeFieldAmplitude']) #filters the probe pulses
   
-  PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 31E-15, IndexTable['pulses1'])
+  PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, MinPulseDuration, IndexTable['pulses1'])
   
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
-  
-  print("Info: available pulse durations:\n"+str(pulses_uniq))
+  #wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  print(Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses)))
+  #print("Info: available pulse durations:\n"+str(pulses_uniq))
   
   Symbols={20e-15: '+', 30e-15: 'o', 60e-15: '^'}
   Colors= {20e-15: 'g', 30e-15: 'r', 60e-15: 'b'}
@@ -1339,84 +1349,115 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
       PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced'])
       WithInducedFields_txt="-NoInducedFields"
   
-  print(Header, "** Info: plotting...")
-  PlottingSinglePulses_Normal = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
-  for pulse_value in pulses_uniq: #{{{
-        # select the corresponding wavelength in results
-        PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_Normal, pulse_value, IndexTable['pulses1'])
-        #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
-        
-        wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
-        
-        runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
-        
-        ## build the internal laser peak fluence here
-        intensity1 = 0.5*c*epsilon_0*Efield1**2 #W/m2
-        fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
-        
-        #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
-        if(EnableInducedFields):
-            intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 # WARNING : may be false!
-        #intensity1_ext = 0.5*c*epsilon_0*(RatioExternal*Efield1)**2 #W/m2 
-        else:
-            intensity1_ext = 0.5*c*epsilon_0*(Efield1)**2 #W/m2 
-        fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
-        
-        ## build the external laser peak fluence here
-        
-        ## build the laser peak fluence here
-        incident_energy1 = fluence1 * area / e #WARNING: to be verified. Should be in eV.
-        incident_energy1_ext = fluence_ext1 * area / e
-        
-        if(UseFinalInstantData):
-            ElectronEnergy_use    = ElectronEnergy_max
-            EigenvaluesEnergy_use = EigenvaluesEnergy_max
-            CaptionText           = r'$(t_{\mathrm{end}})$'
-        else: 
-            ElectronEnergy_use    = ElectronEnergy_afterpulse
-            EigenvaluesEnergy_use = EigenvaluesEnergy_afterpulse
-            CaptionText           = r'$(t \geq \tau)$'
-        
-        ## absorbed energy relative to laser pulse energy
-        relative_absorbed_energy1 = np.divide(ElectronEnergy_use, incident_energy1_ext) #eV over eV
-        #relative_absorbed_energy1 = np.divide(ElectronEnergy_max, incident_energy1_ext) #eV over eV
-        relative_absorbed_energy_eigenvalues1 = np.divide(EigenvaluesEnergy_use, incident_energy1_ext) #eV over eV
-        
-        #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_max, pulses1, Ne_final]))        
-        lists = sorted(itertools.izip(*[pulses1, FieldToIntensity(Efield1), fluence_ext1, ElectronEnergy_use,  EigenvaluesEnergy_use, relative_absorbed_energy1, relative_absorbed_energy_eigenvalues1]))
-        
-        ## WARNING : Does this create negative values? 
-        pulses1_sorted, Intensity_sorted, fluence_ext1_sorted, ElectronEnergy_use_sorted, EigenvaluesEnergy_use_sorted, relative_absorbed_energy1_sorted, relative_absorbed_energy_eigenvalues1_sorted = list(itertools.izip(*lists))
-        #print Header+"Ready to plot: "
-        
-        plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_use_sorted, Colors[pulse_value]+'-^', label=r'abs.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot1 += [plot_field]
-        
-        #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_afterpulse_sorted, Colors[pulse_value]+'-o', label=r'abs.$(t_{\mathrm{end}})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        #plot1 += [plot_field]
-        
-        plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_use_sorted, Colors[pulse_value]+'--^', label=r'eig.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot1 += [plot_field]
-        
-        #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_afterpulse_sorted, Colors[pulse_value]+'-.', label=r'eig. $t>\tau$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        #plot1 += [plot_field]
-        
-        #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        #plot2 += [plot_field]
-        
-        plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}$'+CaptionText+r'$[F_{ext}]$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        plot2 += [plot_field]
-        
-        #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy_eigenvalues1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'eig., $\xi_{eig}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
-        #plot2 += [plot_field]
-        
+  
+  print(Header+"** Info: plotting full TDDFT...")
+  if(not PlotFrozenHxc):
+    PlottingSinglePulses_Normal = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+    
+    wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+    print(Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses)))
+    print("Info: available pulse durations:\n"+str(pulses_uniq))
+    
+    print(Header+"** Info: Number of entries after FreezeHXC: "+str(len(PlottingSinglePulses_Normal)))
+    for pulse_value in pulses_uniq: #{{{
+            # select the corresponding wavelength in results
+            PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_Normal, pulse_value, IndexTable['pulses1'])
+            print(Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses_pulses)))
+            #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+            
+            wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
+            
+            runid, RunDate, wavelengths1, pulses1, Efield1, \
+            CEP1, wavelengths2, pulses2, Efield2, CEP2, \
+            Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, \
+            GaugeFieldDelay, Functional, FreezeHXC, MoveIon, \
+            Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, \
+            TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, \
+            HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, \
+            ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, \
+            RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
+            
+            ## build the internal laser peak fluence here
+            intensity1 = 0.5*c*epsilon_0*Efield1**2 #W/m2
+            fluence1   = intensity1*pulses1 #J/m2 #NOTE: exact while sin² envelope is used. 
+            
+            #RatioExternal=24 #given by Yabana et al., PRB 2012. # TODO: detail!!!
+            if(EnableInducedFields):
+                intensity1_ext = 0.5*c*epsilon_0*(Efield1/RatioExternal)**2 #W/m2 # WARNING : may be false!
+            #intensity1_ext = 0.5*c*epsilon_0*(RatioExternal*Efield1)**2 #W/m2 
+            else:
+                intensity1_ext = 0.5*c*epsilon_0*(Efield1)**2 #W/m2 
+            fluence_ext1 = intensity1_ext*pulses1 #J/m2 #still exact
+            
+            ## build the external laser peak fluence here
+            
+            ## build the laser peak fluence here
+            incident_energy1 = fluence1 * area / e #WARNING: to be verified. Should be in eV.
+            incident_energy1_ext = fluence_ext1 * area / e
+            
+            if(UseFinalInstantData):
+                ElectronEnergy_use    = ElectronEnergy_max
+                EigenvaluesEnergy_use = EigenvaluesEnergy_max
+                CaptionText           = r'$(t_{\mathrm{end}})$'
+            else: 
+                ElectronEnergy_use    = ElectronEnergy_afterpulse
+                EigenvaluesEnergy_use = EigenvaluesEnergy_afterpulse
+                CaptionText           = r'$(t \geq \tau)$'
+            
+            ## absorbed energy relative to laser pulse energy
+            relative_absorbed_energy1 = np.divide(ElectronEnergy_use, incident_energy1_ext) #eV over eV
+            #relative_absorbed_energy1 = np.divide(ElectronEnergy_max, incident_energy1_ext) #eV over eV
+            relative_absorbed_energy_eigenvalues1 = np.divide(EigenvaluesEnergy_use, incident_energy1_ext) #eV over eV
+            
+            #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), fluence1, fluence_ext1, ElectronEnergy_max, pulses1, Ne_final]))        
+            lists = sorted(itertools.izip(*[pulses1, FieldToIntensity(Efield1), fluence_ext1, ElectronEnergy_use,  EigenvaluesEnergy_use, EnergyPoynting_SI_sum_final, relative_absorbed_energy1, relative_absorbed_energy_eigenvalues1]))
+            
+            ## WARNING : Does this create negative values? 
+            pulses1_sorted, Intensity_sorted, fluence_ext1_sorted, ElectronEnergy_use_sorted, EigenvaluesEnergy_use_sorted, EnergyPoynting_SI_sum_final_sorted, relative_absorbed_energy1_sorted, relative_absorbed_energy_eigenvalues1_sorted = list(itertools.izip(*lists))
+            #print Header+"Ready to plot: "
+            
+            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_use_sorted, Colors[pulse_value]+'^', label=r'abs.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot1 += [plot_field]
+            
+            print(Header+"** Debug: contents of Energy Poynting table...")
+            print(EnergyPoynting_SI_sum_final_sorted)
+            
+            if(ShowPoynting):
+                plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EnergyPoynting_SI_sum_final_sorted, Colors[pulse_value]+'-', label=r"$\int J(t').E(t') dt' $"+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
+                plot1 += [plot_field]
+            
+            #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_afterpulse_sorted, Colors[pulse_value]+'-o', label=r'abs.$(t_{\mathrm{end}})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            #plot1 += [plot_field]
+            
+            plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_use_sorted, Colors[pulse_value]+'--^', label=r'eig.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot1 += [plot_field]
+            
+            
+            #plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EigenvaluesEnergy_afterpulse_sorted, Colors[pulse_value]+'-.', label=r'eig. $t>\tau$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            #plot1 += [plot_field]
+            
+            #plot_field, = ax2.plot(np.multiply(xscale, fluence1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'$\xi_{el}(F_{int})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            #plot2 += [plot_field]
+            
+            plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}$'+CaptionText+r'$[F_{ext}]$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            plot2 += [plot_field]
+            
+            #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy_eigenvalues1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'eig., $\xi_{eig}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
+            #plot2 += [plot_field]
+            
 
-        del lists
+            del lists
   #}}}
-  if(PlotFrozenHxc):
+  #if(PlotFrozenHxc):
+  else:
     ## We can now filter and plot the FreezeHXC results
     print(Header, "** Info: plotting effect of Hxc...")
     PlottingSinglePulses_HXC = FilterDatabase(PlottingSinglePulses, 1., IndexTable['FreezeHXC']) #keep only fields where FreezeHXC != 0. 
+    
+    wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+    print(Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses)))
+    print("Info: available pulse durations:\n"+str(pulses_uniq))
+    
     for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
             PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_HXC, pulse_value, IndexTable['pulses1'])
@@ -1455,7 +1496,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             else: 
                 ElectronEnergy_use    = ElectronEnergy_afterpulse
                 EigenvaluesEnergy_use = EigenvaluesEnergy_afterpulse
-                CaptionText           = r'$(t \gtrsim \tau)$'
+                CaptionText           = r'$(t > \tau)$'
         
             ## absorbed energy relative to laser pulse energy
             relative_absorbed_energy1 = np.divide(ElectronEnergy_use, incident_energy1_ext) #eV over eV
@@ -1507,7 +1548,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ax1.set_ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
   
   ax2.set_xscale('log')
-  # ax2.set_yscale('symlog', linthreshy=1e-10)
+  #ax2.set_yscale('symlog', linthreshy=1e-10)
   ax2.grid()
   ax2.set_xlabel(r'Peak fluence (J/cm$^2$)')
   ax2.set_ylabel(r'Rel. abs. $\xi_{\mathrm{el}}^{\mathrm{TDDFT}} / \xi_{\mathrm{laser}}$')
@@ -1518,7 +1559,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   
   plt.tight_layout()
   #print(Header, "Debug: PulseType: ", PulseType)
-  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+WithInducedFields_txt
+  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+FreezeHXC_name+MoveIonFile+WithInducedFields_txt
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png."
@@ -4162,12 +4203,19 @@ def plot_Vorobyev_Au(material):
     PrimitiveCellArea = {'Au': 6.52E-20, 'Mo': 7.07E-20} #m2
     RatioExternal={'Au': 24.06, 'Mo': 1.91}
     #try:
-    for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
+    if(material=="Au"):
+        for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
         #0: Gaussian; 1: SinSquared
-        plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
+            plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
         #except:
             #print Header+"** Warning: no data could be found, or bug took place for 800 nm."
-
+    elif(material=="Mo"):
+        for PulseType in [PulseTypeID['SinSquared']]:
+        #0: Gaussian; 1: SinSquared
+            plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
+    else:
+        print(Header+"** Error: material is not well specified.")
+        exit()
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 1, 1, 1) #validated
 #plotEffectOfIntensity_wavelengths(PlottingTable, 20e-15, 1, 0) #validated, degeneracies are due to undefined RiseTime
