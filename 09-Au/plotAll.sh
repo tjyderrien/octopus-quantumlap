@@ -1,1 +1,0 @@
-/home/tjyderrien/octopus-slabs/03-Bulk3D/plotAll.sh

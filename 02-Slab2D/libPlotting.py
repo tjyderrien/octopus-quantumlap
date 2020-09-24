@@ -504,6 +504,20 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     Hartree        = np.asfarray(Energy[:,7]) #Hartree
     Exchange       = np.asfarray(Energy[:,9]) #Hartree
     
+    ## NOTE: Octopus does not compute Hartree energy at all timesteps, it would be too expensive. 
+    ## Redefining the zero with interpolated values between defined points. 
+    Hartree_nonzero = np.nonzero(Hartree)
+    Hartree_interp = interp1d(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero])
+    Hartree        = Hartree_interp
+    del Hartree_interp, Hartree_nonzero
+    
+    ## NOTE: Octopus does not compute Exchange-Correlation energy at all timesteps, it would be too expensive. 
+    ## Redefining the zero with interpolated values between defined points. 
+    Exchange_nonzero = np.nonzero(Exchange)
+    Exchange_interp  = interp1d(timeEnergies[Exchange_nonzero], Exchange[Exchange_nonzero])
+    Exchange         = Exchange_interp
+    del Exchange_interp, Exchange_nonzero
+    
     # Normalizing the database energies
     
     # We capture the energy increase due to the laser field. 
@@ -622,7 +636,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
-    HartreeEnergy_AU_final = Hartree[Hartree.size-1]
+    HartreeEnergy_AU_final = Hartree[Hartree.size-1] #WARNING: this may be equal to 0 most of the time. This could explain the discontinuity. 
     HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
     
     ExchangeEnergy_AU_final = Exchange[Exchange.size-1]
