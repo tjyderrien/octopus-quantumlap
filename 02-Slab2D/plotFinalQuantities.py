@@ -388,12 +388,15 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+      EnableInsetMagnification=True
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+      EnableInsetMagnification=False
   if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+      EnableInsetMagnification=False
   
   ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures. 
   ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs. 
@@ -990,9 +993,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #if(PlotWpiAxis==True): #{{{
   plot2=[]
   
-  ax22 = inset_axes(ax2, width="100%", height="100%", borderpad=1.05, bbox_to_anchor=(0.65, 0.5, 1-0.65, 0.27), bbox_transform=ax2.transAxes, loc="center right")
   
-  ax22.tick_params(top=False, left=False, bottom=True, labelleft=False, labeltop=False, labelbottom=True)
+  if(EnableInsetMagnification):
+      ax22 = inset_axes(ax2, width="100%", height="100%", borderpad=1.05, bbox_to_anchor=(0.65, 0.5, 1-0.65, 0.27), bbox_transform=ax2.transAxes, loc="center right")
+      
+      ax22.tick_params(top=False, left=False, bottom=True, labelleft=False, labeltop=False, labelbottom=True)
   
   for pulse_value in pulses_uniq: #{{{
       # select the corresponding wavelength in results
@@ -1017,14 +1022,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   if(pulseWavelength==800e-9): 
     EffectiveMassList=[meff_Waroquiers_LDA] #[0.05]
     #EffectiveMassList=[meff_Waroquiers_LDA, 1.] #, meff_Waroquiers_LDA]
-    EnableInsetMagnification=True
+    #EnableInsetMagnification=False
   elif(pulseWavelength==1600e-9):
     EffectiveMassList=[meff_Waroquiers_LDA]
-    EnableInsetMagnification=False
+    #EnableInsetMagnification=False
   elif(pulseWavelength==3200e-9):
     EffectiveMassList=[meff_Waroquiers_LDA] #[0.025]
  #, meff_Waroquiers_LDA]
-    EnableInsetMagnification=False
+    #EnableInsetMagnification=True
   else: 
     EffectiveMassList=[0.01, 0.025, 0.05, 0.1, meff_Waroquiers_LDA]
     
