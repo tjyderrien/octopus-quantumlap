@@ -33,7 +33,7 @@ from libKeldyshZhukov    import IntensityToField
 from libStark            import Kronecker, ComputeFloquetBandStructure
 
 PlotMatrixElements       =True
-PlotFloquetBandStructure =False  #Provide field dependent band structure at Gamma Point
+PlotFloquetBandStructure =True  #Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices=False #for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 
 #Filenames = "ks_me_multipoles.*"
@@ -47,7 +47,7 @@ listoffiles=GetOrderedListOfFiles(Filenames)
 #print listoffiles
 
 ## Building materials dictionnary
-material="Au" #SiO2 | Si
+material="Mo" #SiO2 | Si
 
 #exit()
 wavelength_SI_t        = [800e-9] #, 400e-9] #484e-9, 343e-9] #10e-6
@@ -65,10 +65,10 @@ field_polarization_dir = 0 #0: x, 1: y, 2: z
 spin_occupation        = 2 #1: levels with same spin should split, 2: levels of different spins don't split.
 
 Renormalize            = False #True: limits the plots maximum as function of wavelength
-PlotIntensity          = False  #True: plot with I. False: plot with E. 
+PlotIntensity          = True  #True: plot with I. False: plot with E. 
 SizeOfDots             = 0.5   #purely cosmetic!
 LogPlotting            = 1
-verbose                = 0 #Show info and debug messages. 
+verbose                = 1 #Show info and debug messages. 
 SingleKpoint           = 0 #0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields.
 
 BesselRootsID_max      = 10
@@ -103,11 +103,11 @@ SiO2={'MPI_numbers': [1,2], 'kpoints_manual': 16,
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
 Mo={'MPI_numbers': [1], 'kpoints_manual': 16, 
-    'nb_atoms': 1, 'unocc_states': 4, 
-    'Z_electrons': 11-4, 'OpticalIndex': OpticalIndex_Mo, 
-    'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 301}
+    'nb_atoms': 1, 'unocc_states': 3, 
+    'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 
+    'ymin_ymax': (-30,30), 'CaptureDirectGap': False, 'KpointPath_len': 601, 'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$']}
 
-Au={'MPI_numbers': [1], 'kpoints_manual': 16, 
+Au={'MPI_numbers': [2], 'kpoints_manual': 16, 
     'nb_atoms': 1, 'unocc_states': 3, 
     'Z_electrons': 14-3, 'OpticalIndex': OpticalIndex_Au, 
     'ymin_ymax': (-2,35), 'CaptureDirectGap': False, 'KpointPath_len': 1001, 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$' , r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$',  r'$K|U$', r'$X$']}
@@ -131,7 +131,7 @@ KpointPath_len          = Materials[material]['KpointPath_len']
 K_labels                = Materials[material]['K_labels']
 
 def SingleKpointManyFields(): #{{{
-    global Efield_SI_min, Efield_SI_max
+    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
     ## Capturing the Gamma k-point file in results of Octopus
     try: 
         kpoints_number_inp   = LookUpStringInFile("info", "Dimensions of the k-point grid") #WARNING: it seems this has changed
@@ -457,13 +457,22 @@ def MultipleKpointsOneField(field): #{{{
     ax1.set_xticklabels(K_labels, fontsize='15')
     ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
+    figurename="FloquetBandStructureComplete-"+str(round(wavelength_SI*1E9,0))+"nm-k"+str(kpoints_manual)+"MPI-"+str(round(MPI_number,0))+"-Field"+str(1E-9*round(field,0))+"VperNm"
+    if(not LogPlotting):
+        figurename+="NoLog"
+    if(not PlotIntensity): 
+        figurename+="-Field"
+    plt.savefig(figurename+".eps")
+    plt.savefig(figurename+".png")
     plt.show()
-    # Plot the Floquet band structure for this field
-    
     
 #}}}
 
 if(SingleKpoint==1): 
     SingleKpointManyFields()
 else: 
+    #MultipleKpointsOneField(1E8)
     MultipleKpointsOneField(1E9)
+    #MultipleKpointsOneField(5E9)
+    MultipleKpointsOneField(1E10)
+    MultipleKpointsOneField(1E11)
