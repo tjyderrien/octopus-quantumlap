@@ -24,6 +24,7 @@ from scipy.integrate import cumtrapz
 import glob
 import os.path
 import numpy as np
+from scipy.interpolate import interp1d
 import matplotlib as mp
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -509,6 +510,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## NOTE: Octopus does not compute Hartree energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
     Hartree_nonzero = np.nonzero(Hartree)
+
     # print("** Debug: shape Hartree: "+str(np.shape(Hartree)))
     # print("**        shape Hartree_nonzero: "+str(np.shape(Hartree_nonzero)))
     Hartree_interp = interp1d(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero]) #this remains to be a function
