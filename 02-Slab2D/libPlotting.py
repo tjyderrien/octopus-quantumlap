@@ -30,6 +30,8 @@ import matplotlib.tri as tri
 import matplotlib.cm as cm
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
+from scipy.interpolate import interp1d
+
 
 from libString import *
 from libAtomicUnits import *
@@ -507,15 +509,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## NOTE: Octopus does not compute Hartree energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
     Hartree_nonzero = np.nonzero(Hartree)
-    Hartree_interp = interp1d(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero])
-    Hartree        = Hartree_interp
+    # print("** Debug: shape Hartree: "+str(np.shape(Hartree)))
+    # print("**        shape Hartree_nonzero: "+str(np.shape(Hartree_nonzero)))
+    Hartree_interp = interp1d(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero]) #this remains to be a function
+    # print("**        shape Hartree_interp: "+str(np.shape(Hartree_interp)))
+    Hartree        = Hartree_interp(timeEnergies)
     del Hartree_interp, Hartree_nonzero
     
     ## NOTE: Octopus does not compute Exchange-Correlation energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
     Exchange_nonzero = np.nonzero(Exchange)
     Exchange_interp  = interp1d(timeEnergies[Exchange_nonzero], Exchange[Exchange_nonzero])
-    Exchange         = Exchange_interp
+    Exchange         = Exchange_interp(timeEnergies)
     del Exchange_interp, Exchange_nonzero
     
     # Normalizing the database energies
