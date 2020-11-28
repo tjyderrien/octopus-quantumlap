@@ -1011,8 +1011,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       
       plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       plot2 += [plot21]
-      
-      plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+      if(EnableInsetMagnification):
+        plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       
       #plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), Saturation, Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{sat.}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       #plot2 += [plot21]
@@ -1123,8 +1123,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #pplt.xlim(x_min[pulseWavelength])
   ax2.set_xlim(x_min[pulseWavelength])
   ax2.set_ylim([wPI_min[pulseWavelength],1E45])
-  ax22.set_xlim([7.3E10,2E11])
-  ax22.set_ylim([3.1E37,2E39])
+  if(EnableInsetMagnification):
+    ax22.set_xlim([7.3E10,2E11])
+    ax22.set_ylim([3.1E37,2E39])
   
   # Interpolation of a joint law of photoionization
   #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
@@ -1139,9 +1140,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax2.set_xlabel(r'Intensity (W/cm$^2$)')
   ax2.set_ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
-  ax22.set_xscale('log')
   ax2.set_yscale('log')
-  ax22.set_yscale('log')
+  if(EnableInsetMagnification):
+    ax22.set_xscale('log')
+    ax22.set_yscale('log')
   ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax2.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
@@ -1330,8 +1332,8 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   PlotFrozenHxc=False
   UseFinalInstantData=False #True: we plot results at final time. False: we plot results right after the pulse. 
   ShowPoynting        = True
-  EnableInducedFields = True #True: useful for plasmonics and spectroscopy. False: useful for energy absorption. 
-  MinPulseDuration=29E-15
+  EnableInducedFields = False #True: useful for plasmonics and spectroscopy. False: useful for energy absorption. 
+  MinPulseDuration=19E-15
   meff = 1. 
   
   Header="[plotFinalQuantities: plotEffectOfIntensity_PulseDuration_Metals()] "
@@ -1584,7 +1586,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ax1.set_ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
   
   ax2.set_xscale('log')
-  ax2.set_xlim([7E8, 2E15])
+  #ax2.set_xlim([7E8, 2E15])
   #ax2.set_yscale('symlog', linthreshy=1e-10)
   ax2.grid()
   ax2.set_xlabel(r'Peak fluence (J/cm$^2$)')
@@ -1933,7 +1935,7 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # This enables to analyze the role of laser wavelength on the final excited electron density, excitation rate and laser-induced energy increase. Provides predictions on the Stark effect. 
 # Wpi is compared to analytical Keldysh theory. 
 # Energy is compared with analytical Drude model. 
-def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTimeRequested=2, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
+def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTimeRequested=2, ShowFinalPlot=0, NumberOfAtoms=2., Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
   PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation=False
@@ -2580,7 +2582,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     else: 
         wavelengths1_Show = np.multiply(1e9, wavelengths1)
     
-    lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, ElectronEnergy_max])) #NOTE: Ne_max makes more sense than Ne_final
+    lists = sorted(itertools.izip(*[wavelengths1_Show, wavelengths1, Ne_final, W_pi, ElectronEnergy_max/NumberOfAtoms])) #NOTE: Ne_max makes more sense than Ne_final
     wavelengths1_sorted_show, wavelengths1_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted = list(itertools.izip(*lists))
     #print Efield1_value
     
@@ -2598,7 +2600,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   else: 
     ax3.set_xlabel('Photon energy (eV)')
   #pplt.ylabel('Irreversibility factor')
-  ax3.set_ylabel('Electron excess energy (eV)')
+  ax3.set_ylabel('Energy absorbed by electrons (eV)')
   #pplt.ylim((0,1))
   if(not EnergyAxis): 
     ax3.set_xlim([wavelengths1_min, wavelengths1_max])
@@ -2682,7 +2684,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             if(abs(Efield1_value - Efield1_compare) / Efield1_value < FieldTolerance):
                 EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield1_compare])
                                 
-                ax3.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
+                ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
                 #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
             
         ##if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
@@ -3188,7 +3190,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   else: 
     ax3.set_xlabel('Photon energy (eV)')
   #pplt.ylabel('Irreversibility factor')
-  ax3.set_ylabel('Electron excess energy (eV)')
+  ax3.set_ylabel('Energy absorbed by electrons (eV)')
   #pplt.ylim((0,1))
   #ax2.set_xscale('log')
   
@@ -3954,7 +3956,17 @@ def plotAdjustedCollisionFrequencies_wavelength(): #{{{
     
 #}}}                                                           
 
-## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B]
+## Prepare all plots for single-color excitation for SiO2 
+def plot_Zhukov_SingleColor_SiO2(): #{{{
+    Egap_SI = 9.*e; Egap_SI_indirect=Egap_SI #we don't care of indirect gap
+    PulseType  = 3 #STH: 2, StH: 3
+    RiseCycles = 2
+    ShowPlot = 1
+    NumberOfAtoms=9. #3 Si & 6 Oxygen. 
+    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)                                   
+#}}}                                            
+
+## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
 def plot_Zhukov_SingleColor_LDA(): #{{{
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
@@ -3965,6 +3977,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     ShowPlot   = 0
     PlotWpiAxis = True
     MoveIon=0
+    NumberOfAtoms=2. #Si
     
     ## These are experimental data from Palik. More correct would be to use linear response computed from TDDFT. 
     OpticalIndex={ #
@@ -4028,7 +4041,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     
-    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
+    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
     
     ## Checking what is happening in the mid-IR world. NOTE: NOT ENOUGH DATA? 
     #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
@@ -4063,6 +4076,7 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     wavelength = 800e-9
     ShowPlot   = 0
     PlotWpiAxis = True
+    NumberOfAtoms=2. #Si
     ## Plots effect of the STH Rise Time. We even found an incomplete computations thanks to this. Works super well, then. 
     #RiseCycles = 0 #0: undefined, mixes everything. Basically, we must redefine all runs which had no well defined RiseCycle so far. 
     #Efield     = 1E9
@@ -4105,7 +4119,7 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
-    plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 20e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
+    plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect)
     #plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI)
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
@@ -4233,10 +4247,10 @@ def plot_Vorobyev_Au(material):
     RiseCycles=0 #does not matter here
     MoveIon=0
     PlotWpiAxis=False #we are interested in energy
-    wavelength1=800E-9
+    wavelength1=249E-9
     Egap_SI=0e0; Egap_SI_indirect=0e0 #metal
-    OpticalIndex_Mo={1030e-9: 2.4201,  800e-9: 3.6371, 515e-9: 3.7362} #Ordal
-    OpticalIndex_Au={1030e-9: 0.24212, 800e-9: 0.15352, 515e-9: 0.71912}
+    OpticalIndex_Mo={1030e-9: 2.4201,  800e-9: 3.6371, 515e-9: 3.7362, 400e-9: 3.030048754875381, 249e-9: 1.49083003952569} #Ordal
+    OpticalIndex_Au={1030e-9: 0.24212, 800e-9: 0.15352, 515e-9: 0.71912, 400e-9: 1.657892739273246, 249e-9: 1.48523320158103} #Palik
     OpticalIndex={'Mo': OpticalIndex_Mo, 'Au': OpticalIndex_Au}
     PrimitiveCellArea = {'Au': 6.52E-20, 'Mo': 7.07E-20} #m2
     RatioExternal={'Au': 24.06, 'Mo': 1.91}
@@ -4310,6 +4324,9 @@ elif "09-Au" in dirname:
 elif "06-Mo" in dirname: 
     print(Header+"** Info: detected computations for Mo...")
     plot_Vorobyev_Au('Mo')
+elif "14-SiO2" in dirname: 
+    print(Header+"** Info: detected simulation for SiO2...")
+    plot_Zhukov_SingleColor_SiO2()
 else: 
     print("Other routines are available, but may not be up to date.")
     
