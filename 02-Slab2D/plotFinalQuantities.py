@@ -350,7 +350,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
   ShowPulseDurations=False
   PlotSaturation=False
-  WithOpticalIndex=True
+  WithOpticalIndex=True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
+  SidePanels=False #True for PRL Fig2.
+  ShowSigmaRates=False
   #EnableInsetMagnification=True #this is defined as function of wavelength below
   
   Ntotal=5.0E28 
@@ -388,7 +390,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
-      EnableInsetMagnification=True
+      EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 21e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
@@ -402,17 +404,23 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs. 
 
   ## prints the current state of selection
-  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
+  wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses) #TODO: use PANDAS here
 
   # Simple pulse, single color
   #plotA = 311; plotB = 312; plotC = 313 #Horizontal
   if(not PlotEnergy):
-      plotA=121; plotB=122;
+      if(SidePanels):
+        plotA=121; plotB=122;#2 columns figure 
+        ncols=1
+      else: 
+        plotA=211; plotB=212;#2 rows figure 
+        ncols=3
+        #pplt.figure(figsize=(SizeY, SizeX/3.*2.))
       pplt.figure(figsize=(SizeX/3.*2.,SizeY))
   else:
       plotA = 131; plotB = 132; plotC = 133 #Vertical
       pplt.figure(figsize=(SizeX,SizeY))
-      
+  
   #plotA = 221; plotB = 224; plotC = 223; plotD = 222 # 2x2 for huge caption of ax1
   
   EnergyMin = 0e0 #-1E-7
@@ -429,7 +437,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
     
-    runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIonRun, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
+    runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIonRun, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses) #TODO: use PANDAS HERE
     
     print Header+"** Info: saving the data in CSV file for fitting. "
     filename = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm-tau"+str(int(pulse_value*1E15))+"fs"+FileName_opt
@@ -874,7 +882,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print Header+"** Info: fitting with 7-photon absortion..."
         plot_field = FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 7, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 7-photon absorption failed. "
     
@@ -884,7 +893,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print Header+"** Info: fitting with 6-photon absortion..."
         plot_field = FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 6, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 6-photon absorption failed. "
     
@@ -894,7 +904,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print Header+"** Info: fitting with 5-photon absortion..."
         plot_field = FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 5, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 5-photon absorption failed. "
         
@@ -904,28 +915,32 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print Header+"** Info: fitting with 4-photon absortion..."
         plot_field = FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 4, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 4-photon absorption failed. "
     try:
     #elif(NumberOfPhotons_round >= 3 and NumberOfPhotons_round < 4):
         print Header+"** Info: fitting with 3-photon absortion..."    
         plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 3-photon absorption failed. "
     try:
     #elif(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
         print Header+"** Info: fitting with 2-photon absortion..."
         plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 2-photon absorption failed. "
     try:
     #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
         print Header+"** Info: fitting with 1-photon absortion..."
-        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)
-        plot1 += [plot_field]
+        plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)            
+        if(ShowSigmaRates): 
+            plot1 += [plot_field]
     except: 
         print Header+"** Fit using 1-photon absorption failed. "
         #else: 
@@ -965,7 +980,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax1.set_yscale('log')
   ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   labels1 = [l.get_label() for l in plot1]
-  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
+  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=1)
   
   pplt.tight_layout()
   #print Header+"Adding the adjusted coefficients to check our fitting law."
@@ -995,16 +1010,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   
   if(EnableInsetMagnification):
-      ax22 = inset_axes(ax2, width="100%", height="100%", borderpad=1.05, bbox_to_anchor=(0.65, 0.5, 1-0.65, 0.27), bbox_transform=ax2.transAxes, loc="center right")
+      if(SidePanels):
+          ax22 = inset_axes(ax2, width="100%", height="100%", borderpad=1.05, bbox_to_anchor=(0.65, 0.5, 1-0.65, 0.27), bbox_transform=ax2.transAxes, loc="center right")
       
-      ax22.tick_params(top=False, left=False, bottom=True, labelleft=False, labeltop=False, labelbottom=True)
+          ax22.tick_params(top=False, left=False, bottom=True, labelleft=False, labeltop=False, labelbottom=True)
+      else: #Panels one below the another
+          ax22 = inset_axes(ax2, width="100%", height="100%", borderpad=1.05, bbox_to_anchor=(0.05, 0.6, 0.20, 1-0.6), bbox_transform=ax2.transAxes, loc="center right") #, zorder=6) #NOTE: only from Python3
+          ax22.tick_params(top=False, left=False, bottom=True, labelleft=False, labeltop=False, labelbottom=True)
   
   for pulse_value in pulses_uniq: #{{{
       # select the corresponding wavelength in results
       PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
       PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
-      runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
+      runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, W_pi, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses) #TODO: USE PANDAS HERE
       
       lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(itertools.izip(*lists))
@@ -1134,7 +1153,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #plot2    += [plot23]
   
   labels2 = [l.get_label() for l in plot2]
-  ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
+  ax2.legend(plot2, labels2, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=ncols)
   #ax12.set_yscale('log')
   #ax12.legend(loc='best', fancybox=True, framealpha=0)
   ax2.set_xlabel(r'Intensity (W/cm$^2$)')
@@ -1333,7 +1352,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   UseFinalInstantData=False #True: we plot results at final time. False: we plot results right after the pulse. 
   ShowPoynting        = True
   EnableInducedFields = False #True: useful for plasmonics and spectroscopy. False: useful for energy absorption. 
-  MinPulseDuration=19E-15
+  MinPulseDuration=9E-15
   meff = 1. 
   
   Header="[plotFinalQuantities: plotEffectOfIntensity_PulseDuration_Metals()] "
@@ -2393,8 +2412,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #ax11.set_title(r"Max of $\tilde{w}_{PI}$")
   ##ax11.set_xscale('log')
   #ax11.set_yscale('log')
-  ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
   ax2.set_yscale('symlog', linthreshy=1E20)
+  ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
   ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   ax22.set_yscale('symlog', linthreshy=1E20)
   
@@ -3968,6 +3987,7 @@ def plot_Zhukov_SingleColor_SiO2(): #{{{
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
 def plot_Zhukov_SingleColor_LDA(): #{{{
+
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
     #Egap_SI = 1.5*e #Manually adjusted gap. 
@@ -4067,6 +4087,18 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
       plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
       #except:
         #print Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm."
+    
+    material="Si"
+    PrimitiveCellArea = {'Si': 1E-20} #WARNING: very approximative!!!
+    RatioExternal     = {'Si': 1.}    #Useful only for induced fields cases
+    ## Plotting absorbed energy also
+    for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
+        for wavelength in [3200E-9, 1600e-9, 800e-9]: 
+        #0: Gaussian; 1: SinSquared
+            try: 
+                plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[wavelength], RatioExternal[material], MoveIon)
+            except: 
+                print(Header+"Plotting of Energy for Si failed for wavelength "+str(int(1E9*wavelength))+", pulsetype: "+str(PulseType))
     
 #}}}
 def plot_Zhukov_SingleColor_TB09(): #{{{
@@ -4239,7 +4271,8 @@ def plot_HHG():
             # HHG(omega; tau1; LAMBDA1) Expected: reduction of the harmonics with time. Gabor transform necessary. 
             # HHG(omega; lambda1) #Figure made by N. Tancogne in his PRL 2016. Great to see the cutoff. 
             # Filter: we don't care about CEP
-            
+
+## Prepares plots for metallic absorption computed via TDDFT            
 def plot_Vorobyev_Au(material):
     PlottingTable_filtered = PlottingTable
     #for tau in [30e-15, 60e-15]:
