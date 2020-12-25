@@ -377,12 +377,17 @@ print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
 
 print Header+"** Info: cleaning the current for HHG computation."
 CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 3*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
+CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 3*PulseDuration_SI)
+CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 3*PulseDuration_SI)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(CurrentX_HHG)
+HHG_AU=fft.fft(CurrentX_HHG)+fft.fft(CurrentY_HHG)+fft.fft(CurrentZ_HHG) #Larmot formula with approximation of d/dt J_i n_i
+HHG_AU_X = fft.fft(CurrentX_HHG)
+HHG_AU_Y = fft.fft(CurrentY_HHG)
+HHG_AU_Z = fft.fft(CurrentZ_HHG)
 HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -705,7 +710,7 @@ ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
 Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
-Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2
+Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2 #FULL HHG spectrum is taken (X, Y and Z)
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
 
