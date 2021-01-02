@@ -108,9 +108,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print Header+"** Error: the existing database is empty. We will generate new DB. "
     FromScratch = True
-    Database = np.empty((0,42))
+    Database = np.empty((0,44))
 
-  PlottingTable = np.empty((0,42)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,44))^##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
@@ -490,7 +490,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     density_proj_SI  = Density_AU_to_SI(density_proj_AU)
     sizeOfDensityTab = density_proj_SI.size
 
-    density_proj_SI_final         = density_proj_SI[sizeOfDensityTab-1]
+    density_proj_SI_final         = density_proj_SI[sizeOfDensityTab-1] ##NOTE: sometimes, n_ex changes with time after the pulse (particularly at low densities. This can change the slope of dN_exc/dI, inducing errors on necessary number of photons. This could explain the weird variations found in various results (e.g. Apostolova). It is better to capture the value right after the pulse. 
     density_proj_SI_max           = density_proj_SI.max()
     density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
     
@@ -684,8 +684,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         timeToFilterFrom=timeEnergies4[0]
         timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
         # We filter ElectronEnergy using these two conditions: 
-        ElectronEnergyRightAfterPulse=ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
-        
+        ElectronEnergyRightAfterPulse = ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
+        ElectronDensityRightAfterPulse= density_proj_SI[timeEnergiesCondition][0] ##NOTE: this should help to have more stable results
         print(Header+"** Info: energy right after the pulse"+str(ElectronEnergyRightAfterPulse))
 
     #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
@@ -703,13 +703,14 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         HartreeEnergy_SI_afterpulse    = 0e0
         ExchangeEnergy_SI_afterpulse   = 0e0
         EigenvaluesEnergy_SI_afterpulse= 0e0
+        ElectronDensityRightAfterPulse = 0e0
 	timeToFilterFrom = 0e0
     
     print Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse)
     print Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse)
     print Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse)
     print Header+"Afterpulse eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_afterpulse)
-
+    print Header+"Afterpulse excited electron density (m-3)      = "+str(ElectronDensityRightAfterPulse)
 #     EigenvaluesEnergy_SI_final
     # Append to the table
     # Structure: 
@@ -746,8 +747,8 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
 	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), 
 	      float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), 
-	      float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check), float(Eext_SI_max),
-	      float(density_proj_SI_final/PulseDuration_SI), 
+	      float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check), float(Eext_SI_max), float(ElectronDensityRightAfterPulse), 
+	      float(density_proj_SI_final/PulseDuration_SI), float(ElectronDensityRightAfterPulse/PulseDuration_SI),
 	      PulseType, RiseTime, float(timeNe[len(timeNe)-1]), 
 	      float(timeToFilterFrom) ]
 
@@ -863,11 +864,13 @@ def ExtractData(PlottingTable): #{{{
   ExchangeEnergy_afterpulse    = PlottingTable[:,34]
   EnergyPoynting_SI_sum_final  = PlottingTable[:,35]
   Eext_SI_max                  = PlottingTable[:,36]
-  Wpi                          = PlottingTable[:,37]
-  PulseType                    = PlottingTable[:,38]
-  RiseTime                     = PlottingTable[:,39]
-  FinalTime                    = PlottingTable[:,40]
-  timeToFilterFrom             = PlottingTable[:,41]
+  Ne_afterpulse                = PlottingTable[:,37]
+  Wpi                          = PlottingTable[:,38]
+  Wpi_afterpulse               = PlottingTable[:,39]
+  PulseType                    = PlottingTable[:,40]
+  RiseTime                     = PlottingTable[:,41]
+  FinalTime                    = PlottingTable[:,42]
+  timeToFilterFrom             = PlottingTable[:,43]
 
   return runid, RunDate, wavelengths1, pulses1, Efield1, \
       CEP1, wavelengths2, pulses2, Efield2, CEP2, \
@@ -876,7 +879,7 @@ def ExtractData(PlottingTable): #{{{
       Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, \
       TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, \
       ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, \
-      EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, timeToFilterFrom
+      EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom
 #}}}
 
 IndexTable = {'runid':                        0, 
@@ -916,17 +919,19 @@ IndexTable = {'runid':                        0,
               'ExchangeEnergy_afterpulse':    34, 
               'EnergyPoynting_final':         35, 
               'Eext_SI':                      36, 
-              'Wpi':                          37, 
-              'PulseType':                    38, 
-              'RiseTime':                     39, 
-              'FinalTime':                    40,  
-              'FilterTime':                   41
+              'Ne_afterpulse':                37, 
+              'Wpi':                          38, 
+              'Wpi_afterpulse':               39,
+              'PulseType':                    40, 
+              'RiseTime':                     41, 
+              'FinalTime':                    42,  
+              'FilterTime':                   43
               }
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Wpi, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
+  runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
