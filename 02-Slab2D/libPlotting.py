@@ -110,7 +110,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     FromScratch = True
     Database = np.empty((0,44))
 
-  PlottingTable = np.empty((0,44))^##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,44)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print Header+"Fetching all subfolders...\n"
