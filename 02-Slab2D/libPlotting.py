@@ -685,8 +685,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
         # We filter ElectronEnergy using these two conditions: 
         ElectronEnergyRightAfterPulse = ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
-        ElectronDensityRightAfterPulse= density_proj_SI[timeEnergiesCondition][0] ##NOTE: this should help to have more stable results
+        ElectronDensityRightAfterPulse= density_proj_SI[timeEnergiesCondition] ##NOTE: this should help to have more stable results
         print(Header+"** Info: energy right after the pulse"+str(ElectronEnergyRightAfterPulse))
+        print(Header+"** Info: density right after the pulse"+str(ElectronDensityRightAfterPulse))
 
     #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
         # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.

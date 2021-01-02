@@ -20,21 +20,22 @@
 # Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes), builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. Then prepares a bunch of scientific results for publications with one and two color simulations. 
 
 ## IMPORT LIBRARIES
-import numpy as np
+import numpy             as np
 from numpy import genfromtxt, loadtxt, chararray
 #from scipy import interpolate
 import matplotlib.pyplot as pplt
 import matplotlib.pylab  as pl
+import pandas            as pd
 # from pylab import *
 import sys
 import decimal
 import itertools
 
-import matplotlib as mp
-import matplotlib.pyplot as plt
+import matplotlib           as mp
+import matplotlib.pyplot    as plt
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
-import matplotlib.cm as cm
+import matplotlib.cm        as cm
 import mpl_toolkits.mplot3d as mplt 
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -344,6 +345,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # Wpi is compared to Keldysh analytical solid theory, and numerically integrated Keldysh if available. # Wpi is also compared to tunneling limit case. 
 # ElectronEnergy (intensity) is given. 
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
+  UseNexcAfterPulse = True #instead of density at end of simulation, one capture the ones very close to the end of the pulse. 
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = False #PRL: False. #PRB: True.
   EnableKeldysh = True
@@ -443,6 +445,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     filename = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm-tau"+str(int(pulse_value*1E15))+"fs"+FileName_opt
     print Header+"** Info: saving in "+filename+".csv"
     ExportToTxt(PlottingSinglePulses_pulses, filename+".csv")
+    if(UseNexcAfterPulse):
+        Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
     lists = sorted(itertools.izip(*[pulses1, Efield1, FieldToIntensity(Efield1), Ne_final]))
     pulses1_sorted, Efield1_sorted, Intensity_sorted, Ne_final_sorted = list(itertools.izip(*lists))
     #print Header+"Ready to plot: "
@@ -794,8 +798,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             SevenPhotonIntensityRegime_max = 0E0 #1.3E15
             SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
             FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.6E14
-            FourPhotonIntensityRegime_min = 9.6E14;     FourPhotonIntensityRegime_max  = 2.2E11
-            ThreePhotonIntensityRegime_min = 2.2E15; ThreePhotonIntensityRegime_max = 6.4E15 #W/m2
+            FourPhotonIntensityRegime_min = 9.6E14;     FourPhotonIntensityRegime_max  = 2.6E15
+            ThreePhotonIntensityRegime_min = 2.6E15; ThreePhotonIntensityRegime_max = 6.4E15 #W/m2
             TwoPhotonIntensityRegime_min = 6.4E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
             OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
         elif(pulse_value==30e-15):
@@ -803,8 +807,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             SevenPhotonIntensityRegime_max = 0E0 #1.3E15
             SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
             FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.9E14 #1.3E15
-            FourPhotonIntensityRegime_min = 0e0;     FourPhotonIntensityRegime_max  = 0E0
-            ThreePhotonIntensityRegime_min = 1.59E15; ThreePhotonIntensityRegime_max = 5.3E15 #W/m2
+            FourPhotonIntensityRegime_min = 9.9E14;     FourPhotonIntensityRegime_max  = 2.58E15
+            ThreePhotonIntensityRegime_min = 2.58E15; ThreePhotonIntensityRegime_max = 5.31E15 #W/m2
             TwoPhotonIntensityRegime_min = 5.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
             OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
         else: #works for 10 fs and 10.xx fs then
@@ -989,6 +993,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
       runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses) #TODO: USE PANDAS HERE
+      
+      if(UseNexcAfterPulse):
+        Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
       
       lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(itertools.izip(*lists))
@@ -1218,6 +1225,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
 
         runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
+        
+        if(UseNexcAfterPulse):
+            Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
         
         lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), ElectronEnergy_max, pulses1, Ne_final]))
         Intensity_sorted, Energy_final_sorted, pulses1_sorted, Ne_final_sorted = list(itertools.izip(*lists))
