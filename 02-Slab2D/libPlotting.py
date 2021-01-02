@@ -24,7 +24,6 @@ from scipy.integrate import cumtrapz
 import glob
 import os.path
 import numpy as np
-from scipy.interpolate import interp1d
 import matplotlib as mp
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -117,7 +116,14 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
     print Header+"** Info: entering folder: "+str(FolderName)+"\n"
-
+    
+    ## HERE, if we find a file named "DISABLED" in the folder, then we shall jump the folder, to avoid polluting the database. 
+    # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
+    if(os.path.isfile(FolderName+"../DISABLED")):
+        print(Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. ")
+        continue
+    
+    
     # Import the quantities from the subfolders
     try:
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
@@ -658,36 +664,65 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"End Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_final)
     print Header+"End exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final)
     print Header+"End eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
+    print Header+"Final electron density = "+str(density_proj_SI_final)
 
-    try: 
-
+    try:
         print(Header+"** Info: trying condition for computing ElectronEnergy right after the pulse: ")
 
         ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
+        Ne_diff = np.diff(density_proj_SI)
 
-        Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]
-
+#       Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]. Range is limited to size of ElectronEnergy. No longer used.
+        
+        #Searching for region where energy (or density) decreases or stagnates
         ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
-        FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0)
-        FieldDiffEqualZero = (Efield_AU_diff == 0)
-#        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero), np.shape(FieldDiffEqualZero))
-#        print ElectronEnergy_diffLowerThanZero
+        ElectronDensity_diffLowerThanZero=(Ne_diff[:len(Ne_diff)-1] < 0) 
+        FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0) #this provides an array indexed on timestep
+#        FieldDiffEqualZero = (Efield_AU_diff == 0) #no longer used
 
+#        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero))
+#        print(np.shape(ElectronDensity_diffLowerThanZero)) #, np.shape(FieldDiffEqualZero)
+
+        # Build a mask to select region where field==0 and energy (or density is decreasing) 
         Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
-    
-        # print(np.any(Mask))
+       
+        # One has to interpolate a field function on same temporal grid than Ne. 
+        Efield_AU_interp_func = interp1d(time[:len(Efield_AU)], Efield_AU) 
+        Efield_AU_interp_Ne   = Efield_AU_interp_func(timeNe)
+        FieldEqualZero_Ne=(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid
+	# print(Header+"** DEBUG: "+str(np.shape(ElectronDensity_diffLowerThanZero))+", "+str(np.shape(FieldEqualZero_Ne)))
+        MaskNe=np.logical_and(ElectronDensity_diffLowerThanZero, FieldEqualZero_Ne[:len(ElectronDensity_diffLowerThanZero)]) 
+
+        print(np.any(MaskNe))
+        if(not np.any(MaskNe)):
+		print(Header+"** ERROR: pulse may not be finished. Check n_ex!")
+        if(not np.any(Mask)):
+                print(Header+"** ERROR: pulse may not be finished. Check energy file!")
 #        print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
-        timeEnergies2=timeEnergies[:len(timeEnergies)-2]
+        timeNe2      =timeNe[:len(timeNe)-2]
+#        print(timeNe2)
+        timeNe3      =timeNe2[MaskNe[:len(MaskNe)]]
+        # print(timeNe3)
+
+        timeEnergies2=timeEnergies[:len(timeEnergies)-2]	
         timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
-        FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation 
+
+        FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation [to avoid capturing an effect induced by noise]. 1000 works here, since number of steps is 1:1, i.e., 1000 goes during the pulse somehow. 
+        FarEnoughInTime_Ne=(timeNe3 > 500) #TODO: automatize...
+
         timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
+        timeNe4=timeNe3[FarEnoughInTime_Ne]
+
         timeToFilterFrom=timeEnergies4[0]
+        timeToFilterFromDensity=timeNe4[0]
         timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
+        timeDensityCondition = ( timeNe > timeToFilterFromDensity )
+
         # We filter ElectronEnergy using these two conditions: 
         ElectronEnergyRightAfterPulse = ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
-        ElectronDensityRightAfterPulse= density_proj_SI[timeEnergiesCondition] ##NOTE: this should help to have more stable results
-        print(Header+"** Info: energy right after the pulse"+str(ElectronEnergyRightAfterPulse))
-        print(Header+"** Info: density right after the pulse"+str(ElectronDensityRightAfterPulse))
+        ElectronDensityRightAfterPulse= density_proj_SI[timeDensityCondition][0] ##NOTE: this should help to have more stable results
+        print(Header+"** Info: energy right after the pulse: "+str(ElectronEnergyRightAfterPulse))
+        print(Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse))
 
     #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
         # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
@@ -699,13 +734,15 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         ExchangeEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(Exchange   [timeEnergiesCondition][0]))
         EigenvaluesEnergy_SI_afterpulse= float(Energy_Hartree_to_eV(Eigenvalues[timeEnergiesCondition][0]))
     except:
-        print(Header+"** Warning: energy after pulse could not be captured.")
+        print(Header+"** ERROR: energy or density after pulse could not be captured.")
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
         ExchangeEnergy_SI_afterpulse   = 0e0
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
+	
 	timeToFilterFrom = 0e0
+#        exit()
     
     print Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse)
     print Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse)
@@ -779,12 +816,6 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         print(Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB.")
-        continue
-    
-    ## HERE, if we find a file named "DISABLED" in the folder, then we shall jump the folder, to avoid polluting the database. 
-    # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
-    if(os.path.isfile(FolderName+"../DISABLED")):
-        print(Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. ")
         continue
     
     if(FromScratch): #We construct a new database from scratch
