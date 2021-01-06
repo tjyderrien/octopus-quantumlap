@@ -61,7 +61,7 @@ def LoadRunOutputs(path): #{{{
       Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
-      print Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."
+      print(Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field.")
       Ne=Energy #we just copy energy, to re-use the same routines for database construction. plotAll.sh will have to be adapted to avoid plotting n_ex. 
       Ne[:,2]=0. #we set the column with n_exc values equal to 0. We keep the timesteps of Ne, employed by other functions. 
   return Ne, laser, TotalCurrent, Energy
@@ -78,10 +78,10 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
     try:
         wavelength_SI_tmp2   = wavelength_SI_tmp[1] #rhs
     except: 
-        print Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp)
+        print(Header+"Selection of r.h.s. failed in INP. Error in:"+str(wavelength_SI_tmp))
         exit()
     wavelength_SI_tmp3   = wavelength_SI_tmp2.split(" ") #select the rhs, and split the result from spaces
-    print wavelength_SI_tmp3
+    print(wavelength_SI_tmp3)
     try: 
       wavelength_SI   = float(wavelength_SI_tmp3[1])
     except: 
@@ -102,20 +102,20 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   #Load the existing database                                                                    # 1. Load the existing database
   try: 
     Database = np.loadtxt(DatabaseName, skiprows=0)
-    print Header+"** Info: the existing database was found. We will reuse the existing DB. "
+    print(Header+"** Info: the existing database was found. We will reuse the existing DB. ")
     FromScratch = False
   except: 
-    print Header+"** Error: the existing database is empty. We will generate new DB. "
+    print(Header+"** Error: the existing database is empty. We will generate new DB. ")
     FromScratch = True
     Database = np.empty((0,44))
 
   PlottingTable = np.empty((0,44)) ##NOTE: how to define tau_pulse for 2 colors? 
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
-  print Header+"Fetching all subfolders...\n"
+  print(Header+"Fetching all subfolders...\n")
   for FolderName in glob.glob(path): #{{{
     #TODO: this is not general enough, directory level does not help
-    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
+    print(Header+"** Info: entering folder: "+str(FolderName)+"\n")
     
     ## HERE, if we find a file named "DISABLED" in the folder, then we shall jump the folder, to avoid polluting the database. 
     # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
@@ -128,20 +128,20 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     try:
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
-      print Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName)
+      print(Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder:"+str(FolderName))
       continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters
     filename             = FolderName+"../inp"
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
-    print Header+"** Capturing the RUN ID of octopus..."
+    print(Header+"** Capturing the RUN ID of octopus...")
     runid=LookUpLatestLogFile(FolderName+"../octopus-td")
-    print Header+"LogFile="+str(runid)+", folder = "+FolderName 
+    print(Header+"LogFile="+str(runid)+", folder = "+FolderName)
     try: #there is quite much loss here, 30% maybe. 
       int(runid)
     except:
-      print Header+"** Warning: JOB ID could not be captured. Jumping to next computation."
+      print(Header+"** Warning: JOB ID could not be captured. Jumping to next computation.")
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
@@ -196,7 +196,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     if(polarization_angle_inp): #if found
          polarization_angle = float(eval(polarization_angle_inp[6:13]))
     else:
-	 polarization_angle = 0. #float('nan'). 0 for now. 
+         polarization_angle = 0. #float('nan'). 0 for now.
 
     #=== Capture of the pulse2-angle of field	 
     CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then zero
@@ -209,31 +209,31 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
          else: 
                 CrossPolarization_angle = 0.
     else: #if th2 was not found in the input file
-	 CrossPolarization_angle = 0.
-    print Header+"CrossPol"+str(CrossPolarization_angle)
+         CrossPolarization_angle = 0.
+    print(Header+"CrossPol"+str(CrossPolarization_angle))
     
     ## Import CEP data
     try:
       CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
-      print Header+"** CEP1_inp: "+str(CEP1_inp)
+      print(Header+"** CEP1_inp: "+str(CEP1_inp))
       CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
       #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
         #CEP1_SI = 0.5*pi
         #print Header+"** Exception on CEP1_SI."
     except: 
       CEP1_inp             = "pi/2."
-      print Header+"** Exception: CEP1 was se to 0 due to failure."
+      print(Header+"** Exception: CEP1 was se to 0 due to failure.")
       CEP1_SI              = 0.5*pi
 
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    print Header+"** Info: CEP1: "+CEP1_inp[7:]
+    print(Header+"** Info: CEP1: "+CEP1_inp[7:])
        
     #Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
     Efield1_SI_input     = GetParameterValueFromInputFile(filename, "EfieldAsi = ")
     Efield2_SI_input     = GetParameterValueFromInputFile(filename, "EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI_input > 1.0):#{ #get the second pulse data
-      print Header+"** Entering second pulse input."
+      print(Header+"** Entering second pulse input.")
       #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = GetParameterValueFromInputFile(filename, "lambdaB = ")
 	 
@@ -248,7 +248,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       wavelength2_SI=wavelength_SI
       PulseDuration2_SI=PulseDuration_SI
       CEP2_SI=CEP1_SI
-      print Header+"Info: Pulse 2 was not used. "
+      print(Header+"Info: Pulse 2 was not used. ")
     #}}}
     
     ######## Identify the type of the pulse envelope 
@@ -257,30 +257,30 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 #    del PulseType_inp, PulseType_value
     PulseType_inp   = LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
     PulseType_value = PulseType_inp[48:] #this allows to have unique solution
-    print Header+"** Debug info: PulseType_value = "+str(PulseType_value)
+    print(Header+"** Debug info: PulseType_value = "+str(PulseType_value))
     if("Gaussian" in PulseType_value):
-      print Header+"** Info: Gaussian pulse detected..."
+      print(Header+"** Info: Gaussian pulse detected...")
       PulseTypeName="gaussian"
     elif ("SinSquared" in PulseType_value):
-      print Header+"** Info: Squared Sinus pulse detected..."
+      print(Header+"** Info: Squared Sinus pulse detected...")
       PulseTypeName="SinSquared"
     elif ("SinFourth" in PulseType_value): 
-      print Header+"** Info: Sinus**4 pulse detected..."
+      print(Header+"** Info: Sinus**4 pulse detected...")
       PulseTypeName="SinFourth"
     elif ("STH" in PulseType_value):
-      print Header+"** Info: BUGGY Soft Top Hat pulse detected..."
+      print(Header+"** Info: BUGGY Soft Top Hat pulse detected...")
       PulseTypeName="STH"
     elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope #comes first in priority
-      print Header+"** Info: SIN4 soft top hat pulse detected..."
+      print(Header+"** Info: SIN4 soft top hat pulse detected...")
       PulseTypeName="StH4"
     elif ("StH" in PulseType_value): #fixed STH 
-      print Header+"** Info: FIXED Soft Top Hat pulse detected..."
+      print(Header+"** Info: FIXED Soft Top Hat pulse detected...")
       PulseTypeName="StH"
     else:
-      print Header+"** Error: pulse type was not recognized."
-      print Header+"** Error PulseType_value = "+str(PulseType_value)
+      print(Header+"** Error: pulse type was not recognized.")
+      print(Header+"** Error PulseType_value = "+str(PulseType_value))
       exit()
-    print Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)
+    print(Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName))
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
     del PulseType_inp, PulseType_value
 
@@ -290,7 +290,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/"
       try: 
         RiseTime = int(RiseTime_name) #BUG: this method is no longer working. Where to get the RiseTime? Maybe in tauRise = 2*pi/omega in inp ?
-        print Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s)."
+        print(Header+"** Info: Rise time of STH was "+str(RiseTime)+" optical cycle(s).")
       except: 
         RiseTime = 0
     elif(PulseType == 3): 
@@ -298,7 +298,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       RiseTime_name = FolderName[RiseTime_position+3:RiseTime_position+4] #have to capture it from the folder name right after "STH" but right before "/" #BUG: this method is not working for the recent runs. It works with the old times when we had tested the RiseTime. 
       try: 
         RiseTime = int(RiseTime_name)
-        print Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s)."
+        print(Header+"** Info: Rise time of StH was "+str(RiseTime)+" optical cycle(s).")
       except: 
         RiseTime = 2
     else: 
@@ -315,10 +315,10 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     FieldInduced_inp_tab = FieldInduced_inp.split(" ")
     if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
       FieldInduced_enabled = 0
-      print Header+"Info: InducedFields was disabled."
+      print(Header+"Info: InducedFields was disabled.")
     elif("yes" in FieldInduced_inp_tab[2]): # "Yes is found right after sign "="
       FieldInduced_enabled = 1
-      print Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"]."
+      print(Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"].")
 #    else: #any other case should check if GaugeVectorField is present
 #      FieldInduced_enabled = 0
 #      print Header+"Info: InducedFields was disabled."
@@ -333,7 +333,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         GaugeFieldAmplitude=0e0 #zero if GaugeVectorField is undefined (useful for database)
     elif("GaugeVectorField" in GaugeVectorField_inp2): #there is no # in line beginning and GaugeVectorField is ON
         GaugeVectorField_enabled = 1
-        print Header+"** Info: GaugeVectorField was enabled [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+"." 
+        print(Header+"** Info: GaugeVectorField was enabled [GaugeVectorField_inp2="+str(GaugeVectorField_inp2)+".")
     
 ## 3. Now we re-affect FieldInduced_enabled as follows. 
     FieldInduced_enabled = (GaugeVectorField_enabled or FieldInduced_enabled)
@@ -348,7 +348,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
             GaugeFieldAmplitude = GaugeVectorField_tmp[0] #returns the X occurrence
         except:
             GaugeFieldAmplitude = 0e0
-            print Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp)
+            print(Header+"Warning: Selection of r.h.s. failed in INP. No data from "+str(GaugeVectorField_tmp))
     if(GaugeFieldAmplitude==''):
         del GaugeFieldAmplitude
         GaugeFieldAmplitude = 0e0
@@ -360,7 +360,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         GaugeFieldDelay    = float(GaugeFieldDelay) #if this fails, we set -1. 
     except: 
         GaugeFieldDelay=float('nan')
-        print Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)
+        print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
     
     ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
@@ -368,7 +368,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       Functional_string = LookUpStringInFile(filename, "XCFunctional")
     except:
       Functional_string = 'lda'
-      print Header+"** Warning: search of XCFunctional failed. Default value was set: lda"
+      print(Header+"** Warning: search of XCFunctional failed. Default value was set: lda")
     
     if( len(Functional_string) > 0 ): #should be run only if Functional_string is defined. 
       Functional_value = Functional_string[13:] #capturing name of the functional
@@ -377,18 +377,18 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       Functional_gga_position  = Functional_value.find("GGA")
       if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
         Functional = 0 #lda
-        print Header+"** Info: Functional LDA detected."
+        print(Header+"** Info: Functional LDA detected.")
       elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
         Functional = 1 #mgga
-        print Header+"** Info: Functional MGGA detected."
+        print(Header+"** Info: Functional MGGA detected.")
       elif(Functional_gga_position >= 0 and Functional_mgga_position == -1 and Functional_lda_position == -1): #GGA was found, not MGGA.
         Functional = 2 #GGA
-        print Header+"** Info: Functional GGA detected."
+        print(Header+"** Info: Functional GGA detected.")
       else: 
         print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
         exit(-1)
     elif ( Functional_string == 'lda' ): #XCFunctional was not specified: assuming LDA.
-      print Header+"Warning: XCFunctional was not specified. Assuming default value: lda."
+      print(Header+"Warning: XCFunctional was not specified. Assuming default value: lda.")
       Functional = 0
     
     
@@ -396,29 +396,29 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     FreezeHXC = 0
     try:
       FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
-      print Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)
+      print(Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string))
     except:
-      print Header+"** Info: TDFreezeHXC was not found in the input file."
+      print(Header+"** Info: TDFreezeHXC was not found in the input file.")
       #FreezeHXC_string = ''
     if("yes" in FreezeHXC_string): #We shall not make a strict test, which was failing. 
       FreezeHXC = 1
-      print Header+"Info: TDFreezeHXC enabled."
+      print(Header+"Info: TDFreezeHXC enabled.")
     else:
       FreezeHXC = 0
-      print Header+"Info: TDFreezeHXC not found."
+      print(Header+"Info: TDFreezeHXC not found.")
     
     # Captures if MoveIon was enabled. 
     MoveIon = 0
     try: 
       MoveIonString = LookUpStringInFile(filename, "MoveIons")
-      print Header+"Info: MoveIon_string: "+str(MoveIonString)
+      print(Header+"Info: MoveIon_string: "+str(MoveIonString))
     except:
-      print Header+"Info: MoveIon was not found in the input file."
+      print(Header+"Info: MoveIon was not found in the input file.")
     if("yes" in MoveIonString):
       MoveIon=1
     else:
       MoveIon=0
-      print Header+"Info: MoveIon was not found in the input file."
+      print(Header+"Info: MoveIon was not found in the input file.")
     
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
@@ -788,7 +788,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
 	      
     StackToAdd = [ float(runid), float(RunDate), float(wavelength_SI), float(PulseDuration_SI), 
-	      float(Efield1_SI_input), float(CEP1_SI), float(wavelength2_SI), 
+	      float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
 	      float(FieldInduced_enabled), 
@@ -878,47 +878,48 @@ def ExtractData(PlottingTable): #{{{
   wavelengths1                 = PlottingTable[:,2]
   pulses1                      = PlottingTable[:,3]
   Efield1                      = PlottingTable[:,4]
-  CEP1                         = PlottingTable[:,5]
-  wavelengths2                 = PlottingTable[:,6]
-  pulses2                      = PlottingTable[:,7]
-  Efield2                      = PlottingTable[:,8]
-  CEP2                         = PlottingTable[:,9]
-  Delay                        = PlottingTable[:,10]
-  CrossPolarization            = PlottingTable[:,11]
-  TheoryLevel                  = PlottingTable[:,12]
-  FieldInduced                 = PlottingTable[:,13]
-  GaugeFieldAmplitude          = PlottingTable[:,14]
-  GaugeFieldDelay              = PlottingTable[:,15]
-  Functional                   = PlottingTable[:,16]
-  FreezeHXC                    = PlottingTable[:,17]
-  MoveIon                      = PlottingTable[:,18]
-  Ne_max                       = PlottingTable[:,19]
-  Ne_final                     = PlottingTable[:,20]
-  irreversibility              = PlottingTable[:,21]
-  TotalCurrent_final           = PlottingTable[:,22]
-  TotalCurrent_max             = PlottingTable[:,23]
-  TotalCurrent_AU_Xmax         = PlottingTable[:,24]
-  TotalCurrent_AU_Ymax         = PlottingTable[:,25]
-  TotalCurrent_AU_Zmax         = PlottingTable[:,26]
-  ElectronEnergy_max           = PlottingTable[:,27]
-  EigenvaluesEnergy_max        = PlottingTable[:,28]
-  HartreeEnergy_max            = PlottingTable[:,29]
-  ExchangeEnergy_max           = PlottingTable[:,30]
-  ElectronEnergy_afterpulse    = PlottingTable[:,31]
-  EigenvaluesEnergy_afterpulse = PlottingTable[:,32]
-  HartreeEnergy_afterpulse     = PlottingTable[:,33]
-  ExchangeEnergy_afterpulse    = PlottingTable[:,34]
-  EnergyPoynting_SI_sum_final  = PlottingTable[:,35]
-  Eext_SI_max                  = PlottingTable[:,36]
-  Ne_afterpulse                = PlottingTable[:,37]
-  Wpi                          = PlottingTable[:,38]
-  Wpi_afterpulse               = PlottingTable[:,39]
-  PulseType                    = PlottingTable[:,40]
-  RiseTime                     = PlottingTable[:,41]
-  FinalTime                    = PlottingTable[:,42]
-  timeToFilterFrom             = PlottingTable[:,43]
+  polarization_angle           = PlottingTable[:,5]
+  CEP1                         = PlottingTable[:,6]
+  wavelengths2                 = PlottingTable[:,7]
+  pulses2                      = PlottingTable[:,8]
+  Efield2                      = PlottingTable[:,9]
+  CEP2                         = PlottingTable[:,10]
+  Delay                        = PlottingTable[:,11]
+  CrossPolarization            = PlottingTable[:,12]
+  TheoryLevel                  = PlottingTable[:,13]
+  FieldInduced                 = PlottingTable[:,14]
+  GaugeFieldAmplitude          = PlottingTable[:,15]
+  GaugeFieldDelay              = PlottingTable[:,16]
+  Functional                   = PlottingTable[:,17]
+  FreezeHXC                    = PlottingTable[:,18]
+  MoveIon                      = PlottingTable[:,19]
+  Ne_max                       = PlottingTable[:,20]
+  Ne_final                     = PlottingTable[:,21]
+  irreversibility              = PlottingTable[:,22]
+  TotalCurrent_final           = PlottingTable[:,23]
+  TotalCurrent_max             = PlottingTable[:,24]
+  TotalCurrent_AU_Xmax         = PlottingTable[:,25]
+  TotalCurrent_AU_Ymax         = PlottingTable[:,26]
+  TotalCurrent_AU_Zmax         = PlottingTable[:,27]
+  ElectronEnergy_max           = PlottingTable[:,28]
+  EigenvaluesEnergy_max        = PlottingTable[:,29]
+  HartreeEnergy_max            = PlottingTable[:,30]
+  ExchangeEnergy_max           = PlottingTable[:,31]
+  ElectronEnergy_afterpulse    = PlottingTable[:,32]
+  EigenvaluesEnergy_afterpulse = PlottingTable[:,33]
+  HartreeEnergy_afterpulse     = PlottingTable[:,34]
+  ExchangeEnergy_afterpulse    = PlottingTable[:,35]
+  EnergyPoynting_SI_sum_final  = PlottingTable[:,36]
+  Eext_SI_max                  = PlottingTable[:,37]
+  Ne_afterpulse                = PlottingTable[:,38]
+  Wpi                          = PlottingTable[:,39]
+  Wpi_afterpulse               = PlottingTable[:,40]
+  PulseType                    = PlottingTable[:,41]
+  RiseTime                     = PlottingTable[:,42]
+  FinalTime                    = PlottingTable[:,43]
+  timeToFilterFrom             = PlottingTable[:,44]
 
-  return runid, RunDate, wavelengths1, pulses1, Efield1, \
+  return runid, RunDate, wavelengths1, pulses1, Efield1, polarization_angle, \
       CEP1, wavelengths2, pulses2, Efield2, CEP2, \
       Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude,\
       GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, \
@@ -932,52 +933,59 @@ IndexTable = {'runid':                        0,
               'rundate':                      1, 
               'wavelengths1':                 2, 
               'pulses1':                      3, 
-              'Efield1':                      4, 
-              'CEP1':                         5, 
-              'wavelengths2':                 6, 
-              'pulses2':                      7, 
-              'Efield2':                      8, 
-              'CEP2':                         9, 
-              'Delay':                        10,
-              'CrossPolarization':            11, 
-              'TheoryLevel':                  12, 
-              'FieldInduced':                 13, 
-              'GaugeFieldAmplitude':          14, 
-              'GaugeFieldDelay':              15, 
-              'Functional':                   16, 
-              'FreezeHXC':                    17, 
-              'MoveIon':                      18, 
-              'Ne_max':                       19, 
-              'Ne_final':                     20, 
-              'irreversibility':              21, 
-              'Current_final':                22, 
-              'Current_max':                  23, 
-              'CurrentX_max':                 24, 
-              'CurrentY_max':                 25, 
-              'CurrentZ_max':                 26, 
-              'ElectronEnergy_final':         27, 
-              'EigenvaluesEnergy_max':        28, 
-              'HartreeEnergy_max':            29, 
-              'ExchangeEnergy_max':           30, 
-              'ElectronEnergy_afterpulse':    31, 
-              'EigenvaluesEnergy_afterpulse': 32, 
-              'HartreeEnergy_afterpulse':     33, 
-              'ExchangeEnergy_afterpulse':    34, 
-              'EnergyPoynting_final':         35, 
-              'Eext_SI':                      36, 
-              'Ne_afterpulse':                37, 
-              'Wpi':                          38, 
-              'Wpi_afterpulse':               39,
-              'PulseType':                    40, 
-              'RiseTime':                     41, 
-              'FinalTime':                    42,  
-              'FilterTime':                   43
+              'Efield1':                      4,
+              'polarization_angle':           5,
+              'CEP1':                         6,
+              'wavelengths2':                 7,
+              'pulses2':                      8,
+              'Efield2':                      9,
+              'CEP2':                         10,
+              'Delay':                        11,
+              'CrossPolarization':            12,
+              'TheoryLevel':                  13,
+              'FieldInduced':                 14,
+              'GaugeFieldAmplitude':          15,
+              'GaugeFieldDelay':              16,
+              'Functional':                   17,
+              'FreezeHXC':                    18,
+              'MoveIon':                      19,
+              'Ne_max':                       20,
+              'Ne_final':                     21,
+              'irreversibility':              22,
+              'Current_final':                23,
+              'Current_max':                  24,
+              'CurrentX_max':                 25,
+              'CurrentY_max':                 26,
+              'CurrentZ_max':                 27,
+              'ElectronEnergy_final':         28,
+              'EigenvaluesEnergy_max':        29,
+              'HartreeEnergy_max':            30,
+              'ExchangeEnergy_max':           31,
+              'ElectronEnergy_afterpulse':    32,
+              'EigenvaluesEnergy_afterpulse': 33,
+              'HartreeEnergy_afterpulse':     34,
+              'ExchangeEnergy_afterpulse':    35,
+              'EnergyPoynting_final':         36,
+              'Eext_SI':                      37,
+              'Ne_afterpulse':                38,
+              'Wpi':                          39,
+              'Wpi_afterpulse':               40,
+              'PulseType':                    41,
+              'RiseTime':                     42,
+              'FinalTime':                    43,
+              'FilterTime':                   44
               }
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, RunDate, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
+  runid, RunDate, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, \
+  Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, \
+  MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, \
+  TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, \
+  ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, \
+  ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, \
+  PulseType, RiseTime, FinalTime, FilterTime = ExtractData(Database)
   # Generates lists of unique entries to count the range of parameters we have. 
   runid_uniq             = list(set(runid))
   wavelengths1_uniq      = list(set(wavelengths1))
@@ -1028,7 +1036,8 @@ def CountTheNumberOfLaserParameters(Database):#{{{
   print "** Irreversibility    size = "+str(len(irreversibility))
   print "** Total energy       size = "+str(len(ElectronEnergy_max))
   
-  return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq)
+  return(wavelengths1_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses1_uniq, wavelengths2_uniq, CEP2_uniq,
+         Efield2_uniq, pulses2_uniq)
 #}}}
 
 

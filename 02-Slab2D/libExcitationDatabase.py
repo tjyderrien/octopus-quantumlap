@@ -33,19 +33,19 @@ def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv')
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
   fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v1.7.2\n#JobID\tRunDate\tlambda1\ttau1\tEfield1\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
 
-  print Header+"Attempting to load previous results..."
+  print(Header+"Attempting to load previous results...")
   try:
-    print Header+"** Info: just loading existing database. "
+    print(Header+"** Info: just loading existing database. ")
     Database = np.loadtxt(DatabaseName, skiprows=0)
-    print Database
-    print Header+"** Info: Previous database was found. Attempting to complete it."
+    print(Database)
+    print(Header+"** Info: Previous database was found. Attempting to complete it.")
     FromScratch=False
     libPlotting.ListAllOutput(path, DatabaseName, FromScratch)
   except:
-    print Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch."
+    print(Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch.")
     FromScratch = True
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
 
-    print Header+"Save the table to a new file..."
+    print(Header+"Save the table to a new file...")
     libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
   return NewDatabase
