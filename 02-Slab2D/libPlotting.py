@@ -190,11 +190,25 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 #	 FieldInduced_string = FieldInduced_inp[0]
 #    except:
 #	 FieldInduced_string = ''
-	 
-    CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then empty
-    if(CrossPolarization_inp):
-	 CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
-    else: 
+
+    #=== Capture the angle of the field
+    polarization_angle_inp = LookUpStringInFile(filename, "th1 =")
+    if(polarization_angle_inp): #if found
+         polarization_angle = float(eval(polarization_angle_inp[6:13]))
+    else:
+	 polarization_angle = 0. #float('nan'). 0 for now. 
+
+    #=== Capture of the pulse2-angle of field	 
+    CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then zero
+    # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case. 
+    if(CrossPolarization_inp): 
+         if(type(CrossPolarization_inp[6:13])=="float"):
+	        CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
+         elif("th1" in CrossPolarization_inp[6:13]): #if it is refering to th1
+                CrossPolarization_angle = polarization_angle
+         else: 
+                CrossPolarization_angle = 0.
+    else: #if th2 was not found in the input file
 	 CrossPolarization_angle = 0.
     print Header+"CrossPol"+str(CrossPolarization_angle)
     
