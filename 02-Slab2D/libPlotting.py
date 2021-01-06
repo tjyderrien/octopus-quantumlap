@@ -182,6 +182,15 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     kpointgrid_inp3=kpointgrid_inp2.strip()
     kpointgrid_inp4=kpointgrid_inp3[0] #capture the first coefficient of the grid
     kpointgrid=float(kpointgrid_inp4)
+    del kpointgrid_inp, kpointgrid_inp2, kpointgrid_inp3, kpointgrid_inp4
+
+    # Capturing real-mesh grid spacing
+    realmesh_inp=LookUpStringReturnNextLine(filename, "%Spacing")
+    realmesh_inp2=realmesh_inp.split("|")
+    realmesh_inp3=realmesh_inp2.strip()
+    realmesh_inp4=realmesh_inp3[0]
+    realmeshgrid=float(realmesh_inp4)
+    del realmesh_inp, realmesh_inp2, realmesh_inp3, realmesh_inp4
 
     # Capturing basic parameters
     wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
@@ -794,7 +803,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
 	      
-    StackToAdd = [ float(runid), float(RunDate), kpointgrid, float(wavelength_SI), float(PulseDuration_SI),
+    StackToAdd = [ float(runid), float(RunDate), kpointgrid, realmeshgrid, float(wavelength_SI), float(PulseDuration_SI),
 	      float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
@@ -941,7 +950,7 @@ def ExtractData(PlottingTable): #{{{
 IndexTable = {'runid':                        0, 
               'rundate':                      1,
               'kpointgrid':                   2,
-              'realmeshgrid':                 3, 
+              'realmeshgrid':                 3,
               'wavelengths1':                 4,
               'pulses1':                      5,
               'Efield1':                      6,
