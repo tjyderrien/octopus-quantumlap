@@ -107,9 +107,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print(Header+"** Error: the existing database is empty. We will generate new DB. ")
     FromScratch = True
-    Database = np.empty((0,45))
+    Database = np.empty((0,46))
 
-  PlottingTable = np.empty((0,45)) ##NOTE: how to define tau_pulse for 2 colors? 
+  PlottingTable = np.empty((0,46)) ##NOTE: how to define tau_pulse for 2 colors?
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print(Header+"Fetching all subfolders...\n")
@@ -175,8 +175,15 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     else: 
 	 TheoryLevel = 1 #dft
 	 
-    ##TODO: Getting k-grid value
-    
+    ##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
+    # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
+    kpointgrid_inp=LookUpStringReturnNextLine(filename, "%KPointsGrid")
+    kpointgrid_inp2=kpointgrid_inp.split("|")
+    kpointgrid_inp3=kpointgrid_inp2.strip()
+    kpointgrid_inp4=kpointgrid_inp3[0] #capture the first coefficient of the grid
+    kpointgrid=float(kpointgrid_inp4)
+
+    # Capturing basic parameters
     wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
     PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
@@ -497,13 +504,13 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     print Header+"Numerical cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
     print Header+"" 
     
-    print Header+"** Importing simulation data..."
+    print(Header+"** Importing simulation data...")
     
     # Catch the final excited electron density. 
     try: 
         timeNe           = np.asfarray(Ne[:,1]) #WARNING: this does exist for metals...
     except: 
-        print Header+"** Error: It seems this run was not complete. We jump it."
+        print(Header+"** Error: It seems this run was not complete. We jump it.")
         continue
     Nproj_AU         = np.asfarray(Ne[:,2]) #number of particles, not a density!
     density_proj_AU  = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
@@ -514,9 +521,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     density_proj_SI_max           = density_proj_SI.max()
     density_irreversibility_ratio = density_proj_SI_final / density_proj_SI_max
     
-    print Header+"** Electron density analysis "
-    print Header+"Final electron density = "+str(density_proj_SI_final)
-    print Header+"Max.  electron density = "+str(density_proj_SI_max)
+    print(Header+"** Electron density analysis ")
+    print(Header+"Final electron density = "+str(density_proj_SI_final))
+    print(Header+"Max.  electron density = "+str(density_proj_SI_max))
 #    print Header+"Irreversibility ratio (Final / Max) = "+str(density_irreversibility_ratio)
     ##==== Prepare plotting of energies ====
     timeEnergies   = np.asfarray(Energy[:,1]) #atomic units (! 1 is 2nd column)
@@ -787,7 +794,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
 	      
-    StackToAdd = [ float(runid), float(RunDate), float(wavelength_SI), float(PulseDuration_SI), 
+    StackToAdd = [ float(runid), float(RunDate), kpointgrid, float(wavelength_SI), float(PulseDuration_SI),
 	      float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
 	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
 	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
@@ -875,51 +882,52 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
 def ExtractData(PlottingTable): #{{{
   runid                        = PlottingTable[:,0]
   RunDate                      = PlottingTable[:,1]
-  wavelengths1                 = PlottingTable[:,2]
-  pulses1                      = PlottingTable[:,3]
-  Efield1                      = PlottingTable[:,4]
-  polarization_angle           = PlottingTable[:,5]
-  CEP1                         = PlottingTable[:,6]
-  wavelengths2                 = PlottingTable[:,7]
-  pulses2                      = PlottingTable[:,8]
-  Efield2                      = PlottingTable[:,9]
-  CEP2                         = PlottingTable[:,10]
-  Delay                        = PlottingTable[:,11]
-  CrossPolarization            = PlottingTable[:,12]
-  TheoryLevel                  = PlottingTable[:,13]
-  FieldInduced                 = PlottingTable[:,14]
-  GaugeFieldAmplitude          = PlottingTable[:,15]
-  GaugeFieldDelay              = PlottingTable[:,16]
-  Functional                   = PlottingTable[:,17]
-  FreezeHXC                    = PlottingTable[:,18]
-  MoveIon                      = PlottingTable[:,19]
-  Ne_max                       = PlottingTable[:,20]
-  Ne_final                     = PlottingTable[:,21]
-  irreversibility              = PlottingTable[:,22]
-  TotalCurrent_final           = PlottingTable[:,23]
-  TotalCurrent_max             = PlottingTable[:,24]
-  TotalCurrent_AU_Xmax         = PlottingTable[:,25]
-  TotalCurrent_AU_Ymax         = PlottingTable[:,26]
-  TotalCurrent_AU_Zmax         = PlottingTable[:,27]
-  ElectronEnergy_max           = PlottingTable[:,28]
-  EigenvaluesEnergy_max        = PlottingTable[:,29]
-  HartreeEnergy_max            = PlottingTable[:,30]
-  ExchangeEnergy_max           = PlottingTable[:,31]
-  ElectronEnergy_afterpulse    = PlottingTable[:,32]
-  EigenvaluesEnergy_afterpulse = PlottingTable[:,33]
-  HartreeEnergy_afterpulse     = PlottingTable[:,34]
-  ExchangeEnergy_afterpulse    = PlottingTable[:,35]
-  EnergyPoynting_SI_sum_final  = PlottingTable[:,36]
-  Eext_SI_max                  = PlottingTable[:,37]
-  Ne_afterpulse                = PlottingTable[:,38]
-  Wpi                          = PlottingTable[:,39]
-  Wpi_afterpulse               = PlottingTable[:,40]
-  PulseType                    = PlottingTable[:,41]
-  RiseTime                     = PlottingTable[:,42]
-  FinalTime                    = PlottingTable[:,43]
-  timeToFilterFrom             = PlottingTable[:,44]
+  kpointgrid                   = PlottingTable[:,2]
+  wavelengths1                 = PlottingTable[:,3]
+  pulses1                      = PlottingTable[:,4]
+  Efield1                      = PlottingTable[:,5]
+  polarization_angle           = PlottingTable[:,6]
+  CEP1                         = PlottingTable[:,7]
+  wavelengths2                 = PlottingTable[:,8]
+  pulses2                      = PlottingTable[:,9]
+  Efield2                      = PlottingTable[:,10]
+  CEP2                         = PlottingTable[:,11]
+  Delay                        = PlottingTable[:,12]
+  CrossPolarization            = PlottingTable[:,13]
+  TheoryLevel                  = PlottingTable[:,14]
+  FieldInduced                 = PlottingTable[:,15]
+  GaugeFieldAmplitude          = PlottingTable[:,16]
+  GaugeFieldDelay              = PlottingTable[:,17]
+  Functional                   = PlottingTable[:,18]
+  FreezeHXC                    = PlottingTable[:,19]
+  MoveIon                      = PlottingTable[:,20]
+  Ne_max                       = PlottingTable[:,21]
+  Ne_final                     = PlottingTable[:,22]
+  irreversibility              = PlottingTable[:,23]
+  TotalCurrent_final           = PlottingTable[:,24]
+  TotalCurrent_max             = PlottingTable[:,25]
+  TotalCurrent_AU_Xmax         = PlottingTable[:,26]
+  TotalCurrent_AU_Ymax         = PlottingTable[:,27]
+  TotalCurrent_AU_Zmax         = PlottingTable[:,28]
+  ElectronEnergy_max           = PlottingTable[:,29]
+  EigenvaluesEnergy_max        = PlottingTable[:,30]
+  HartreeEnergy_max            = PlottingTable[:,31]
+  ExchangeEnergy_max           = PlottingTable[:,32]
+  ElectronEnergy_afterpulse    = PlottingTable[:,33]
+  EigenvaluesEnergy_afterpulse = PlottingTable[:,34]
+  HartreeEnergy_afterpulse     = PlottingTable[:,35]
+  ExchangeEnergy_afterpulse    = PlottingTable[:,36]
+  EnergyPoynting_SI_sum_final  = PlottingTable[:,37]
+  Eext_SI_max                  = PlottingTable[:,38]
+  Ne_afterpulse                = PlottingTable[:,39]
+  Wpi                          = PlottingTable[:,40]
+  Wpi_afterpulse               = PlottingTable[:,41]
+  PulseType                    = PlottingTable[:,42]
+  RiseTime                     = PlottingTable[:,43]
+  FinalTime                    = PlottingTable[:,44]
+  timeToFilterFrom             = PlottingTable[:,45]
 
-  return runid, RunDate, wavelengths1, pulses1, Efield1, polarization_angle, \
+  return runid, RunDate, kpointgrid, wavelengths1, pulses1, Efield1, polarization_angle, \
       CEP1, wavelengths2, pulses2, Efield2, CEP2, \
       Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude,\
       GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, \
@@ -930,56 +938,57 @@ def ExtractData(PlottingTable): #{{{
 #}}}
 
 IndexTable = {'runid':                        0, 
-              'rundate':                      1, 
-              'wavelengths1':                 2, 
-              'pulses1':                      3, 
-              'Efield1':                      4,
-              'polarization_angle':           5,
-              'CEP1':                         6,
-              'wavelengths2':                 7,
-              'pulses2':                      8,
-              'Efield2':                      9,
-              'CEP2':                         10,
-              'Delay':                        11,
-              'CrossPolarization':            12,
-              'TheoryLevel':                  13,
-              'FieldInduced':                 14,
-              'GaugeFieldAmplitude':          15,
-              'GaugeFieldDelay':              16,
-              'Functional':                   17,
-              'FreezeHXC':                    18,
-              'MoveIon':                      19,
-              'Ne_max':                       20,
-              'Ne_final':                     21,
-              'irreversibility':              22,
-              'Current_final':                23,
-              'Current_max':                  24,
-              'CurrentX_max':                 25,
-              'CurrentY_max':                 26,
-              'CurrentZ_max':                 27,
-              'ElectronEnergy_final':         28,
-              'EigenvaluesEnergy_max':        29,
-              'HartreeEnergy_max':            30,
-              'ExchangeEnergy_max':           31,
-              'ElectronEnergy_afterpulse':    32,
-              'EigenvaluesEnergy_afterpulse': 33,
-              'HartreeEnergy_afterpulse':     34,
-              'ExchangeEnergy_afterpulse':    35,
-              'EnergyPoynting_final':         36,
-              'Eext_SI':                      37,
-              'Ne_afterpulse':                38,
-              'Wpi':                          39,
-              'Wpi_afterpulse':               40,
-              'PulseType':                    41,
-              'RiseTime':                     42,
-              'FinalTime':                    43,
-              'FilterTime':                   44
+              'rundate':                      1,
+              'kpointgrid':                   2,
+              'wavelengths1':                 3,
+              'pulses1':                      4,
+              'Efield1':                      5,
+              'polarization_angle':           6,
+              'CEP1':                         7,
+              'wavelengths2':                 8,
+              'pulses2':                      9,
+              'Efield2':                      10,
+              'CEP2':                         11,
+              'Delay':                        12,
+              'CrossPolarization':            13,
+              'TheoryLevel':                  14,
+              'FieldInduced':                 15,
+              'GaugeFieldAmplitude':          16,
+              'GaugeFieldDelay':              17,
+              'Functional':                   18,
+              'FreezeHXC':                    19,
+              'MoveIon':                      20,
+              'Ne_max':                       21,
+              'Ne_final':                     22,
+              'irreversibility':              23,
+              'Current_final':                24,
+              'Current_max':                  25,
+              'CurrentX_max':                 26,
+              'CurrentY_max':                 27,
+              'CurrentZ_max':                 28,
+              'ElectronEnergy_final':         29,
+              'EigenvaluesEnergy_max':        30,
+              'HartreeEnergy_max':            31,
+              'ExchangeEnergy_max':           32,
+              'ElectronEnergy_afterpulse':    33,
+              'EigenvaluesEnergy_afterpulse': 34,
+              'HartreeEnergy_afterpulse':     35,
+              'ExchangeEnergy_afterpulse':    36,
+              'EnergyPoynting_final':         37,
+              'Eext_SI':                      38,
+              'Ne_afterpulse':                39,
+              'Wpi':                          40,
+              'Wpi_afterpulse':               41,
+              'PulseType':                    42,
+              'RiseTime':                     43,
+              'FinalTime':                    44,
+              'FilterTime':                   45
               }
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, RunDate, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, \
+  runid, RunDate, kpointgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, \
   Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, \
   MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, \
   TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, \
