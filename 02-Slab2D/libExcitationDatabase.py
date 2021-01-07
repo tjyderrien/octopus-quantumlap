@@ -27,7 +27,7 @@ from numpy       import loadtxt
 Header="[libExcitationDatabase] "
 
 ## Calls for the construction of excitation database and manages exceptions. 
-def GetExcitationDatabase(path='*/*/td.general/', DatabaseName = 'Database.csv'):
+def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
 #  path='*/*/td.general/'
   #DatabaseName = 'Database.csv'
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
