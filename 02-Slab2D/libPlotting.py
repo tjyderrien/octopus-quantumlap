@@ -32,7 +32,6 @@ from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
 from scipy.interpolate import interp1d
 
-
 from libString import *
 from libAtomicUnits import *
 import calculateVolume as Sample
@@ -96,7 +95,7 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 # 3. If not available, we shall add it to the database. Otherwise, we pass to the next one. 
 # Keep care to not delete the already available database. 
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
-def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
+def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
   
   #Load the existing database                                                                    # 1. Load the existing database
@@ -107,9 +106,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
   except: 
     print(Header+"** Error: the existing database is empty. We will generate new DB. ")
     FromScratch = True
-    Database = np.empty((0,46))
+    Database = np.empty((0,47))
 
-  PlottingTable = np.empty((0,46)) ##NOTE: how to define tau_pulse for 2 colors?
+  PlottingTable = np.empty((0,47)) ##NOTE: how to define tau_pulse for 2 colors?
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   print(Header+"Fetching all subfolders...\n")
@@ -178,16 +177,16 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
     # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
     kpointgrid_inp=LookUpStringReturnNextLine(filename, "%KPointsGrid")
-    kpointgrid_inp2=kpointgrid_inp.split("|")
-    kpointgrid_inp3=kpointgrid_inp2.strip()
+    kpointgrid_inp2=kpointgrid_inp.strip()
+    kpointgrid_inp3=kpointgrid_inp2.split("|")
     kpointgrid_inp4=kpointgrid_inp3[0] #capture the first coefficient of the grid
     kpointgrid=float(kpointgrid_inp4)
     del kpointgrid_inp, kpointgrid_inp2, kpointgrid_inp3, kpointgrid_inp4
 
     # Capturing real-mesh grid spacing
     realmesh_inp=LookUpStringReturnNextLine(filename, "%Spacing")
-    realmesh_inp2=realmesh_inp.split("|")
-    realmesh_inp3=realmesh_inp2.strip()
+    realmesh_inp2=realmesh_inp.strip()
+    realmesh_inp3=realmesh_inp2.split("|")
     realmesh_inp4=realmesh_inp3[0]
     realmeshgrid=float(realmesh_inp4)
     del realmesh_inp, realmesh_inp2, realmesh_inp3, realmesh_inp4
@@ -378,7 +377,7 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
         GaugeFieldDelay=float('nan')
         print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
     
-    ### Captures the functional which has been used for the computation.  #BUG: crashes when XCFunctional is not found. 
+    ### Captures the functional which has been used for the computation.  #BUG: crashes when using TB09
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
     try: 
       Functional_string = LookUpStringInFile(filename, "XCFunctional")
@@ -389,8 +388,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     if( len(Functional_string) > 0 ): #should be run only if Functional_string is defined. 
       Functional_value = Functional_string[13:] #capturing name of the functional
       Functional_lda_position = Functional_value.find("lda_x")
-      Functional_mgga_position = Functional_value.find("MGGA")
       Functional_gga_position  = Functional_value.find("GGA")
+      Functional_mgga_position = Functional_value.find("MGGA")
+      Functional_tb09_position = Functional_value.find("mgga_x_tb09")
       if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
         Functional = 0 #lda
         print(Header+"** Info: Functional LDA detected.")
@@ -400,6 +400,9 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
       elif(Functional_gga_position >= 0 and Functional_mgga_position == -1 and Functional_lda_position == -1): #GGA was found, not MGGA.
         Functional = 2 #GGA
         print(Header+"** Info: Functional GGA detected.")
+      elif(Functional_lda_position == -1 and Functional_tb09_position >= 0):
+        Functional = 3 #TB09
+        print(Header+"** Info: Functional TB09 detected.")
       else: 
         print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
         exit(-1)
@@ -557,9 +560,12 @@ def ListAllOutput(path='*/*/td.general/', DatabaseName='Database.csv', FromScrat
     ## NOTE: Octopus does not compute Exchange-Correlation energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
     Exchange_nonzero = np.nonzero(Exchange)
-    Exchange_interp  = interp1d(timeEnergies[Exchange_nonzero], Exchange[Exchange_nonzero])
-    Exchange         = Exchange_interp(timeEnergies)
-    del Exchange_interp, Exchange_nonzero
+    try: #tb09 keeps exchange == 0
+        Exchange_interp  = interp1d(timeEnergies[Exchange_nonzero], Exchange[Exchange_nonzero])
+        Exchange         = Exchange_interp(timeEnergies)
+        del Exchange_interp, Exchange_nonzero
+    except: 
+        print(Header+"** Warning: could not interpolate energy output.")
     
     # Normalizing the database energies
     
