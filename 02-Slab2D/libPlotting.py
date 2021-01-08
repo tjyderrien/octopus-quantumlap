@@ -743,7 +743,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         timeEnergies2=timeEnergies[:len(timeEnergies)-2]	
         timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
 
-        FarEnoughInTime=(timeEnergies3 > 1000) #adding one condition to reach sufficient duration of the computation [to avoid capturing an effect induced by noise]. 1000 works here, since number of steps is 1:1, i.e., 1000 goes during the pulse somehow. 
+        FarEnoughInTime=(timeEnergies3 > 500) #adding one condition to reach sufficient duration of the computation [to avoid capturing an effect induced by noise]. 1000 works here, since number of steps is 1:1, i.e., 1000 goes during the pulse somehow. 
         FarEnoughInTime_Ne=(timeNe3 > 500) #TODO: automatize...
 
         timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
