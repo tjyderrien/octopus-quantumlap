@@ -702,7 +702,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     print Header+"End eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
     print Header+"Final electron density = "+str(density_proj_SI_final)
 
-    try:
+    try: 
         print(Header+"** Info: trying condition for computing ElectronEnergy right after the pulse: ")
 
         ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
@@ -711,7 +711,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 #       Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]. Range is limited to size of ElectronEnergy. No longer used.
         
         #Searching for region where energy (or density) decreases or stagnates
-        ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] < 0)
+        ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] <= 0)
         ElectronDensity_diffLowerThanZero=(Ne_diff[:len(Ne_diff)-1] < 0) 
         FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0) #this provides an array indexed on timestep
 #        FieldDiffEqualZero = (Efield_AU_diff == 0) #no longer used
@@ -743,13 +743,13 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         timeEnergies2=timeEnergies[:len(timeEnergies)-2]	
         timeEnergies3=timeEnergies2[Mask[:len(Mask)]] #filtering with condition given by Mask
 
-        FarEnoughInTime=(timeEnergies3 > 500) #adding one condition to reach sufficient duration of the computation [to avoid capturing an effect induced by noise]. 1000 works here, since number of steps is 1:1, i.e., 1000 goes during the pulse somehow. 
+        FarEnoughInTime=(timeEnergies3 > 500) #adding one condition to reach sufficient duration of the computation [to avoid capturing an effect induced by noise]. 1000 works here, since number of steps is 1:1, i.e., 1000 goes during the pulse somehow. #TODO: this should account for pulse delay.
         FarEnoughInTime_Ne=(timeNe3 > 500) #TODO: automatize...
 
         timeEnergies4=timeEnergies3[FarEnoughInTime] #this gives the instant that should be used to filter signals
         timeNe4=timeNe3[FarEnoughInTime_Ne]
 
-        timeToFilterFrom=timeEnergies4[0]
+        timeToFilterFrom=timeEnergies4[0] ##WARNING: if pulse is too short, this crashes.
         timeToFilterFromDensity=timeNe4[0]
         timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
         timeDensityCondition = ( timeNe > timeToFilterFromDensity )
@@ -769,7 +769,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         HartreeEnergy_SI_afterpulse    = float(Energy_Hartree_to_eV(Hartree    [timeEnergiesCondition][0]))
         ExchangeEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(Exchange   [timeEnergiesCondition][0]))
         EigenvaluesEnergy_SI_afterpulse= float(Energy_Hartree_to_eV(Eigenvalues[timeEnergiesCondition][0]))
-    except:
+    except IndexError: #if some table was empty (e.g., simulation was not finished)
         print(Header+"** ERROR: energy or density after pulse could not be captured.")
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
