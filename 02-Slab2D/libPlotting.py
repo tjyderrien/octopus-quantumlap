@@ -261,7 +261,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       #}
     else: #{{{
       wavelength2_SI=wavelength_SI
-      PulseDuration2_SI=PulseDuration_SI
+      PulseDuration2_SI=PulseDuration_SI #NOTE: would be useful to define 0 here, if no second pulse was used. 
       CEP2_SI=CEP1_SI
       print(Header+"Info: Pulse 2 was not used. ")
     #}}}
@@ -702,30 +702,71 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     print Header+"End eigenvalue energy increase (eV)     = "+str(EigenvaluesEnergy_SI_final)
     print Header+"Final electron density = "+str(density_proj_SI_final)
 
+    ## HERE WE TRY TO CAPTURE INSTANT AFTER THE PULSE. 
+    # Several conditions should be simultaneously satisfied
+    # 1. E_tot^laser = 0 along with dE_tot^laser/dt=0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
+    # 2. t > tau_1+tau_2+delay, where tau_1,2 depend on the pulse shape. SinSquare: tau_1,2->2*tau_1,2. STH: tau_1 -> tau_1+2*2*pi/omega_1 (idem for tau_2). 
+    # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
     try: 
-        print(Header+"** Info: trying condition for computing ElectronEnergy right after the pulse: ")
-
-        ElectronEnergy_diff = np.diff(ElectronEnergy) #this provides variation of energy. We look for regime where dE!=0 but Efield=0.  
-        Ne_diff = np.diff(density_proj_SI)
-
-#       Efield_AU_diff=np.diff(Efield_AU[:len(ElectronEnergy)-1]) #second derivative [should be also zero for the criterion we are looking for]. Range is limited to size of ElectronEnergy. No longer used.
+        print(Header+"** Info: trying condition for computing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
+ 
+        # Accounting for a second field, then only considering differential of field.
+        Efield_12_AU=np.maximum(Efield_AU,Efield2_AU)
+        # Computing differential of Efield_12_AU (then we can transparently work with two fields). 
+        Efield_12_AU_diff=np.diff(Efield_12_AU[:len(ElectronEnergy)-1]) #second derivative of A. 
         
-        #Searching for region where energy (or density) decreases or stagnates
-        ElectronEnergy_diffLowerThanZero = (ElectronEnergy_diff[:len(ElectronEnergy_diff)-1] <= 0)
-        ElectronDensity_diffLowerThanZero=(Ne_diff[:len(Ne_diff)-1] < 0) 
-        FieldEqualZero=(Efield_AU_shrinked[:len(Efield_AU_shrinked)-1] == 0) #this provides an array indexed on timestep
-#        FieldDiffEqualZero = (Efield_AU_diff == 0) #no longer used
+        # CONDITION 1. Searching for region where energy (or density) stagnate (ie not a strict stabilization, e.g., when using induced fields)
+        FieldEqualZero=(Efield_12_AU == 0) #this provides an array indexed on timestep where field does no longer variates (includes bicolor case)
+        FieldDiffEqualZero = (Efield_12_AU_diff == 0)
 
-#        print(np.shape(ElectronEnergy_diffLowerThanZero), np.shape(FieldEqualZero))
-#        print(np.shape(ElectronDensity_diffLowerThanZero)) #, np.shape(FieldDiffEqualZero)
+        print(Header+"** Debug: Shape(FieldEqualZero    )="+str(np.shape(FieldEqualZero)))
+        print(Header+"** Debug: Shape(FieldDiffEqualZero)="+str(np.shape(FieldDiffEqualZero)))
 
-        # Build a mask to select region where field==0 and energy (or density is decreasing) 
-        Mask = np.logical_and(ElectronEnergy_diffLowerThanZero, FieldEqualZero) #WARNING: this criterion is not sufficient since energy has minima while field is null... .
+        # CONDITION 3. Preparing dNe, dEnergy, d(Efield1)
+        ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
+        Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
+
+        # CONDITION 2. Time instants should be large enough. WARNING: octopus input data are in SI (our fault), octopus files are in atomic units - we want to perform selection in atomic units to avoid roundoff).
+        # Preparing tau_1, tau_2 definitions as function of pulse shape. 
+        if(PulseTypeName=="SinSquared"):  
+                duration_tau_1 = 2*PulseDuration_SI #SI
+                duration_tau_2 = 2*PulseDuration2_SI #SI
+        elif(PulseTypeName=="StH"):
+                omega_1 = 2*pi*c/wavelength_SI #SI
+                omega_2 = 2*pi*c/wavelength2_SI #SI
+                duration_tau_1 = PulseDuration_SI  + RiseTime*2*pi/omega_1 #SI
+                duration_tau_2 = PulseDuration2_SI + RiseTime*2*pi/omega_2 #SI
+        else: 
+                print(Header+"** ERROR: capture of end of pulse is not managed.")
+                raise Exception("NotImplemented")
+        # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
+        timeFarEnough = time_SI_to_AU(duration_tau_1) #AU
+        if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
+                timeFarEnough += duration_tau_2 + time_SI_to_AU(DoublePulseDelay_SI) #AU
+
+        # Selecting the field (1 or 2 pulses) with a sufficiently far time instant
+        FieldTimeFarEnough = Efield_12_AU[(time > timeFarEnough)] #this is using laser time grid (most precise)
+        NeTimeFarEnough    = 
+
+        # MASK FOR CONDITION 1
+        # Build a mask to select region where field==0 and energy (or density is slowly varying compared as during the pulse) 
+        Mask = np.logical_and(FieldDiffEqualZero, FieldEqualZero) #Mask for the energy observable
        
-        # One has to interpolate a field function on same temporal grid than Ne. 
-        Efield_AU_interp_func = interp1d(time[:len(Efield_AU)], Efield_AU) 
-        Efield_AU_interp_Ne   = Efield_AU_interp_func(timeNe)
-        FieldEqualZero_Ne=(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid
+        # One has to interpolate a field function on same temporal grid than Ne - but still, there can be another field meanwhile
+        Efield_AU_interp_func = interp1d(time[:len(Efield_12_AU)], Efield_12_AU, kind='linear') #fails when max(time of Efield) is equal to max(time of Ne), ie, when simulation reaches the end... I suggest to remove error raise upon interpolation on final point. 
+        # Computing dEfield_AU_NeGrid using dEfield_timeGrid and interpolating (ie changing grid). It should be more precise. 
+        dEfield_AU_interp_func = interp1d(time[:len(Efield_12_AU_diff)], Efield_12_AU_diff)
+        
+          
+        print(Header+"** Debug: size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU))+", "+str(len(timeNe)))
+        print(Header+"** Debug: size of dEfield_12_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
+	print(Header+"** Debug: maximum existing instants for time, timeNe "+str(np.max(time))+", "+str(np.max(timeNe)))
+        Efield_AU_interp_Ne   = Efield_AU_interp_func(timeNe) #timeNe and timeLaser do have the same indices, but not the same discretization.
+        dEfield_AU_interp_Ne  = dEfield_AU_interp_func(timeNe)
+
+        # Identifying Efield == 0 on timeNe grid. 
+        FieldEqualZero_Ne=(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid. Now based on bicolor field.
+        
 	# print(Header+"** DEBUG: "+str(np.shape(ElectronDensity_diffLowerThanZero))+", "+str(np.shape(FieldEqualZero_Ne)))
         MaskNe=np.logical_and(ElectronDensity_diffLowerThanZero, FieldEqualZero_Ne[:len(ElectronDensity_diffLowerThanZero)]) 
 
@@ -751,12 +792,13 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 
         timeToFilterFrom=timeEnergies4[0] ##WARNING: if pulse is too short, this crashes.
         timeToFilterFromDensity=timeNe4[0]
-        timeEnergiesCondition = ( timeEnergies > timeToFilterFrom ) # this should define a mask that only keeps timesteps larger than laser pulse
-        timeDensityCondition = ( timeNe > timeToFilterFromDensity )
+
+        timeEnergiesCondition = ( timeEnergies > timeToFilterFrom        ) # this should define a mask that only keeps timesteps larger than laser pulse
+        timeDensityCondition  = ( timeNe       > timeToFilterFromDensity )
 
         # We filter ElectronEnergy using these two conditions: 
         ElectronEnergyRightAfterPulse = ElectronEnergy[timeEnergiesCondition][0] ## NOTE: this should select first element after laser pulse
-        ElectronDensityRightAfterPulse= density_proj_SI[timeDensityCondition][0] ##NOTE: this should help to have more stable results
+        ElectronDensityRightAfterPulse= density_proj_SI[timeDensityCondition][0] ## NOTE: this should help to have more stable results
         print(Header+"** Info: energy right after the pulse: "+str(ElectronEnergyRightAfterPulse))
         print(Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse))
 
@@ -778,6 +820,15 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         ElectronDensityRightAfterPulse = 0e0
 	
 	timeToFilterFrom = 0e0
+    except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+        print(Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary.")
+        ElectronEnergy_SI_afterpulse   = 0e0
+        HartreeEnergy_SI_afterpulse    = 0e0
+        ExchangeEnergy_SI_afterpulse   = 0e0
+        EigenvaluesEnergy_SI_afterpulse= 0e0
+        ElectronDensityRightAfterPulse = 0e0
+        timeToFilterFrom = 0e0
+
 #        exit()
     
     print Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse)
