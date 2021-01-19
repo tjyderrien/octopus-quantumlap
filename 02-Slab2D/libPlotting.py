@@ -740,7 +740,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
                 print(Header+"** ERROR: capture of end of pulse is not managed.")
                 raise Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
-        timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU
+        timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
                 timeFarEnough += duration_tau_2 + Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
 
@@ -748,7 +748,11 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
         SizeOfWorkingArray=len(FieldDiffEqualZero)       #size limiter for the electric field
         # BUILDING MASK FOR ENERGY - does not require interpolartion
-        Mask = np.logical_and(FieldDiffEqualZero, FieldEqualZero[:SizeOfWorkingArray], (timeEnergies > timeFarEnough)[:SizeOfWorkingArray]) #Mask for the energy observable expressed in the timeLaser grid (provided laser and enery time grids are the same)
+        print(Header+"** Debug: size of FieldEqualZero, FieldDiffEqualZero, (timeEnergies > timeFarEnough): "+str(FieldEqualZero)+", "+str(FieldDiffEqualZero)+", "+str((timeEnergies > timeFarEnough)))
+        Mask1= np.logical_and(FieldDiffEqualZero, FieldEqualZero[:SizeOfWorkingArray])
+        Mask = np.logical_and(Mask1, (timeEnergies > timeFarEnough)[:SizeOfWorkingArray]) #Mask for the energy observable expressed in the timeLaser grid (provided laser and enery time grids are the same)
+        print(Header+"** Debug: size of Mask for Energy: "+str(len(Mask)))
+        print(Header+"** Debug: Mask = "+str(Mask))
  
         print(Header+"** Debug: size of Efield_AU, Efield2_AU: "+str(len(Efield_AU))+", "+str(len(Efield2_AU)))
         print(Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray]))+", "+str(len(timeNe)))
@@ -766,12 +770,20 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # Computing dEfield_AU_NeGrid using dEfield_timeGrid and interpolating (ie changing grid). It should be more precise. 
         print(Header+"** Debug: before defining interp dEfield_AU_interp_func: "+str(len(time))+", "+str(len(Efield_12_AU_diff))) 
         dEfield_AU_interp_func = interp1d(time[:len(Efield_12_AU_diff)], Efield_12_AU_diff)
-
+        
         Efield_AU_interp_Ne   =  Efield_AU_interp_func(timeNe) #timeNe and timeLaser do have the same values, but not the same discretization, neither dimension
-        print(Header+"** Debug: "+str(np.max(np.max(Efield_AU_interp_Ne))))
+        Efield_AU_interp_error=  (np.max(np.max(Efield_12_AU))-np.max(np.max(Efield_AU_interp_Ne)))/np.max(np.max(Efield_12_AU))
+        print(Header+"** Debug: Efield_AU interpolation: "+str(np.max(np.max(Efield_AU_interp_Ne)))+", not interpolated: "+str(np.max(np.max(Efield_12_AU)))+", error rel.: "+str(Efield_AU_interp_error))
 
         print(Header+"** Debug: timeSource: "+str(np.max(time[:len(ElectronEnergy)]))+", timeTarget:"+str(timeNe))
         dEfield_AU_interp_Ne  = dEfield_AU_interp_func(timeNe)
+        dEfield_AU_interp_error=(np.max(np.max(Efield_12_AU_diff))-np.max(np.max(dEfield_AU_interp_Ne)))/np.max(np.max(Efield_12_AU_diff))
+        print(Header+"** Debug: d(Efield_AU): interpolated: "+str(np.max(np.max(dEfield_AU_interp_Ne)))+", not interpolated: "+str(np.max(np.max(Efield_12_AU_diff)))+", error rel.: "+str(dEfield_AU_interp_error))
+
+        # Checking that relative errors are less than 1 percent
+        if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
+              print(Header+"** WARNING: Interpolation error on field was greater than 5%!")
+#              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid. 
         FieldEqualZero_Ne =(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid. Now based on bicolor field.
@@ -779,14 +791,17 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         print(Header+"** DEBUG: shapes of Masks for Ne: "+str(np.shape(FieldEqualZero_Ne))+", "+str(np.shape(dFieldEqualZero_Ne)))
 
         # Building the mask that should apply to any observable based on time-grid of Ne
-        MaskNe=np.logical_and(FieldEqualZero_Ne[:len(dFieldEqualZero_Ne)], dFieldEqualZero_Ne, (timeNe > timeFarEnough))
+        MaskNe1=np.logical_and(FieldEqualZero_Ne[:len(dFieldEqualZero_Ne)], dFieldEqualZero_Ne)
+        MaskNe =np.logical_and(MaskNe1, (timeNe > timeFarEnough))
 
         ## CHECKING MASK INTEGRITY ... ie if manifolds contain at least 1 element (1 value of interest). 
         print(np.any(MaskNe))
         if(not np.any(MaskNe)):
 		print(Header+"** ERROR: pulse may not be finished. Check n_ex!")
+                raise IndexError
         if(not np.any(Mask)):
                 print(Header+"** ERROR: pulse may not be finished. Check energy file!")
+                raise IndexError
         
         ## THIS SEEMS FOR SOLVING DIMENSION PROBLEMS
 #       print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
@@ -815,14 +830,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # timeDensityCondition  = ( timeNe       > timeToFilterFromDensity )
 
         # We filter ElectronEnergy using these two conditions: 
-        ElectronEnergyRightAfterPulse = ElectronEnergy[Mask][0] ## NOTE: this should select first element after laser pulse
+        ElectronEnergyRightAfterPulse = ElectronEnergy[Mask][0] ## WARNING: it seems temporal filter was not applied !!!
         ElectronDensityRightAfterPulse= density_proj_SI[MaskNe][0] 
         print(Header+"** Info: energy right after the pulse: "+str(ElectronEnergyRightAfterPulse))
-        print(Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse))
-
-    #     print(ElectronEnergy[ (Efield_AU[:len(ElectronEnergy)] < 1E-8 ) ])
-        # print(ElectronEnergy[np.all( [np.abs(Field_AU_to_SI(Efield_AU)) < 1E-6, np.abs(np.diff(ElectronEnergy)) > 1E-6] ) ] ) #Searches E~0 and dEnergy/dt!=0. Field is null but energy is still changing.
-            
+        print(Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse))           
 
     ## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
         ElectronEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(ElectronEnergy[Mask][0]))
@@ -838,7 +849,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         #ElectronDensityRightAfterPulse = 0e0
 	
 	#timeToFilterFrom = 0e0
-    except: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         print(Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary.")
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
