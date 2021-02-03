@@ -331,11 +331,11 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     if(len(FieldInduced_inp)>0):
         FieldInduced_inp_tab = FieldInduced_inp.split(" ")
         if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
-        FieldInduced_enabled = 0
-        print(Header+"Info: InducedFields was disabled.")
+            FieldInduced_enabled = 0
+            print(Header+"Info: InducedFields was disabled.")
         elif("yes" in FieldInduced_inp_tab[2]): # "Yes is found right after sign "="
-        FieldInduced_enabled = 1
-        print(Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"].")
+            FieldInduced_enabled = 1
+            print(Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"].")
     #    else: #any other case should check if GaugeVectorField is present
     #      FieldInduced_enabled = 0
     #      print Header+"Info: InducedFields was disabled."
