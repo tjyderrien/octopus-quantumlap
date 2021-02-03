@@ -31,7 +31,7 @@ import matplotlib.cm as cm
 from matplotlib import rc
 from matplotlib.legend_handler import HandlerLine2D
 from scipy.interpolate import interp1d
-
+from scipy.constants import pi
 from libString import *
 from libAtomicUnits import *
 import calculateVolume as Sample
@@ -240,6 +240,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       print(Header+"** Exception: CEP1 was se to 0 due to failure.")
       CEP1_SI              = 0.5*pi
 
+
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     print(Header+"** Info: CEP1: "+CEP1_inp[7:])
        
@@ -327,16 +328,17 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 ## 1. Define the simple boolean from input file (intent) given by GaugeFieldPropagate of the Input file.
     FieldInduced_enabled = 0 # default value
 #    if("#" in FieldInduced_string[0:5]):
-    FieldInduced_inp_tab = FieldInduced_inp.split(" ")
-    if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
-      FieldInduced_enabled = 0
-      print(Header+"Info: InducedFields was disabled.")
-    elif("yes" in FieldInduced_inp_tab[2]): # "Yes is found right after sign "="
-      FieldInduced_enabled = 1
-      print(Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"].")
-#    else: #any other case should check if GaugeVectorField is present
-#      FieldInduced_enabled = 0
-#      print Header+"Info: InducedFields was disabled."
+    if(len(FieldInduced_inp)>0):
+        FieldInduced_inp_tab = FieldInduced_inp.split(" ")
+        if("#" in FieldInduced_inp[0:5]): #Induced fields commented?
+        FieldInduced_enabled = 0
+        print(Header+"Info: InducedFields was disabled.")
+        elif("yes" in FieldInduced_inp_tab[2]): # "Yes is found right after sign "="
+        FieldInduced_enabled = 1
+        print(Header+"Info: InducedFields was enabled [FieldInduced_inp="+str(FieldInduced_inp_tab)+"].")
+    #    else: #any other case should check if GaugeVectorField is present
+    #      FieldInduced_enabled = 0
+    #      print Header+"Info: InducedFields was disabled."
       
 ## 2. Then define a simple boolean checking if GaugeVectorField is present. WARNING: even if amplitude is zero, octopus will enable GaugeFieldPropagate.
 
@@ -404,7 +406,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         Functional = 3 #TB09
         print(Header+"** Info: Functional TB09 detected.")
       else: 
-        print Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)
+        print(Header+"** Error: XCFunctional contained unknown case."+str(Functional_value))
         exit(-1)
     elif ( Functional_string == 'lda' ): #XCFunctional was not specified: assuming LDA.
       print(Header+"Warning: XCFunctional was not specified. Assuming default value: lda.")
@@ -473,10 +475,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
   #    print "SINGLE-PULSE MODE"
 	 # Remove the pulses with double
 
-    print Header+"Wavelength (nm): "+str(wavelength_SI)
-    print Header+"Pulse duration (s): "+str(PulseDuration_SI)
-    print Header+"Double pulse delay (s): "+str(DoublePulseDelay_SI)
-    print Header+"Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi)
+    print(Header+"Wavelength (nm): "+str(wavelength_SI))
+    print(Header+"Pulse duration (s): "+str(PulseDuration_SI))
+    print(Header+"Double pulse delay (s): "+str(DoublePulseDelay_SI))
+    print(Header+"Carrier Envelope Phase (deg): "+str(CEP1_SI * 180./pi))
     
     # Catch the peak field #We could also take the one of input file..
     time                = np.asfarray(laser[:,1]) #column 2
@@ -491,14 +493,14 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
     Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
     
-    print Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
-    print Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."
+    print(Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm.")
+    print(Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm.")
     
     # Capturing cell volume
     try:
 	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
     except:
-	 print Header+"** Warning: sample computation volume was jumped!"
+	 print(Header+"** Warning: sample computation volume was jumped!")
 	 continue
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
