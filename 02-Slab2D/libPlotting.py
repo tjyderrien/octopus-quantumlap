@@ -734,11 +734,11 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         elif(PulseTypeName=="StH"):
                 omega_1 = 2*pi*c/wavelength_SI #SI
                 omega_2 = 2*pi*c/wavelength2_SI #SI
-                duration_tau_1 = PulseDuration_SI  + RiseTime*2*pi/omega_1 #SI
-                duration_tau_2 = PulseDuration2_SI + RiseTime*2*pi/omega_2 #SI
+                duration_tau_1 = PulseDuration_SI  + RiseTime*pi/omega_1 #SI
+                duration_tau_2 = PulseDuration2_SI + RiseTime*pi/omega_2 #SI
         else: 
                 print(Header+"** ERROR: capture of end of pulse is not managed.")
-                raise Exception("NotImplemented")
+                raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
         timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
@@ -850,7 +850,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 	
 	#timeToFilterFrom = 0e0
     except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
-        print(Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary.")
+        print(Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?")
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
         ExchangeEnergy_SI_afterpulse   = 0e0
@@ -858,6 +858,14 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 
+    except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+        print(Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary.")
+        ElectronEnergy_SI_afterpulse   = 0e0
+        HartreeEnergy_SI_afterpulse    = 0e0
+        ExchangeEnergy_SI_afterpulse   = 0e0
+        EigenvaluesEnergy_SI_afterpulse= 0e0
+        ElectronDensityRightAfterPulse = 0e0
+        timeToFilterFrom = 0e0
 #        exit()
     
     print Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse)
