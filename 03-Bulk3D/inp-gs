@@ -68,8 +68,11 @@ BoxShape = parallelepiped
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
 KPointsUseSymmetries = yes
-%SymmetryBreakDir #laser direction, where we gonna break symmetry
-  1 | 0 | 0
+
+theta_inc = pi*theta1_inp #angle of incidence of the laser (scripted replacement)
+ell = 0. #ellipticity
+%SymmetryBreakDir
+  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 %
 
 ExtraStates = 0

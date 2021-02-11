@@ -157,15 +157,15 @@ ComputingTime = ComputingTimeValueSI / TimeAUtoSI
 #4.*sigmaTau1 + pulseDelay + RelaxationTime #time of computation
 
 # Predicting which simulation axis will be broken during excitation. 
-theta_inc = 0. #angle of incidence of the laser
+theta_inc = pi*theta1_inp #angle of incidence of the laser
 ell = 0. #ellipticity
 %SymmetryBreakDir
- cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 %
 
 
 #TODO: script the change of polarization
-th1 = 0
+th1 = pi*theta1_inp #scripted (units are same as for CEP, we multiply by pi only here to simplify)
 th2 = ReplaceMeTheta      #Scripted
 px1 = cos(th1)
 py1 = sin(th1)
@@ -258,16 +258,16 @@ TDExpOrder = 16
 # Output = el_pressure + matrix_elements + pol_density #this will generate HUGE data
 # Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF FILES.
 
-TDOutput = geometry + energy + laser + total_current + n_excited_el + gauge_field #multipoles
+TDOutput = energy + laser + total_current + n_excited_el + gauge_field #multipoles
 
 #OutputFormat = cube #VisIt
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
 RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
-OutputInterval = 10
+OutputInterval = 5
 RestartWriteInterval = 500
-TDOutputComputeInterval = 10
+TDOutputComputeInterval = 5
 
 # Absorbing boundary
 # AbsorbingBoundaries = mask
