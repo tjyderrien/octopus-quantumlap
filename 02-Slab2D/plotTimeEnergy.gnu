@@ -29,7 +29,9 @@ plot \
 "energy" u ($2*xscale):6  w l lw 5 lc rgbcolor "blue" t 'Electrons', \
 "energy" u ($2*xscale):7  w l lw 5 lc rgbcolor "dark-yellow" lt 2 t 'Eigenvalues', \
 "energy" u ($2*xscale):($8 == 0 ? NaN : $8) w lp lw 2 lc rgbcolor "dark-orange" t 'Hartree', \
-"energy" u ($2*xscale):($9 == 0 ? NaN : $9) w lp lw 2 lc rgbcolor "dark-green" t 'v_{xc}'
+"energy" u ($2*xscale):($9 == 0 ? NaN : $9) w lp lw 2 lc rgbcolor "dark-green" t 'int n(r) v_{xc}', \
+"energy" u ($2*xscale):(($10+$11 == 0) ? NaN : ($10+$11)) w lp lw 2 lc rgbcolor "skyblue" t 'E_{xc}'
+# "energy" u ($2*xscale):($7-$9-2*$8-$5) w lp lw 5 lc rgbcolor "red" t 'E_{kin}'
 # "energy" u ($2*xscale):10 w p lw 2 lc rgbcolor "light-green" lt 2 t 'Exchange v_{x}', \
 # "energy" u ($2*xscale):11 w p lw 2 lc rgbcolor "dark-yellow" lt 3 t 'Correlation v_{c}'
 
