@@ -3,6 +3,7 @@ set -e
 
 source $QuantumLaPsources/machines.env
 CheckComputerName
+# LoadEnvLibrairies
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
@@ -27,7 +28,7 @@ MeshSizeX="0.20" # 0.18 0.23" #0.15 0.18 0.23" #0.20: accurate for Au
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=4
+NumNodes=8
 
 # Sample
 SampleLayers=1
@@ -37,6 +38,7 @@ CrossPolarization=0 #1
 
 InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="1"
+Relativistic="no" #We actually mean spin-orbit here... :-| this is necessary for Au optical response at 800 nm !!
 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="PBE" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
@@ -45,7 +47,7 @@ SmearingTe="0.025" #~300 K
 ### MISSION #####
 # Mission="Drude"
 # Mission="Au-TD-IF-PumpProbe"
-Mission="Au-LinearResponse"
+Mission="AuSR-LinRes"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -56,7 +58,7 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 # PROBE PULSE
-GaugeVectorFieldAmplitude="1E-3" #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
+GaugeVectorFieldAmplitude="0.01 0.1" #0: no probe pulse. >0: probe pulse strength in Hartree. 
 GaugeFieldDelayValue="1e-15"
 # GaugeFieldDelayValue="5e-15 10e-15 15e-15 30e-15" #1e-15 #delay of probe pulse (in number of cycles?)
 
@@ -166,7 +168,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe} ${UseLinearResponse}
+            $OctopusSlabsSources/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe} ${UseLinearResponse} ${Relativistic}
 #           done
           done
 #          done

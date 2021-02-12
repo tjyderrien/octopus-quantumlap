@@ -35,8 +35,9 @@ SampleXY=1
 InitialTemperature="0e0"
 CrossPolarization=0 #1
 SmearingTe="0.025" #300 K
-InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
+InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="0"
+Relativistic="no" #default is no, yes: enabled spinors (highly experimental)
 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="PBE" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
@@ -47,7 +48,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="Au-IF-zero"
+Mission="Au-249nm"
 
 # Phase
 CEP1="0.0"
@@ -63,7 +64,7 @@ PulseShape="SinSquared" #StH: corrected one. STH: old buggy STH. #SinSquared" #Z
 
 # PROBE PULSE
 GaugeVectorFieldAmplitude="0E0" #"0.1 0.5 1.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
-GaugeFieldDelayValue="1e-15" # 5e-15 10e-15 15e-15 30e-15" #delay of probe pulse (in number of cycles?)
+GaugeFieldDelayValue="0e-15" # 5e-15 10e-15 15e-15 30e-15" #delay of probe pulse (in number of cycles?)
 
 RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
@@ -83,15 +84,18 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="1E11"
 
 # Efield1_1E8="$( seq -f '%.5g' 1E8 1E8 1E9 | tr 'e' 'E' | sed s/+0//g | tr '\n' ' ')"
-Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8 1E9"
+Efield1_1E7="1E7 2E7 3E7 4E7 5E7 6E7 7E7 8E7 9E7"
+Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8"
 Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
-Efield1_1E10="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
-Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11"
+Efield1_1E10="2E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
+Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11"
 # Efield1thresh="4.5E11 4.75E11 5.25E11 5.5E11 5.75E11" #"4.25E11"
 # Efield1thresh="4.6E11 4.65E11 4.7E11"
-Efield1thresh="4.85E11 4.9E11"
-# Efield1="$Efield1_1E8 $Efield1_1E9 $Efield1_1E10"
-Efield1="0E0" # "${Efield1thresh}"
+# Efield1thresh="9.1E9 9.2E9 9.3E9 9.4E9 9.5E9 9.6E9 9.7E9 9.8E9 9.9E9 1.1E10 1.2E10 1.3E10 1.4E10 1.5E10" #4.85E11 4.9E11"
+Efield1thresh="1.1E10 1.2E10 1.3E10 1.4E10 1.5E10 1.6E10 1.7E10 1.8E10 1.9E10"
+Efield1threshPlus="1.12E10 1.14E10 1.16E10 1.18E10" 
+Efield1="$Efield1thresh"   # "$Efield1_1E8 $Efield1_1E9 $Efield1_1E10"
+# Efield1="1E10 1.1E10 1.3E10"
 
 # Efield1="2E11 3E11 4E11 6E11 7E11 8E11 9E11 1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12 1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
 # Efield1="9.5E11 1.5E12 2.5E12 3.5E12 4.5E12"
@@ -109,7 +113,7 @@ Efield2="0E0"
 
 
 # Pulse duration
-tau1="60E-15" # 20e-15 30E-15 10E-15"
+tau1="30E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
 tau2="30E-15"
 
@@ -122,7 +126,7 @@ tau2="30E-15"
 
 # lambda1="2200e-9 3200e-9"
 # lambda1="1600e-9 2200e-9 3200e-9"
-lambda1="800e-9"
+lambda1="249e-9" #Blumenstein
 # lambda1="1600e-9 2200e-9 3200e-9"
 # lambda1="990e-9 1010e-9 1020e-9 1030e-9 1040e-9 1050e-9 1060e-9 1070e-9 1080e-9 1090e-9"
 # lambda1="407.58e-9" #1st harmonic of the band gap LDA: 483.70 nm. TB09: 407.58 nm.
@@ -198,7 +202,7 @@ echo "Submitting..."
 	    # Prepare the ground state
             # Propagate the pulse in time!
             echo "Submitting 1 job..." 
-            ${QuantumLaPsources}/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe} ${UseLinearResponse}
+            ${QuantumLaPsources}/09-Au/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${SmearingTe} ${UseLinearResponse} ${Relativistic}
 #           done
           done
 #          done

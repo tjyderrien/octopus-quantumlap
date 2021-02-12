@@ -5,7 +5,7 @@
 # source ${LocalFolder}/../machines.env 
 
 SourcePath="${BASH_SOURCE}[0]"
-LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers.
+LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers, or interfering with VNC and X11 servers.
 source ${LocalFolder}/../machines.env 
 
 # Because of SSH transfers, this file must not emit any return. 
@@ -28,7 +28,7 @@ case "${ComputerName}" in
 
 	${SalomonLogin}*)
 		export QuantumLaPsources=/home/tjyderrien/octopus-slabs
-		export QuantumLaPruns=/scratch/work/project/open-16-27/octopus-slabs.data
+		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus-slabs.data
 	;;
 
         ${BIATRI}*)

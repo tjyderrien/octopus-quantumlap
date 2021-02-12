@@ -234,11 +234,13 @@ tR = tauRise
 GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 
 
-TDTimeStep = 0.25 / 2. #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = 0.25 / 10 # Linear response needs dt/10, #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
 TDPropagator = etrs #it was aetrs
 TDExponentialMethod = lanczos
 TDExpOrder = 24
+
+
 
 #CurrentDensity = 1 #Default is 2. 1: Takes into account exchange correlation
 
@@ -247,14 +249,14 @@ TDOutput = geometry + laser + total_current + energy + total_heat_current + gaug
 # OUTPUT FOR EACH TIMESTEP (video)
 # Output = geometry + density + elf + current + kinetic_energy_density + potential #GENERATES LARGE NUMBER OF FILES.
 
-%CurrentThroughPlane #(yOz) plane (good for polarization along X).
-   0.0 | 0.0 | 0.0 #origin
-   0.0 | 1.0 | 0.0 # u
-   0.0 | 0.0 | 1.0 # v
-   0.06 # spacing 0.06 #we cover the full size of cell with this
-   0 | 50 # nu | mu
-   -50 | 50 # nv | mv
-%
+# %CurrentThroughPlane #(yOz) plane (good for polarization along X).
+#   0.0 | 0.0 | 0.0 #origin
+#   0.0 | 1.0 | 0.0 # u
+#   0.0 | 0.0 | 1.0 # v
+#   0.06 # spacing 0.06 #we cover the full size of cell with this
+#   0 | 50 # nu | mu
+#   -50 | 50 # nv | mv
+#%
 
 #OutputFormat = cube #VisIt
 # Output = geometry

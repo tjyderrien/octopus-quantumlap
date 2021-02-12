@@ -25,6 +25,7 @@ Functional=$8
 Mission=$9
 NumNodes=${10}
 SmearingTe=${11}
+Relativistic=${12}
 
 python_calc () {
     python -c "print ($@)"
@@ -58,16 +59,23 @@ ProcessArguments () { # Conversion factors
     "PBE")
       FunctionalPath="-PBE"
       ;;
+    "PBEsol")
+      FunctionalPath="-PBEsol"
+      ;;
     *)
       echo "This functional was not planned. Modify run_td.sh."
       exit 1
       ;;
   esac
+ 
+ if [ ${Relativistic} == "yes" ]; then
+    RelativisticPath="-relativistic"
+ fi
 
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}${RelativisticPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -110,6 +118,15 @@ ReplaceInputFile () {
     echo "PseudopotentialSet = pseudodojo_pbe" >> inp
   fi
 
+  if [ ${Functional} == "PBEsol" ]; then
+    echo "XCFunctional  = GGA_X_PBE_SOL + GGA_C_PBE_SOL" >> inp
+    echo "PseudopotentialSet = pseudodojo_pbesol" >> inp
+  fi
+
+  if [ ${Relativistic} == "yes" ]; then
+    echo "RelativisticCorrection = spin_orbit #default: non_relativistic" >> inp
+    echo "SpinComponents = non_collinear      #default: unpolarized." >> inp
+  fi
 
 }
 

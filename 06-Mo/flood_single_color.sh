@@ -37,12 +37,12 @@ InitialTemperature="0e0"
 SmearingTe="0.025" # 1 2 5 10 20"
 CrossPolarization=0 #1
 
-InducedFields="1" #0 or 1: avoid, as understanding is non-trivial there. 
+InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="0"
 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
-FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
+FreezeXC=1 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
 # Mission="Drude"
@@ -95,9 +95,9 @@ Efield1_1E10="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 Efield1_1E11="1E11 2E11 3E11 4E11 5E11 6E11 7E11 8E11 9E11"
 Efield1_1E12="1E12 2E12 3E12 4E12 5E12 6E12 7E12 8E12 9E12"
 Efield1_1E13="1E13" #REFINING THE WEIRD ENERGY TRANSITION. W/ INDUCED FIELDS
-# Efield1="9.5E11 1.5E12 2.5E12 3.5E12 4.5E12"
+# Efield1="8.5E9 9.5E9 1.5E10 2.5E10 3.5E10 4.5E10"
 
-Efield1="1.25E10 1.5E10 1.75E10 2.5E10 1.25E11 1.5E11 1.75E11 2.25E11 2.5E11 2.75E11"
+Efield1=${Efield1_1E11}  #"1.25E10 1.5E10 1.75E10 2.5E10 1.25E11 1.5E11 1.75E11 2.25E11 2.5E11 2.75E11"
 
 # Efield2="0E0 1E8 5E8 1E9 5E9 1E10 5E10"
 Efield2="0E0"
