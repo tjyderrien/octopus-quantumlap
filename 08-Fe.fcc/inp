@@ -1,0 +1,82 @@
+CalculationMode = gs
+
+ExperimentalFeatures=yes
+FromScratch = yes
+
+PeriodicDimensions = 3
+
+# b = 4.03 #4.03 augstrum in z direction. 2.82930332580211 
+a = 3.40*angstrom #2.82930332580211 #Angstroms. He took it in Bohr. It should be angtrums in xy direction.
+# a = 2.467 #angstrums between atoms
+# a = 5.346612162095391 #this is in Bohr.
+m = 1
+
+%Spacing
+ 0.434637008855 | 0.434637008855 | 0.434637008855
+%
+
+
+# Optimization
+# PoissonFFTKernel = planar
+# ParKPoints = auto
+# ParStates = auto
+ParDomains = yes #crashes if made per state only
+
+BoxShape = parallelepiped
+
+%LatticeParameters #noncubic cells
+  m*a | m*a | m*a
+%
+
+%LatticeVectors
+  0   | 0.5 | 0.5
+  0.5 | 0   | 0.5
+  0.5 | 0.5 | 0  
+%
+
+%ReducedCoordinates
+ "Fe" | 0.0 | 0.0 | 0.0
+%
+
+%KPointsGrid
+  16 | 16 | 16
+%
+
+kpts = 30
+%KPointsPath
+# Gamma | X | W | (K) | Gamma | L | (U) | W | L | (K|U) | X
+kpts | kpts | kpts | kpts | kpts | kpts | kpts
+0   | 0    | 0 #Gamma
+0.5 | 0    | 0.5 #X
+0.5 | 0.25 | 0.75 #W
+#K
+0   | 0    | 0 #Gamma
+0.5 | 0.5  | 0.5 #L
+#U
+0.5 | 0.25 | 0.75 #W
+0.5 | 0.5  | 0.5 #L
+#K|U
+0.5 | 0    | 0.5 #X
+%
+
+PseudopotentialSet = pseudodojo_lda
+
+ConvRelDens = 1e-9
+
+KPointsUseSymmetries = yes
+
+## Is it corresponding to our thermal DFT ?
+SmearingFunction = fermi_dirac
+Smearing = 0.025*eV #300 K
+
+SCFCalculateStress=yes #computes stress after computation
+
+ExtraStates = 8
+ExtraStatesToConverge = 4
+
+Output = dos + density + potential + geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+
+# FilterPotentials = filter_none 
+XCFunctional = lda_x + lda_c_pz_mod
+PseudopotentialSet = pseudodojo_lda
