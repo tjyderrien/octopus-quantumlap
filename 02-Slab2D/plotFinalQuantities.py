@@ -378,6 +378,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlottingSinglePulses = PlottingTable #get the full database
   PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
   PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['Functional']) #removes runs where functional is not LDA
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
   #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1'])
@@ -778,13 +779,30 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ListOfInterestingGammas = [0.10, 1.0, 10.]
         
     elif(pulseWavelength==1600e-9): 
-        SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-        SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-        FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-        FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
-        ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
-        TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
-        OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+        if(pulse_value==30e-15):
+            SevenPhotonIntensityRegime_min= 0e0;    SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+            ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+            TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+            OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+        if(pulse_value==20e-15):
+            SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+            ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+            TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+            OnePhotonIntensityRegime_min = 3.24E16; OnePhotonIntensityRegime_max = 1.33E17
+        else:
+            SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+            ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
+            TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+            OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
         
         #TwoPhotonIntensityRegime_min = 3.4E15
         #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
@@ -818,7 +836,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             SevenPhotonIntensityRegime_max= 0E0 #1.3E15
             SixPhotonIntensityRegime_min  = 0E0;     SixPhotonIntensityRegime_max  = 0E0
             FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 1.07E15
-            FourPhotonIntensityRegime_min = 1.07E15;     FourPhotonIntensityRegime_max = 3E15
+            FourPhotonIntensityRegime_min = 1.07E15;     FourPhotonIntensityRegime_max = 2.6E15
             ThreePhotonIntensityRegime_min= 2.87E15; ThreePhotonIntensityRegime_max= 8.3E15 #W/m2
             TwoPhotonIntensityRegime_min = 8.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
             OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
@@ -1328,7 +1346,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   PlotEnergy = True #PRL: False. #PRB: True.
   ShowPulseDurations=True
   PlotFrozenHxc=False
-  UseFinalInstantData=False #True: we plot results at final time. False: we plot results right after the pulse. 
+  UseFinalInstantData=True #True: we plot results at final time. False: we plot results right after the pulse. 
   ShowPoynting        = True
   EnableInducedFields = False #True: useful for plasmonics and spectroscopy. False: useful for energy absorption. 
   MinPulseDuration=9E-15
@@ -1375,6 +1393,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   pplt.figure(figsize=(10,6))
   ax1 = pplt.subplot(211)
   ax2 = pplt.subplot(212)
+  ax22= ax2.twinx()
   plot1 = []; plot2=[]
   
   WithInducedFields_txt=""
@@ -1384,6 +1403,13 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   else:
       PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced'])
       WithInducedFields_txt="-NoInducedFields"
+  
+  # Loading available experimental data
+  
+  if(pulseWavelength == 800e-9): 
+      # open the experimental file
+      ElectronEnergy_experimental_sorted = np.loadtxt("Shugaev-2018-Exp-FluenceReflectivity.csv", delimiter="\t", skiprows=1)
+      print(ElectronEnergy_experimental_sorted[0,:])
   
   
   print(Header+"** Info: plotting full TDDFT...")
@@ -1469,6 +1495,10 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             
             plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy1_sorted, Colors[pulse_value]+'-'+Symbols[pulse_value], label=r'$\xi_{el}$'+CaptionText+r'$[F_{ext}]$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
             plot2 += [plot_field]
+            
+            if(pulseWavelength == 800e-9 and pulse_value==60e-15): 
+                plot_field, = ax22.plot(ElectronEnergy_experimental_sorted[:,0], 1.-ElectronEnergy_experimental_sorted[:,1], Symbols[pulse_value], label=r'exp. abs.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
+                plot2 += [plot_field]
             
             #plot_field, = ax2.plot(np.multiply(xscale, fluence_ext1_sorted), relative_absorbed_energy_eigenvalues1_sorted, Colors[pulse_value]+'--'+Symbols[pulse_value], label=r'eig., $\xi_{eig}(F_{ext})$, $\tau=$'+str(int(pulse_value*1E15))+" fs")
             #plot2 += [plot_field]
@@ -1581,6 +1611,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ax2.grid()
   ax2.set_xlabel(r'Peak fluence (J/cm$^2$)')
   ax2.set_ylabel(r'Rel. abs. $\xi_{\mathrm{el}}^{\mathrm{TDDFT}} / \xi_{\mathrm{laser}}$')
+  ax22.set_ylabel(r'Exp. $1-R$')
   
   #ax1.yaxis.set_major_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   ax1.yaxis.set_major_locator(mp.ticker.FixedLocator([-1E4, -1E2, -10, -1, -1E-2, -1E-3, 0, 1E-3, 1E-2, 1E0, 1E2, 1E4])) #base=10.0, subs='auto', numticks=None))
@@ -4252,13 +4283,13 @@ def plot_Vorobyev_Au(material):
     RiseCycles=0 #does not matter here
     MoveIon=0
     PlotWpiAxis=False #we are interested in energy
-    wavelength1=249E-9
+    wavelength1=800e-9 #249e-9 also available
     Egap_SI=0e0; Egap_SI_indirect=0e0 #metal
-    OpticalIndex_Mo={1030e-9: 2.4201,  800e-9: 3.6371, 515e-9: 3.7362, 400e-9: 3.030048754875381, 249e-9: 1.49083003952569} #Ordal
+    OpticalIndex_Mo={1030e-9: 2.4201,  800e-9: 3.6371,  515e-9: 3.7362, 400e-9: 3.030048754875381, 249e-9: 1.49083003952569} #Ordal
     OpticalIndex_Au={1030e-9: 0.24212, 800e-9: 0.15352, 515e-9: 0.71912, 400e-9: 1.657892739273246, 249e-9: 1.48523320158103} #Palik
     OpticalIndex={'Mo': OpticalIndex_Mo, 'Au': OpticalIndex_Au}
     PrimitiveCellArea = {'Au': 6.52E-20, 'Mo': 7.07E-20} #m2
-    RatioExternal={'Au': 24.06, 'Mo': 1.91}
+    RatioExternal={'Au': 24.06, 'Mo': 1.91} #origin: In Yabana et al PRB (2012), this E_out / E_in = OpticalIndex**2
     #try:
     if(material=="Au"):
         for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
