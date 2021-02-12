@@ -20,6 +20,9 @@ file = "dielectric_function"
 conductivity(ReEps,ImEps,omega)={0,1}*epsilon_0*omega*({1,0}-{1,0}*ReEps-{0,1}*ImEps) #SI
 # conductivity(ReEps,ImEps,omega)={0,1}*omega/(4.*pi)*({1,0}-{1,0}*ReEps-{0,1}*ImEps) #AU
 
+set xrange [0:25]
+set yrange [-30:50]
+
 p file u ($1*Hartree_to_eV):2 w l lt 1 lc "red" t 'Re({/Symbol e}_x)', \
   file u ($1*Hartree_to_eV):3 w l lt 2 lc "blue" t 'Im({/Symbol e}_x)' 
 
