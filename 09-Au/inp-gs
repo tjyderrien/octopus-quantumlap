@@ -59,23 +59,23 @@ ell = 0. #ellipticity
   kPointsValue | kPointsValue | kPointsValue
 %
 
-kpts=30
+# kpts=100
 
-%KPointsPath # Gamma | X | W | K | Gamma | L | U | W | L | K|U | X 
+# %KPointsPath # Gamma | X | W | K | Gamma | L | U | W | L | K|U | X 
 # Consistency problem: if using the primitive cell for atmos, one has to introduced kPointsPath in b1b2b3 basis. If introducing cubic cell for atoms, one has to introduce KPointsPath in xyz basis. 
- kpts | kpts | kpts | kpts | kpts | kpts | kpts
- 0 | 0 | 0 #Gamma
- 0.5 | 0 | 0.5 #X
- 0.5 | 0.25 | 0.75 #W
- #K?
- 0 | 0 | 0  # Gamma
- 0.5 | 0.5 | 0.5 #L
+# kpts | kpts | kpts | kpts | kpts 
+ # 0 | 0 | 0 #Gamma
+ # 0.5 | 0 | 0.5 #X
+# 0.5 | 0.25 | 0.75 #W
+# 0.5 | 0.5 | 0.5 #L
+#   0 | 0 | 0  # Gamma
+# 0.5 | 0 | 0.5  # X 
  #U ?
- 0.5 | 0.25 | 0.75 #W
- 0.5 | 0.5 | 0.5  #L
- #K|U ?
- 0.5 | 0 | 0.5  # X
-%
+# 0.5 | 0.25 | 0.75 #W
+# 0.375 | 0.375 | 0.75 #K
+ # 0.5 | 0.5 | 0.5  #L
+ #K|U ? 
+#%
 
 # PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
@@ -107,3 +107,7 @@ ConvRelDens = 1e-9
 ExperimentalFeatures = yes
 
 FromScratch = yes
+
+## Useful for introducing spin_orbit coupling #Maybe help would be necessary here. 
+# RelativisticCorrection = spin_orbit #default: non_relativistic
+# SpinComponents = non_collinear      #default: unpolarized. 
