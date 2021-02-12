@@ -26,15 +26,27 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
+<<<<<<< HEAD
 NumNodes=1
 Mission="Si_GS"
+=======
+NumNodes=8
+Mission="Si_GS_angle"
+>>>>>>> a4589a6faf90de82243457e51dd6aeab0fc6e7c0
 SampleLayers="1"
 SampleXY="1"
-kPoints="24" # 16"
+kPoints="24 32" # 16"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
+AngleIncidence_list="0 0.25"
+# AngleIncidence_list="0.05 0.10 0.15 0.20"
+# AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+# AngleIncidence_list="0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24"
+
+for iAngleIncidence in ${AngleIncidence_list}
+do
 for ikPoints in ${kPoints}
 do
  for iSampleLayers in ${SampleLayers}
@@ -53,10 +65,10 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $QuantumLaPsources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes}
+      $QuantumLaPsources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iAngleIncidence}
  #    done
     done
- #   done
+   done
   done
  done
 done

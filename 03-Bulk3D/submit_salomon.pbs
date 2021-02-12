@@ -5,13 +5,14 @@
 #PBS -e Morille.err
 #PBS -o Morille.log
 #PBS -A OPEN-20-5
-#PBS -l select=NumNodes:ncpus=36:mpiprocs=36:ompthreads=1
+
+#PBS -l select=NumNodes:ncpus=24:mpiprocs=24:ompthreads=1
 #PBS -l walltime=24:00:00
 
 cd $PBS_O_WORKDIR
 
 source ${QuantumLaPsources}/modules.env
-LoadOctopusBarboraModulesFortran2021
+LoadOctopusSalomonModulesFortran2020
 # LD_LIBRARY_PATH=/scratch/tjyderriien/nfft/3.2.4/lib:$LD_LIBRARY_PATH
 
 # module load octopus/5.0.0
