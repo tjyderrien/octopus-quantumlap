@@ -376,9 +376,9 @@ print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU)
 print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
 
 print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 3*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
-CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 3*PulseDuration_SI)
-CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 3*PulseDuration_SI)
+CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
+CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 2*PulseDuration_SI)
+CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 2*PulseDuration_SI)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
