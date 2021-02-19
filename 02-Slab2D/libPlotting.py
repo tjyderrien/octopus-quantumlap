@@ -166,13 +166,13 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     ## Checking the theory level
     TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
     try:
-	 TheoryLevel_string   = TheoryLevel_inp[14:]
+        TheoryLevel_string   = TheoryLevel_inp[14:]
     except:
-	 TheoryLevel_string   = ''
+        TheoryLevel_string   = ''
     if(TheoryLevel_string == "independent_particles"):
-	 TheoryLevel = 0 #independent particles
+        TheoryLevel = 0 #independent particles
     else: 
-	 TheoryLevel = 1 #dft
+        TheoryLevel = 1 #dft
 	 
     ##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
     # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
@@ -217,28 +217,28 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then zero
     # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case. 
     if(CrossPolarization_inp): 
-         if(type(CrossPolarization_inp[6:13])=="float"):
-	        CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13]))
-         elif("th1" in CrossPolarization_inp[6:13]): #if it is refering to th1
-                CrossPolarization_angle = polarization_angle
-         else: 
-                CrossPolarization_angle = 0.
+        if(type(CrossPolarization_inp[6:13])=="float"):
+            CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13].strip()))
+        elif("th1" in CrossPolarization_inp[6:13]): #if it is refering to th1
+            CrossPolarization_angle = polarization_angle
+        else: 
+            CrossPolarization_angle = 0.
     else: #if th2 was not found in the input file
-         CrossPolarization_angle = 0.
+        CrossPolarization_angle = 0.
     print(Header+"CrossPol"+str(CrossPolarization_angle))
     
     ## Import CEP data
     try:
-      CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
-      print(Header+"** CEP1_inp: "+str(CEP1_inp))
-      CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
-      #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
-        #CEP1_SI = 0.5*pi
-        #print Header+"** Exception on CEP1_SI."
+        CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
+        print(Header+"** CEP1_inp: "+str(CEP1_inp))
+        CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
+        #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
+          #CEP1_SI = 0.5*pi
+          #print Header+"** Exception on CEP1_SI."
     except: 
-      CEP1_inp             = "pi/2."
-      print(Header+"** Exception: CEP1 was se to 0 due to failure.")
-      CEP1_SI              = 0.5*pi
+        CEP1_inp             = "pi/2."
+        print(Header+"** Exception: CEP1 was se to 0 due to failure.")
+        CEP1_SI              = 0.5*pi
 
 
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
@@ -498,10 +498,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     # Capturing cell volume
     try:
-	 SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
+         SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
     except:
-	 print(Header+"** Warning: sample computation volume was jumped!")
-	 continue
+         print(Header+"** Warning: sample computation volume was jumped!")
+         continue
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
     CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
@@ -1540,5 +1540,4 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
         plt.savefig(filename+'-GradientE2.png')
         if(ShowFinalPlot==1):
             plt.show()
-#}}}
-  
+#}}} 
