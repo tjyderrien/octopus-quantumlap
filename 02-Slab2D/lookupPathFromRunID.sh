@@ -1,8 +1,11 @@
 #! /bin/bash
 
 echo "From run ID, identify the path."
-echo "Method is long... Better to go through database for this!"
-echo "Usage: ./<script> <Run ID>"
+echo "Usage: source <script>"
+echo "Declares functions to be used in the following sequence: "
+echo "1. FetchPathFromID ( filename )"
+echo "2. PlotEachRun ( dirnames.tmp  ) "
+echo "3. Eventually disableProblematicRuns.sh <file>"
 
 # Returns folder name from runID
 FetchPathFromID() {
@@ -10,8 +13,7 @@ for line in $( cat $1 )
 do
   PathOfTheRun=$( dirname $( export depth=4; find . -mindepth $depth -maxdepth $depth | grep $line | tail -n1 ) )
   echo $PathOfTheRun
-done > dirnames.tmp
-echo "List was well generated in dirnames.tmp."
+done > dirnames.tmp && echo "List was generated in dirnames.tmp."
 }
 
 # Prepare a plot for each subfolder indicated into input file
