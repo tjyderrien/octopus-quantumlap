@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2020 T. J.-Y. Derrien
@@ -53,12 +53,12 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   omega_AU = 1./(Time_SI_to_AU(1./omega_SI))
   
   # Still exact
-  print Header+"** Input: Peak field    E amplitude (SI): "+str(np.abs(Field).max())
-  print Header+"** Input: Peak envelope E amplitude (SI): "+str(np.abs(Envelope).max())
+  print(Header+"** Input: Peak field    E amplitude (SI): "+str(np.abs(Field).max()))
+  print(Header+"** Input: Peak envelope E amplitude (SI): "+str(np.abs(Envelope).max()))
   Field_E_AU = Field_SI_to_AU(Field) #complex
   Env_E_AU   = Field_SI_to_AU(Envelope) #Units from V/m to Atomic Units (eV/Bohr?).
-  print Header+"** Converted: Peak field    E amplitude (at.u.): "+str(np.abs(Field_E_AU).max())
-  print Header+"** Converted: Peak envelope E amplitude (at.u.): "+str(np.abs(Env_E_AU).max())
+  print(Header+"** Converted: Peak field    E amplitude (at.u.): "+str(np.abs(Field_E_AU).max()))
+  print(Header+"** Converted: Peak envelope E amplitude (at.u.): "+str(np.abs(Env_E_AU).max()))
   t_AU = Time_SI_to_AU(t) #VALIDATED
   
   Field_A_AU_approx = 1j * c_AU * Field_E_AU / omega_AU
@@ -67,20 +67,20 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   if(DebugMode == 0): #approximation with error on phase
     # This approximation is inducing a quadrature in the thing. 
     # This kills the resolution at the cycle. 
-    print Header+"** Converted with approximation: Vector field   A amplitude (at.u.): "+str(Field_A_AU_approx.min())+", "+str(Field_A_AU_approx.max())
-    print Header+"** Converted with approximation: Envelope field A amplitude (at.u.): "+str(np.abs(Env_A_AU_approx).max())
+    print(Header+"** Converted with approximation: Vector field   A amplitude (at.u.): "+str(Field_A_AU_approx.min())+", "+str(Field_A_AU_approx.max()))
+    print(Header+"** Converted with approximation: Envelope field A amplitude (at.u.): "+str(np.abs(Env_A_AU_approx).max()))
     
   elif(DebugMode == 3): #attempt to perform the integration directly
   # This should be more exact IF WE WOULD HAVE A NUMERICAL INTEGRATION METHOD FOR COMPLEX INTEGRALS. 
   #PhaseShift=40./180. * pi
     Field_E_AU_real = Field_E_AU.real
-    print Header+"** Real part of E(t): Peak field E amplitude (at.u.): "+str(Field_E_AU_real.min())+", "+str(Field_E_AU_real.max())
+    print(Header+"** Real part of E(t): Peak field E amplitude (at.u.): "+str(Field_E_AU_real.min())+", "+str(Field_E_AU_real.max()))
     #Field_A_AU = - c_AU * Field_E_AU_real.cumsum() #leads to a too high amplitude
     Field_A_AU_real = - c_AU * integrate.cumtrapz(Field_E_AU_real, t_AU, initial=0) #should be done in atomic units, and using a real part
     #Env_A_AU = np.sqrt(Field_A_AU * np.conj(Field_A_AU))
     #Field_A_AU = - c_AU * integrate.romb(Field_E_AU) #should be done in atomic units!
     #Field_A_AU = Field_A_AU * np.exp(-1j*PhaseShift) #correcting the phase to obtain a more smooth envelope
-    print Header+"** Converted with integration: Vector field A amplitude (at.u.): "+str(Field_A_AU_real.min())+", "+str(Field_A_AU_real.max())
+    print(Header+"** Converted with integration: Vector field A amplitude (at.u.): "+str(Field_A_AU_real.min())+", "+str(Field_A_AU_real.max()))
     #print Header+"** Converted with integration: Envelope field A amplitude (at.u.): "+str(Field_A_AU_real.max())
     
   # Extraction of the envelope
@@ -101,7 +101,7 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
     #Output2 = Field_A_AU.real #DEBUG PURPUSE ONLY #Env_A_AU.real #real-valued
     Output2 = Field_A_AU_real #real-valued
   else: 
-    print Header+"** ERROR: debug mode variable is undefined. "
+    print(Header+"** ERROR: debug mode variable is undefined. ")
     exit()
   
   return Output1, Output2, 0.*t_AU #GOOD for octopus if Output is an envelope
@@ -110,18 +110,18 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
 # Read pulse data from command line
 # =======================================================
 if(len(sys.argv)<7):
-  print "Usage: ./GeneratePulse.py \ "
-  print "    <Pulse duration (s)> \ "
-  print "    <Ramp cycle number> \ "
-  print "    <Peak field amplitude (V/m)> \ "
-  print "    <Laser wavelength (m)> \ "
-  print "    <CEP [multiples of Pi] > \ "
-  print "    <Double pulse Delay (s) > \ "
-  print "    <End of simulation time (s) > \ "
-  print "    <Power of sin for increase/decrease: 2, 4, 6...> "
+  print("Usage: ./GeneratePulse.py \ ")
+  print("    <Pulse duration (s)> \ ")
+  print("    <Ramp cycle number> \ ")
+  print("    <Peak field amplitude (V/m)> \ ")
+  print("    <Laser wavelength (m)> \ ")
+  print("    <CEP [multiples of Pi] > \ ")
+  print("    <Double pulse Delay (s) > \ ")
+  print("    <End of simulation time (s) > \ ")
+  print("    <Power of sin for increase/decrease: 2, 4, 6...> ")
   
-  print "Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 2"
-  print "Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. "
+  print("Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 2")
+  print("Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. ")
   exit()
 
 #============ Manage the command line input =================
@@ -151,8 +151,8 @@ tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant 
 
 ComputingT_min = 7./5.*(tauRise+tau+tauRise)
 if(ComputingT_min > ComputingT):
-    print Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min)
-    print Header+"** TODO: replace the total value of computing time in inp as well."
+    print(Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min))
+    print(Header+"** TODO: replace the total value of computing time in inp as well.")
     exit()
 #    print Header+"** Warning: the value was rewritten to avoid computing for nothing."
 #    ComputingT = ComputingT_min
@@ -160,7 +160,7 @@ if(ComputingT_min > ComputingT):
 
 #print Header+"Pulse duration: "+str(tau)
 
-print Header+"Computing time = "+str(float(ComputingT))
+print(Header+"Computing time = "+str(float(ComputingT)))
 tmin = 0.
 tmax = float(ComputingT)
 Number = 50000 #NOTE: better to put too many nodes here ! Better to have something bigger than octopus time steps. 
@@ -171,7 +171,7 @@ Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, 
 
 if(DebugMode==1):
     time, Ax, Ay = Envelope
-    print time, Ax
+    print(time, Ax)
     plt.figure()
     plt.plot(time, Ax/Ax.max(), label=r"Norm. $A(t)$")
     differential = np.diff(Ax)
@@ -182,7 +182,7 @@ if(DebugMode==1):
     
 elif(DebugMode==2):
     time, Ex, Ey = Envelope #AU
-    print time, Ex #complex-valued
+    print(time, Ex) #complex-valued
     
     omega_AU = 1./(Time_SI_to_AU(1./omega))
     
@@ -191,7 +191,7 @@ elif(DebugMode==2):
     Ax_approx  = c_AU * Ex / omega_AU #NOTE: modest analytical approximation
     #Ax_peak   # has no meaning! 
     
-    print np.shape(time)
+    print(np.shape(time))
     
     plt.figure()
     plt.title(r"$\tau=$"+str(round(tau*1E15))+r" fs, $\tau_{rise}=$"+str(round(tauRise*1E15))+" fs.")
@@ -211,7 +211,7 @@ elif(DebugMode==2):
 
 elif(DebugMode==3):
     time, Ax, Ay = Envelope
-    print Header+"** Info: Max value of Ax = "+str(Ax.max())
+    print(Header+"** Info: Max value of Ax = "+str(Ax.max()))
     plt.figure()
     plt.plot(time, Ax, label=r"$A(t)$")
     plt.legend()
@@ -224,7 +224,7 @@ OctopusReady = np.transpose(Envelope)
 
 ExportToTxt(OctopusReady, "Pulses.dat")
 
-print Header+"Successfully generated the pulse. See Pulses.dat."
+print(Header+"Successfully generated the pulse. See Pulses.dat.")
 
 
 
