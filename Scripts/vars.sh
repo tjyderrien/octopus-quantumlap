@@ -5,12 +5,13 @@
 # source ${LocalFolder}/../machines.env 
 
 SourcePath="${BASH_SOURCE}[0]"
-LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers.
+LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers, or interfering with VNC and X11 servers.
 source ${LocalFolder}/../machines.env 
 
 # Because of SSH transfers, this file must not emit any return. 
 
 CheckComputerName > /dev/null
+echo "[octopus-slabs: vars.sh] Computer is : $ComputerName"
 LoadEnvLibraries  > /dev/null
 
 case "${ComputerName}" in 
@@ -20,23 +21,28 @@ case "${ComputerName}" in
 		echo "Stored variables for local laptop."
 	;;
 
-	${PrometheusLogin}*)
+	*${PrometheusLogin}*)
 		export QuantumLaPruns=/net/scratch/projects/prace/pr2c0043
 		export QuantumLaPsources=$HOME/octopus-slabs
 	;;
 
 	${SalomonLogin}*)
 		export QuantumLaPsources=/home/tjyderrien/octopus-slabs
-		export QuantumLaPruns=/scratch/work/project/open-16-27/octopus-slabs.data
+		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus-slabs.data
 	;;
 
         ${BIATRI}*)
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
+        ${BarboraLogin} | ${BarboraRuns})
+                export QuantumLaPsources=/home/tjyderrien/octopus-slabs
+                export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
+        ;;
+        
         *)
             ## DO NOTHING
-	    echo "Case not covered."
+	    echo "[octopus-slabs: vars.sh] Case not covered. Computer: ${ComputerName}"
         ;;
 
 

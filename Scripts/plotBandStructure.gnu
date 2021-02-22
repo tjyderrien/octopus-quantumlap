@@ -5,7 +5,6 @@
 set terminal postscript eps enhanced font 'Helvetica, 24'
 set output 'BandStructure.eps'
 
-
 file="bandstructure"
 
 HartreeToEv = 27.2114 #1 Hartree = 27.2114 eV
@@ -13,7 +12,7 @@ HartreeToEv = 27.2114 #1 Hartree = 27.2114 eV
 Yscale = HartreeToEv
 
 set ylabel 'Energy (eV)'
-set yrange [-10:10]
+set yrange [-10:15]
 unset xtics
 
 #Column meanings. 

@@ -35,7 +35,7 @@ BoxShape = parallelepiped
 %
 
 %KPointsGrid
-  8|8|8
+  16|16|16
 %
 
 kpts = 30
@@ -65,8 +65,8 @@ Smearing = 300./11700.*eV #300 K
 
 SCFCalculateStress=yes #computes stress after computation
 
-ExtraStates = 4
-ExtraStatesToConverge = 2
+ExtraStates = 8
+ExtraStatesToConverge = 4
 
 Output = dos + density + potential + geometry
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera

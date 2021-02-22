@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-set -e 
+# set -e 
 
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
@@ -102,7 +102,7 @@ done
 }
 
 plotExcitation () {
-for folder in $( list_folders | grep 'td.general' )
+for folder in $( list_folders | grep 'td.general' | grep 'SinSquared' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -112,8 +112,9 @@ do
         cd $folder
 	# screen -d -m ${OctopusSlabsSources}/02-Slab2D/compareNexcitedWithNeVariations.sh
 
-        if [ -e n_ex ]; then
-          echo "** Plotting the TD-ExcitedDensity results... $(pwd)" 
+        # if [ -e n_ex ]; then #NO LONGER NEED FOR THIS, energy file is enough.
+        if [ -e energy ]; then
+          echo "** Plotting the TD-combined n_exc, E(t) and J(t) results... $(pwd)" 
           if [[ $UseScreen ]]; then
             screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
@@ -208,9 +209,9 @@ plotBasicOutput #cleans up laser files also.
 echo "Plotting Excitation results..."
 plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-# plotHHG         #Generate the CSV files with HHG spectra. 
+plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
-plotLinearAbsorption
+# plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
 
 # for folder in $( list_folders | grep -v 'lambda' ) 
@@ -218,7 +219,7 @@ echo " Have fun with Database.csv and plotHHGspectra.py after this."
 #  prevFolder=$( pwd )
 #  cd $folder
 
-# echo "** Plotting nice figure for post-processed density for $(pwd)..."
+echo "** Plotting nice figure for post-processed density for $(pwd)..."
 ${QuantumLaPsources}/02-Slab2D/plotFinalQuantities.py
 
 #   cd $prevFolder > /dev/null

@@ -42,6 +42,7 @@ module load iimpi/2020a
 module load imkl/2020.0.166-iimpi-2020a
 export MKL_HOME=/apps/all/imkl/2020.0.166-iimpi-2020a #May 21st, 8:12am <derrien@fzu.cz> 
 module load libxc/4.3.4-intel-2020a
+export LIBXC_HOME=/apps/all/libxc/4.3.4-intel-2020a
 module load GSL/2.5-intel-2020a
 export GLS_HOME=/apps/all/GSL/2.5-intel-2020a
 module load FFTW/3.3.8-intel-2020a
@@ -86,7 +87,7 @@ autoreconf -i
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/home/tjyderrien/octopus.git/"
+   --prefix="/home/tjyderrien/octopus.clean/"
 
 #   --with-netcdf-prefix=$NETCDF_HOME \ #attempting in manual because this loads $NETCDF_HOME/lib not $NETCDF_HOME/lib64
 #    --with-fftw-prefix="$FFTW_HOME" \

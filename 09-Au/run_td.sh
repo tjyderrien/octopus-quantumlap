@@ -11,7 +11,7 @@ source $QuantumLaPsources/03-Bulk3D/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=32 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -41,6 +41,7 @@ GaugeVectorFieldAmplitude=${24}
 GaugeFieldDelayValue=${25}
 SmearingTe=${26}
 UseLinearResponse=${27}
+Relativistic=${28}
  
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -161,14 +162,21 @@ if [ ${UseLinearResponse} == 0 ]; then
     "PBE")
       FunctionalPath="-PBE"
       ;;
+    "PBEsol")
+      FunctionalPath="-PBEsol"
+      ;;
     *)
       echo "This functional was not planned. Modify run_td.sh."
       exit 1
       ;;
   esac
 
+  if [ ${Relativistic} == "yes" ]; then
+     RelativisticPath="-relativistic"
+  fi
+
   echo "Generating the folder name..."
-  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
+  export groundStatePath=${QuantumLaPruns}/09-Au/Au-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x${kPoints}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}${RelativisticPath}
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
@@ -259,7 +267,7 @@ echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
   fi
 
   if [ ${Functional} == "LDA" ]; then
-    echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
+    # echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp
     echo "PseudopotentialSet = pseudodojo_lda" >> inp
   fi
 
@@ -267,6 +275,23 @@ echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
     echo "XCFunctional = GGA_X_PBE + GGA_C_PBE" >> inp
     echo "PseudopotentialSet = pseudodojo_pbe" >> inp
   fi
+
+  if [ ${Functional} == "PBEsol" ]; then
+    echo "XCFunctional  = GGA_X_PBE_SOL + GGA_C_PBE_SOL" >> inp
+    echo "PseudopotentialSet = pseudodojo_pbesol" >> inp
+  fi
+
+  if [ ${Relativistic} == "yes" ]; then
+    echo "RelativisticCorrection = spin_orbit #default: non_relativistic" >> inp
+    echo "SpinComponents = non_collinear      #default: unpolarized." >> inp
+    if [ ${Functional} == "LDA" ]; then 
+        echo "TDStepsWithSelfConsistency = all_steps" >> inp #with self-consistent
+        # echo "FilterPotentials = filter_none" >> inp
+        # echo "TDPropagator = etrs" >> inp #and replace by etrs only. 
+    fi
+  fi
+
+
 # cd - >& /dev/null
 
 }
