@@ -46,7 +46,7 @@ DatabaseFile="Database.csv"
 # METHOD 1: accessing each subfolder. 
 def ParseAllFolders(): #{{{
 	for FolderName in glob.glob(path): #{{{ #NOTE: this takes everything available: not sorted.
-	    print Header+"** Info: entering folder: "+str(FolderName)+"\n"
+	    print(Header+"** Info: entering folder: "+str(FolderName)+"\n")
 	  
 	    ### METHOD 1: rebuilding database without choosing the order of the sequence.  
 	    filename = FolderName+"../inp"
@@ -57,8 +57,8 @@ def ParseAllFolders(): #{{{
 	    wavelength1_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaA = ")
 	    wavelength2_SI   = libPlotting.GetParameterValueFromInputFile(filename, "lambdaB = ") 
    
-	    print "Pulse duration 1 (s): "+str(PulseDuration_SI)
-	    print "Field amplitude 2 (V/m): "+str(Efield2_SI)
+	    print("Pulse duration 1 (s): "+str(PulseDuration_SI))
+	    print("Field amplitude 2 (V/m): "+str(Efield2_SI))
 	
 	    # NOTE: all of these data were already collected in the Database. Fetch them from database.  
 	    # If the run considers only single pulses
@@ -72,7 +72,7 @@ def ParseAllFolders(): #{{{
 	        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
 	        # Size of the spectrum? 
 	        HHG=np.asfarray(HHG)
-	        print "Size of HHG file: "+str(len(HHG))
+	        print("Size of HHG file: "+str(len(HHG)))
 	#        print HHG
 	#        print "Extracting 1 column: "
 	#        print HHG[:,1]
@@ -81,9 +81,9 @@ def ParseAllFolders(): #{{{
 	        # Add it as a line in table
 	        X=np.append(HHG[:,0], X) #HHG frequencies for 1 run
 	        Z=np.append(HHG[:,1], Z) #HHG amplitudes  for 1 run
-	        print counter
+	        print(counter)
 	        Y=np.append(counter*np.ones(len(HHG)), [Y]) #Y should contain the parameter we variate. If taking it all, we use a counter to represent them all as a simple stack for now.
-	        print Y
+	        print(Y)
 	        # Prepare the final table
 	        # Plot the intermediate picture
 	        # plt.figure()
@@ -94,7 +94,7 @@ def ParseAllFolders(): #{{{
         	del HHG
 	        counter+=1
 	    else: 
-	        print "** Info: Double pulses are ignored."
+	        print("** Info: Double pulses are ignored.")
 	#}}} #glob loop
 #}}}
     
@@ -127,7 +127,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     try: 
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
     except:
-        print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
+        print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
         exit()
 
     # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
@@ -141,18 +141,18 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
         FileLookUp="octopus-td."+str(runid_int)+".log"
         ListFound=glob.glob("*/*/"+FileLookUp)
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
-        print runid_folder
+        print(runid_folder)
         try:
             HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
         except:
-            print "** Error: Loading of HHG-Spectrum.csv failed." 
+            print("** Error: Loading of HHG-Spectrum.csv failed.") 
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
-        print "Size of HHG file: "+str(len(HHG))
+        print("Size of HHG file: "+str(len(HHG)))
 
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
-            print "** Info: interpolating..."
+            print("** Info: interpolating...")
 #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1]) #does not work very well. Sure, they are not many points in input. 
             HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='cubic')
             HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
@@ -167,8 +167,8 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
             Z=np.append(HHG[:,1],Z)
             Y=np.append(np.multiply(1E6*wavelengths1[JobID],np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
-        print str(int(1E9*wavelengths1[JobID]))+" nm"
-        print str(h*c/wavelengths1[JobID]/e)+" eV"
+        print(str(int(1E9*wavelengths1[JobID]))+" nm")
+        print(str(h*c/wavelengths1[JobID]/e)+" eV")
         del HHG
 
     #### ======== COMMON PART 
@@ -205,10 +205,10 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     filename="HHGspectrum-"+str(int(Efield))+"-HHGamples"+str(HHG_samples)
 
     ## EXPORT to external file.
-    print "** Info: Exporting to file "+filename+".csv"
+    print("** Info: Exporting to file "+filename+".csv")
     ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
-    print "** Preparing plot..."
+    print("** Preparing plot...")
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
     return 0
 #}}}
@@ -239,7 +239,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     try: 
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
     except:
-        print "Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2))
+        print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
         exit()
 
     # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
@@ -252,20 +252,20 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         runid_int = int(runid[JobID])
         FileLookUp="octopus-td."+str(runid_int)+"*.log"
         ListFound=glob.glob("*/*/"+FileLookUp)
-        print FileLookUp
+        print(FileLookUp)
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
-        print runid_folder
+        print(runid_folder)
         try:
             HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
         except:
-            print "** Error: Loading of HHG-Spectrum.csv failed." 
+            print("** Error: Loading of HHG-Spectrum.csv failed.") 
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
-        print "Size of HHG file: "+str(len(HHG))
+        print("Size of HHG file: "+str(len(HHG)))
 
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
-            print "** Info: interpolating..."
+            print("** Info: interpolating...")
 #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
             HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero'
 
@@ -278,15 +278,15 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
             #Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically. 
 #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
-            print "** Debug: "+str(CEP1[JobID]*180./np.pi)
-            print "** Debug: checking length of new mesh: "+str(np.shape(HHG_omega_new))
+            print("** Debug: "+str(CEP1[JobID]*180./np.pi))
+            print("** Debug: checking length of new mesh: "+str(np.shape(HHG_omega_new)))
             Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new))),[Y])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
             #Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
             Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG[:,0]))),[Y])
-        print str(int(180./np.pi * CEP1[JobID]))+" deg."
+        print(str(int(180./np.pi * CEP1[JobID]))+" deg.")
         #print str(h*c/wavelengths1[JobID]/e)+" eV"
         del HHG
 
@@ -324,11 +324,11 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))
     
     ## EXPORT to external file.
-    print "** Info: Exporting to file "+filename+".csv"
+    print("** Info: Exporting to file "+filename+".csv")
     ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
-    print "** Preparing plot..."
+    print("** Preparing plot...")
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
     return 0
 #}}}
@@ -347,7 +347,7 @@ def plotHHG_batch_CEP():
                 try: 
                     PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
                 except:
-                    print Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm."
+                    print(Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
                     continue
 
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.

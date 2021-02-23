@@ -84,7 +84,7 @@ import sys
 isCLI = True
 if 'VisItException' not in dir():
     if sys.version_info[1] < 5:
-        print "\nRequires Python version 2.5 or greater\n"
+        print("\nRequires Python version 2.5 or greater\n")
         sys.exit()
     isCLI=False
 
@@ -92,12 +92,12 @@ if 'VisItException' not in dir():
 # if run Launch() from CLI). Launch() is required to start the Viewer and
 # import the rest of the API.
 if not isCLI:
-    print
-    print "Running VisIt's script from Python interpreter"
-    print
-    print "Insert path to the 'site-packages' installation directory"
-    visitpath = raw_input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
-    winornot = raw_input("Do you want to use a plotting window? (y/n) \n")
+    print()
+    print("Running VisIt's script from Python interpreter")
+    print()
+    print("Insert path to the 'site-packages' installation directory")
+    visitpath = input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
+    winornot = input("Do you want to use a plotting window? (y/n) \n")
     sys.path.append(visitpath)
     from visit import *
     if (winornot=="y"):
@@ -120,27 +120,27 @@ start_script = time.time()
 # Setting initial variables or using default input
 subprocess.call(["clear", ""])
 
-print " *** Welcome to Azulene3D.py, a visualization script for VisIt ***"
-print ""
-print "Description: This script creates a set of 3D plots of a laser"
-print "             pulse propagating towards Azulene C10H8."
-print ""
-print "Enter your choice:"
-print "1- Use default value for the setup variables"
-print "2- Specify the location of the file containing the list of input"
-print "3- Specify single inputs"
-answer = raw_input("\n")
+print(" *** Welcome to Azulene3D.py, a visualization script for VisIt ***")
+print("")
+print("Description: This script creates a set of 3D plots of a laser")
+print("             pulse propagating towards Azulene C10H8.")
+print("")
+print("Enter your choice:")
+print("1- Use default value for the setup variables")
+print("2- Specify the location of the file containing the list of input")
+print("3- Specify single inputs")
+answer = input("\n")
 
 if (answer=="1"):
     fileex = os.path.exists(inputdata)
     if (fileex==False):
-        print "File do not exists!"
+        print("File do not exists!")
         quit()
     with open(inputdata, 'r') as infile:
         indata = infile.read().split('\n')
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
     molzoom = 1.
     savename  = 'density'
@@ -148,82 +148,82 @@ if (answer=="1"):
     moviespeed = '50'
     subprocess.call(["clear", ""])
 elif (answer=="2"):
-    print "Enter full path to the file containing the list of input:"
-    inputdata = raw_input("(e.g: /home/user/inputdata.txt)\n")
+    print("Enter full path to the file containing the list of input:")
+    inputdata = input("(e.g: /home/user/inputdata.txt)\n")
     fileex = os.path.exists(inputdata)
     if (fileex==False):
-        print "File does not exists!"
+        print("File does not exists!")
         quit()
     with open(inputdata, 'r') as infile:
         indata = infile.read().split('\n')
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    outdir = input("Enter output directory: (press Enter for current directory)\n")
     if (len(outdir)==0):
         outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
     elif (outdir[len(outdir)-1]!="/"):
         outdir=outdir+"/"
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
-    molzoom = raw_input("Zoom for the molecule (default is 1):\n")
+    molzoom = input("Zoom for the molecule (default is 1):\n")
     if (len(molzoom)==0):
         molzoom = 1.
     else:
         molzoom = float(molzoom)
-    savename = raw_input("Enter name for output images:\n")
+    savename = input("Enter name for output images:\n")
     if (len(savename)==0):
         savename = 'density'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    print("Enter name for output movie with extension: (press Enter to skip movie creation)")
+    moviename = input("You can choose between .wmv, .mpg and .mov file formats\n")
     if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+        moviespeed = input("Set movie speed (1 fast - 100 slow)\n")
     subprocess.call(["clear", ""])
 elif (answer=="3"):
-    inputdir = raw_input("Enter full path to the directory containing the input timesteps:\n")
+    inputdir = input("Enter full path to the directory containing the input timesteps:\n")
     if (inputdir[len(inputdir)-1]!="/"):
         inputdir=inputdir+"/"
-    inputstart = raw_input("Enter the name of the first input (e.g. td.0000000/):\n")
+    inputstart = input("Enter the name of the first input (e.g. td.0000000/):\n")
     if (inputstart[len(inputstart)-1]!="/"):
         inputstart=inputstart+"/"
-    inputend = raw_input("Enter the name of the last input (e.g. td.0030000/):\n")
+    inputend = input("Enter the name of the last input (e.g. td.0030000/):\n")
     if (inputend[len(inputend)-1]!="/"):
         inputend=inputend+"/"
-    print "Note that we assume that each input directory contains"
-    print "a elf_rs.vtk, a geometry.xyz and a maxwell_e_field-[x,y,z].vtk file"
-    inputstride = raw_input("Enter the timestep distance between inputs (e.g. 15):\n")
+    print("Note that we assume that each input directory contains")
+    print("a elf_rs.vtk, a geometry.xyz and a maxwell_e_field-[x,y,z].vtk file")
+    inputstride = input("Enter the timestep distance between inputs (e.g. 15):\n")
     if (int(inputstride)==0):
         totinput=1
     else:
         totinput=(int( inputend[len(inputend)-8:len(inputend)-1] )-int( inputstart[len(inputstart)-8:len(inputstart)-1] ))/int(inputstride) +1
     indata = [None]*(totinput)
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    outdir = input("Enter output directory: (press Enter for current directory)\n")
     if (len(outdir)==0):
         outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
     elif (outdir[len(outdir)-1]!="/"):
         outdir=outdir+"/"
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
-    molzoom = raw_input("Zoom for the molecule (default is 1):\n")
+    molzoom = input("Zoom for the molecule (default is 1):\n")
     if (len(molzoom)==0):
         molzoom = 1.
     else:
         molzoom = float(molzoom)
-    savename = raw_input("Enter name for output images:\n")
+    savename = input("Enter name for output images:\n")
     if (len(savename)==0):
         savename = 'azul'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    print "Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    print("Enter name for output movie with extension: (press Enter to skip movie creation)")
+    print("Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie")
+    moviename = input("You can choose between .wmv, .mpg and .mov file formats\n")
     if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+        moviespeed = input("Set movie speed (1 fast - 100 slow)\n")
     subprocess.call(["clear", ""])
     for i in range(0,totinput):
         step=int( inputstart[len(inputstart)-8:len(inputstart)-1] )+int(inputstride)*i
         indata[i]=inputdir + inputstart[0:len(inputend)-8] +"{0:07d}".format(step)+"/"
 else:
-    print "Value not recognized."
+    print("Value not recognized.")
     quit()
 
 # Checking if current directory coincides with output directory
@@ -233,43 +233,43 @@ if (currentpath!=outdir):
     changedir=True
 
 # Checking if input files exist
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 for i in range(0,len(indata)):
     direx = os.path.exists(indata[i])
     if (direx==False):
-        print "Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n"
+        print("Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n")
         indata[i]=None
 
 # Removing empty lines
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 
 # Check if there are still input files available
 if (len(indata)==0):
-    print "Total number of input files is 0!"
-    print "Please check the paths and the name of the inputs"
-    print ""
-    print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("Total number of input files is 0!")
+    print("Please check the paths and the name of the inputs")
+    print("")
+    print("Note that the script will continue in case you want to produce a video with old images")
+    press = input("Press enter to continue or type \"q\" to quit\n")
     if (press=='q'):
         quit()
 
 # Summary of setup variables
-print "Summary of the setup variables:\n"
-print "-Total number of input: ", len(indata)
+print("Summary of the setup variables:\n")
+print("-Total number of input: ", len(indata))
 if (len(indata)!=0):
-    print "-First input: ", indata[0]
+    print("-First input: ", indata[0])
 if (len(indata)!=0):
-    print "-Last input:  ", indata[len(indata)-1]
-print "-Output directory: ", outdir
-print "-Molecule zoom: ", molzoom
-print "-Images name: ", savename+"####.png"
+    print("-Last input:  ", indata[len(indata)-1])
+print("-Output directory: ", outdir)
+print("-Molecule zoom: ", molzoom)
+print("-Images name: ", savename+"####.png")
 if (len(moviename)==0):
-    print "-Movie file will not be created"
+    print("-Movie file will not be created")
 else:
-    print "-Movie file "+moviename+" will be created"
-    print "-Movie speed: ", moviespeed
-print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("-Movie file "+moviename+" will be created")
+    print("-Movie speed: ", moviespeed)
+print("")
+press = input("Press enter to continue or type \"q\" to quit\n")
 if (press=='q'):
     quit()
 subprocess.call(["clear", ""])
@@ -476,13 +476,13 @@ for i in range(0,len(indata)):
     CloseDatabase(indensityvtk)
 
     # Estimating remaining time
-    print "Time left (sec): ",((time.time()-imgtstart-(zoomtend-zoomtstr))/(i+1))*(len(indata)-(i+1))
+    print("Time left (sec): ",((time.time()-imgtstart-(zoomtend-zoomtstr))/(i+1))*(len(indata)-(i+1)))
 
 # End of the loop over the input files
 
 imgtend = time.time()
 subprocess.call(["clear", ""])
-print "Creation of the images completed."
+print("Creation of the images completed.")
 
 # Movie creation
 if (len(moviename)!=0):
@@ -494,26 +494,26 @@ if (len(moviename)!=0):
 
 
 # Reporting working time
-print "\n"
-print " *** Time statistics ***"
+print("\n")
+print(" *** Time statistics ***")
 if (len(indata)!=0):
-    print "Images creation time:"
-    print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
-    print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
+    print("Images creation time:")
+    print(("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr))))
+    print(( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) ))
     if (molzoom>1.):
-        print ""
-        print "Additional time for creating the zooming:"
-        print("--- %s seconds ---" % (zoomtend-zoomtstr))
-    print ""
-print "Video creation time:"
+        print("")
+        print("Additional time for creating the zooming:")
+        print(("--- %s seconds ---" % (zoomtend-zoomtstr)))
+    print("")
+print("Video creation time:")
 if (len(moviename)!=0):
-    print("--- %s seconds ---" % (vidtend - vidtstart))
+    print(("--- %s seconds ---" % (vidtend - vidtstart)))
 else:
-    print"--- Not Available ---"
-print ""
-print "Script total execution time:"
-print("--- %s seconds ---" % (time.time() - start_script))
-print ""
+    print("--- Not Available ---")
+print("")
+print("Script total execution time:")
+print(("--- %s seconds ---" % (time.time() - start_script)))
+print("")
 
 quit()
 
