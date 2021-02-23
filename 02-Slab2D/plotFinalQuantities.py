@@ -64,7 +64,13 @@ mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotFinalQuantities] "
 
-EnablePeakFinder           = 1
+# EnablePeakFinder           = 0 #TODO: base it on presence of file in code root. Easier for configuration.
+myhost = os.uname()[1]
+print(myhost)
+if("biatri-srv" in myhost):
+    EnablePeakFinder       = 0 #valid for BIATRI-SRV
+else: 
+    EnablePeakFinder       = 1
 ShowFinalPlot              = 0
 
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, 'NexcGrad': 5}
