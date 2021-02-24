@@ -34,6 +34,12 @@ case "${ComputerName}" in
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
+
+        ${IBM})
+                export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
+                export QuantumLaPruns="/home/tjyderrien/octopus.data"
+
+        ;;
         *)
             ## DO NOTHING
 	    echo "Case not covered."
