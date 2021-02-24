@@ -11,6 +11,7 @@ source ${LocalFolder}/../machines.env
 # Because of SSH transfers, this file must not emit any return. 
 
 CheckComputerName > /dev/null
+echo "[octopus-slabs: vars.sh] Computer is : $ComputerName"
 LoadEnvLibraries  > /dev/null
 
 case "${ComputerName}" in 
@@ -20,7 +21,7 @@ case "${ComputerName}" in
 		echo "Stored variables for local laptop."
 	;;
 
-	${PrometheusLogin}*)
+	*${PrometheusLogin}*)
 		export QuantumLaPruns=/net/scratch/projects/prace/pr2c0043
 		export QuantumLaPsources=$HOME/octopus-slabs
 	;;
@@ -35,14 +36,22 @@ case "${ComputerName}" in
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
 
+
         ${IBM})
                 export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
                 export QuantumLaPruns="/home/tjyderrien/octopus.data"
 
         ;;
+
+        ${BarboraLogin} | ${BarboraRuns})
+                export QuantumLaPsources=/home/tjyderrien/octopus-slabs
+                export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
+        ;;
+        
+
         *)
             ## DO NOTHING
-	    echo "Case not covered."
+	    echo "[octopus-slabs: vars.sh] Case not covered. Computer: ${ComputerName}"
         ;;
 
 

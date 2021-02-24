@@ -55,12 +55,12 @@ def VolumePerPoint_Log(Filename): #{{{
       position_start = line.find('volume/point')
       result = line[position_start:];
       #print Header+"** Debug info: "+str(result) #valid
-  print Header+"** Info: filtering the right hand side of the matching string: "+str(result)
+  print(Header+"** Info: filtering the right hand side of the matching string: "+str(result))
   result_filtered = result
   result_filtered = result_filtered.replace('volume/point','')
   result_filtered = result_filtered.replace('=','')
   result_filtered = result_filtered.replace('[b^3]','')
-  print Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered)
+  print(Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered))
   VolPerPoint = float(result_filtered)
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
@@ -81,7 +81,7 @@ def VacuumThickness_inp(Filename): #{{{
   elif(float(IsBulkString[20:23])==3): ##Bulk case
     VacuumThickness = 0.
   else: 
-    print "** Error: VacuumThickness_inp(): Cannot found PeriodicDimensions in inp."
+    print("** Error: VacuumThickness_inp(): Cannot found PeriodicDimensions in inp.")
     exit()
   return VacuumThickness
 #}}}
@@ -91,9 +91,9 @@ def SampleAreaXY(Filename):#{{{
   Material = loadtxt(Filename+"Si.xyz", dtype='str', delimiter=' ', skiprows=2)
 
   # Calcule the volume of the cell
-  X = np.asfarray(filter(None,Material[:,1]))
-  Y = np.asfarray(filter(None,Material[:,2]))
-  Z = np.asfarray(filter(None,Material[:,3]))
+  X = np.asfarray([_f for _f in Material[:,1] if _f])
+  Y = np.asfarray([_f for _f in Material[:,2] if _f])
+  Z = np.asfarray([_f for _f in Material[:,3] if _f])
 
   area = ( X.max() - X.min() ) * ( Y.max() - Y.min() )
 
@@ -123,7 +123,7 @@ def VolumeOfSupercell_Log(Filename): #{{{
   # Find there the latest LOG files.
   import glob
   newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
-  print Header+"** Info: Opening LOG file:"+str(newest)
+  print(Header+"** Info: Opening LOG file:"+str(newest))
   #Open the log file
   searchfile = open(newest, "r")
   
@@ -136,12 +136,12 @@ def VolumeOfSupercell_Log(Filename): #{{{
       break;
     else: 
       result = '0'
-  print Header+"** Info: Filtering the volume capture in LOG file."
+  print(Header+"** Info: Filtering the volume capture in LOG file.")
   result_filtered = result.replace('Cell volume', '')
   result_filtered = result_filtered.replace('[b^3]','')
   result_filtered = result_filtered.replace(' ', '')
   result_filtered = result_filtered.replace('=', '')
-  print Header+"** Info: Filtered the volume capture."
+  print(Header+"** Info: Filtered the volume capture.")
   SuperCellVolume = float(result_filtered) #BUG: fails on Cell volume =         90106.3068 [b^3]
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
@@ -166,9 +166,9 @@ def VolumeXYZ(Filename): #{{{
   Material = loadtxt(Filename+"Si.xyz", dtype='str', delimiter=' ', skiprows=2)
 
   # Calcule the volume of the cell
-  X = np.asfarray(filter(None, Material[:,1]))
-  Y = np.asfarray(filter(None, Material[:,2]))
-  Z = np.asfarray(filter(None, Material[:,3]))
+  X = np.asfarray([_f for _f in Material[:,1] if _f])
+  Y = np.asfarray([_f for _f in Material[:,2] if _f])
+  Z = np.asfarray([_f for _f in Material[:,3] if _f])
 
   volume = ( X.max() - X.min() ) * ( Y.max() - Y.min() ) * ( Z.max() - Z.min() )
 

@@ -167,12 +167,12 @@ def AddTracerObject(filepath, time): #{{{
   
   n_curves  = 1
 
-  curves = [PropertyTree() for i in xrange(n_curves)]
+  curves = [PropertyTree() for i in range(n_curves)]
   curves[0].file = filepath
   curves[0].index = 0
 
   p=PropertyTree()
-  p.plots = [PropertyTree() for i in xrange(n_curves)]
+  p.plots = [PropertyTree() for i in range(n_curves)]
   p.plots[0].type = "line"
   p.plots[0].curve = curves[0]
   tracer_line = PropertyTree()
@@ -319,7 +319,7 @@ def plot2Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     l1s_delete.Delete()
     DeleteActiveAnnotationObjects()
   except:
-    print "l1s removal failed."
+    print("l1s removal failed.")
   l1s = CreateAnnotationObject("Text2D") #TODO: transparency is kept from one picture to another, making writings not readable
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
@@ -478,7 +478,7 @@ def plot2Dcontour(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0., 
     l1s_delete.Delete()
     DeleteActiveAnnotationObjects()
   except:
-    print "l1s removal failed."
+    print("l1s removal failed.")
   l1s = CreateAnnotationObject("Text2D")
   l1s.text = "step # "+step
   l1s.position = (0.05, 0.05)
@@ -645,8 +645,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
    
   # If previous annotation already existed, we remove it. 
   l1s_list = GetAnnotationObjectNames()
-  print "** Annotation object list names: "
-  print l1s_list
+  print("** Annotation object list names: ")
+  print(l1s_list)
   #Adding a label for the time step
   #try: 
   l1s = GetAnnotationObject(l1s_list[0])
@@ -657,8 +657,8 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
     #print l1s_list
   if (axis=="X"):
     l1s = CreateAnnotationObject("Text2D") #TODO only once
-    print "Annotation Object"
-    print l1s
+    print("Annotation Object")
+    print(l1s)
     # TODO: Use GetAnnotationObject(GetPlotList().GetPlots(0).plotName) to recall it instead of creating new ones. 
     l1s.text = "t="+step+" fs" #We dont care about auto timestep, we need an absolute time (or step * dtOutput).
     l1s.position = (0.05, 0.95)
@@ -670,7 +670,7 @@ def plot3Ddifference(inxyz, indensityvtk, WhatToPlot, step, caption=1, OriginX=0
   legend1.active = 1
   
   legend = GetAnnotationObject(GetPlotList().GetPlots(1).plotName)
-  print legend
+  print(legend)
   legend.xScale = 1.5
   legend.yScale = legend.xScale
   legend.drawTitle = 0

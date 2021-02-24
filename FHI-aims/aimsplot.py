@@ -33,11 +33,11 @@ spline_factor = 10		# If spline interpolation turned on, the sampling factor (1 
 
 ########################
 
-print "Plotting bands for FHI-aims!"
-print "============================"
-print
+print("Plotting bands for FHI-aims!")
+print("============================")
+print()
 
-print "Reading lattice vectors from geometry.in ..."
+print("Reading lattice vectors from geometry.in ...")
 
 matplotlib.rcParams['lines.linewidth'] = default_line_width
 
@@ -62,17 +62,17 @@ for line in file("geometry.in"):
     if words[0] == "lattice_vector":
         if len(words) != 4:
             raise Exception("geometry.in: Syntax error in line '"+line+"'")
-        latvec += [ array(map(float,words[1:4])) ]
+        latvec += [ array(list(map(float,words[1:4]))) ]
 
 if len(latvec) != 3:
     raise Exception("geometry.in: Must contain exactly 3 lattice vectors")
 
 latvec = asarray(latvec)
 
-print "Lattice vectors:"
+print("Lattice vectors:")
 for i in range(3):
-    print latvec[i,:]
-print
+    print(latvec[i,:])
+print()
 
 #Calculate reciprocal lattice vectors                                                                                                
 rlatvec = []
@@ -83,14 +83,14 @@ rlatvec.append(array(2*pi*cross(latvec[0,:],latvec[1,:])/volume))
 rlatvec = asarray(rlatvec)
 
 #rlatvec = inv(latvec) Old way to calculate lattice vectors
-print "Reciprocal lattice vectors:"
+print("Reciprocal lattice vectors:")
 for i in range(3):
-    print rlatvec[i,:]
-print
+    print(rlatvec[i,:])
+print()
 
 ########################
 
-print "Reading information from control.in ..."
+print("Reading information from control.in ...")
 
 PLOT_BANDS = False
 PLOT_DOS = False
@@ -121,8 +121,8 @@ for line in file("control.in"):
         if len(words) < 9 or len(words) > 11:
             raise Exception("control.in: Syntax error in line '"+line+"'")
         PLOT_BANDS = True
-        start = array(map(float,words[2:5]))
-        end = array(map(float,words[5:8]))
+        start = array(list(map(float,words[2:5])))
+        end = array(list(map(float,words[5:8])))
         length = norm(dot(rlatvec,end) - dot(rlatvec,start))
         band_totlength += length
         npoint = int(words[8])
@@ -172,7 +172,7 @@ elif PLOT_DOS:
 #######################
 
 if PLOT_BANDS:
-    print "Plotting %i band segments..."%len(band_segments)
+    print("Plotting %i band segments..."%len(band_segments))
 
     if output_x_axis:
         ax_bands.axhline(0,color=(1.,0.,0.))
@@ -208,9 +208,9 @@ if PLOT_BANDS:
             for line in file(fname):
                 words = line.split()
                 idx += [ int(words[0]) ]
-                kvec += [ map(float,words[1:4]) ]
-                band_occupations += [ map(float,words[4::2]) ]
-                band_energies += [ map(float,words[5::2]) ]
+                kvec += [ list(map(float,words[1:4])) ]
+                band_occupations += [ list(map(float,words[4::2])) ]
+                band_energies += [ list(map(float,words[5::2])) ]
 		# Apply energy offset if specified to all band energies just read in
 		band_energies[-1] = [x - energy_offset for x in band_energies[-1]]
             assert(npoint) == len(idx)
@@ -235,7 +235,7 @@ if PLOT_BANDS:
             l = "$\\"+l+"$"
         tickl += [ l ]
     for x, l in zip(tickx, tickl):
-        print "| %8.3f %s" % (x, repr(l))
+        print("| %8.3f %s" % (x, repr(l)))
 
     ax_bands.set_xlim(labels[0][0],labels[-1][0])
     ax_bands.set_xticks(tickx)
@@ -257,7 +257,7 @@ if PLOT_DOS:
             dos[-1,...] += 0.25*dos_old[-1,...]
         return dos
 
-    print "Plotting DOS"
+    print("Plotting DOS")
 
 #    if PLOT_DOS_ATOM:
 #    elif PLOT_DOS_SPECIES:
@@ -280,7 +280,7 @@ if PLOT_DOS:
                 f.readline()
                 val_ss = []
                 for line in f:
-                    val_ss += [ map(float,line.split()) ]
+                    val_ss += [ list(map(float,line.split())) ]
                 val_s += [ val_ss ]
             val_s = asarray(val_s).transpose(1,0,2)
 	    # Here val_s is a NumPy data structures, so to apply offset
@@ -374,13 +374,13 @@ else:
 matplotlib.rcParams['savefig.dpi'] =  print_resolution
 matplotlib.rcParams['font.size'] = font_size
 
-print
-print "The resolution for saving figures is set to ", matplotlib.rcParams['savefig.dpi'], " dpi." 
+print()
+print("The resolution for saving figures is set to ", matplotlib.rcParams['savefig.dpi'], " dpi.") 
 
 if should_spline:
-	print
-	print "Spine interpolation has been used on the band structure, with an interpolation factor of ", spline_factor
-	print "You should check this band structure against the un-interpolated version, as splining may cause some small artifacts not present in the original band structure." 
+	print()
+	print("Spine interpolation has been used on the band structure, with an interpolation factor of ", spline_factor)
+	print("You should check this band structure against the un-interpolated version, as splining may cause some small artifacts not present in the original band structure.") 
 
 def on_q_exit(event):
     if event.key == "q": sys.exit(0)
