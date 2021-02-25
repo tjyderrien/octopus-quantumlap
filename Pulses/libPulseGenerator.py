@@ -92,15 +92,15 @@ def printCurrentParameters(ParameterTable): #{{
   duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ParameterTable[1, :]
   
   tabValue=20
-  print ("=== PULSE 1 ==="+"\t\t\t"+"=== PULSE 2 ===").expandtabs(tabValue)
-  print ("QUANTITY"+"\t"+"VALUE"+"\t"+"UNIT"+"\t"+"QUANTITY"+"\t"+"VALUE"+"\t"+"UNIT").expandtabs(tabValue)
-  print ("Wavelength1"+"\t"+str(wavelength1)+"\t"+" m"+"\t"+"Wavelength2"+"\t"+str(wavelength2)+"\t"+" m.").expandtabs(tabValue)
-  print ("Phase1       "+"\t"+str(float(phase1)*180./pi)+"\t"+"(deg)"+"\t"+"Phase2"+"\t"+str(float(phase2)*180./pi)+"\t"+"(deg)").expandtabs(tabValue)
-  print ("Polarization1"+"\t"+str(polarization1)+"\t"+"\t"+"Polarization2"+"\t"+str(polarization2)).expandtabs(tabValue)
-  print ("Duration1"+"\t"+str(duration1)+"\t"+" s."+"\t"+"Duration2"+"\t"+str(duration2)+"\t"+" s.").expandtabs(tabValue)
-  print ("Amplitude1"+"\t"+str(amplitude1)+"\t"+" V/m"+"\t"+"Amplitude2"+"\t"+str(amplitude2)+"\t"+" V/m.").expandtabs(tabValue)
-  print ("Delay1"+"\t"+str(delay1)+"\t"+" s"+"\t"+"Delay2"+"\t"+str(delay2)+"\t"+" s").expandtabs(tabValue)
-  print ""
+  print(("=== PULSE 1 ==="+"\t\t\t"+"=== PULSE 2 ===").expandtabs(tabValue))
+  print(("QUANTITY"+"\t"+"VALUE"+"\t"+"UNIT"+"\t"+"QUANTITY"+"\t"+"VALUE"+"\t"+"UNIT").expandtabs(tabValue))
+  print(("Wavelength1"+"\t"+str(wavelength1)+"\t"+" m"+"\t"+"Wavelength2"+"\t"+str(wavelength2)+"\t"+" m.").expandtabs(tabValue))
+  print(("Phase1       "+"\t"+str(float(phase1)*180./pi)+"\t"+"(deg)"+"\t"+"Phase2"+"\t"+str(float(phase2)*180./pi)+"\t"+"(deg)").expandtabs(tabValue))
+  print(("Polarization1"+"\t"+str(polarization1)+"\t"+"\t"+"Polarization2"+"\t"+str(polarization2)).expandtabs(tabValue))
+  print(("Duration1"+"\t"+str(duration1)+"\t"+" s."+"\t"+"Duration2"+"\t"+str(duration2)+"\t"+" s.").expandtabs(tabValue))
+  print(("Amplitude1"+"\t"+str(amplitude1)+"\t"+" V/m"+"\t"+"Amplitude2"+"\t"+str(amplitude2)+"\t"+" V/m.").expandtabs(tabValue))
+  print(("Delay1"+"\t"+str(delay1)+"\t"+" s"+"\t"+"Delay2"+"\t"+str(delay2)+"\t"+" s").expandtabs(tabValue))
+  print("")
   
 #}}
 

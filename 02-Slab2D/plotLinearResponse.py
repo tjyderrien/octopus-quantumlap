@@ -117,10 +117,10 @@ plot12 += [plot_current_probe_damped]
     
 current_probe_Fourier_AU       = np.fft.fft(current_probe_X_AU_damped)
 current_probe_Fourier_SI       = Current_AU_to_SI(current_probe_Fourier_AU)
-print "Max of J_p (a.u.)="
-print np.max(current_probe_Fourier_AU)
-print "Max of J_p (S.I.)="
-print np.max(current_probe_Fourier_SI)
+print("Max of J_p (a.u.)=")
+print(np.max(current_probe_Fourier_AU))
+print("Max of J_p (S.I.)=")
+print(np.max(current_probe_Fourier_SI))
 current_probe_Fourier_AU_omega = 2.*pi*np.fft.fftfreq(maxSize,d=TimeStep) #AU
 current_probe_Fourier_SI_omega = 2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.)) #SI
 # c_SI = Velocity_AU_to_SI(c_AU)
@@ -146,13 +146,13 @@ try:
   GaugeFieldDelay      = GaugeFieldDelay_tmp[1] #rhs
 except: 
   GaugeFieldDelay=0e0
-  print(Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp))
+  print((Header+"Warning: Selection of r.h.s. failed in INP. No data in:"+str(GaugeFieldDelay_tmp)))
 
 if(FilterBeforeKick):    
 	KickInstant=int(Time_SI_to_AU(float(GaugeFieldDelay))/TimeStep+1) #This removes the signal before the kick
 else:
 	KickInstant=0 #keeps the kick: no filtering
-print(Header+"** Info: Kick was performed at instant #"+str(KickInstant))
+print((Header+"** Info: Kick was performed at instant #"+str(KickInstant)))
 
 A1probe_X_AU    = A1tot_X_AU[KickInstant:] #-Asource_X_AU[:len(A1tot_X_AU)] + A1tot_X_AU
 A1probe_Y_AU    = A1tot_Y_AU[KickInstant:] #-Asource_Y_AU[:len(A1tot_Y_AU)] + A1tot_Y_AU
@@ -174,10 +174,10 @@ plot12 += [plot_current_probe_damped]
 # 7. Fourier transform of the E_field
 E_probe_Fourier_AU=np.fft.fft(E_probe_X_AU_damped)
 E_probe_Fourier_SI=Field_AU_to_SI(E_probe_Fourier_AU)
-print "Max of E_p (a.u.)="
-print np.max(E_probe_Fourier_AU)
-print "Max of E_p (S.I.)="
-print np.max(E_probe_Fourier_SI)
+print("Max of E_p (a.u.)=")
+print(np.max(E_probe_Fourier_AU))
+print("Max of E_p (S.I.)=")
+print(np.max(E_probe_Fourier_SI))
 E_probe_Fourier_AU_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep)
 E_probe_Fourier_SI_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
 # E_probe_Fourier_AU_duration=1./E_probe_Fourier_AU_omega
@@ -188,27 +188,27 @@ E_probe_Fourier_SI_omega=2.*pi*np.fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1
 conductivity_AU = np.divide(current_probe_Fourier_AU[:len(E_probe_Fourier_AU)], E_probe_Fourier_AU)
 conductivity_SI = np.divide(current_probe_Fourier_SI[:len(E_probe_Fourier_SI)], E_probe_Fourier_SI)
 
-print "Max of conductivity (AU)="
-print np.max(conductivity_AU)
-print "Max of conductivity (SI)="
-print np.max(conductivity_SI)
+print("Max of conductivity (AU)=")
+print(np.max(conductivity_AU))
+print("Max of conductivity (SI)=")
+print(np.max(conductivity_SI))
 
 
-print "Range of frequencies (AU)="
-print E_probe_Fourier_AU_omega
-print "Range of frequencies (SI)="
-print E_probe_Fourier_SI_omega
+print("Range of frequencies (AU)=")
+print(E_probe_Fourier_AU_omega)
+print("Range of frequencies (SI)=")
+print(E_probe_Fourier_SI_omega)
 # 9. Deduce the dielectric property from conductivity. #returns something close to 1E10 a.u. Convert to SI before!
 # permittivity_AU = 1. + 4.*np.pi * 1.j * np.divide(conductivity_AU, current_probe_Fourier_AU_omega[:len(conductivity_AU)]) #atomic units. TODO: this should be done in SI, if I understand right. 
 permittivity_AU = 1. + 4.*np.pi * 1.j * np.divide(conductivity_AU, E_probe_Fourier_AU_omega[:len(conductivity_AU)])
 permittivity_SI = 1. + 1.j / epsilon_0 * np.divide(conductivity_SI, E_probe_Fourier_SI_omega[:len(conductivity_SI)])
 
-print "Dielectric permittivity (AU)="
-print np.abs(np.real(permittivity_AU))
-print np.abs(np.imag(permittivity_AU))
-print "Dielectric permittivity (SI)="
-print np.abs(np.real(permittivity_SI))
-print np.abs(np.imag(permittivity_SI))
+print("Dielectric permittivity (AU)=")
+print(np.abs(np.real(permittivity_AU)))
+print(np.abs(np.imag(permittivity_AU)))
+print("Dielectric permittivity (SI)=")
+print(np.abs(np.real(permittivity_SI)))
+print(np.abs(np.imag(permittivity_SI)))
 
 # 10. Plotting
 Xaxis =  current_probe_Fourier_SI_omega[:maxHHG]*hbar/e #energy of the harmonics

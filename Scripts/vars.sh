@@ -35,11 +35,20 @@ case "${ComputerName}" in
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
+
+
+        ${IBM})
+                export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
+                export QuantumLaPruns="/home/tjyderrien/octopus.data"
+
+        ;;
+
         ${BarboraLogin} | ${BarboraRuns})
                 export QuantumLaPsources=/home/tjyderrien/octopus-slabs
                 export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
         ;;
         
+
         *)
             ## DO NOTHING
 	    echo "[octopus-slabs: vars.sh] Case not covered. Computer: ${ComputerName}"

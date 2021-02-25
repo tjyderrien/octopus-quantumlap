@@ -15,9 +15,9 @@ else:
     m = 1 
 #    L = 30.
 # lattice vectors
-print "lattice_vector  %.16f  %.16f  %.16f" % (m*D, 0., 0.) #x
-print "lattice_vector  %.16f  %.16f  %.16f" % (0, m*D, 0.)  #y
-print "lattice_vector  %.16f  %.16f  %.16f" % (0, 0., n*A+L_vac)  #z
+print("lattice_vector  %.16f  %.16f  %.16f" % (m*D, 0., 0.)) #x
+print("lattice_vector  %.16f  %.16f  %.16f" % (0, m*D, 0.))  #y
+print("lattice_vector  %.16f  %.16f  %.16f" % (0, 0., n*A+L_vac))  #z
 
 C = A / (2.*sqrt(2.))
 Bohr = 0.52917721067 #Angstrums
@@ -40,20 +40,20 @@ U4x =  vecD; U4y =  vecB - vecC; U4z = 0.;
 # backside layer
 for j in range(m):
     for k in range(m):
-        print "atom %.16f  %.16f  %.16f  H" % (D*(j)+U3z-ShiftX, D*(k)+U3y-ShiftY, 0*A+U3x-ShiftZ)
-        print "atom %.16f  %.16f  %.16f  H" % (D*(j)+U4z-ShiftX, D*(k)+U4y-ShiftY, 0*A+U4x-ShiftZ)
+        print("atom %.16f  %.16f  %.16f  H" % (D*(j)+U3z-ShiftX, D*(k)+U3y-ShiftY, 0*A+U3x-ShiftZ))
+        print("atom %.16f  %.16f  %.16f  H" % (D*(j)+U4z-ShiftX, D*(k)+U4y-ShiftY, 0*A+U4x-ShiftZ))
 
 # generate the lattice positions
 for i in range(n): #careful: X is depth here. Backside: X=0. Surface: X=A*n.
     for j in range(m): #Y: we keep same distance in directions // to surface. ExtremeLeft = -A*m/2. ExtremeRight= A*m/2.
 	for k in range(m): #Z: see Y. 
-		print "atom %.16f  %.16f  %.16f  Si" % (D*(j)-ShiftX, D*(k)-ShiftY, i*A-ShiftZ)
-		print "atom %.16f  %.16f  %.16f  Si" % (C+D*(j)-ShiftX, D*(k)-ShiftY,(i+0.25)*A-ShiftZ)
-		print "atom %.16f  %.16f  %.16f  Si" % (C+D*(j)-ShiftX, C+D*(k)-ShiftY, (i+0.5)*A-ShiftZ)
-		print "atom %.16f  %.16f  %.16f  Si" % (D*(j)-ShiftX, C+D*(k)-ShiftY, (i+0.75)*A-ShiftZ)
+		print("atom %.16f  %.16f  %.16f  Si" % (D*(j)-ShiftX, D*(k)-ShiftY, i*A-ShiftZ))
+		print("atom %.16f  %.16f  %.16f  Si" % (C+D*(j)-ShiftX, D*(k)-ShiftY,(i+0.25)*A-ShiftZ))
+		print("atom %.16f  %.16f  %.16f  Si" % (C+D*(j)-ShiftX, C+D*(k)-ShiftY, (i+0.5)*A-ShiftZ))
+		print("atom %.16f  %.16f  %.16f  Si" % (D*(j)-ShiftX, C+D*(k)-ShiftY, (i+0.75)*A-ShiftZ))
 
 #front side
 for j in range(m):
     for k in range(m):
-        print "atom %.16f  %.16f  %.16f  H" % (D*(j)+U1z-ShiftX, C+D*(k)+U1y-ShiftY, (i+0.75)*A+U1x-ShiftZ)
-        print "atom %.16f  %.16f  %.16f  H" % (D*(j)+U2z-ShiftX, C+D*(k)+U2y-ShiftY, (i+0.75)*A+U2x-ShiftZ)
+        print("atom %.16f  %.16f  %.16f  H" % (D*(j)+U1z-ShiftX, C+D*(k)+U1y-ShiftY, (i+0.75)*A+U1x-ShiftZ))
+        print("atom %.16f  %.16f  %.16f  H" % (D*(j)+U2z-ShiftX, C+D*(k)+U2y-ShiftY, (i+0.75)*A+U2x-ShiftZ))

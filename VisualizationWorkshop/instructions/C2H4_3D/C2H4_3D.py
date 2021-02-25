@@ -81,7 +81,7 @@ import sys
 isCLI = True
 if 'VisItException' not in dir():
     if sys.version_info[1] < 5:
-        print "\nRequires Python version 2.5 or greater\n"
+        print("\nRequires Python version 2.5 or greater\n")
         sys.exit()
     isCLI=False
 
@@ -89,12 +89,12 @@ if 'VisItException' not in dir():
 # if run Launch() from CLI). Launch() is required to start the Viewer and
 # import the rest of the API.
 if not isCLI:
-    print
-    print "Running VisIt's script from Python interpreter"
-    print
-    print "Insert path to the 'site-packages' installation directory"
-    visitpath = raw_input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
-    winornot = raw_input("Do you want to use a plotting window? (y/n) \n")
+    print()
+    print("Running VisIt's script from Python interpreter")
+    print()
+    print("Insert path to the 'site-packages' installation directory")
+    visitpath = input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
+    winornot = input("Do you want to use a plotting window? (y/n) \n")
     sys.path.append(visitpath)
     from visit import *
     if (winornot=="y"):
@@ -116,27 +116,27 @@ start_script = time.time()
 # Setting initial variables or using default input
 subprocess.call(["clear", ""])
 
-print " *** Welcome to C2H4_3D.py, a visualization script for VisIt ***"
-print ""
-print "Description: This script creates a set of 3D plots of the scatter"
-print "             of a proton off a molecule of C2H4."
-print ""
-print "Enter your choice:"
-print "1- Use default value for the setup variables"
-print "2- Specify the location of the file containing the list of input"
-print "3- Specify single inputs"
-answer = raw_input("\n")
+print(" *** Welcome to C2H4_3D.py, a visualization script for VisIt ***")
+print("")
+print("Description: This script creates a set of 3D plots of the scatter")
+print("             of a proton off a molecule of C2H4.")
+print("")
+print("Enter your choice:")
+print("1- Use default value for the setup variables")
+print("2- Specify the location of the file containing the list of input")
+print("3- Specify single inputs")
+answer = input("\n")
 
 if (answer=="1"):
     fileex = os.path.exists(inputdata)
     if (fileex==False):
-        print "File do not exists!"
+        print("File do not exists!")
         quit()
     with open(inputdata, 'r') as infile:
         indata = infile.read().split('\n')
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
     zoom      = 2.5
     plottype  = '3'
@@ -147,122 +147,122 @@ if (answer=="1"):
     moviename = ""
     subprocess.call(["clear", ""])
 elif (answer=="2"):
-    print "Enter full path to the file containing the list of input:"
-    inputdata = raw_input("(e.g: /home/user/inputdata.txt)\n")
+    print("Enter full path to the file containing the list of input:")
+    inputdata = input("(e.g: /home/user/inputdata.txt)\n")
     fileex = os.path.exists(inputdata)
     if (fileex==False):
-        print "File does not exists!"
+        print("File does not exists!")
         quit()
     with open(inputdata, 'r') as infile:
         indata = infile.read().split('\n')
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    outdir = input("Enter output directory: (press Enter for current directory)\n")
     if (len(outdir)==0):
         outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
     elif (outdir[len(outdir)-1]!="/"):
         outdir=outdir+"/"
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
-    print "Enter zoom value:"
-    zoom = raw_input("Suggested value for this plot is 2.5\n")
+    print("Enter zoom value:")
+    zoom = input("Suggested value for this plot is 2.5\n")
     if (len(zoom)==0):
         zoom = 2.5
-    print "Choose the plot type:"
-    print "1 - Volume plot"
-    print "2 - Volume plot with ray casting"
-    plottype = raw_input("3 - Multi-contour plot\n")
+    print("Choose the plot type:")
+    print("1 - Volume plot")
+    print("2 - Volume plot with ray casting")
+    plottype = input("3 - Multi-contour plot\n")
     if (plottype!='1' and plottype!='2'):
         plottype = 3
-    plotgrid = raw_input("Do you want to plot a background grid? (y/n)\n")
+    plotgrid = input("Do you want to plot a background grid? (y/n)\n")
     if (plotgrid=="y"):
         backgrid=True
     else:
         backgrid=False
-    plotrot = raw_input("Do you want to plot an initial rotation around the molecule? (y/n)\n")
+    plotrot = input("Do you want to plot an initial rotation around the molecule? (y/n)\n")
     if (plotrot=="y"):
         rotation=True
     else:
         rotation=False
-    plotkeeprot = raw_input("Do you want to keep the camera rotating during the scattering? (y/n)\n")
+    plotkeeprot = input("Do you want to keep the camera rotating during the scattering? (y/n)\n")
     if (plotkeeprot=="y"):
         keeprot=True
     else:
         keeprot=False
-    savename = raw_input("Enter name for output images:\n")
+    savename = input("Enter name for output images:\n")
     if (len(savename)==0):
         savename = 'mol3D'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    print("Enter name for output movie with extension: (press Enter to skip movie creation)")
+    moviename = input("You can choose between .wmv, .mpg and .mov file formats\n")
     if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+        moviespeed = input("Set movie speed (1 fast - 100 slow)\n")
     subprocess.call(["clear", ""])
 elif (answer=="3"):
-    inputdir = raw_input("Enter full path to the directory containing the input timesteps:\n")
+    inputdir = input("Enter full path to the directory containing the input timesteps:\n")
     if (inputdir[len(inputdir)-1]!="/"):
         inputdir=inputdir+"/"
-    inputstart = raw_input("Enter the name of the first input (e.g. td.0000000/):\n")
+    inputstart = input("Enter the name of the first input (e.g. td.0000000/):\n")
     if (inputstart[len(inputstart)-1]!="/"):
         inputstart=inputstart+"/"
-    inputend = raw_input("Enter the name of the last input (e.g. td.0030000/):\n")
+    inputend = input("Enter the name of the last input (e.g. td.0030000/):\n")
     if (inputend[len(inputend)-1]!="/"):
         inputend=inputend+"/"
-    print "Note that we assume that each input directory contains"
-    print "a elf_rs.vtk, a geometry.xyz and a elf_rs.cube file"
-    inputstride = raw_input("Enter the timestep distance between inputs (e.g. 15):\n")
+    print("Note that we assume that each input directory contains")
+    print("a elf_rs.vtk, a geometry.xyz and a elf_rs.cube file")
+    inputstride = input("Enter the timestep distance between inputs (e.g. 15):\n")
     if (int(inputstride)==0):
         totinput=1
     else:
         totinput=(int( inputend[len(inputend)-8:len(inputend)-1] )-int( inputstart[len(inputstart)-8:len(inputstart)-1] ))/int(inputstride) +1
     indata = [None]*(totinput)
-    outdir = raw_input("Enter output directory: (press Enter for current directory)\n")
+    outdir = input("Enter output directory: (press Enter for current directory)\n")
     if (len(outdir)==0):
         outdir = subprocess.check_output(["pwd"]).rstrip("\n")+"/"
     elif (outdir[len(outdir)-1]!="/"):
         outdir=outdir+"/"
     outex = os.path.exists(outdir)
     if (outex==False):
-        print "Directory does not exists!"
+        print("Directory does not exists!")
         quit()
-    print "Enter zoom value:"
-    zoom = raw_input("Suggested value for this plot is 2.5\n")
+    print("Enter zoom value:")
+    zoom = input("Suggested value for this plot is 2.5\n")
     if (len(zoom)==0):
         zoom = 2.5
-    print "Choose the plot type:"
-    print "1 - Volume plot"
-    print "2 - Volume plot with ray casting"
-    plottype = raw_input("3 - Multi-contour plot\n")
+    print("Choose the plot type:")
+    print("1 - Volume plot")
+    print("2 - Volume plot with ray casting")
+    plottype = input("3 - Multi-contour plot\n")
     if (plottype!='1' and plottype!='2'):
         plottype = 3
-    plotgrid = raw_input("Do you want to plot a background grid? (y/n)\n")
+    plotgrid = input("Do you want to plot a background grid? (y/n)\n")
     if (plotgrid=="y"):
         backgrid=True
     else:
         backgrid=False
-    plotrot = raw_input("Do you want to plot an initial rotation around the molecule? (y/n)\n")
+    plotrot = input("Do you want to plot an initial rotation around the molecule? (y/n)\n")
     if (plotrot=="y"):
         rotation=True
     else:
         rotation=False
-    plotkeeprot = raw_input("Do you want to keep the camera rotating during the scattering? (y/n)\n")
+    plotkeeprot = input("Do you want to keep the camera rotating during the scattering? (y/n)\n")
     if (plotkeeprot=="y"):
         keeprot=True
     else:
         keeprot=False
-    savename = raw_input("Enter name for output images:\n")
+    savename = input("Enter name for output images:\n")
     if (len(savename)==0):
         savename = 'mol3D'
-    print "Enter name for output movie with extension: (press Enter to skip movie creation)"
-    print "Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie"
-    moviename = raw_input("You can choose between .wmv, .mpg and .mov file formats\n")
+    print("Enter name for output movie with extension: (press Enter to skip movie creation)")
+    print("Note that you need an encoder like ffmpeg on this machine in order to be able to create a movie")
+    moviename = input("You can choose between .wmv, .mpg and .mov file formats\n")
     if (len(moviename)!=0):
-        moviespeed = raw_input("Set movie speed (1 fast - 100 slow)\n")
+        moviespeed = input("Set movie speed (1 fast - 100 slow)\n")
     subprocess.call(["clear", ""])
     for i in range(0,totinput):
         step=int( inputstart[len(inputstart)-8:len(inputstart)-1] )+int(inputstride)*i
         indata[i]=inputdir + inputstart[0:len(inputend)-8] +"{0:07d}".format(step)+"/"
 else:
-    print "Value not recognized."
+    print("Value not recognized.")
     quit()
 
 # Checking if current directory coincides with output directory
@@ -272,61 +272,61 @@ if (currentpath!=outdir):
     changedir=True
 
 # Checking if input files exist
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 for i in range(0,len(indata)):
     direx = os.path.exists(indata[i])
     if (direx==False):
-        print "Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n"
+        print("Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n")
         indata[i]=None
 
 # Removing empty lines
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 
 # Check if there are still input files available
 if (len(indata)==0):
-    print "Total number of input files is 0!"
-    print "Please check the paths and the name of the inputs"
-    print ""
-    print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("Total number of input files is 0!")
+    print("Please check the paths and the name of the inputs")
+    print("")
+    print("Note that the script will continue in case you want to produce a video with old images")
+    press = input("Press enter to continue or type \"q\" to quit\n")
     if (press=='q'):
         quit()
 
 # Summary of setup variables
-print "Summary of the setup variables:\n"
-print "-Total number of input: ", len(indata)
+print("Summary of the setup variables:\n")
+print("-Total number of input: ", len(indata))
 if (len(indata)!=0):
-    print "-First input: ", indata[0]
+    print("-First input: ", indata[0])
 if (len(indata)!=0):
-    print "-Last input:  ", indata[len(indata)-1]
-print "-Output directory: ", outdir
-print "-Zoom value: ", zoom
+    print("-Last input:  ", indata[len(indata)-1])
+print("-Output directory: ", outdir)
+print("-Zoom value: ", zoom)
 if (plottype=='1'):
-    print "-Volume plot will be created"
+    print("-Volume plot will be created")
 elif (plottype=='2'):
-    print "-Volume plot with ray casting will be created"
+    print("-Volume plot with ray casting will be created")
 else:
-    print "-Contour plot will be created"
+    print("-Contour plot will be created")
 if (backgrid==True):
-    print "-Plot will have a background grid"
+    print("-Plot will have a background grid")
 else:
-    print "-Plot will not have a background grid"
+    print("-Plot will not have a background grid")
 if (rotation==True):
-    print "-Initial rotation around the molecule will be displayed"
+    print("-Initial rotation around the molecule will be displayed")
 else:
-    print "-Initial rotation around the molecule will not be displayed"
+    print("-Initial rotation around the molecule will not be displayed")
 if (keeprot==True):
-    print "-Camera will keep rotating around the molecule during scattering"
+    print("-Camera will keep rotating around the molecule during scattering")
 else:
-    print "-Camera will be static during the scattering"
-print "-Images name: ", savename+"####.png"
+    print("-Camera will be static during the scattering")
+print("-Images name: ", savename+"####.png")
 if (len(moviename)==0):
-    print "-Movie file will not be created"
+    print("-Movie file will not be created")
 else:
-    print "-Movie file "+moviename+" will be created"
-    print "-Movie speed: ", moviespeed
-print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("-Movie file "+moviename+" will be created")
+    print("-Movie speed: ", moviespeed)
+print("")
+press = input("Press enter to continue or type \"q\" to quit\n")
 if (press=='q'):
     quit()
 subprocess.call(["clear", ""])
@@ -357,16 +357,16 @@ if (plottype=='1'):
     SetRenderingAttributes(r)
     cmapname=GetActiveContinuousColorTable()
     if (answer!="1"):
-        print "Current color table is "+cmapname
-        cmans = raw_input("Do you want to change it? (y/n)\n")
+        print("Current color table is "+cmapname)
+        cmans = input("Do you want to change it? (y/n)\n")
         if (cmans=="y"):
-            print "The available color tables are:"
+            print("The available color tables are:")
             for ctnames in ColorTableNames():
-                print "- "+ctnames
-            print ""
-            print "Note: if you want to define a new color table, please refer to"
-            print "      the VisIt manual."
-            cmapname = raw_input("Enter the new color table:\n")
+                print("- "+ctnames)
+            print("")
+            print("Note: if you want to define a new color table, please refer to")
+            print("      the VisIt manual.")
+            cmapname = input("Enter the new color table:\n")
 elif (plottype=='2'):
     InvertBackgroundColor()
     r = GetRenderingAttributes()
@@ -378,8 +378,8 @@ elif (plottype=='2'):
     SetRenderingAttributes(r)
     cmapname=GetActiveContinuousColorTable()
     if (answer!="1"):
-        print "Current color table can be change only in the script."
-        cmans = raw_input("Press enter to continue.\n")
+        print("Current color table can be change only in the script.")
+        cmans = input("Press enter to continue.\n")
 else:
     InvertBackgroundColor()
     r = GetRenderingAttributes()
@@ -392,16 +392,16 @@ else:
     r.specularColor = (255, 255, 255, 255)
     SetRenderingAttributes(r)
     if (answer!="1"):
-        print "This multi-contour plot has a predefined color table"
-        cmans = raw_input("Do you want to change it? (y/n)\n")
+        print("This multi-contour plot has a predefined color table")
+        cmans = input("Do you want to change it? (y/n)\n")
         if (cmans=="y"):
-            print "The available color tables are:"
+            print("The available color tables are:")
             for ctnames in ColorTableNames():
-                print "- "+ctnames
-            print ""
-            print "Note: if you want to define a new color table, please refer to"
-            print "      the VisIt manual."
-            cmapname = raw_input("Enter the new color table:\n")
+                print("- "+ctnames)
+            print("")
+            print("Note: if you want to define a new color table, please refer to")
+            print("      the VisIt manual.")
+            cmapname = input("Enter the new color table:\n")
             lcontval = [None]*GetColorTable(cmapname).GetNumControlPoints()
             colval   = [None]*GetColorTable(cmapname).GetNumControlPoints()
             for numindex in range(0,len(lcontval)):
@@ -700,13 +700,13 @@ for i in range(0,len(indata)):
         CloseDatabase(incube)
 
 # Estimating remaining time
-    print "Time left (sec): ",((time.time()-imgtstart-(rotend-rotstart))/(i+1))*(len(indata)-(i+1))
+    print("Time left (sec): ",((time.time()-imgtstart-(rotend-rotstart))/(i+1))*(len(indata)-(i+1)))
 
 # End of the loop over the input files
 
 imgtend = time.time()
 subprocess.call(["clear", ""])
-print "Creation of the images completed."
+print("Creation of the images completed.")
 
 # Movie creation
 if (len(moviename)!=0):
@@ -718,26 +718,26 @@ if (len(moviename)!=0):
 
 
 # Reporting working time
-print "\n"
-print " *** Time statistics ***"
+print("\n")
+print(" *** Time statistics ***")
 if (len(indata)!=0):
-    print "Images creation time:"
-    print("--- %s seconds ---" % (imgtend - imgtstart-(rotend-rotstart)))
-    print( "On average %s seconds per image" % ((imgtend - imgtstart-(rotend-rotstart))/len(indata)) )
+    print("Images creation time:")
+    print(("--- %s seconds ---" % (imgtend - imgtstart-(rotend-rotstart))))
+    print(( "On average %s seconds per image" % ((imgtend - imgtstart-(rotend-rotstart))/len(indata)) ))
     if (rotation==True):
-        print ""
-        print "Additional time for creating the rotation:"
-        print("--- %s seconds ---" % (rotend-rotstart))
-    print ""
-print "Video creation time:"
+        print("")
+        print("Additional time for creating the rotation:")
+        print(("--- %s seconds ---" % (rotend-rotstart)))
+    print("")
+print("Video creation time:")
 if (len(moviename)!=0):
-    print("--- %s seconds ---" % (vidtend - vidtstart))
+    print(("--- %s seconds ---" % (vidtend - vidtstart)))
 else:
-    print"--- Not Available ---"
-print ""
-print "Script total execution time:"
-print("--- %s seconds ---" % (time.time() - start_script))
-print ""
+    print("--- Not Available ---")
+print("")
+print("Script total execution time:")
+print(("--- %s seconds ---" % (time.time() - start_script)))
+print("")
 
 quit()
 

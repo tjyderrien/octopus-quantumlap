@@ -101,7 +101,7 @@ import sys
 isCLI = True
 if 'VisItException' not in dir():
     if sys.version_info[1] < 5:
-        print "\nRequires Python version 2.5 or greater\n"
+        print("\nRequires Python version 2.5 or greater\n")
         sys.exit()
     isCLI=False
 
@@ -109,12 +109,12 @@ if 'VisItException' not in dir():
 # if run Launch() from CLI). Launch() is required to start the Viewer and
 # import the rest of the API.
 if not isCLI:
-    print
-    print "Running VisIt's script from Python interpreter"
-    print
-    print "Insert path to the 'site-packages' installation directory"
-    visitpath = raw_input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
-    winornot = raw_input("Do you want to use a plotting window? (y/n) \n")
+    print()
+    print("Running VisIt's script from Python interpreter")
+    print()
+    print("Insert path to the 'site-packages' installation directory")
+    visitpath = input("E.g: /home/user/VisIt/current/linux-x86_64/lib/site-packages \n")
+    winornot = input("Do you want to use a plotting window? (y/n) \n")
     sys.path.append(visitpath)
     from visit import *
     if (winornot=="y"):
@@ -151,13 +151,13 @@ subprocess.call(["clear", ""])
 #if (answer=="1"):
 fileex = os.path.exists(inputdata)
 if (fileex==False):
-    print "File do not exists!"
+    print("File do not exists!")
     quit()
 with open(inputdata, 'r') as infile:
     indata = infile.read().split('\n')
 outex = os.path.exists(outdir)
 if (outex==False):
-    print "Directory does not exists!"
+    print("Directory does not exists!")
     quit()
 molzoom = 1
 savename  = 'NormalizedDensity'
@@ -251,43 +251,43 @@ if (currentpath!=outdir):
     changedir=True
 
 # Checking if input files exist
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 for i in range(0,len(indata)):
     direx = os.path.exists(indata[i])
     if (direx==False):
-        print "Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n"
+        print("Warning! Input directory ",indata[i]," DOES NOT exist! Removing it from input list...\n")
         indata[i]=None
 
 # Removing empty lines
-indata = filter(None, indata)
+indata = [_f for _f in indata if _f]
 
 # Check if there are still input files available
 if (len(indata)==0):
-    print "Total number of input files is 0!"
-    print "Please check the paths and the name of the inputs"
-    print ""
-    print "Note that the script will continue in case you want to produce a video with old images"
-    press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("Total number of input files is 0!")
+    print("Please check the paths and the name of the inputs")
+    print("")
+    print("Note that the script will continue in case you want to produce a video with old images")
+    press = input("Press enter to continue or type \"q\" to quit\n")
     if (press=='q'):
         quit()
 
 # Summary of setup variables
-print "Summary of the setup variables:\n"
-print "-Total number of input: ", len(indata)
+print("Summary of the setup variables:\n")
+print("-Total number of input: ", len(indata))
 if (len(indata)!=0):
-    print "-First input: ", indata[0]
+    print("-First input: ", indata[0])
 if (len(indata)!=0):
-    print "-Last input:  ", indata[len(indata)-1]
-print "-Output directory: ", outdir
-print "-Molecule zoom: ", molzoom
-print "-Images name: ", savename+"####.png"
+    print("-Last input:  ", indata[len(indata)-1])
+print("-Output directory: ", outdir)
+print("-Molecule zoom: ", molzoom)
+print("-Images name: ", savename+"####.png")
 if (len(moviename)==0):
-    print "-Movie file will not be created"
+    print("-Movie file will not be created")
 else:
-    print "-Movie file "+moviename+" will be created"
-    print "-Movie speed: ", moviespeed
-print ""
-press = raw_input("Press enter to continue or type \"q\" to quit\n")
+    print("-Movie file "+moviename+" will be created")
+    print("-Movie speed: ", moviespeed)
+print("")
+press = input("Press enter to continue or type \"q\" to quit\n")
 if (press=='q'):
     quit()
 subprocess.call(["clear", ""])
@@ -440,12 +440,12 @@ def AddTracerObject(filepath, time): #{{{
   
   n_curves  = 1
 
-  curves = [PropertyTree() for i in xrange(n_curves)]
+  curves = [PropertyTree() for i in range(n_curves)]
   curves[0].file = filepath
   curves[0].index = 0
 
   p=PropertyTree()
-  p.plots = [PropertyTree() for i in xrange(n_curves)]
+  p.plots = [PropertyTree() for i in range(n_curves)]
   p.plots[0].type = "line"
   p.plots[0].curve = curves[0]
   tracer_line = PropertyTree()
@@ -693,13 +693,13 @@ for i in range(0,len(indata)):
     CloseDatabase(inxyz)
 
     # Estimating remaining time
-    print "Time left (sec): ",((time.time()-imgtstart-(zoomtend-zoomtstr))/(i+1))*(len(indata)-(i+1))
+    print("Time left (sec): ",((time.time()-imgtstart-(zoomtend-zoomtstr))/(i+1))*(len(indata)-(i+1)))
 
 # End of the loop over the input files
 
 imgtend = time.time()
 subprocess.call(["clear", ""])
-print "Creation of the images completed."
+print("Creation of the images completed.")
 
 # Movie creation
 if (len(moviename)!=0):
@@ -711,26 +711,26 @@ if (len(moviename)!=0):
 
 
 # Reporting working time
-print "\n"
-print " *** Time statistics ***"
+print("\n")
+print(" *** Time statistics ***")
 if (len(indata)!=0):
-    print "Images creation time:"
-    print("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr)))
-    print( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) )
+    print("Images creation time:")
+    print(("--- %s seconds ---" % (imgtend - imgtstart-(zoomtend-zoomtstr))))
+    print(( "On average %s seconds per image" % ((imgtend - imgtstart-(zoomtend-zoomtstr))/len(indata)) ))
     if (molzoom>1.):
-        print ""
-        print "Additional time for creating the zooming:"
-        print("--- %s seconds ---" % (zoomtend-zoomtstr))
-    print ""
-print "Video creation time:"
+        print("")
+        print("Additional time for creating the zooming:")
+        print(("--- %s seconds ---" % (zoomtend-zoomtstr)))
+    print("")
+print("Video creation time:")
 if (len(moviename)!=0):
-    print("--- %s seconds ---" % (vidtend - vidtstart))
+    print(("--- %s seconds ---" % (vidtend - vidtstart)))
 else:
-    print"--- Not Available ---"
-print ""
-print "Script total execution time:"
-print("--- %s seconds ---" % (time.time() - start_script))
-print ""
+    print("--- Not Available ---")
+print("")
+print("Script total execution time:")
+print(("--- %s seconds ---" % (time.time() - start_script)))
+print("")
 
 quit()
 

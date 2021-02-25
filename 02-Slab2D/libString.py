@@ -33,14 +33,14 @@ def LookUpLatestLogFile(Filename): #{{{{
   Header = "[libString: LookUpLatestLogFile] "
   import glob
   newest = max(glob.iglob(Filename+'*.log'), key=os.path.getctime)
-  print Header+"List of files: "+str(newest)
+  print(Header+"List of files: "+str(newest))
   # We shall split the path by slashes. 
   newest_splitted = newest.split("/")
-  print Header+"List of files: "+str(newest_splitted)
+  print(Header+"List of files: "+str(newest_splitted))
   newest_file = newest_splitted[len(newest_splitted)-1] #last element of the path is selected
-  print Header+"List of files: "+str(newest_splitted)
+  print(Header+"List of files: "+str(newest_splitted))
   result = [int(s) for s in newest_file.split(".") if s.isdigit()]
-  print Header+"List of files: "+str(result)
+  print(Header+"List of files: "+str(result))
   # For some folders, result was empty (?!)
   try:
     final = max(result)
@@ -93,19 +93,19 @@ def LookUpStringReturnNextLine(Filename, string): #{{{
 ## Looks for subfolders 
 def FindAllDirectories(directory): 
   for dirname, dirnames, filenames in os.walk(directory):
-	 # print path to all subdirectories first.
-	 for subdirname in dirnames:
-		print(os.path.join(dirname, subdirname))
+         # print path to all subdirectories first.
+         for subdirname in dirnames:
+                print((os.path.join(dirname, subdirname)))
 
-	 ## print path to all filenames.
-	 #for filename in filenames:
-		#print(os.path.join(dirname, filename))
+         ## print path to all filenames.
+         #for filename in filenames:
+                #print(os.path.join(dirname, filename))
 
-	 # Advanced usage:
-	 # editing the 'dirnames' list will stop os.walk() from recursing into there.
-	 if '.git' in dirnames:
-		# don't go into any .git directories.
-		dirnames.remove('.git')
+         # Advanced usage:
+         # editing the 'dirnames' list will stop os.walk() from recursing into there.
+         if '.git' in dirnames:
+                # don't go into any .git directories.
+                dirnames.remove('.git')
   WholeTable=dirname+subdirname
   return WholeTable
 
@@ -122,12 +122,12 @@ def FilterDirectories(keyword, path, FieldIndex):
 # @param file <string> filename
 def GetLastLine(file):
   with open(file, "rb") as f:
-	 first = f.readline()      # Read the first line.
-	 f.seek(-2, 2)             # Jump to the second last byte.
-	 while f.read(1) != b"\n": # Until EOL is found...
-		f.seek(-2, 1)         # ...jump back the read byte plus one more.
-	 last = f.readline()       # Read last line.
-	 return last
+         first = f.readline()      # Read the first line.
+         f.seek(-2, 2)             # Jump to the second last byte.
+         while f.read(1) != b"\n": # Until EOL is found...
+                f.seek(-2, 1)         # ...jump back the read byte plus one more.
+         last = f.readline()       # Read last line.
+         return last
 
 ## Splitting, sorting and re-packing the table of ks_me_dipoles from octopus.
 def GetOrderedListOfFiles(Filename): #{{{
@@ -144,8 +144,8 @@ def GetOrderedListOfFiles(Filename): #{{{
         numbers.append(int(splited_3[1]))
     #}}}
     # Sorting the table properly
-    lists = sorted(itertools.izip(*[names, numbers, directions]))
-    names_sorted, numbers_sorted, directions_sorted = list(itertools.izip(*lists))
+    lists = sorted(zip(*[names, numbers, directions]))
+    names_sorted, numbers_sorted, directions_sorted = list(zip(*lists))
     #numbers.sort()
     filelist = np.transpose([names_sorted, numbers_sorted, directions_sorted])
 
@@ -195,8 +195,8 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
     Header="[libString: GetEigenValue(): ]"
     pattern= "#k ="
     if(verbose==1): 
-        print "Info: Construction of the eigen-values matrix."
-        print "Pattern of interest: \""+pattern+"\""
+        print("Info: Construction of the eigen-values matrix.")
+        print("Pattern of interest: \""+pattern+"\"")
         
     with open( filename, "r" ) as source:
         for heading_and_lines in group_by_heading( source, pattern ):
@@ -206,9 +206,9 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
                 #print heading
                 #print lines
                 break #we stop iteration when pattern is found
-    print Header+str(heading)
+    print(Header+str(heading))
     if(verbose==1): 
-        print Header+str(lines[0:NumberOfEigenValues])
+        print(Header+str(lines[0:NumberOfEigenValues]))
     eigenvalues=[]
     for id in lines[:NumberOfEigenValues]:
         line = id.split()
@@ -237,12 +237,12 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
     # 2. Check consistency of the number of files with k
     expected_num_files = spatial_directions * kpoints**3 #BUG: will never be good, since KpointPath is added after kPointGrid. Then we'll always fall into case of plotting all kpointpath. 
     if(len(listoffiles) != expected_num_files):
-        print Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files)
+        print(Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files))
     else: 
         if(verbose==1): 
-            print Header+"Info: number of files is correct."
+            print(Header+"Info: number of files is correct.")
         else: 
-            print ""
+            print("")
 
     # 3. Construct the big matrice of dipolar transition inside the Floquet Hamiltonian. 
     # WARNING: how to put m=-1, m=0, m=+1 ? does this order matter? 
@@ -256,23 +256,23 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
     
     # NOTE: eigen values are sorted by norm. Then taking the first k point should be sufficient. 
     if(CaptureDirectGap):
-        print Header+"Capturing the Gamma point."
-        print Header+"Is there a direct gap value?"    
+        print(Header+"Capturing the Gamma point.")
+        print(Header+"Is there a direct gap value?")    
         try: #we try to capture direct gap automatically.
             kpoints_index_inp   = LookUpStringInFile(info_file, "Direct gap")
             for i in np.arange(0,10):
                 kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
                 if(verbose==1):
-                    print Header+"** Info: decreasing number of spaces"
-                    print Header+" "+str(kpoints_index_inp)
+                    print(Header+"** Info: decreasing number of spaces")
+                    print(Header+" "+str(kpoints_index_inp))
             kpoints_index_array = kpoints_index_inp.split(" ")
             #print kpoints_index_array
             kpoints_index       = int(kpoints_index_array[4])
             gamma_point_files_index=[kpoints_index]
-            print Header+"** Info: found a direct gap: "+str(gamma_point_files_index)
+            print(Header+"** Info: found a direct gap: "+str(gamma_point_files_index))
         except: #we select Gamma point by hand
-            print Header+"** WARNING: could not find a direct gap. Fetching the Gamma point."
-            print Header+"Selecting the first k-point, corresponding to Gamma."
+            print(Header+"** WARNING: could not find a direct gap. Fetching the Gamma point.")
+            print(Header+"Selecting the first k-point, corresponding to Gamma.")
             #kpoints_index_inp   = LookUpStringInFile(info_file, "k #1")
             #for i in np.arange(0,10):
                 #kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
@@ -281,7 +281,7 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
                     #print kpoints_index_inp
             #kpoints_index_array = kpoints_index_inp.split(" ")
             ##print kpoints_index_array
-            print Header+"** Warning: kpoints_index selection is MANUAL."
+            print(Header+"** Warning: kpoints_index selection is MANUAL.")
             kpoints_index       = 1
             gamma_point_files_index=[kpoints_index]
             #exit()
@@ -291,8 +291,8 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
             #gamma_point_files_index=[kpoints_index]
             ##gamma_point_files_index=[kpoints_index*spatial_directions, kpoints_index*spatial_directions+1, kpoints_index*spatial_directions+2]
     else: #we will here output all k-points corresponding to the direction of polarization. 
-        print(Header+"** Info: capturing all the indicated k-points...")
-        print(Header+"** Info: number of selected k points: "+str(len(listofkpoints)))
+        print((Header+"** Info: capturing all the indicated k-points..."))
+        print((Header+"** Info: number of selected k points: "+str(len(listofkpoints))))
         gamma_point_files_index=listofkpoints
         
         #print("** Info: number of k points: "+str(len(listoffiles)/3.))
@@ -304,7 +304,7 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
         gamma_point_file = filename+'.k'+str(num)+directions[field_polarization_dir]
         gamma_point_files.append(gamma_point_file)
     if(verbose==1):
-        print Header+"Files containing the matrix at Gamma point: "+str(gamma_point_files)
+        print(Header+"Files containing the matrix at Gamma point: "+str(gamma_point_files))
     return gamma_point_files, gamma_point_files_index
 #}}}
 
@@ -316,12 +316,12 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
     matrix_side=Z_electrons+unocc_states
     matrixelements=np.multiply(np.zeros((matrix_side, matrix_side)), 0e0+0e0j)
     if(verbose==1): 
-        print "Info: size of coupling matrix elements: "+str(matrix_side)+"x"+str(matrix_side)
+        print("Info: size of coupling matrix elements: "+str(matrix_side)+"x"+str(matrix_side))
 
     for file_id in gamma_point_files: #gamma_point_files should be an array of strings
-        print("** Info: opening file "+file_id)
+        print(("** Info: opening file "+file_id))
         if(verbose==1): 
-            print "Info: opening file "+file_id
+            print("Info: opening file "+file_id)
         if(Complex_valued_ME): 
             # remove the commas from file_id
             # NOTE: This is in case of complex-valued matrix from ks_multipoles
@@ -333,20 +333,20 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
                     matrixelements[i,j]=matrixelements_splitted[i, j]+1.j*matrixelements_splitted[i,j+1]
         else: #case for the ks_me_dipole
             if(verbose==1):
-                print Header+"Info: opening "+file_id
+                print(Header+"Info: opening "+file_id)
             matrixelements=np.loadtxt(file_id, skiprows=3)
             if(spin_occupation==1): #{{{
-                print Header+"** Warning: we attempt to describe splitting of the electrons with different spins."
+                print(Header+"** Warning: we attempt to describe splitting of the electrons with different spins.")
                 matrixelements_spinned=np.multiply(np.zeros((matrix_side*2, matrix_side*2)), 0e0+0e0j)
                 for i in np.arange(0,2*matrix_side):
                     for j in np.arange(0,2*matrix_side):
                         #duplicate each line and each column by blocks of 2. 
                         matrixelements_spinned[i,j]=matrixelements[i/2, j/2]
-                print matrixelements_spinned
+                print(matrixelements_spinned)
                 for i in np.arange(1,2*matrix_side,2):
                     for j in np.arange(1,2*matrix_side,2):
                         #if a line number is even, coefficients d_11 and d_12 are switched (exchange of spins)
-                        print Header+"Terms to be swapped: (i,j)<->(i-1,j): "+str(i)+", "+str(j)+" <-> "+str(i-1)+", "+str(j)
+                        print(Header+"Terms to be swapped: (i,j)<->(i-1,j): "+str(i)+", "+str(j)+" <-> "+str(i-1)+", "+str(j))
                         Swap(matrixelements_spinned[i,j], matrixelements_spinned[i-1,j]) #swap coeffs of the same line
             #}}}
                         
@@ -367,6 +367,6 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
     #print "** Warning: we still don't know how to combine these."
     #print "** Warning: therefore one selects only one file among m=-1,0,1 for now!"
     if(verbose==1):
-        print "Info: successfull import of real-valued dipolar matrix elements for X direction."
+        print("Info: successfull import of real-valued dipolar matrix elements for X direction.")
     return matrixelements, matrix_side
 #}}} 

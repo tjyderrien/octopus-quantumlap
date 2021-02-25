@@ -319,7 +319,7 @@ SubmitTheJob () {
   cp PulseA.dat ${localPath}/ && echo "Successfully copied Pulse A to destination."
   cp PulseB.dat ${localPath}/ && echo "Successfully copied Pulse B to destination."
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
-  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
+#  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   
   # Update the Submission script with the mission name
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
@@ -347,7 +347,7 @@ print_usage
 # For each calculation to perform
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
-BuildSample #also performed in directory
-# ReplaceInputFile 
+# BuildSample #also performed in directory
+ReplaceInputFile 
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 
