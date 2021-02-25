@@ -789,8 +789,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
               print(Header+"** WARNING: Interpolation error on field was greater than 5%!")
 #              continue
 
-        # Identifying Efield == 0 and dEfield==0 on timeNe grid. 
-        FieldEqualZero_Ne =(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid. Now based on bicolor field.
+        # Identifying Efield == 0 and dEfield==0 on timeNe grid.
+        tolerance_ne=1E-4 
+        FieldEqualZero_Ne =(np.divide(Efield_AU_interp_Ne, np.max(Efield_AU_interp_Ne)) < tolerance_ne) #Selects when field is null on timeNe grid. Now based on bicolor field. #TODO: add a tolerance here ! Example shows 1E-4 would be fine. 
         dFieldEqualZero_Ne=(dEfield_AU_interp_Ne == 0)
         if(not dFieldEqualZero_Ne[len(dFieldEqualZero_Ne)-1]): #test the final value
             print(Header+"** DEBUG: d(Field) is non-zero at the end of the pulse. Showing field and d(field).")
