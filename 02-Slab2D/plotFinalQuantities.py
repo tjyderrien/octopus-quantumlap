@@ -352,16 +352,16 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # Wpi is compared to Keldysh analytical solid theory, and numerically integrated Keldysh if available. # Wpi is also compared to tunneling limit case. 
 # ElectronEnergy (intensity) is given. 
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0): #{{{
-  UseNexcAfterPulse = False #instead of density at end of simulation, one capture the ones very close to the end of the pulse. 
+  UseNexcAfterPulse = True #instead of density at end of simulation, one capture the ones very close to the end of the pulse. 
   PlotVirtualExcitation = False #Not advised! This is not a real observable. 
   PlotEnergy = False #PRL: False. #PRB: True.
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
-  ShowPulseDurations=False
+  ShowPulseDurations=False #True: show the pulse duration in caption. False: hides it (for saving visual space)
   PlotSaturation=False
-  WithOpticalIndex=True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
+  WithOpticalIndex=False #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
   SidePanels=True #True for PRL Fig2.
-  ShowSigmaRates=True
+  ShowSigmaRates=False #save space
   #EnableInsetMagnification=True #this is defined as function of wavelength below
   
   Ntotal=5.0E28 
@@ -399,7 +399,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ## We simply select the pulse duration larger than 21 fs (to not overload pics). 
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 8e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 25e-15, IndexTable['pulses1'])
       EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
@@ -460,7 +460,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     pulses1_sorted, Efield1_sorted, Intensity_sorted, Ne_final_sorted = list(zip(*lists))
     #print Header+"Ready to plot: "
     
-    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+    if(ShowPulseDurations):
+        tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
+    else: 
+        tau_text=""
+    
+    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
     plot1 += [plot_field]
     pplt.xlim(x_min[pulseWavelength])
     
@@ -585,8 +590,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
         else: 
             tau_text=""
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_1=$"+str('%.4g'%OnePhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=1$"
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+LineType_MPIfitArray[1], label=r'$\sigma_1=$'+str('%.4g'%OnePhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_1 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+LineType_MPIfitArray[1], label=sigma_txt) #NOTE add value of sigma_1 here
         else:
             plot_field = []
         del Nexc_1PI, OnePhotonAbsorption_params, Intensity_sorted_mask
@@ -616,8 +625,14 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
         else: 
             tau_text=""
+            
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_2=$"+str('%.4g'%TwoPhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=2$"
+            
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+LineType_MPIfitArray[2], label=r'$\sigma_2=$'+str('%.4g'%TwoPhotonAbsorption_params[0][0])+tau_text) #NOTE add value of sigma_2 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+LineType_MPIfitArray[2], label=sigma_txt) #NOTE add value of sigma_2 here
         else: 
             plot_field = []
         del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
@@ -646,10 +661,15 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
             
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_3=$"+str('%.4g'%ThreePhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=3$"
+            
         print(Header+"** Info: adding the fitted curve to the plot")
         Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+LineType_MPIfitArray[3], label=r'$\sigma_3=$'+str('%.4g'%ThreePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+LineType_MPIfitArray[3], label=sigma_txt) #NOTE adds value of sigma_3 here
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -674,10 +694,15 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
             
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_4=$"+str('%.4g'%FourPhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=4$"
+            
         print(Header+"** Info: adding the fitted curve to the plot")
         Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
         #print Nexc_2PI
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+LineType_MPIfitArray[4], label=r'$\sigma_4=$'+str('%.4g'%FourPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+LineType_MPIfitArray[4], label=sigma_txt) #NOTE adds value of sigma_3 here
         del Nexc_4PI, FourPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -706,7 +731,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
         
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+LineType_MPIfitArray[5], label=r'$\sigma_5=$'+str('%.4g'%FivePhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_5=$"+str('%.4g'%FivePhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=5$"
+        
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+LineType_MPIfitArray[5], label=sigma_txt) #NOTE adds value of sigma_3 here
         del Nexc_5PI, FivePhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -735,7 +765,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else: 
             tau_text=""
             
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+LineType_MPIfitArray[6], label=r'$\sigma_6=$'+str('%.4g'%SixPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_6=$"+str('%.4g'%SixPhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=6$"
+            
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+LineType_MPIfitArray[6], label=sigma_txt) #NOTE adds value of sigma_3 here
         del Nexc_6PI, SixPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -763,8 +798,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
         else: 
             tau_text=""
-            
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+LineType_MPIfitArray[7], label=r'$\sigma_7=$'+str('%.4g'%SevenPhotonAbsorption_params[0][0])+tau_text) #NOTE adds value of sigma_3 here
+        
+        if(ShowSigmaRates):
+            sigma_txt=r"$\sigma_7=$"+str('%.4g'%SevenPhotonAbsorption_params[0][0])+tau_text
+        else: 
+            sigma_txt=r"$n=7$"
+        
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+LineType_MPIfitArray[7], label=sigma_txt) #NOTE adds value of sigma_3 here
         del Nexc_7PI, SevenPhotonAbsorption_params, Intensity_sorted_mask
         return plot_field
     #}}}
@@ -877,8 +917,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print(Header+"** Info: fitting with 7-photon absortion...")
         plot_field = FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 7, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 7-photon absorption failed. ")
     
@@ -888,8 +927,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print(Header+"** Info: fitting with 6-photon absortion...")
         plot_field = FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 6, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 6-photon absorption failed. ")
     
@@ -899,8 +937,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print(Header+"** Info: fitting with 5-photon absortion...")
         plot_field = FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 5, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 5-photon absorption failed. ")
         
@@ -910,32 +947,28 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5): 
         print(Header+"** Info: fitting with 4-photon absortion...")
         plot_field = FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 4, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 4-photon absorption failed. ")
     try:
     #elif(NumberOfPhotons_round >= 3 and NumberOfPhotons_round < 4):
         print(Header+"** Info: fitting with 3-photon absortion...")    
         plot_field = FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 3, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 3-photon absorption failed. ")
     try:
     #elif(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3): 
         print(Header+"** Info: fitting with 2-photon absortion...")
         plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max)
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 2-photon absorption failed. ")
     try:
     #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2): 
         print(Header+"** Info: fitting with 1-photon absortion...")
         plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max)            
-        if(ShowSigmaRates): 
-            plot1 += [plot_field]
+        plot1 += [plot_field]
     except: 
         print(Header+"** Fit using 1-photon absorption failed. ")
         #else: 
@@ -1027,10 +1060,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       lists = sorted(zip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(zip(*lists))
       
-      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
       plot2 += [plot21]
       if(EnableInsetMagnification):
-        plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
+        plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
       
       #plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), Saturation, Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{sat.}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       #plot2 += [plot21]
