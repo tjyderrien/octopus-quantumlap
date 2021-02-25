@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@
 import numpy             as np
 from numpy import genfromtxt, loadtxt, chararray
 #from scipy import interpolate
-import matplotlib.pyplot as pplt
+#import matplotlib.pyplot as plt
 import matplotlib.pylab  as pl
 import pandas            as pd
 # from pylab import *
@@ -149,11 +149,11 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
-  pplt.figure(figsize=(SizeX,SizeY))
-  ax1 = pplt.subplot(111) #111 or plotA if using plotB
-  pplt.title(r'$n_{\mathrm{exc}}(RiseCycles)$, $\tau=$'+str(int(pulseDuration*1E15))+' fs.')
+  plt.figure(figsize=(SizeX,SizeY))
+  ax1 = plt.subplot(111) #111 or plotA if using plotB
+  plt.title(r'$n_{\mathrm{exc}}(RiseCycles)$, $\tau=$'+str(int(pulseDuration*1E15))+' fs.')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
     PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
@@ -179,7 +179,7 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
   ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
   plt.xlabel(r'Rise cycles')
   plt.ylabel(r'Final density (m$^{-3}$)')
-  #  pplt.ylim((1E16,4.*5e28))
+  #  plt.ylim((1E16,4.*5e28))
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #plot1_list = plot1.tolist()
@@ -201,22 +201,22 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
   #ax12.set_yscale('log')
   ax12.set_ylabel(r'$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
 
-  #ax2 = pplt.subplot(plotB)
-  #pplt.title('Virtual excitation factor')
+  #ax2 = plt.subplot(plotB)
+  #plt.title('Virtual excitation factor')
   
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  #pplt.ylabel('Virtual exc. factor')
-  #pplt.ylim((0,1))
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  #plt.ylabel('Virtual exc. factor')
+  #plt.ylim((0,1))
   #ax2.set_xscale('log')
   ##adding the Keldysh adiabatic factor
   #ax22 = ax2.twinx()
   
-  #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
+  #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
 
-  #pplt.ylabel('Adiabadicity factor')
-  ##pplt.ylim((0,1))
+  #plt.ylabel('Adiabadicity factor')
+  ##plt.ylim((0,1))
   #ax22.set_yscale('log')
 
   #ax2.set_yscale("log")
@@ -229,7 +229,7 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq, wavelengths1
 #}}}
@@ -261,15 +261,15 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   else: 
       plotA=111; plotB=111
   # Simple pulse, single color
-  pplt.figure()
+  plt.figure()
   #if(len(wavelength_uniq) == 1): #single color simulations
   # Complexity level: 1
   plot1=[]
-  ax1 = pplt.subplot(plotA)
+  ax1 = plt.subplot(plotA)
   
-  pplt.title('Density as function of peak intensity')
+  plt.title('Density as function of peak intensity')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   for wavelength_value in wavelength_uniq: #{{{ #TODO: wavelength_uniq should be sorted (visible in the caption)
     #if(RestrictWavelength1==False): 
       # select the corresponding wavelength in results
@@ -280,13 +280,13 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
     runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime , timeToFilterFrom = ExtractData(PlottingSinglePulses_wavelength)
     lists = sorted(zip(*[wavelengths1,FieldToIntensity(Efield1), Ne_final, pulses1]))
     wavelengths_sorted, Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(zip(*lists))
-    plotNe, = pplt.plot(Intensity_sorted, Ne_final_sorted, 'o', label=r'$N_{exc}$, $\lambda=$'+str(round(wavelength_value*1E9,0))+' nm')
+    plotNe, = plt.plot(Intensity_sorted, Ne_final_sorted, 'o', label=r'$N_{exc}$, $\lambda=$'+str(round(wavelength_value*1E9,0))+' nm')
   #}}}
   #ax1.legend(loc='best', fancybox=True, framealpha=0) #bbox_to_anchor=(1.05, 1), 
   if(not PlotVirtualExcitation): 
-    pplt.xlabel(r'Peak intensity (W/cm$^2$)')
-  pplt.ylabel(r'Final exc. density (m$^{-3}$)')
-#  pplt.ylim((1E16,4.*5e28))
+    plt.xlabel(r'Peak intensity (W/cm$^2$)')
+  plt.ylabel(r'Final exc. density (m$^{-3}$)')
+#  plt.ylim((1E16,4.*5e28))
   ax1.set_xscale('log')
   ax1.set_yscale('log')
   
@@ -303,19 +303,19 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
     lists = sorted(zip(*[wavelengths1,FieldToIntensity(Efield1), Ne_final, pulses1]))
     wavelengths_sorted, Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(zip(*lists))
 
-    pplt.plot(Intensity_sorted, np.divide(Ne_final_sorted, (np.multiply(2.,pulses1_sorted))), 'o') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
+    plt.plot(Intensity_sorted, np.divide(Ne_final_sorted, (np.multiply(2.,pulses1_sorted))), 'o') #, label=r'$N_{exc}/\tau$, $\lambda=$'+str(round(wavelength_value*1E9))+' nm')
   #}}}
   ax12.set_yscale('log')
-  pplt.ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
+  plt.ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
   
   # Second panel of the figure
   if(PlotVirtualExcitation):
-    ax2 = pplt.subplot(plotB)
-    #pplt.title('rVirtual exc. $\zeta$')
-    pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
-    pplt.xlabel(r'Peak intensity (W/cm$^2$)')
-    pplt.ylabel(r'Virtual exc. $\zeta$')
-    pplt.ylim((0,1))
+    ax2 = plt.subplot(plotB)
+    #plt.title('rVirtual exc. $\zeta$')
+    plt.plot(FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
+    plt.xlabel(r'Peak intensity (W/cm$^2$)')
+    plt.ylabel(r'Virtual exc. $\zeta$')
+    plt.ylim((0,1))
     ax2.set_xscale('log')
     ax22 = ax2.twinx()
     for wavelength_value in wavelength_uniq:
@@ -323,9 +323,9 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
       PlottingSinglePulses_wavelength = FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
       runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_wavelength)
-      pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9, 0))+' nm')
-    pplt.ylabel(r'Adiabadicity $\gamma$')
-    #pplt.ylim((0,1))
+      plt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9, 0))+' nm')
+    plt.ylabel(r'Adiabadicity $\gamma$')
+    #plt.ylim((0,1))
     ax22.set_yscale('log')
       
     # ax2.set_yscale("log")
@@ -336,11 +336,11 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   
   # Saving the plot
   ExportName = "EffectOfIntensity-"+str(int(pulseDuration*1E15))+"fs"
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print(Header+"** Saved: Metaplot-SinglePulse-SingleColor-"+ExportName+".eps|png.")
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, ax12, PlottingSinglePulses, wavelength_uniq, CEP1_uniq
   if(PlotVirtualExcitation): 
@@ -425,18 +425,18 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       else: 
         plotA=211; plotB=212;#2 rows figure 
         ncols=3
-        #pplt.figure(figsize=(SizeY, SizeX/3.*2.))
-      pplt.figure(figsize=(SizeX/3.*2.,SizeY))
+        #plt.figure(figsize=(SizeY, SizeX/3.*2.))
+      plt.figure(figsize=(SizeX/3.*2.,SizeY))
   else:
       plotA = 131; plotB = 132; plotC = 133 #Vertical
-      pplt.figure(figsize=(SizeX,SizeY))
+      plt.figure(figsize=(SizeX,SizeY))
   
   #plotA = 221; plotB = 224; plotC = 223; plotD = 222 # 2x2 for huge caption of ax1
   
   EnergyMin = 0e0 #-1E-7
   NumberOfPhotons_round = 99 #we need to initialize it here
   
-  ax1 = pplt.subplot(plotA)
+  ax1 = plt.subplot(plotA)
   
   plot1 = []
   Symbols={10e-15: '+', 10.674e-15: '+', 20e-15: 'o', 30e-15: '^'}
@@ -467,7 +467,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     
     plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
     plot1 += [plot_field]
-    pplt.xlim(x_min[pulseWavelength])
+    #plt.xlim(x_min[pulseWavelength])
     
     #==== CURVE FITTING SHOULD COME HERE === as it is for each pulse duration. 
     print(Header+"** Info: Computation of multi-photon excitation")
@@ -1001,26 +1001,26 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #}}}
   ax1.set_xlabel(r"Intensity (W/cm$^{2}$)")
   #ax1.set_ylabel(r"Final exc. density (m$^{-3}$)")
-  ax1.set_ylabel(r"n$_{\textrm{exc}}$ (m$^{-3}$)")
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  #pplt.ylabel(r'Final exc. density (m$^{-3}$)')
-  ax1.set_xscale('log')
-  ax1.set_yscale('log')
-  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax1.set_ylabel(r"n$_{\mathrm{exc}}$ (m$^{-3}$)")
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  #plt.ylabel(r'Final exc. density (m$^{-3}$)')
+  #ax1.set_xscale('log')
+  #ax1.set_yscale('log')
+  #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   labels1 = [l.get_label() for l in plot1]
   ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=1)
   
-  pplt.tight_layout()
+  #plt.tight_layout()
   #print Header+"Adding the adjusted coefficients to check our fitting law."
   
-  ax2 = pplt.subplot(plotB)
+  ax2 = plt.subplot(plotB)
   if(MoveIon): 
       MoveIonTitle=", w/ phonons."
       MoveIonFile="MoveIon"
   else: 
       MoveIonTitle=""
       MoveIonFile=""
-  pplt.title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
+  plt.title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
   print(Header+"Generating comparison with Keldysh-Gruzdev model...") ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
@@ -1031,7 +1031,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   
   for gammaValues in ListOfInterestingGammas:
       ax2.axvline(x=xscale*IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
-#  pplt.ylim((1E16,4.*5e28))
+#  plt.ylim((1E16,4.*5e28))
   #ax1.grid()
   #if(PlotWpiAxis==True): #{{{
   plot2=[]
@@ -1151,7 +1151,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     EffectiveMassList=[meff_Waroquiers_LDA]
   else: 
     EffectiveMassList=[meff_Waroquiers_LDA]
-  wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34}
+  #wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #desired
+  wPI_min={800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
+  wPI_max={800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
   
   
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
@@ -1170,10 +1172,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #plot2    += [plot24]
   #}}}
   
-  #pplt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
-  #pplt.xlim(x_min[pulseWavelength])
+  #plt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
+  #plt.xlim(x_min[pulseWavelength])
+  ax1.set_xlim(x_min[pulseWavelength]) 
   ax2.set_xlim(x_min[pulseWavelength])
-  ax2.set_ylim([wPI_min[pulseWavelength],1E45])
+  ax2.set_ylim([wPI_min[pulseWavelength],wPI_max[pulseWavelength]]) #this removes subticks without asking
   if(EnableInsetMagnification):
     ax22.set_xlim([7.3E10,2E11])
     ax22.set_ylim([3.1E37,2E39])
@@ -1189,29 +1192,39 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #ax12.set_yscale('log')
   #ax12.legend(loc='best', fancybox=True, framealpha=0)
   ax2.set_xlabel(r'Intensity (W/cm$^2$)')
-  ax2.set_ylabel('$w_{\mathrm{PI}}$ (m$^{-3}$.s$^{-1}$)')
+  ax2.set_ylabel(r'$w_{\mathrm{PI}}$ (m$^{-3}$ s$^{-1}$)')
+  
+  ax1.set_xscale('log') 
+  ax1.set_yscale('log') #enabling log scale on Y before configuring yticks works better than the opposite?!
+  
+  ax1.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
   ax2.set_yscale('log')
   if(EnableInsetMagnification):
     ax22.set_xscale('log')
     ax22.set_yscale('log')
-  ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
-  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+    
+  ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  
+  #ax2.yaxis.set_major_locator(mp.ticker.LogLocator(numticks=10))
   #ax2.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
   #ax2.axes.get_xaxis().set_visible(False)
   #ax2.axes.get_yaxis().set_visible(False)
   #else: 
-  pplt.tight_layout()
+  #plt.tight_layout()
   
   ## This should be the inset that we would put in Fig. 3a. 
   # Previously, it was prepared using GNUplot file plotFieldWpiPeaks.gnu.
   
   #if(PlotVirtualExcitation): #{{{ #NOTE: no longer used, since it has no meaning. Gauge dependent quantity. 
     
-    #ax3 = pplt.subplot(plotC)
+    #ax3 = plt.subplot(plotC)
     #plot1 = [] #np.empty((0,0))
     #for pulse_value in pulses_uniq: #{{{  
-        ##pplt.title('Virtual exc. factor')
+        ##plt.title('Virtual exc. factor')
         ## select the corresponding wavelength in results
         #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
         #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
@@ -1228,9 +1241,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #plot_field, = ax2.plot(1E-4*Intensity_sorted, irreversibility_sorted, Colors[pulse_value]+'-o', label=r'$\zeta$, $\tau=$'+str(round(pulse_value*1E15))+' fs')
         #plot1 += [plot_field]
     ##}}}
-    #pplt.xlabel(r'Peak intensity (W/cm$^2$)')
-    #pplt.ylabel(r'Virtual exc. $\zeta$')
-    #pplt.ylim((0,1))
+    #plt.xlabel(r'Peak intensity (W/cm$^2$)')
+    #plt.ylabel(r'Virtual exc. $\zeta$')
+    #plt.ylim((0,1))
     #ax3.set_xscale('log')
     #ax3.grid()
     
@@ -1243,8 +1256,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       
       #plot_field, = ax32.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, Efield1, wavelengths1), 'k-', label=r'$\gamma$')
       ##plot1 += [plot_field]
-    #pplt.ylabel(r'Adiabadicity $\gamma$')
-    ##pplt.ylim((0,1))
+    #plt.ylabel(r'Adiabadicity $\gamma$')
+    ##plt.ylim((0,1))
     #ax32.set_yscale('log')
       
     ## ax2.set_yscale("log")
@@ -1254,7 +1267,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ##ax1.legend(loc=1, borderaxespad=0.)
     ## ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     ##ax22.legend(loc=2, borderaxespad=0.)
-    #pplt.tight_layout()
+    #plt.tight_layout()
   ##}}}
   
   
@@ -1275,8 +1288,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
   
   if(PlotEnergy):
-    ax3 = pplt.subplot(plotC)
-    #pplt.title('Virtual exc. factor')
+    ax3 = plt.subplot(plotC)
+    #plt.title('Virtual exc. factor')
     
     plot3 = []
     for pulse_value in pulses_uniq: #{{{
@@ -1316,9 +1329,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #}}}
     labels3 = [l.get_label() for l in plot3]
     ax3.legend(plot3, labels3, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll)
-    pplt.xlabel(r'Peak intensity (W/cm$^2$)')
-    pplt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
-    #pplt.xlim((0,1))
+    plt.xlabel(r'Peak intensity (W/cm$^2$)')
+    plt.ylabel(r'Energy $\xi_{\mathrm{el}}^{\mathrm{TDDFT}}$ (eV)')
+    #plt.xlim((0,1))
     #locmin = mp.ticker.LogLocator(base=10.0, subs=(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 2, 3,4,5,6,7,8,9,10)) 
     #locmin = mp.ticker.LogLocator(base=10.0,numticks=4)
     #ax1.get_xaxis().set_major_locator(mp.ticker.LogLocator(base=10.0,numticks=4))
@@ -1340,7 +1353,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #ax3.set_yscale('symlog', linthreshy=1e-5)
     ax3.set_yscale('log')
     
-    pplt.tight_layout()
+    plt.tight_layout()
     #ax3.grid()
     #ax32 = ax3.twinx()
     #for pulse_value in pulses_uniq:
@@ -1349,9 +1362,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
       #runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, ElectronEnergy_max, Energy_max, W_pi, PulseType, RiseTime = ExtractData(PlottingSinglePulses_pulses)
       
-      #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), '--', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
-    #pplt.ylabel('Adiabadicity factor')
-    #pplt.ylim((0,1))
+      #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), '--', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
+    #plt.ylabel('Adiabadicity factor')
+    #plt.ylim((0,1))
     #ax32.set_yscale('log')
       
     # ax2.set_yscale("log")
@@ -1360,7 +1373,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #ax32.legend(loc=2, borderaxespad=0.)
   
   # Saving the plot
-  pplt.tight_layout()
+  plt.tight_layout()
   
   if(PlotSaturation):
       Filename_Sat = "-WithSaturation"
@@ -1368,11 +1381,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       Filename_Sat = ""
   
   ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+FileName_opt+Filename_Sat
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   print(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del PlottingSinglePulses, wavelength_uniq, CEP1_uniq
   del ax2
@@ -1429,9 +1442,9 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   Symbols={20e-15: '+', 30e-15: 'o', 60e-15: '^'}
   Colors= {20e-15: 'g', 30e-15: 'r', 60e-15: 'b'}
   
-  pplt.figure(figsize=(10,6))
-  ax1 = pplt.subplot(211)
-  ax2 = pplt.subplot(212)
+  plt.figure(figsize=(10,6))
+  ax1 = plt.subplot(211)
+  ax2 = plt.subplot(212)
   ax22= ax2.twinx()
   plot1 = []; plot2=[]
   
@@ -1689,11 +1702,11 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
-  pplt.figure(figsize=(SizeX,SizeY))
-  ax1 = pplt.subplot(111) #111 or plotA if using plotB
-  pplt.title(r'$n_{\mathrm{exc}}(I)$, $\tau=$'+str(int(pulseDuration*1E15))+' fs.')
+  plt.figure(figsize=(SizeX,SizeY))
+  ax1 = plt.subplot(111) #111 or plotA if using plotB
+  plt.title(r'$n_{\mathrm{exc}}(I)$, $\tau=$'+str(int(pulseDuration*1E15))+' fs.')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
     PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
@@ -1719,7 +1732,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   ax1.legend(plot1, labels1, loc=2)
   plt.xlabel(r'Peak intensity (W/cm$^2$)')
   plt.ylabel(r'Final density (m$^{-3}$)')
-  #  pplt.ylim((1E16,4.*5e28))
+  #  plt.ylim((1E16,4.*5e28))
   ax1.set_xscale('log')
   ax1.set_yscale('log')
   #plot1_list = plot1.tolist()
@@ -1744,22 +1757,22 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   ax12.set_yscale('log')
   ax12.set_ylabel(r'$w_{PI}$ (m$^{-3}$.s$^{-1}$)')
 
-  #ax2 = pplt.subplot(plotB)
-  #pplt.title('Virtual excitation factor')
+  #ax2 = plt.subplot(plotB)
+  #plt.title('Virtual excitation factor')
   
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  #pplt.ylabel('Virtual exc. factor')
-  #pplt.ylim((0,1))
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  #plt.ylabel('Virtual exc. factor')
+  #plt.ylim((0,1))
   #ax2.set_xscale('log')
   ##adding the Keldysh adiabatic factor
   #ax22 = ax2.twinx()
   
-  #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
+  #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
 
-  #pplt.ylabel('Adiabadicity factor')
-  ##pplt.ylim((0,1))
+  #plt.ylabel('Adiabadicity factor')
+  ##plt.ylim((0,1))
   #ax22.set_yscale('log')
 
   #ax2.set_yscale("log")
@@ -1772,7 +1785,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq
 #}}}
@@ -1798,11 +1811,11 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
-  pplt.figure(figsize=(SizeX,SizeY))
-  ax1 = pplt.subplot(111) #111 or plotA if using plotB
-  pplt.title(r'$n_{\mathrm{exc}}(I)$, $\tau=$'+str(int(pulseDuration*1E15))+r' fs, $E_{peak}=$'+str(round(FieldAmplitude*1E-9))+' V/nm.')
+  plt.figure(figsize=(SizeX,SizeY))
+  ax1 = plt.subplot(111) #111 or plotA if using plotB
+  plt.title(r'$n_{\mathrm{exc}}(I)$, $\tau=$'+str(int(pulseDuration*1E15))+r' fs, $E_{peak}=$'+str(round(FieldAmplitude*1E-9))+' V/nm.')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
   #PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
@@ -1829,7 +1842,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   #plt.xlabel(r'Peak intensity (W/m$^2$)')
   plt.xlabel(r'Carrier envelope phase $\phi$ (deg)')
   plt.ylabel(r'Final density (m$^{-3}$)')
-  #  pplt.ylim((1E16,4.*5e28))
+  #  plt.ylim((1E16,4.*5e28))
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #plot1_list = plot1.tolist()
@@ -1854,22 +1867,22 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   #ax12.set_yscale('log')
   ax12.set_ylabel(r'$w_{PI}$ (m$^{-3}$.s$^{-1}$)')
 
-  #ax2 = pplt.subplot(plotB)
-  #pplt.title('Virtual excitation factor')
+  #ax2 = plt.subplot(plotB)
+  #plt.title('Virtual excitation factor')
   
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  #pplt.ylabel('Virtual exc. factor')
-  #pplt.ylim((0,1))
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  #plt.ylabel('Virtual exc. factor')
+  #plt.ylim((0,1))
   #ax2.set_xscale('log')
   ##adding the Keldysh adiabatic factor
   #ax22 = ax2.twinx()
   
-  #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
+  #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
 
-  #pplt.ylabel('Adiabadicity factor')
-  ##pplt.ylim((0,1))
+  #plt.ylabel('Adiabadicity factor')
+  ##plt.ylim((0,1))
   #ax22.set_yscale('log')
 
   #ax2.set_yscale("log")
@@ -1883,7 +1896,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq
 #}}}
@@ -1903,11 +1916,11 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
 
-  pplt.figure()
-  ax1 = pplt.subplot(plotA)
-  pplt.title('Final density as function of peak intensity')
+  plt.figure()
+  ax1 = plt.subplot(plotA)
+  plt.title('Final density as function of peak intensity')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
   #PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
   
@@ -1917,16 +1930,16 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
   ## prints the current state of selection and stores the values of sweeped parameters
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), Ne_final, 'ow', label=r'$N_{exc}^{final}$') #, CEP='+str(round(CEP1_value*180./pi)))
+  plt.plot(FieldToIntensity(Efield1), Ne_final, 'ow', label=r'$N_{exc}^{final}$') #, CEP='+str(round(CEP1_value*180./pi)))
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), Ne_final, 'ok', label=r'$N_{exc}^{final}$, FrozenHXC')#, CEP='+str(round(CEP1_value*180./pi)))
+  plt.plot(FieldToIntensity(Efield1), Ne_final, 'ok', label=r'$N_{exc}^{final}$, FrozenHXC')#, CEP='+str(round(CEP1_value*180./pi)))
   
   ax1.legend(loc='best', fancybox=True, framealpha=0) #bbox_to_anchor=(1.05, 1), 
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  pplt.ylabel(r'Final density (m$^{-3}$)')
-  #  pplt.ylim((1E16,4.*5e28))
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  plt.ylabel(r'Final density (m$^{-3}$)')
+  #  plt.ylim((1E16,4.*5e28))
   ax1.set_xscale('log')
   ax1.set_yscale('log')
 
@@ -1935,43 +1948,43 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ow') #, label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+  plt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ow') #, label=r'$N_{exc}/\tau$') #, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ok') #, label=r'$N_{exc}/\tau$, FrozenHXC') #, I='+str(FieldToIntensity(Efield1_value))+r'
+  plt.plot(FieldToIntensity(Efield1), Ne_final/pulses1, 'ok') #, label=r'$N_{exc}/\tau$, FrozenHXC') #, I='+str(FieldToIntensity(Efield1_value))+r'
   
   ax12.set_yscale('log')
   ax12.set_ylabel(r'$w_{PI}$ (m$^{-3}$.s$^{-1}$)')
 
-  ax2 = pplt.subplot(plotB)
-  pplt.title(r'Virtual excitation $\zeta$')
+  ax2 = plt.subplot(plotB)
+  plt.title(r'Virtual excitation $\zeta$')
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
+  plt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
 
-  pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ok', label='Virtual exc., FreezeHXC')
+  plt.plot(FieldToIntensity(Efield1), irreversibility, 'ok', label='Virtual exc., FreezeHXC')
   
-  pplt.xlabel(r'Peak intensity (W/cm$^2$)')
-  pplt.ylabel(r'Virtual exc. $\zeta$')
-  pplt.ylim((0,1))
+  plt.xlabel(r'Peak intensity (W/cm$^2$)')
+  plt.ylabel(r'Virtual exc. $\zeta$')
+  plt.ylim((0,1))
   ax2.set_xscale('log')
   #adding the Keldysh adiabatic factor
   ax22 = ax2.twinx()
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_NoFreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or', label=r'Adiabaticity $\gamma$') #BUG: 2.56 must not be specified by hand here! 
+  plt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or', label=r'Adiabaticity $\gamma$') #BUG: 2.56 must not be specified by hand here! 
   
   runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_CEP_FreezeHXC)
   
-  pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or') #, label='Adiabaticity') #BUG: 2.56 must not be specified by hand here! 
+  plt.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or') #, label='Adiabaticity') #BUG: 2.56 must not be specified by hand here! 
   
-  pplt.ylabel(r'Adiabadicity $\gamma$')
-  #pplt.ylim((0,1))
+  plt.ylabel(r'Adiabadicity $\gamma$')
+  #plt.ylim((0,1))
   ax22.set_yscale('log')
 
   #print Efield1, CEP1_value
@@ -1979,12 +1992,12 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
   #ax2.legend(loc=2, borderaxespad=0.)
   # ax1.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   #ax22.legend(loc=1, borderaxespad=0.)
-  pplt.tight_layout()
+  plt.tight_layout()
   # Saving the plot
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfFrozenHXC.eps')
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfFrozenHXC.png')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfFrozenHXC.eps')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfFrozenHXC.png')
   #if(ShowFinalPlot==1):
-    #pplt.show()
+    #plt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq, wavelengths1
 #}}}
@@ -2137,13 +2150,13 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # Complexity level: 2
   
   if(output_format=='publication'):
-    pplt.figure(figsize=(6,2*5)) #new figure
+    plt.figure(figsize=(6,2*5)) #new figure
     plotA=211; plotB=212 #vertical figures (adequate for PRL)
   else: 
-    pplt.figure(figsize=(2*6,6)) #new figure
+    plt.figure(figsize=(2*6,6)) #new figure
     plotA=121; plotB=122 #horizontal figures (adequate for presentation)
   
-  ax1 = pplt.subplot(plotA)
+  ax1 = plt.subplot(plotA)
   #ax1.set_prop_cycle('color',Colors)
   
   # Create inset in ax1 region. 
@@ -2260,7 +2273,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   #exit()
   # We separate TDDFT and Keldysh predictions now. 
-  ax2 = pplt.subplot(plotB)
+  ax2 = plt.subplot(plotB)
   # Create inset in ax2 region. 
   ax22 = inset_axes(ax2, width="35%", height="35%", loc="lower right", borderpad=1.5)
   
@@ -2460,7 +2473,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
-    #pplt.title('Final density as function of laser wavelength')
+    #plt.title('Final density as function of laser wavelength')
     print(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
     
     for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
@@ -2564,7 +2577,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #ax22.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   
   ## Saving this first double figure
-  pplt.tight_layout()
+  plt.tight_layout()
   filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-Keldysh-'+str(int(pulseDuration*1E15))
   if(PlotValleysInset):
       filename+="-Valleys"
@@ -2576,8 +2589,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       filename+="-NoOpticalIndex"
   if(PlotSaturation):
       filename+="-WithSaturation"
-  pplt.savefig(filename+'.eps')
-  pplt.savefig(filename+'.png')
+  plt.savefig(filename+'.eps')
+  plt.savefig(filename+'.png')
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
@@ -2624,7 +2637,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   plt.figure()
   ax3 = plt.subplot(111)
   #plt.title('Irreversibility factor')
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
     #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
     PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
@@ -2654,20 +2667,20 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             
     del PlottingSinglePulses_Efield
     
-  #pplt.xlabel(r'Intensity (W/m$^2$)')
+  #plt.xlabel(r'Intensity (W/m$^2$)')
   if(not EnergyAxis):
     ax3.set_xlabel('Laser wavelength (nm)')
   else: 
     ax3.set_xlabel('Photon energy (eV)')
-  #pplt.ylabel('Irreversibility factor')
+  #plt.ylabel('Irreversibility factor')
   ax3.set_ylabel('Energy absorbed by electrons (eV)')
-  #pplt.ylim((0,1))
+  #plt.ylim((0,1))
   if(not EnergyAxis): 
     ax3.set_xlim([wavelengths1_min, wavelengths1_max])
-    pplt.xlim((wavelengths1_min, wavelengths1_max))#ax2.set_xscale('log')
+    plt.xlim((wavelengths1_min, wavelengths1_max))#ax2.set_xscale('log')
   else: 
     ax3.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
-    pplt.xlim((h*c/wavelengths1_max/e, h*c/wavelengths1_min/e))#ax2.set_xscale('log')
+    plt.xlim((h*c/wavelengths1_max/e, h*c/wavelengths1_min/e))#ax2.set_xscale('log')
   
   ## TODO: this can be removed, since irreversibility is gauge-dependent. 
   #if(PlotIrreversibility): #{{{
@@ -2708,7 +2721,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         #del PlottingSinglePulses_Efield
     
     
-    #pplt.ylabel(r'Irreversibility $\zeta$')
+    #plt.ylabel(r'Irreversibility $\zeta$')
     #ax22.set_yscale('log')
   ##}}}
   
@@ -2776,10 +2789,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
             ##ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
         del PlottingSinglePulses_Efield
     
-    #pplt.ylabel(r'Irreversibility $\zeta$')
+    #plt.ylabel(r'Irreversibility $\zeta$')
     #ax22.set_yscale('log')
       #ax22 = ax2.twinx()
-  #pplt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
+  #plt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
   ax3.set_xscale("log")
   ax3.set_yscale("symlog", linthreshy=1e-9)
@@ -2787,9 +2800,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
   if(not EnergyAxis): 
-    pplt.xlim((200.,2100.))
+    plt.xlim((200.,2100.))
   else: 
-    pplt.xlim((0.3,10.))
+    plt.xlim((0.3,10.))
   
   
   #ResonantWavelength = h*c/Egap_SI
@@ -2811,12 +2824,12 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax22.legend(loc=1, borderaxespad=0.)
 
   # Saving the plot
-  pplt.tight_layout
+  plt.tight_layout
   filename = 'Metaplot-SinglePulse-SingleColor-EffectOfWavelength_Tol10-Drude-'+str(int(pulseDuration*1E15))
-  pplt.savefig(filename+'.eps')
-  pplt.savefig(filename+'.png')
+  plt.savefig(filename+'.eps')
+  plt.savefig(filename+'.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingSinglePulses
   #}}}
@@ -2914,10 +2927,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   print(CEP2_uniq)
   #exit()
   
-  pplt.figure(figsize=(12,6)) #new figure
+  plt.figure(figsize=(12,6)) #new figure
   plotA=121; plotB=122
   
-  ax1 = pplt.subplot(111)
+  ax1 = plt.subplot(111)
   
   #ax1.set_prop_cycle('color',Colors)
     
@@ -2986,7 +2999,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
 #}}} #end for
   
   # We separate TDDFT and Keldysh predictions now. 
-  #ax2 = pplt.subplot(plotB)
+  #ax2 = plt.subplot(plotB)
   
   #for Efield2_compare in FieldOfInterest: #{{{
     #print Header+"Building comparison with Keldysh-Gruzdev..."
@@ -3027,7 +3040,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
-    #pplt.title('Final density as function of laser wavelength')
+    #plt.title('Final density as function of laser wavelength')
     print(Header+"Total number of datasets: "+str(len(set(Efield2_uniq))))
     
     for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
@@ -3136,10 +3149,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #ax2.axvline(x=1./4.*Egap_SI/e, color='k', linestyle='--', linewidth=1)
   
   ## Saving this first double figure
-  #pplt.tight_layout()
+  #plt.tight_layout()
   filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))+"-CEP"+str(round(CEP2_request*180./np.pi,0))
-  pplt.savefig(filename+'.eps')
-  pplt.savefig(filename+'.png')
+  plt.savefig(filename+'.eps')
+  plt.savefig(filename+'.png')
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
@@ -3205,7 +3218,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   ax3 = plt.subplot(111)
   #plt.title('Irreversibility factor')
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
   for Efield2_compare in FieldOfInterest: #for each value of Efield1, we make a new search, and plot one new line in the chart
     #PlottingDoublePulses_Efield = FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
     PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_compare*(1.+FieldTolerance), IndexTable['Efield2'])
@@ -3244,14 +3257,14 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
             
     del PlottingDoublePulses_Efield
     
-  #pplt.xlabel(r'Intensity (W/m$^2$)')
+  #plt.xlabel(r'Intensity (W/m$^2$)')
   if(not EnergyAxis):
     ax3.set_xlabel('Laser wavelength (nm)')
   else: 
     ax3.set_xlabel('Photon energy (eV)')
-  #pplt.ylabel('Irreversibility factor')
+  #plt.ylabel('Irreversibility factor')
   ax3.set_ylabel('Energy absorbed by electrons (eV)')
-  #pplt.ylim((0,1))
+  #plt.ylim((0,1))
   #ax2.set_xscale('log')
   
   ## TODO: this can be removed, since irreversibility is gauge-dependent. 
@@ -3293,7 +3306,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
         #del PlottingDoublePulses_Efield
     
     
-    #pplt.ylabel(r'Irreversibility $\zeta$')
+    #plt.ylabel(r'Irreversibility $\zeta$')
     #ax22.set_yscale('log')
   ##}}}
   
@@ -3367,10 +3380,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
             ##ax22.plot(wavelengths1_sorted_show, gammaKeldysh(Egap_SI, 0.228, Efield2_value, wavelengths1_sorted), '--k', label='Adiabaticity')
         del PlottingDoublePulses_Efield
     
-    #pplt.ylabel(r'Irreversibility $\zeta$')
+    #plt.ylabel(r'Irreversibility $\zeta$')
     #ax22.set_yscale('log')
       #ax22 = ax2.twinx()
-  #pplt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
+  #plt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
   labels1 = [l.get_label() for l in plot1]
   ax3.legend(plot1, labels1, loc='best') #outside right, middle
@@ -3379,9 +3392,9 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
   if(not EnergyAxis): 
-    pplt.xlim((200.,2100.))
+    plt.xlim((200.,2100.))
   else: 
-    pplt.xlim((0.5,7.))
+    plt.xlim((0.5,7.))
   
   
   #ResonantWavelength = h*c/Egap_SI
@@ -3404,14 +3417,14 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #ax22.legend(loc=1, borderaxespad=0.)
 
   # Saving the plot
-  #pplt.tight_layout()
+  #plt.tight_layout()
   #filename = 'Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Efield1*1E-9,0))+'Vnm-Keldysh-'+str(int(pulseDuration*1E15))
   filename='Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Drude-'+str(int(pulseDuration*1E15))
-  pplt.savefig(filename+'.eps')
-  pplt.savefig(filename+'.png')
+  plt.savefig(filename+'.eps')
+  plt.savefig(filename+'.png')
   print((Header+"Bicolor_plotEffectOfWavelength_Tolerance: successfully wrote the bicolor Stark analysis."))
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingDoublePulses
   #}}}
@@ -3442,11 +3455,11 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
-  pplt.figure(figsize=(8,8./GoldNumber))
-  ax1 = pplt.subplot(111) #111 or plotA if using plotB
-  pplt.title(r'$n_{\mathrm{exc}}(\phi_{\mathrm{CEP}})$')
+  plt.figure(figsize=(8,8./GoldNumber))
+  ax1 = plt.subplot(111) #111 or plotA if using plotB
+  plt.title(r'$n_{\mathrm{exc}}(\phi_{\mathrm{CEP}})$')
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
-  #pplt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
+  #plt.scatter(FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
   #PlottingSinglePulses_CEP = FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
@@ -3467,7 +3480,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   #plt.xlabel(r'Peak intensity (W/m$^2$)')
   plt.xlabel(r'Carrier envelope phase $\phi$ (deg)')
   plt.ylabel(r'Final density (m$^{-3}$)')
-  #  pplt.ylim((1E16,4.*5e28))
+  #  plt.ylim((1E16,4.*5e28))
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #plot1_list = plot1.tolist()
@@ -3499,22 +3512,22 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
   
   
-  #ax2 = pplt.subplot(plotB)
-  #pplt.title('Virtual excitation factor')
+  #ax2 = plt.subplot(plotB)
+  #plt.title('Virtual excitation factor')
   
-  #pplt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
+  #plt.plot(FieldToIntensity(Efield1), irreversibility, 'ow', label='Virtual exc.')
   
-  #pplt.xlabel(r'Peak intensity (W/m$^2$)')
-  #pplt.ylabel('Virtual exc. factor')
-  #pplt.ylim((0,1))
+  #plt.xlabel(r'Peak intensity (W/m$^2$)')
+  #plt.ylabel('Virtual exc. factor')
+  #plt.ylim((0,1))
   #ax2.set_xscale('log')
   ##adding the Keldysh adiabatic factor
   #ax22 = ax2.twinx()
   
-  #pplt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
+  #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), 'or', label='Adiab. fact.') #BUG: 2.56 must not be specified by hand here! 
 
-  #pplt.ylabel('Adiabadicity factor')
-  ##pplt.ylim((0,1))
+  #plt.ylabel('Adiabadicity factor')
+  ##plt.ylim((0,1))
   #ax22.set_yscale('log')
 
   #ax2.set_yscale("log")
@@ -3528,7 +3541,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   plt.savefig('Metaplot-Bicolor-'+ExportName+'.eps')
   plt.savefig('Metaplot-Bicolor-'+ExportName+'.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del ax1, PlottingSinglePulses, wavelength_uniq
 #}}}
@@ -3555,7 +3568,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
   #plt.figure(figsize=(SizeX,SizeY)) #new figure
   DensityMax2D = np.empty((0,3)) #preparing the 2D plot
   #print DensityMax2D
-  #ax1 = pplt.subplot(111)
+  #ax1 = plt.subplot(111)
   plt.title('Final density as function of laser wavelength')
   print(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
   
@@ -3594,11 +3607,11 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
   #ax1.set_yscale('log')
 
   # Saving the plot
-  pplt.tight_layout()
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelengthAndField.eps')
-  pplt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelengthAndField.png')
+  plt.tight_layout()
+  plt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelengthAndField.eps')
+  plt.savefig('Metaplot-SinglePulse-SingleColor-EffectOfWavelengthAndField.png')
   if(ShowFinalPlot==1):
-    pplt.show()
+    plt.show()
 
   del PlottingSinglePulses, DensityMax2D
 #}}}
@@ -4124,7 +4137,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
     #for wavelength in [3200E-9, 2600e-9, 2200e-9, 1600e-9, 800e-9]: 
-    for wavelength in [3200E-9, 1600e-9, 800e-9]: 
+    for wavelength in [800e-9, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
       #try:
       plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
       #except:
