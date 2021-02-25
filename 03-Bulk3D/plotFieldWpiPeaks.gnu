@@ -46,7 +46,11 @@ set errorbars small
 print "Plotting hills..."
 
 p TDDFT_Hills   u 1:2:3  w errorbar t 'TDDFT'     lc "red"  lw 1 pt 1 ps 0.5, \
-  Keldysh_Hills u 1:2:3  w errorbar t 'Keldysh'   lc "blue" lw 1 pt 2 ps 0.3
+  Keldysh_Hills u 1:2:3  w errorbar t 'Keldysh'   lc "blue" lw 1 pt 2 ps 0.3, \
+  Egap/2.                w  l       notitle       lc "black" lw 0.5 lt 2, \
+  Egap/3.                w  l       notitle       lc "black" lw 0.5 lt 2, \
+  Egap/4.                w  l       notitle       lc "black" lw 0.5 lt 2, \
+  Egap/5.                w  l       notitle       lc "black" lw 0.5 lt 2
 
 #   Keldysh_Hills u (xunit*$1):($3)       w p         notitle   lc "blue" lw 2 pt 2, \
 #   Keldysh_Hills u (xunit*$1):($4)       w p         notitle   lc "blue" lw 2 pt 2, \
@@ -73,8 +77,9 @@ p TDDFT_Valleys   u ($1*xunit):2  w p t 'TDDFT'     lc "red"  lw 1 pt 1 ps 1.0, 
   Keldysh_Valleys u ($1*xunit):2  w p t 'Keldysh'   lc "blue" lw 1 pt 2 ps 1.0, \
   Egap/2.                w  l       notitle       lc "black" lw 0.5 lt 2, \
   Egap/3.                w  l       notitle       lc "black" lw 0.5 lt 2, \
-  Egap/4.                w  l       notitle       lc "black" lw 0.5 lt 2
-  
+  Egap/4.                w  l       notitle       lc "black" lw 0.5 lt 2, \
+  Egap/5.                w  l       notitle       lc "black" lw 0.5 lt 2
+ 
 
 
 
