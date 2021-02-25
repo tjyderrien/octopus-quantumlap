@@ -53,15 +53,15 @@ def cubic(a, alpha):
     c2 = (a**2*np.cos(alpha)-(a*np.cos(gamma))*(a*np.cos(beta)))/b2
     c3 = np.sqrt(a**2 - c1**2-c2**2)
     
-    print "Not normalized"
-    print str(a1)+"|"+str(a2)+"|"+str(a3)
-    print str(b1)+"|"+str(b2)+"|"+str(b3)
-    print str(c1)+"|"+str(c2)+"|"+str(c3)
-    print ""
-    print "Normalized"
-    print str(a1/a)+"|"+str(a2/a)+"|"+str(a3/a)
-    print str(b1/a)+"|"+str(b2/a)+"|"+str(b3/a)
-    print str(c1/a)+"|"+str(c2/a)+"|"+str(c3/a)
+    print("Not normalized")
+    print(str(a1)+"|"+str(a2)+"|"+str(a3))
+    print(str(b1)+"|"+str(b2)+"|"+str(b3))
+    print(str(c1)+"|"+str(c2)+"|"+str(c3))
+    print("")
+    print("Normalized")
+    print(str(a1/a)+"|"+str(a2/a)+"|"+str(a3/a))
+    print(str(b1/a)+"|"+str(b2/a)+"|"+str(b3/a))
+    print(str(c1/a)+"|"+str(c2/a)+"|"+str(c3/a))
   
 
 ## Cubic symmetric crystalline structure
@@ -88,12 +88,12 @@ def hexagonal(a, c, alpha, gamma):
     c2 = (a*c*np.cos(alpha)-b1*c1)/b2
     c3 = s2*np.sqrt(c**2 - c1**2-c2**2)
     
-    print "Not normalized"
-    print str(a1)+"|"+str(a2)+"|"+str(a3)
-    print str(b1)+"|"+str(b2)+"|"+str(b3)
-    print str(c1)+"|"+str(c2)+"|"+str(c3)
-    print ""
-    print "Normalized"
-    print str(a1/a)+"|"+str(a2/a)+"|"+str(a3/a)
-    print str(b1/a)+"|"+str(b2/a)+"|"+str(b3/a)
-    print str(c1/c)+"|"+str(c2/c)+"|"+str(c3/c)
+    print("Not normalized")
+    print(str(a1)+"|"+str(a2)+"|"+str(a3))
+    print(str(b1)+"|"+str(b2)+"|"+str(b3))
+    print(str(c1)+"|"+str(c2)+"|"+str(c3))
+    print("")
+    print("Normalized")
+    print(str(a1/a)+"|"+str(a2/a)+"|"+str(a3/a))
+    print(str(b1/a)+"|"+str(b2/a)+"|"+str(b3/a))
+    print(str(c1/c)+"|"+str(c2/c)+"|"+str(c3/c))

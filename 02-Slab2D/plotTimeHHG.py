@@ -79,7 +79,7 @@ if(PlottingMode == "auto"):
   if(PlottingMethod == "bruteforce"): #{{{
     PlottingMode = sys.argv[1]
     if( not (PlottingMode == "nonthermalmelting" or PlottingMode == "doublepulse" or PlottingMode == "keldysh") ):
-      print "Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1> <ShowFinalPlot = 0 | 1>"
+      print("Usage: plotTimeKeldysh.sh <PlottingMode = nonthermalmelting | doublepulse | keldysh> <LogScale = 0 | 1> <ShowFinalPlot = 0 | 1>")
       exit()
   #}}}
 ## METHOD detection in input file
@@ -101,14 +101,14 @@ if(PlottingMode == "auto"):
       PlottingMode="nonthermalmelting" #priority 2
     else: 
       PlottingMode="keldysh" #priority 3
-    print "** Plotting mode automatic: "+PlottingMode
+    print("** Plotting mode automatic: "+PlottingMode)
   #}}}
 if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
 #    ShowFinalPlot  = 0     # MORE SAFE. 
   except: 
-    print "Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1> <ShowFinalPlot? 0 | 1>."
+    print("Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1> <ShowFinalPlot? 0 | 1>.")
     exit()
 if(sys.argv[3] == ""):
   ShowFinalPlot = 0
@@ -159,26 +159,26 @@ Efield_norm_SI  = Field_AU_to_SI(Efield_norm_AU)
 Efield2_norm_SI = Field_AU_to_SI(Efield2_norm_AU)
 Efield_amplitude_SI =np.max(abs(Efield_norm_SI))
 Efield_amplitudeB_SI=np.max(abs(Efield2_norm_SI))
-print Header+"** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm."
-print Header+"** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm."
+print(Header+"** Info: Electric field 1: amplitude = "+str(Efield_amplitude_SI / 1E9)+" V/nm.")
+print(Header+"** Info: Electric field 2: amplitude = "+str(Efield_amplitudeB_SI / 1E9)+" V/nm.")
 
 ### Computing the total oscillating field for mixed pulses (from octopus, real-valued)
 EfieldAB_X_AU = Efield_X_AU + Efield2_X_AU
 EfieldAB_Y_AU = Efield_Y_AU + Efield2_Y_AU
 EfieldAB_amplitude_AU = np.sqrt(EfieldAB_X_AU**2 + EfieldAB_Y_AU**2) #if polarization are crossed, Keldysh will NOT WORK ! But this is the point: generating the data we need in that case :) 
 EfieldAB_amplitude_SI = np.max(abs(Field_AU_to_SI(EfieldAB_amplitude_AU)))
-print Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_SI / 1E9)+" V/nm."
+print(Header+"** Info: Electric field 1+2: amplitude = "+str(EfieldAB_amplitude_SI / 1E9)+" V/nm.")
  
 ### Importing input from octopus 
-print Header+"== Getting input from octopus... =="
-print Header+" PULSE 1 ..."
+print(Header+"== Getting input from octopus... ==")
+print(Header+" PULSE 1 ...")
 #wavelength_inp       = LookUpStringInFile("../inp", "lambdaA =")
 wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
 PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     #float(wavelength_inp[10:17])
 #PulseDuration_inp    = LookUpStringInFile("../inp", "tauAsi = ")
 
-print Header+" PULSE 2 ..."
+print(Header+" PULSE 2 ...")
 #wavelengthB_inp      = LookUpStringInFile("../inp", "lambdaB = ")
 wavelengthB_SI       = GetParameterValueFromInputFile(filename, "lambdaB = ")
 #PulseDurationB_inp   = LookUpStringInFile("../inp", "tauBsi = ")
@@ -190,20 +190,20 @@ DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = 
 PulseType_inp   = LookUpStringInFile("../inp", "FieldColorA-")
 PulseType_value = PulseType_inp[49:] #this allows to have unique solution
 if("FieldColorA-Gaussian" in PulseType_value):
-  print Header+"** Info: Gaussian pulse detected..."
+  print(Header+"** Info: Gaussian pulse detected...")
   PulseType="gaussian"
 elif ("FieldColorA-SinSquared" in PulseType_value):
-  print Header+"** Info: Squared Sinus pulse detected..."
+  print(Header+"** Info: Squared Sinus pulse detected...")
   PulseType="SinSquared"
 elif ("FieldColorA-STH" in PulseType_value):
-  print Header+"** Info: Soft Top Hat pulse detected..."
+  print(Header+"** Info: Soft Top Hat pulse detected...")
   PulseType="STH"
 elif ("FieldColorA-StH" in PulseType_value):
-  print Header+"** Info: Soft Top Hat pulse [corrected] detected..."
+  print(Header+"** Info: Soft Top Hat pulse [corrected] detected...")
   PulseType="StH"
 else: 
-  print Header+"** Error: pulse type was not recognized."
-  print Header+"** Error value: PulseType_value = "+str(PulseType_value)
+  print(Header+"** Error: pulse type was not recognized.")
+  print(Header+"** Error value: PulseType_value = "+str(PulseType_value))
   exit()
 
 ##==== KELDYSH CALCULATION PULSE 1 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
@@ -216,16 +216,16 @@ PeakIntensity_SI  = Keldysh.FieldToIntensity(Efield_amplitude_SI)
 PeakFluence_SI    = PeakIntensity_SI * PulseDuration_SI
 PeakFluenceText   = round(PeakFluence_SI*1E-4*1E3)
 PeakIntensityText = PeakIntensity_SI * 1E-4 #W/cm2
-print Header+"** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2."
-print Header+"** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2."
+print(Header+"** Info: equiv. Peak fluence = "+str(PeakFluenceText)+" mJ/cm2.")
+print(Header+"** Info: equiv. Peak intensity = "+str(PeakIntensityText)+" W/cm2.")
 
 ##==== KELDYSH CALCULATION PULSE 2 ==== NOTE: /!\ ONLY VALID FOR GAUSSIAN PULSES !!
 PeakIntensityB_SI = Keldysh.FieldToIntensity(np.max(Efield2_norm_SI))
 PeakFluenceB_SI = PeakIntensityB_SI * PulseDurationB_SI
 PeakFluenceBText=round(PeakFluenceB_SI*1E-4*1E3)
 PeakIntensityBText = PeakIntensityB_SI * 1E-4 #W/cm2
-print Header+"** Info: equiv. Peak fluence = "+str(PeakFluenceBText)+" mJ/cm2."
-print Header+"** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2."
+print(Header+"** Info: equiv. Peak fluence = "+str(PeakFluenceBText)+" mJ/cm2.")
+print(Header+"** Info: equiv. Peak intensity = "+str(PeakIntensityBText)+" W/cm2.")
 
 CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 # if(PlottingMode == "doublepulse"):
@@ -249,15 +249,15 @@ elif(PulseType == "STH" or PulseType=="StH"):
   tmin = -2.*PulseDuration_SI + t0
   tmax =  2.*PulseDuration_SI + t0 #BUG
 else: 
-  print Header+"** Error: pulse type was not recognized. "
-  print Header+"** Error details: PulseType = "+str(PulseType)
+  print(Header+"** Error: pulse type was not recognized. ")
+  print(Header+"** Error details: PulseType = "+str(PulseType))
   exit()
   
 instants=np.arange(tmin,tmax,dtPrecision)
 
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 auto reading from octopus input file
 
-print Header+"Defining Pulses for Keldysh analysis..."
+print(Header+"Defining Pulses for Keldysh analysis...")
 if(PulseType == "SinSquared"): 
   FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
   FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
@@ -276,13 +276,13 @@ elif(PulseType == "STH" or PulseType=="StH"):
   #IntensityEnvelope2 = Keldysh.PulseGaussianTemporalShape(t0, PulseDurationB_SI, Keldysh.FieldToIntensity(Efield_amplitudeB_SI), t0)
   FieldEnvelope2     = Efield2_norm_SI #Keldysh.IntensityToField(IntensityEnvelope2)
 else: 
-  print Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized."
+  print(Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized.")
   exit()
   
 if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
-  print Header+"Computing Keldysh for Pulse 1: "
+  print(Header+"Computing Keldysh for Pulse 1: ")
   try: 
     timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
   except:
@@ -292,7 +292,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
-    print Header+"Computing Keldysh for Pulse 2: "
+    print(Header+"Computing Keldysh for Pulse 2: ")
     try: 
       timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     except: 
@@ -300,7 +300,7 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
       N_GruzdevB_SI = N_Gruzdev_SI * 0e0
 
     ##==== KELDYSH CALCULATION FOR BOTH PULSES =====
-    print Header+"Preparing double pulse for Keldysh..."
+    print(Header+"Preparing double pulse for Keldysh...")
   #   PeakIntensityAB_SI  = Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
   #   PeakIntensityABText = PeakIntensityAB_SI * 1E-4 #W/cm2
 
@@ -308,13 +308,13 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   #    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
       timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     else:
-      print "Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]"
+      print("Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]")
 #}}}
 elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
   PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
 else: 
-  print Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse."
+  print(Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse.")
   exit()
 
 ##==== Prepare plotting of N_EX (projection method)  ====
@@ -340,8 +340,8 @@ except:
 
 # Somehow checking the data integrity
 if(timeEnergies.size != ElectronEnergy.size):
-  print "** Error: sizes for energies are different. "
-  print timeEnergies.size, ElectronEnergy.size
+  print("** Error: sizes for energies are different. ")
+  print(timeEnergies.size, ElectronEnergy.size)
   exit()
 
 # Controlling that we well understood the energy balance. 
@@ -369,16 +369,16 @@ tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 
 PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 
-print "Captured pulse duration [fs]: "+str(1E15*PulseDuration_SI)
+print("Captured pulse duration [fs]: "+str(1E15*PulseDuration_SI))
 
-print "Current: "+str(timeCurrent.size)+", "+str(CurrentX.size)
-print "Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU)
-print "Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15)
+print("Current: "+str(timeCurrent.size)+", "+str(CurrentX.size))
+print("Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU))
+print("Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15))
 
-print Header+"** Info: cleaning the current for HHG computation."
-CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 3*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
-CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 3*PulseDuration_SI)
-CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 3*PulseDuration_SI)
+print(Header+"** Info: cleaning the current for HHG computation.")
+CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
+CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 2*PulseDuration_SI)
+CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 2*PulseDuration_SI)
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -421,15 +421,15 @@ SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
 CellVolume_AU = Sample.VolumePerPoint_Log("../") #0.06385 #0.07820 #Bohr**3
 CellVolume_SI = Volume_AU_to_SI(CellVolume_AU)
 
-print ""
-print "Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3."
-print "Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}." 
-print ""
-print "Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3."
-print "Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}."
-print ""
-print "Cell volume = "+str(CellVolume_AU)+" Bohr**3."
-print "Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}."
+print("")
+print("Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
+print("Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}.") 
+print("")
+print("Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3.")
+print("Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
+print("")
+print("Cell volume = "+str(CellVolume_AU)+" Bohr**3.")
+print("Cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
 
 ##====== Excited density spatial integration ========
 
@@ -471,16 +471,16 @@ dtCurrent = timeCurrentdt[1]-timeCurrentdt[0]
 ##=== Convert density from AU to SI =====
 # Avoid ill-defined units
 if(UnitSystem == "SI"):
-  print "** Info: SI system chosed."
+  print("** Info: SI system chosed.")
   observable_proj = Density_AU_to_SI(density_proj_AU)
 #  observable_post = Density_AU_to_SI(density_post_AU)
 elif(UnitSystem == "AU"):
-  print "** Info: AU system chosed."
+  print("** Info: AU system chosed.")
   observable_proj = density_proj_AU
 #  observable_post = density_post_AU
 
 else: 
-  print "** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py."
+  print("** Error: Unit system was ill defined. Set UnitSystem=[SI,AU] in plotTimeKeldysh.py.")
   exit()
 
 #### Building up an instantaneous W_PI(t)
@@ -498,7 +498,7 @@ else:
 
 ### Converting fields from AU to SI
 
-print "TimeStep = "+str(dtCurrent)
+print("TimeStep = "+str(dtCurrent))
 
 ## ================================== TIME FOR PLOTTING ====================
 # Managing stepwise maximum for Y1
@@ -771,5 +771,5 @@ plt.savefig(filename+'.png', bbox_inches='tight')
 if(ShowFinalPlot==1):
   plt.show()
 
-print "** Info: Script ended sucessfully."
-print "** Goodbye."
+print("** Info: Script ended sucessfully.")
+print("** Goodbye.")

@@ -35,14 +35,14 @@ dataset_in = dataset_full[:,[1,2,3,4,5,6,7,8,]]
 dataset_out = dataset_full[:,16] #15: NeMax, #16: NeFinal, #19: EnergyFinal, #20: Wpi
 
 print("=== Shapes ===")
-print(np.shape(dataset_in))
-print(np.shape(dataset_out))
+print((np.shape(dataset_in)))
+print((np.shape(dataset_out)))
 
 print("==== Learning ===")
 alpha_val = 1E0
 #reg = linear_model.Lasso(alpha=alpha_val, max_iter=1000000, random_state=True, positive=True, normalize=True, copy_X=False, fit_intercept = True, precompute=True)
 reg = linear_model.Ridge(alpha=alpha_val, copy_X=False, fit_intercept=False, max_iter=None, normalize=False, random_state=True)
-print(reg.fit(dataset_in,dataset_out))
+print((reg.fit(dataset_in,dataset_out)))
 
 print("=== Prediction ===")
 lambda1=800e-9
@@ -54,7 +54,7 @@ tau2=30e-15
 Efield2=5E10
 CEP2=0E0
 #print(np.shape(dataset_in))
-print(reg.predict([[lambda1, tau1, Efield1, CEP1, lambda2, tau2, Efield2, CEP2]]))
+print((reg.predict([[lambda1, tau1, Efield1, CEP1, lambda2, tau2, Efield2, CEP2]])))
 #exit()
 #print(reg.coef_)
 ##print(reg.intercept_)

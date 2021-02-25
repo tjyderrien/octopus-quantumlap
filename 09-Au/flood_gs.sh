@@ -25,15 +25,17 @@ MeshSizeX_SI="0.20" #"0.15 0.18 0.20 0.23" #0.23 Bohr, octopus-recommended value
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
-NumNodes=1
-Mission="Au_GS_LDA"
+NumNodes=8
+Mission="AuGS-SR"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16 24" # "12 16 24"
+kPoints="28 32" # "12 16 24"
 InitialTemperature="0e0"
 SmearingTe="0.025" #"1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="PBE" #LDA, PBE, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="LDA" #LDA, PBE, PBEsol, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Relativistic="yes" #default: no. Optical response for Au fails without relativistic treatment. Spin-Orbit coupling is also important for optical properties. See New Journal of Physics 12 (2010) 103048.
+
 # SampleXY="8 10 12 14 16 18 20"
 for iSmearingTe in ${SmearingTe}
 do
@@ -55,7 +57,7 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $QuantumLaPsources/09-Au/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iSmearingTe}
+      $QuantumLaPsources/09-Au/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iSmearingTe} ${Relativistic}
  #    done
     done
  #   done

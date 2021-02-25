@@ -6,18 +6,20 @@ set output
 
 set xrange [-10:25]
 
-PathToFiles="/home/tjyderrien/octopus-slabs/06-Mo/"
+Material="Au" #Mo|Au
+#PathToFiles="/home/tjyderrien/octopus-slabs/06-Mo/"
+PathToFiles="/home/tjyderrien/octopus-slabs/09-Au/"
 
 H_to_eV=27.21138602 #1 Hartree -> eV
 
-Zhigilei=PathToFiles."DOS_Mo.dat"
+Zhigilei=PathToFiles."DOS_".Material.".dat"
 localDos="static/total-dos.dat"
 Dorchies=PathToFiles."Dorchies2015-Fig1-Mo.csv"
 Nechaev=PathToFiles."Nechaev-Fig1-Mo.csv"
 
 ## Finding latest LOG file automatically
 
-localEFfile=system("ls -tr *.log -1 | tail -n1")
+localEFfile=system("ls -tr *octopus*.log -1 | tail -n1")
 print "Latest LOG file: ".localEFfile
 localEF=system("grep 'Fermi' ".localEFfile." | tail -n1 | awk '{ print $4 }'") #0.452100 #Ha with LDA. 
 print "Fermi energy: ".localEF." H"
@@ -26,8 +28,8 @@ set xlabel 'Energy (eV)'
 
 set key top left 
 
-set ytics  nomirror
-set y2tics nomirror
+# set ytics  nomirror
+# set y2tics nomirror
 coeff=1./2.5/4./1.5
 
 unset log y

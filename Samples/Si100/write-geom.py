@@ -15,9 +15,9 @@ else:
     m = 1 
 #    L = 30.
 # lattice vectors
-print "lattice_vector  %.16f  %.16f  %.16f" % (n*A+L_vac, 0., 0.) #x
-print "lattice_vector  %.16f  %.16f  %.16f" % (0, m*D, 0.)  #y
-print "lattice_vector  %.16f  %.16f  %.16f" % (0, 0., m*D)  #z
+print("lattice_vector  %.16f  %.16f  %.16f" % (n*A+L_vac, 0., 0.)) #x
+print("lattice_vector  %.16f  %.16f  %.16f" % (0, m*D, 0.))  #y
+print("lattice_vector  %.16f  %.16f  %.16f" % (0, 0., m*D))  #z
 
 C = A / (2.*sqrt(2.))
 Bohr = 0.52918 #Angstrums
@@ -42,10 +42,10 @@ U4x =  vecD; U4y =  vecB - vecC; U4z = 0.;
 for i in range(n): #careful: X is depth here. Backside: X=0. Surface: X=A*n.
     for j in range(m): #Y: we keep same distance in directions // to surface. ExtremeLeft = -A*m/2. ExtremeRight= A*m/2.
 	for k in range(m): #Z: see Y. 
-		print "atom %.16f  %.16f  %.16f  Si" % (i*A, D*(k), D*(j))
-		print "atom %.16f  %.16f  %.16f  Si" % ((i+0.25)*A, D*(k), C+D*(j))
-		print "atom %.16f  %.16f  %.16f  Si" % ((i+0.5)*A, C+D*(k),  C+D*(j))
-		print "atom %.16f  %.16f  %.16f  Si" % ((i+0.75)*A, C+D*(k),  D*(j))
+		print("atom %.16f  %.16f  %.16f  Si" % (i*A, D*(k), D*(j)))
+		print("atom %.16f  %.16f  %.16f  Si" % ((i+0.25)*A, D*(k), C+D*(j)))
+		print("atom %.16f  %.16f  %.16f  Si" % ((i+0.5)*A, C+D*(k),  C+D*(j)))
+		print("atom %.16f  %.16f  %.16f  Si" % ((i+0.75)*A, C+D*(k),  D*(j)))
 
 #front side
 #for j in range(m):

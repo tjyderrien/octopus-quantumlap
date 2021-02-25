@@ -71,7 +71,7 @@ TimeStep=TimeSteps[0]
 TimeStep_E_tot_AU   = TimeSteps_E_tot_AU[0]
 TimeStep_E_laser_AU = TimeSteps_E_laser_AU[0]
 if(TimeStep_E_tot_AU != TimeStep_E_laser_AU):
-    print "** WARNING: timeline of gauge field is different from timeline of laser field"
+    print("** WARNING: timeline of gauge field is different from timeline of laser field")
     exit()
 # Plot the corresponding PUMP current
 # (plotting the probe current is too small: useless)

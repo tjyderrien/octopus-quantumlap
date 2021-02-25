@@ -42,9 +42,9 @@ ConditionOnInput = (len(sys.argv) != 12)
 ## Captures the parameters input from the command line. 
 def getInput(): #{{
   if(ConditionOnInput):
-    print "Usage: ./file.py <duration1 amplitude1 wavelength1 phase1 polarization1 delay1> <duration2 amplitude2 wavelength2 phase2 polarization2 delay2>"
-    print ""
-    print "Using default arguments: "
+    print("Usage: ./file.py <duration1 amplitude1 wavelength1 phase1 polarization1 delay1> <duration2 amplitude2 wavelength2 phase2 polarization2 delay2>")
+    print("")
+    print("Using default arguments: ")
     
     # For a first example, we take. 
     duration1=10e-15; amplitude1 = 1e9; wavelength1 = 1030e-9; phase1 = 0e0; polarization1="s"; delay1=0e0
@@ -66,10 +66,10 @@ def PrepareBiColorFields0D():
   ParameterTable = getInput()
   duration1, amplitude1, wavelength1, phase1, polarization1, delay1, duration2, amplitude2, wavelength2, phase2, polarization2, delay2 = ExtractParameters(ParameterTable)
 
-  print "** Preparing E(t) plots..."
+  print("** Preparing E(t) plots...")
 
   #===================================================
-  print "| Plot E(t) for many carrier envelope phases"
+  print("| Plot E(t) for many carrier envelope phases")
   #===================================================
 
   phase2list = np.linspace(0e0, pi, 6)
@@ -90,7 +90,7 @@ def PrepareBiColorFields0D():
     PlotPulse(t, Pulse, FigName, FigTitle)
 
   #==============================================
-  print "| Preparing E(t) for many double pulse delays..."
+  print("| Preparing E(t) for many double pulse delays...")
   #==============================================
 
   phase2=phase1
@@ -118,7 +118,7 @@ def PrepareBiColorFields0D():
 # - amplitude2
 def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   #===========================================================================================
-  print "Prepares E(t, wavelength2) figure for given 2-color fields amplitudes, phases, delay"
+  print("Prepares E(t, wavelength2) figure for given 2-color fields amplitudes, phases, delay")
   #===========================================================================================
 
   #wavelength1 = 3100e-9
@@ -135,7 +135,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
 
   tt, wavelength22 = np.meshgrid(t, wavelength2)
 
-  print np.shape(tt), np.shape(wavelength22)
+  print(np.shape(tt), np.shape(wavelength22))
 
   #exit()
   Pulse1 = NonChirpedGaussianPulse(tt, amplitude1, wavelength1, phase1, duration1, polarization1, delay1)
@@ -151,7 +151,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   plt.ylabel(r'$\lambda_2$ (um)')
   plt.colorbar()
   plt.title(r"$\lambda_1=$ "+str(int(wavelength1*1E9))+" nm")
-  print "Writing file: "+filename
+  print("Writing file: "+filename)
   plt.savefig(filename+".eps")
   plt.savefig(filename+".png")
   #plt.show()
@@ -159,7 +159,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   del wavelength22
 
   #===============================================================================================
-  print "Prepares E(t, amplitude2) figure for given 2-color fields wavelengths, phases"
+  print("Prepares E(t, amplitude2) figure for given 2-color fields wavelengths, phases")
   #===============================================================================================
   
   LogAmplitude2 = np.linspace(0., 10., 100)
@@ -181,7 +181,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   plt.ylabel(r'$E_2$ (V/nm)')
   plt.colorbar()
   plt.title(r"$\lambda_{1}=$ "+str(int(wavelength1*1E9))+" nm, "+r"$\lambda_{2}=$ "+str(int(wavelength2*1E9))+" nm")
-  print "Writing file: "+filename
+  print("Writing file: "+filename)
   plt.savefig(filename+".eps")
   plt.savefig(filename+".png")
   #plt.show()
@@ -189,7 +189,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   del amplitude22
   
   #===============================================================================================
-  print "Prepares E(t, TimeDelay) figure for given 2-color fields wavelengths, amplitudes, phases"
+  print("Prepares E(t, TimeDelay) figure for given 2-color fields wavelengths, amplitudes, phases")
   #===============================================================================================
   
   amplitude2    = amplitude1
@@ -211,7 +211,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   plt.ylabel(r'$\Delta t$ (fs)')
   plt.colorbar()
   plt.title(r"$\lambda_{1}=$ "+str(int(wavelength1*1E9))+" nm, "+r"$\lambda_{2}=$ "+str(int(wavelength2*1E9))+" nm")
-  print "Writing file: "+filename
+  print("Writing file: "+filename)
   plt.savefig(filename+".eps")
   plt.savefig(filename+".png")
   #plt.show()
@@ -219,9 +219,9 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   del delay22
   
   #===============================================================================================
-  print "Prepares E(t, CEP2) figure for given 2-color fields wavelengths, amplitudes, durations"
+  print("Prepares E(t, CEP2) figure for given 2-color fields wavelengths, amplitudes, durations")
   #===============================================================================================
-  print pi 
+  print(pi) 
   #exit()
   amplitude2    = amplitude1
   delay2 = 0.
@@ -243,7 +243,7 @@ def PrepareBiColorFields0D_Batch(wavelength1=3100e-9):
   plt.ylabel(r'$\phi (deg)$')
   plt.colorbar()
   plt.title(r"$\lambda_{1}=$ "+str(int(wavelength1*1E9))+" nm, "+r"$\lambda_{2}=$ "+str(int(wavelength2*1E9))+" nm")
-  print "Writing file: "+filename
+  print("Writing file: "+filename)
   plt.savefig(filename+".eps")
   plt.savefig(filename+".png")
   #plt.show()

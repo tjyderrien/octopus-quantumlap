@@ -25,6 +25,7 @@ TheoryLevel=$7
 Functional=$8
 Mission=$9
 NumNodes=${10}
+AngleIncidence=${11}
 
 
 python_calc () {
@@ -65,7 +66,11 @@ ProcessArguments () { # Conversion factors
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+
+#  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+
+  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -91,7 +96,7 @@ ReplaceInputFile () {
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp $OctopusSlabsSources/03-Bulk3D/inp-gs inp || exit
+  cp $QuantumLaPsources/03-Bulk3D/inp-gs inp || exit
 
   if [ ${Functional} == "TB09" ]; then
     echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
@@ -112,20 +117,20 @@ BuildSample () {
     echo "[Info] Removed the previous sample file."
   fi
   echo "[Checking] AbsPath: $AbsPath"
-  echo "[Info] Building the geometry input..."; echo ""
-  $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
+  # echo "[Info] Building the geometry input..."; echo ""
+  # $QuantumLaPsources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #this is in Angstroms!
   # $AbsPath/Samples/fhi2octopus.sh geometry.in
-  echo "[Info] Conversion to octopus format"
-  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in > Si.xyz #this is now in Bohr!
+  # echo "[Info] Conversion to octopus format"
+  # $QuantumLaPsources/Samples/fhi2octopus.sh geometry.in > Si.xyz #this is now in Bohr!
 
   # Add the number of lines at the beginning of the file
-  numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
+  # numLines=$( cat geometry.in | grep 'atom' | wc -l | awk '{ print $1 }' )
 
-  echo $numLines >> Si.tmp
-  echo "# This line is a comment." >> Si.tmp
-  cat Si.xyz >> Si.tmp
-  cat Si.tmp
-  mv Si.tmp Si.xyz
+  # echo $numLines >> Si.tmp
+  # echo "# This line is a comment." >> Si.tmp
+  # cat Si.xyz >> Si.tmp
+  # cat Si.tmp
+  # mv Si.tmp Si.xyz
 
   # Define the missing parameters
   sed -i.bak s/SizeOfTheBox/$SampleXY/g inp
@@ -134,6 +139,7 @@ BuildSample () {
   sed -i.bak s/MeshSizeX_AU/$MeshSizeX_AU/g inp
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
+  sed -i.bak s/theta1_inp/${AngleIncidence}/g inp
 
   if [ ${TheoryLevel} == "independent_particles" ]; then 
         echo "Theory level: independent particles was added to the input file."
@@ -146,7 +152,7 @@ BuildSample () {
 
 SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${OctopusSlabsRuns}."
+  echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
 
   cp -u inp ${localPath}/ #just update if file was not found, or is older.

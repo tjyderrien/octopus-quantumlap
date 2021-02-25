@@ -41,6 +41,7 @@ NumNodes=${23}
 GaugeVectorFieldAmplitude=${24}
 GaugeFieldDelayValue=${25}
 UseLinearResponse=${26}
+IncidenceAngle=${27}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -108,12 +109,14 @@ DefineParameters () {
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."
-  
+ 
+  IncidenceAngleText="-theta"
+ 
   if [ ${CrossPolarization} == 1 ]; then
      CrossPolarizationText="-CrossPola"
-     CrossPolaAngle="0.5*pi"
+     CrossPolaAngle="0.5*pi+th1" #adding initial angle in case
   else
-     CrossPolaAngle="0."
+     CrossPolaAngle="0.+th1"
   fi
 
   if [ $InducedField == 1 ]; then
@@ -164,8 +167,8 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -217,6 +220,7 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
+  sed -i.bak s/theta1_inp/${IncidenceAngle}/g inp
   if [ ${UseLinearResponse} == 1 ]; then
 echo "# Linear response probing" >> inp
 echo "%GaugeVectorField #useful for probing" >> inp
@@ -315,7 +319,7 @@ SubmitTheJob () {
   cp PulseA.dat ${localPath}/ && echo "Successfully copied Pulse A to destination."
   cp PulseB.dat ${localPath}/ && echo "Successfully copied Pulse B to destination."
 #  cp ${basePath}/submit_mpi.sge ${localPath}/
-  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
+#  cp ${OctopusSlabsRuns}/03-Bulk3D/Si.xyz ${localPath}/
   
   # Update the Submission script with the mission name
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
@@ -343,7 +347,7 @@ print_usage
 # For each calculation to perform
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
-BuildSample #also performed in directory
-# ReplaceInputFile 
+# BuildSample #also performed in directory
+ReplaceInputFile 
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 

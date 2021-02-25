@@ -77,6 +77,6 @@ TotalNeTD2 = np.sum(NeTD2)
 
 
 # print "Post-calculated N_excited:"+str(TotalNeTDpos)
-print TotalNeTDpos, TotalNeTDneg, TotalNeTD, TotalNeGS, TotalNeTD2
+print(TotalNeTDpos, TotalNeTDneg, TotalNeTD, TotalNeGS, TotalNeTD2)
 
 exit()
