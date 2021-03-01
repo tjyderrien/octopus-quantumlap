@@ -1,9 +1,0 @@
-# output DOS
-output dos -18. 0. 200 0.05
-dos_kgrid_factors 1 5 5
-
-# output band structure
-output band 0.0  0.0 0.0  0.0   0.5   0.0   50 Gamma J
-output band 0.0  0.5 0.0  0.0   0.5   0.5   50 J     K
-output band 0.0  0.5 0.5  0.0   0.0   0.5   50 K     G
-output band 0.0  0.0 0.5  0.0   0.0   0.0   50 G     Gamma

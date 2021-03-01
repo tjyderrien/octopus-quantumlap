@@ -1,0 +1,50 @@
+#!/usr/bin/env python2
+#-*- coding: utf-8 -*-
+
+# Copyright (C) 2013-2020 T. J.-Y. Derrien
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+## @package libExcitationDatabase
+# Library of functions for collecting the generated octopus simulations from subfolders
+# Builds a table with laser parameters, final densities, and final energies after simulation. 
+
+import libDatabase 
+from Libs.libPlotting import ListAllOutput
+
+Header="[libExcitationDatabase] "
+
+## Calls for the construction of excitation database and manages exceptions. 
+def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
+#  path='*/*/td.general/'
+  #DatabaseName = 'Database.csv'
+  FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
+  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.1\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
+
+  print((Header+"Attempting to load previous results..."))
+  try:
+    print((Header+"** Info: just loading existing database. "))
+    Database = np.loadtxt(DatabaseName, skiprows=0)
+    print(Database)
+    print((Header+"** Info: Previous database was found. Attempting to complete it."))
+    FromScratch=False
+    libPlotting.ListAllOutput(path, DatabaseName, FromScratch)
+  except:
+    print((Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch."))
+    FromScratch = True
+    FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
+
+    print((Header+"Save the table to a new file..."))
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
+  return NewDatabase
