@@ -5,25 +5,25 @@ Max Planck Institute for Structure and Dynamics of Matter (Hamburg, Germany)
 
 # Coding standards
 
-To converge and merge with Atomic Environment Simulation (ASE) in future, one adopts same coding standards detailed here: <https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html>
+To converge and merge with Atomic Environment Simulation (ASE) in future, we aim at adopting coding standards detailed 
+here: <https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html>
 
 # Description
 
 Private repository made to develop Octopus simulations for: 
-- MSCA-IF-2015/QuantumLaP (prof. Bulgakova / T. Derrien)
+- MSCA-IF-2015/QuantumLaP (prof. N. M. Bulgakova / T. Derrien)
 - CZ/BIATRI (prof. Bulgakova)
 - MSCA-RISE-2018/ATLANTIC (T. Derrien)
 
-WARNING: the repository spp-extended-theory is necessary to run the routines. Download the program here: git clone git@bitbucket.org:tjyderrien/spp-extended-theory.git.  
+WARNING: the repository "spp-extended-theory" is necessary to run the routines. Download the program here: 
+git clone git@bitbucket.org:tjyderrien/spp-extended-theory.git.  
 
-WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
+WARNING2: if you meet necessity of employing symbolic linking, write to developer! Solution for this is now understood.
 
 # Versioning information
 Versioning strategy is as follows. 
 1. Each new format/structure of database is a major change, and therefore defines a new version v0.1, v0.2, etc.
 2. New feature or retro-active modification of the code is a minor change, and defines a sub-version v0.1.2, etc.
-
-Since this logic would induce already be at v13 when enabling version tagging, it was decided to adopt this less hurry scheme.
 
 # Databases
 
