@@ -107,7 +107,7 @@ if not isCLI:
 ################################
 # Some useful modules
 import math, time
-import glob, os, shutil
+import os
 import subprocess
 from visit_utils import *
 

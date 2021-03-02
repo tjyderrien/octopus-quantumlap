@@ -3,9 +3,9 @@
 # This script generates BN_bandstructure.pdf from the output of inteqp
 # using numpy and matplotlib. Parameters are hard-coded into the script.
 
-import sys
-import numpy as np
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
