@@ -25,7 +25,7 @@ import os
 import glob
 import itertools
 
-from libDatabase import * #uses symbolic link
+import libDatabase
 #from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
 
 ## Returns the name of the most recent octopus logfile
