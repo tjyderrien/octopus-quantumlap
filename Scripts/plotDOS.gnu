@@ -7,8 +7,8 @@ set output
 set xrange [-10:25]
 
 Material="Au" #Mo|Au
-#PathToFiles="/home/tjyderrien/octopus-slabs/06-Mo/"
-PathToFiles="/home/tjyderrien/octopus-slabs/09-Au/"
+#PathToFiles="/home/tjyderrien/octopus_slabs/06-Mo/"
+PathToFiles="/home/tjyderrien/octopus_slabs/09-Au/"
 
 H_to_eV=27.21138602 #1 Hartree -> eV
 

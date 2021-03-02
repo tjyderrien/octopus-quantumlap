@@ -103,7 +103,7 @@ DefineParameters () {
 
 # CONCEPT OF THE PULSE CAPTURE
 # NOTE: flood_td.sh generates the list of pulses we need. 
-# NOTE: run_td.sh addresses each of the requests to octopus/Pulses/python script who calls spp-extended-theory/Keldysh/libKeldyshPulses.py:PulseSquaredSinTemporalShape() to generates the envelope. 
+# NOTE: run_td.sh addresses each of the requests to octopus/Pulses/python script who calls spp_extended_theory/Keldysh/libKeldyshPulses.py:PulseSquaredSinTemporalShape() to generates the envelope.
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
@@ -197,7 +197,7 @@ print_usage () {
 ReplaceInputFile () {
   # Define the material parameters
   # We would like to start the td-calculation
-  # INP file is modified in the octopus-slabs root, then copied to the ${localPath} folder  
+  # INP file is modified in the octopus_slabs root, then copied to the ${localPath} folder
   echo "[Run_td.sh: ReplaceInputFile] Path for submission: $( pwd ) "
   if [ -e inp ]; then
 	  echo ""; echo "Input file INP was renamed to .BAK..."

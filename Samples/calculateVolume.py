@@ -19,15 +19,12 @@
 ## @package calculateVolume
 # Computes the volume of computational cell. Limited to orthogonal cells for now! 
 
-#IMPORT LIBRARIES
-import numpy as np
-from numpy import genfromtxt, loadtxt, chararray
-
-from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h
-import sys
 import os
 
+# IMPORT LIBRARIES
+import numpy as np
 from libString import *
+from numpy import loadtxt
 
 Header = "[calculateVolume.py] "
 

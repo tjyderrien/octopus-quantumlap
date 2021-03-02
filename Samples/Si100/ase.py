@@ -1,9 +1,10 @@
 #!/usr/bin/python
-from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
-from ase.optimize import QuasiNewton
 from ase.lattice.surface import fcc111, add_adsorbate
+from ase.optimize import QuasiNewton
+
+from ase import Atoms
 
 h = 1.85
 d = 1.10

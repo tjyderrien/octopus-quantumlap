@@ -6,7 +6,7 @@
 
 # set terminal dumb
 
-path="/ptmp/tjyderri/octopus-slabs.data/03-Bulk3D/Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/"
+path="/ptmp/tjyderri/octopus_slabs.data/03-Bulk3D/Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/"
 filename='n_ex'
 
 # field="1E9" #5E9 #1E10

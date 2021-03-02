@@ -21,9 +21,7 @@
 # Define settings for matplotlib
 
 import matplotlib as mp
-import matplotlib.pyplot as plt
 from matplotlib import rc, rcParams
-from matplotlib.legend_handler import HandlerLine2D
 
 rc('mathtext', default='regular')
 rc('text', usetex=True)

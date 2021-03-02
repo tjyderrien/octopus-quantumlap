@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
-#-*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,18 +19,19 @@
 ## @package libPlotting
 # Define shared functions for plotting routines and database construction
 
-from numpy import loadtxt
-from scipy.integrate import cumtrapz
 import os.path
-import numpy as np
+
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
-import matplotlib.cm as cm
-from scipy.interpolate import interp1d
+import numpy as np
 from scipy.constants import pi
-from libString import *
+from scipy.integrate import cumtrapz
+from scipy.interpolate import interp1d
+
+import Samples.calculateVolume as calcVol
 from Libs.libAtomicUnits import *
-import calculateVolume as Sample
+from libString import *
 
 Header = "[libPlotting]"
 
@@ -39,7 +40,7 @@ Header = "[libPlotting]"
 def LoadRunOutputs(path): #{{{
   
   #geometry = path+"../Si.xyz" #static method
-  #laser=loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
+  #laser=np.loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
   
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
@@ -48,12 +49,12 @@ def LoadRunOutputs(path): #{{{
       print((Header+"** Critical error: file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "))
       exit()
   
-  # PostTreatedDensity = loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU). 
-  TotalCurrent=loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
+  # PostTreatedDensity = np.loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU).
+  TotalCurrent=np.loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
   Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
   try:
       # This should work for dielectrics
-      Ne=loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
+      Ne=np.loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
       print((Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."))
@@ -494,13 +495,13 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     # Capturing cell volume
     try:
-         SuperCellVolume_AU = Sample.VolumeOfSupercell_Log(FolderName+"../")
+         SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
     except:
          print((Header+"** Warning: sample computation volume was jumped!"))
          continue
     SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
-    SampleCellVolume_AU = SuperCellVolume_AU #- Sample.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
-    CellVolume_AU = Sample.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
+    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
+    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
     
     print(Header+"** Sample volumes **")
