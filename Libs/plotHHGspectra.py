@@ -20,11 +20,13 @@
 # Collects the generated time-dependent octopus simulations spectra HHG.dat from all subfolders (can last minutes)
 # Then prepares a picture using the collected data for each identified field amplitude
 
-from libKeldysh import *
-from Libs import libPlotting
 import glob
 import os
+
+from spp_extended_theory.Keldysh.libKeldysh import *
 from scipy.interpolate import interp1d
+
+from Libs import libPlotting
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:

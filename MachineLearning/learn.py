@@ -25,8 +25,8 @@
 #data = iris.data
 #print(data.shape)
 
-from sklearn import linear_model
 import numpy as np
+from sklearn import linear_model
 
 dataset_full = np.loadtxt("Database-LDA.csv")
 # TODO: to improve the prediction, select the datase only with one type of similar data

@@ -15,8 +15,8 @@ Private repository made to develop Octopus simulations for:
 - CZ/BIATRI (prof. Bulgakova)
 - MSCA-RISE-2018/ATLANTIC (T. Derrien)
 
-WARNING: the repository "spp-extended-theory" is necessary to run the routines. Download the program here: 
-git clone git@bitbucket.org:tjyderrien/spp-extended-theory.git.  
+WARNING: the repository "spp_extended_theory" is necessary to run the routines. Download the program here: 
+git clone git@bitbucket.org:tjyderrien/spp_extended_theory.git.  
 
 WARNING2: if you meet necessity of employing symbolic linking, write to developer! Solution for this is now understood.
 

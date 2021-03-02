@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2020 T. J.-Y. Derrien
 #
@@ -19,14 +19,15 @@
 ## @package libString
 ## Look for strings in files.
 
-#IMPORT LIBRARIES
-import sys
-import os
 import glob
-import itertools
+# IMPORT LIBRARIES
+import os
+# from libDatabase import * #uses symbolic link
+# from ../../../spp_extended_theory/SimpleSPP/libDatabase import FilterDatabaseContains
+# from importlib import import_module
 
-from libDatabase import * #uses symbolic link
-#from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
+# libDatabase = import_module("spp_extended_theory.SimpleSPP.libDatabase")
+from spp_extended_theory.SimpleSPP.libDatabase import *
 
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{

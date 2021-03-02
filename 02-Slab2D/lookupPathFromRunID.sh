@@ -29,4 +29,4 @@ done
 }
 # FetchPathFromID ListOfCandidates.dat
 # PlotEachRun dirnames.tmp
-# /home/thibault.derrien/Documents/octopus-slabs/02-Slab2D/disableProblematicRuns.sh ListOfCandidates.dat
+# /home/thibault.derrien/Documents/octopus_slabs/02-Slab2D/disableProblematicRuns.sh ListOfCandidates.dat

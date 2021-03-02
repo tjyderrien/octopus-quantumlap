@@ -11,51 +11,51 @@ source ${LocalFolder}/../machines.env
 # Because of SSH transfers, this file must not emit any return. 
 
 CheckComputerName > /dev/null
-echo "[octopus-slabs: vars.sh] Computer is : $ComputerName"
+echo "[octopus_slabs: vars.sh] Computer is : $ComputerName"
 LoadEnvLibraries  > /dev/null
 
 case "${ComputerName}" in 
 	${LenovoTibo})
-		export QuantumLaPsources="/home/hilase/Documents/octopus-slabs"
+		export QuantumLaPsources="/home/hilase/Documents/octopus_slabs"
 		export QuantumLaPruns="/home/hilase/Documents/octopus"
 		echo "Stored variables for local laptop."
 	;;
 
 	*${PrometheusLogin}*)
 		export QuantumLaPruns=/net/scratch/projects/prace/pr2c0043
-		export QuantumLaPsources=$HOME/octopus-slabs
+		export QuantumLaPsources=$HOME/octopus_slabs
 	;;
 
 	${SalomonLogin}*)
-		export QuantumLaPsources=/home/tjyderrien/octopus-slabs
-		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus-slabs.data
+		export QuantumLaPsources=/home/tjyderrien/octopus_slabs
+		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus_slabs.data
 	;;
 
         ${BIATRI}*)
-		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
+		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus_slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
 
 
         ${IBM})
-                export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
+                export QuantumLaPsources="/home/tjyderrien/octopus_slabs"
                 export QuantumLaPruns="/home/tjyderrien/octopus.data"
 
         ;;
 
         ${BarboraLogin} | ${BarboraRuns})
-                export QuantumLaPsources=/home/tjyderrien/octopus-slabs
-                export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
+                export QuantumLaPsources=/home/tjyderrien/octopus_slabs
+                export QuantumLaPruns=/scratch/project/open-20-5/octopus_slabs.data
         ;;
         
 
         *)
             ## DO NOTHING
-	    echo "[octopus-slabs: vars.sh] Case not covered. Computer: ${ComputerName}"
+	    echo "[octopus_slabs: vars.sh] Case not covered. Computer: ${ComputerName}"
         ;;
 
 
-#		export QuantumLaPsources="~/Documents/octopus-slabs"
+#		export QuantumLaPsources="~/Documents/octopus_slabs"
 #        export QuantumLaPruns="~/Documents/octopus.data"
 esac
 

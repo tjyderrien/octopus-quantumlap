@@ -17,22 +17,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ## @package libPulseGenerator
-# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for octopus. 
+# This module defines various types of laser pulses and calls the spp_extended_theory/Keldysh/libKeldysh package to construct a pulse envelope for octopus.
 # A routine provides the pulse envelope in an octopus:td_from_file-compatible format. 
 
-# IMPORT LIBRARIES
-import numpy as np
-from numpy import genfromtxt, loadtxt, chararray
-from scipy.optimize import fsolve, root
 import cmath
-import sys
+
 import matplotlib as mp
 import matplotlib.pyplot as plt
-from scipy.interpolate import InterpolatedUnivariateSpline
+# IMPORT LIBRARIES
+import numpy as np
 from matplotlib import rc
 # from pylab import *
-from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h
-from matplotlib.legend_handler import HandlerLine2D
+from scipy.constants import c, pi
 
 # Settings for matplotlib
 #rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'16'})

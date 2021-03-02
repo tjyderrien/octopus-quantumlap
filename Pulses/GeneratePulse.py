@@ -17,17 +17,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ## @package GeneratePulse
-# This module defines various types of laser pulses and calls the spp-extended-theory/Keldysh/libKeldysh package to construct a pulse envelope for Octopus TD-DFT package.  
+# This module defines various types of laser pulses and calls the spp_extended_theory/Keldysh/libKeldysh package to construct a pulse envelope for Octopus TD-DFT package.
 # A routine provides the pulse envelope in the octopus:td_from_file-compatible format. 
 # See octopus-code.org. 
 
-from libKeldyshPulses import PulseSmoothTopHatShape
-from libDatabase      import ExportToTxt
-from libSPP           import *
-from libAtomicUnits   import *
-from scipy            import integrate
+from scipy import integrate
 
-Header="[octopus-slabs: GeneratePulses.py] "
+from libAtomicUnits import *
+from libDatabase import ExportToTxt
+from spp_extended_theory.Keldysh.libKeldyshPulses import PulseSmoothTopHatShape
+from spp_extended_theory.SimpleSPP.libSPP import *
+
+Header="[octopus_slabs: GeneratePulses.py] "
 DebugMode = 0 #0: outputs the envelope of the field for octopus. 1: output the fields and plots. 
 ## Generates the required pulse envelope from spp-ext-theory/Keldysh/libKeldyshPulses and returns it in a file. 
 # Input parameters 

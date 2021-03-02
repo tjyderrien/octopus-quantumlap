@@ -1,7 +1,7 @@
 #!gnuplot
 reset
 
-path="/ptmp/tjyderri/octopus-slabs.data/03-Bulk3D/Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/"
+path="/ptmp/tjyderri/octopus_slabs.data/03-Bulk3D/Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/"
 
 filename='energy'
 

@@ -22,15 +22,16 @@
 # Plots the TD-energy. 
 # Plots the TD-fields and currents. 
 
-## IMPORT LIBRARIES
-from numpy import fft
 # from pylab import *
 import decimal
 
-import calculateVolume as Sample
-import libKeldysh as Keldysh
-from Libs.libPlotting import *
+import Samples.calculateVolume as Sample
+import spp_extended_theory.Keldysh.libKeldysh as Keldysh
+## IMPORT LIBRARIES
+from numpy import fft
+
 import libMaterials
+from Libs.libPlotting import *
 
 ## Materials properties
 
@@ -67,7 +68,7 @@ PlottingMethod = "detect" #bruteforce
 
 maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
 
-Header="[octopus-slabs] "
+Header="[octopus_slabs] "
 
 if(PlottingMode == "auto"):
 ## METHOD BRUTEFORCE

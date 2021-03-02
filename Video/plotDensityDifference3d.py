@@ -151,8 +151,8 @@ if not isCLI:
 # Setting up python and inputs #
 ################################
 # Some useful modules
-import math, time
-import glob, os, shutil
+import time
+import os
 import subprocess
 from visit_utils import *
 # from libPlotVideo import *

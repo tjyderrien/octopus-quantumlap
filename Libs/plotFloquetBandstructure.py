@@ -23,12 +23,13 @@ from matplotlib.cm import get_cmap
 from scipy.constants import c, epsilon_0, h
 from scipy.special import jn_zeros as BesselJZeros
 
-from importlib import import_module
-IntensityToField = import_module("spp-extended-theory.Keldysh.libKeldyshZhukov.IntensityToField")
 from Libs.libPlotting import *
-from libPlottingSettings import *
-ComputeFloquetBandStructure = import_module('spp-extended-theory.Keldysh.libStark.ComputeFloquetBandStructure')
 from libString import *
+
+# IntensityToField = import_module("spp_extended_theory.Keldysh.libKeldyshZhukov.IntensityToField")
+from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
+# ComputeFloquetBandStructure = import_module('spp_extended_theory.Keldysh.libStark.ComputeFloquetBandStructure')
+from spp_extended_theory.Keldysh.libStark.ComputeFloquetBandStructure import *
 
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point

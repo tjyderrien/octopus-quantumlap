@@ -20,7 +20,10 @@
 # Library of functions for collecting the generated octopus simulations from subfolders
 # Builds a table with laser parameters, final densities, and final energies after simulation. 
 
-import libDatabase 
+# import libDatabase
+# from importlib import import_module
+# libDatabase = import_module("")
+import spp_extended_theory.SimpleSPP.libDatabase as libDatabase
 from Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "

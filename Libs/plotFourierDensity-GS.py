@@ -18,16 +18,10 @@
 
 
 # IMPORT LIBRARIES
-import numpy as np
-from numpy import genfromtxt, loadtxt, chararray
 import matplotlib as mp
 import matplotlib.pyplot as plt
 
-from matplotlib import rc
 # from pylab import *
-from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h
-from matplotlib.legend_handler import HandlerLine2D
-import sys
 
 # Settings for matplotlib
 #rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'16'})

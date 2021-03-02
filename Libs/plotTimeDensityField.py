@@ -20,12 +20,10 @@
 # IMPORT LIBRARIES
 import numpy as np
 from numpy import loadtxt
-
 # from pylab import *
 from scipy.constants import c
 
 from Libs.libAtomicUnits import *
-from libPlottingSettings import *
 
 # import calculateVolume as Sample
 

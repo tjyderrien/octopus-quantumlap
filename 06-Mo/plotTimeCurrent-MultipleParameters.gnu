@@ -3,7 +3,7 @@ reset
 # set output 'MultipleCurrent.eps'
 # set terminal postscript eps enhanced color font 'Helvetica, 24' size 15cm,8cm
 
-path="/scratch/work/user/tjyderrien/octopus-slabs.data/06-Mo/"
+path="/scratch/work/user/tjyderrien/octopus_slabs.data/06-Mo/"
 filename='total_current'
 
 field="1E9"
