@@ -27,7 +27,7 @@ import os
 # from importlib import import_module
 
 # libDatabase = import_module("spp_extended_theory.SimpleSPP.libDatabase")
-from spp_extended_theory.SimpleSPP.libDatabase import *
+from spp_extended_theory.Libs.libDatabase import *
 
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{

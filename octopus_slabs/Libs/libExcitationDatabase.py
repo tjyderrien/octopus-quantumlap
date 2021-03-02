@@ -23,8 +23,8 @@
 # import libDatabase
 # from importlib import import_module
 # libDatabase = import_module("")
-import spp_extended_theory.SimpleSPP.libDatabase as libDatabase
-from Libs.libPlotting import ListAllOutput
+import spp_extended_theory.Libs.libDatabase as libDatabase
+from octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
 

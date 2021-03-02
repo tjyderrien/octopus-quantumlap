@@ -29,9 +29,9 @@ from scipy.constants import pi
 from scipy.integrate import cumtrapz
 from scipy.interpolate import interp1d
 
-import Samples.calculateVolume as calcVol
-from Libs.libAtomicUnits import *
-from libString import *
+import octopus_slabs.Samples.calculateVolume as calcVol
+from octopus_slabs.Libs.libAtomicUnits import *
+from octopus_slabs.Libs.libString import *
 
 Header = "[libPlotting]"
 

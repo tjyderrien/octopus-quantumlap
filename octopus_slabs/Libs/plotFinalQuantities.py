@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2016-2021 T. J.-Y. Derrien
@@ -30,16 +30,16 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.optimize import curve_fit
 
-from Libs import libExcitationDatabase
+from octopus_slabs.Libs import libExcitationDatabase
 # import libKeldysh as Keldysh
 # from libAtomicUnits import *
 # from libPlottingSettings import *
-from Libs.libPlotting import *
+from octopus_slabs.Libs.libPlotting import *
 
 # libKeldysh = import_module("spp_extended_theory.Keldysh.libKeldysh")
 from spp_extended_theory.Keldysh.libKeldysh import *
 # from libKeldysh import *
-from libDatabase import *
+from spp_extended_theory.Libs.libDatabase import *
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -1129,7 +1129,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     plot2    += [plot23]
   #}}}  
   ## ZHUKOV
-  PathPrefix="/home/hilase/Documents/spp_extended_theory/Keldysh/"
+  PathPrefix="/home/hilase/Documents/spp_extended_theory/spp_extended_theory/Keldysh/"
   PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix) #we neglect optical index in atomic theory
   
   try: #we plot as function of external field
