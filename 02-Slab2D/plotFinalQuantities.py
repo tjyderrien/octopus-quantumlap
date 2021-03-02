@@ -357,11 +357,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlotEnergy = False #PRL: False. #PRB: True.
   EnableKeldysh = True
   EnableStarkEffect = False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
-  ShowPulseDurations=False #True: show the pulse duration in caption. False: hides it (for saving visual space)
+  ShowPulseDurations=True #True: show the pulse duration in caption. False: hides it (for saving visual space)
   PlotSaturation=False
-  WithOpticalIndex=False #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
+  WithOpticalIndex=True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
   SidePanels=True #True for PRL Fig2.
-  ShowSigmaRates=False #save space
+  ShowSigmaRates=True #save space
   #EnableInsetMagnification=True #this is defined as function of wavelength below
   
   Ntotal=5.0E28 
@@ -396,6 +396,26 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions. 
   
+  #from collections import OrderedDict
+
+  #linestyles_dict = OrderedDict(
+    #[('solid',               (0, ())),
+     #('loosely dotted',      (0, (1, 10))),
+     #('dotted',              (0, (1, 5))),
+     #('densely dotted',      (0, (1, 1))),
+
+     #('loosely dashed',      (0, (5, 10))),
+     #('dashed',              (0, (5, 5))),
+     #('densely dashed',      (0, (5, 1))),
+
+     #('loosely dashdotted',  (0, (3, 10, 1, 10))),
+     #('dashdotted',          (0, (3, 5, 1, 5))),
+     #('densely dashdotted',  (0, (3, 1, 1, 1))),
+
+     #('loosely dashdotdotted', (0, (3, 10, 1, 10, 1, 10))),
+     #('dashdotdotted',         (0, (3, 5, 1, 5, 1, 5))),
+     #('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))])
+  
   ## We simply select the pulse duration larger than 21 fs (to not overload pics). 
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
@@ -403,11 +423,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 8e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 25e-15, IndexTable['pulses1'])
       EnableInsetMagnification=False
   if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 8e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 25e-15, IndexTable['pulses1'])
       EnableInsetMagnification=False
   
   ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures. 
@@ -564,7 +584,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       #return nexc_mpi
     ##}}}
     
-    LineType_MPIfitArray={1: '-', 2: '--', 3: ':', 4: '-', 5: '-.', 6: ':', 7: '--'}
+    LineType_MPIfitArray={1: '--', 2: ':', 3: '-.', 4: ':', 5: '-'} #, 6: ':', 7: '--'}
+    #LineType_MPIfitArray={1: linestyles_dict['solid'], 2: linestyles_dict['loosely dotted'], 3: linestyles_dict['dotted'], 4: linestyles_dict['densely dotted'], 5: linestyles_dict['dashed']}
     #LineType_MPIfitArray={1: 'solid', 2: 'dotted', 3: 'dashed', 4: 'dashdot', 5: 'losely dashed', 6: 'densely dashed', 7: 'densely dashdotted'} #see https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html
     
     ## Filters a part of the data and fit using the given function
@@ -596,6 +617,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             sigma_txt=r"$n=1$"
         if(plotMe):
             plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+LineType_MPIfitArray[1], label=sigma_txt) #NOTE add value of sigma_1 here
+            #ax1.fill_betweenx(Nexc_1PI, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, color='blue', alpha=0.5)
         else:
             plot_field = []
         del Nexc_1PI, OnePhotonAbsorption_params, Intensity_sorted_mask
@@ -1198,7 +1220,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax1.set_yscale('log') #enabling log scale on Y before configuring yticks works better than the opposite?!
   
   ax1.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  
+  #print("** DEBUG: Passed ax1 yaxis set minor locator test?")
   ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  ax1.minorticks_off()
   
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
   ax2.set_yscale('log')
@@ -1207,7 +1232,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ax22.set_yscale('log')
     
   ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  #if(ax1logOK): #set the ax2 only if ax1 was well affected by this
   ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  ax2.minorticks_off()
+    #print(ax2.yaxis.minorTicks.count)
+    #ax2.yaxis.set_major_formatter()
   
   #ax2.yaxis.set_major_locator(mp.ticker.LogLocator(numticks=10))
   #ax2.legend(plot1, labels1, loc='best', fancybox=True, framealpha=0)
