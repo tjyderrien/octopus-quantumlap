@@ -1014,6 +1014,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  # TODO: Solution to use minor ticks is given here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
   labels1 = [l.get_label() for l in plot1]
   ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=1)
   
@@ -1202,24 +1203,65 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ax2.set_ylabel(r'$w_{\mathrm{PI}}$ (m$^{-3}$ s$^{-1}$)')
   
   ax1.set_xscale('log') 
-  ax1.set_yscale('log') #enabling log scale on Y before configuring yticks works better than the opposite?!
+  ax1.set_yscale('log')
   
-  ax1.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax1.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax1.yaxis.set_major_locator(locmaj)
   
-  #print("** DEBUG: Passed ax1 yaxis set minor locator test?")
-  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
-  ax1.minorticks_off()
+  # Setting the minor ticks then
+  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
+  subdiv=np.arange(0.,10.,1)
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax1.xaxis.set_minor_locator(locmin)
+  ax1.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax1.yaxis.set_minor_locator(locmin)
+  ax1.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
+  #ax1.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  #ax1.minorticks_off()
   
   ax2.set_xscale('log') #compared to using loglog(), the xtics and ytics are better for publication. 
   ax2.set_yscale('log')
   if(EnableInsetMagnification):
     ax22.set_xscale('log')
     ax22.set_yscale('log')
-    
-  ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
-  #if(ax1logOK): #set the ax2 only if ax1 was well affected by this
-  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
-  ax2.minorticks_off()
+  
+  # Setting major ticks locators
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax2.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax2.yaxis.set_major_locator(locmaj)
+  
+  if(EnableInsetMagnification):
+    locmaj = mp.ticker.LogLocator(base=10,numticks=2)
+    ax22.xaxis.set_major_locator(locmaj)
+    locmaj = mp.ticker.LogLocator(base=10,numticks=2)
+    ax22.yaxis.set_major_locator(locmaj)
+  
+  # Setting minor ticks locators
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax2.xaxis.set_minor_locator(locmin)
+  ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax2.yaxis.set_minor_locator(locmin)
+  ax2.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
+  if(EnableInsetMagnification):
+      locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=2)
+      ax22.xaxis.set_minor_locator(locmin)
+      #ax22.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+      locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=2)
+      ax22.yaxis.set_minor_locator(locmin)
+      #ax22.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
+  #ax2.xaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  #ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs=None, numticks=10, numdecs=None))
+  #ax2.minorticks_off()
     #print(ax2.yaxis.minorTicks.count)
     #ax2.yaxis.set_major_formatter()
   
