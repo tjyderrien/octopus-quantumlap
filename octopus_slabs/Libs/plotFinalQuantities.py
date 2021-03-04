@@ -29,6 +29,7 @@ from matplotlib import rc
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.optimize import curve_fit
+from scipy.constants import h, c, e
 
 from octopus_slabs.Libs import libExcitationDatabase
 # import libKeldysh as Keldysh
@@ -345,8 +346,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ShowPulseDurations=True #True: show the pulse duration in caption. False: hides it (for saving visual space)
   PlotSaturation=False
   WithOpticalIndex=True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis). 
-  SidePanels=True #True for PRL Fig2.
-  ShowSigmaRates=True #save space
+  SidePanels=False #True for PRL Fig2.
+  ShowSigmaRates=False #save space
   #EnableInsetMagnification=True #this is defined as function of wavelength below
   
   Ntotal=5.0E28 
@@ -362,7 +363,6 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       FileName_opt=""
       
   x_min  ={800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
-  
   
   print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
   #Filter: double pulses, same wavelengths, same polarization
@@ -404,7 +404,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   ## We simply select the pulse duration larger than 21 fs (to not overload pics). 
   if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
-      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 25e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
       EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
   if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
@@ -466,11 +466,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #print Header+"Ready to plot: "
     
     if(ShowPulseDurations):
-        tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
+        tau_text=r'$\tau=$'+str(int(pulse_value*1E15))+' fs'
     else: 
         tau_text=""
     
-    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
+    plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=tau_text) #r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'
     plot1 += [plot_field]
     #plt.xlim(x_min[pulseWavelength])
     
@@ -1016,7 +1016,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   # TODO: Solution to use minor ticks is given here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
   labels1 = [l.get_label() for l in plot1]
-  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=1)
+  ax1.legend(plot1, labels1, loc='best', fancybox=True, framealpha=1, fontsize=OneSizeFitsAll, ncol=ncols)
   
   #plt.tight_layout()
   #print Header+"Adding the adjusted coefficients to check our fitting law."
@@ -1028,7 +1028,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
       MoveIonTitle=""
       MoveIonFile=""
-  plt.title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
+  if(SidePanels): 
+      ax2.set_title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
+  else: 
+      ax1.set_title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
   print(Header+"Generating comparison with Keldysh-Gruzdev model...") ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory. 
   order = 50
   Efieldmin = np.min(Efield1_uniq)
@@ -1065,13 +1068,19 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
           del Ne_final
           Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
       
+      if(ShowPulseDurations):
+        tau_text=r'$\tau=$'+str(int(pulse_value*1E15))+' fs'
+      else: 
+        tau_text=""
+      
       lists = sorted(zip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
       Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(zip(*lists))
       
-      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
+      
+      plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$w_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
       plot2 += [plot21]
       if(EnableInsetMagnification):
-        plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
+        plot212, = ax22.plot(np.multiply(xscale, Intensity_sorted), np.divide(Ne_final_sorted, np.multiply(1.,pulses1_sorted)), Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$w_{\mathrm{PI}}^{\mathrm{TDDFT}}$'+tau_text)
       
       #plot21, = ax2.plot(np.multiply(xscale, Intensity_sorted), Saturation, Colors[pulse_value]+Symbols[pulse_value], label=r'$\tilde{w}_{\mathrm{PI}}^{\mathrm{sat.}}$, $\tau=$'+str(int(pulse_value*1E15))+' fs')
       #plot2 += [plot21]
@@ -1237,6 +1246,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   locmaj = mp.ticker.LogLocator(base=10,numticks=100)
   ax2.yaxis.set_major_locator(locmaj)
   
+  if(not SidePanels): #we remove the ticks and marks from top figure
+      ax1.xaxis.set_major_formatter(mp.ticker.NullFormatter())
+      ax1.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+      ax1.set_xlabel("")
   if(EnableInsetMagnification):
     locmaj = mp.ticker.LogLocator(base=10,numticks=2)
     ax22.xaxis.set_major_locator(locmaj)
@@ -2068,10 +2081,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   PlotStarkShift=False
   PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation=False
-  AccountForOpticalIndex=False #trying without optical index. 
+  AccountForOpticalIndex=True #trying without optical index. 
   global n0
-  
+  ContinuousKeldysh_Nb_Fields=300 #100: not really sufficient, 400: OK but long
+  ContinuousKeldysh_Nb_Wavelengths=1000 #500: not sufficient. 2000: maybe better. 
   DrawOrders=6
+  Use128bitsFloats=False; 
+  InterpolationMethod="UnivariateSpline" #"UnivariateSpline", "cubic", "linear", 'nearest'
+  OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation!! | "Palik" (super wide)
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron
   #[Laflamme Janssen, J.; Gillet, Y.; Poncé, S.; Martin, A.; Torrent, M. & Gonze, X. Precise effective masses from density functional perturbation theory Physical Review B, 2016, 93, 205147]
@@ -2106,6 +2123,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   # Simple pulse, single color
   
   def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
+    import os
+    DataFile=os.environ["HOME"]+"/Documents/spp_extended_theory/spp_extended_theory/SimpleSPP/Database/Si-Palik" #Not system independent
     DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
     wavelengths_source  = DataArray[:,0]
     if(np.min(np.diff(wavelengths_source))==0e0): 
@@ -2126,7 +2145,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
 
   ### TODO: MOVE TO libPlotting.py to access it for plotTimeKeldysh and plotTimeHHG.py. 
   def ImportPalikDatabase_epsilon_twofiles_eV(wavelengths, DataFile='Database/Si-TDLDA'): #{{{
+                                                                                                  
     Header="** ImportPalikDatabase_epsilon_twofiles: "
+    import os
+    DataFile=os.environ["HOME"]+"/Documents/spp_extended_theory/spp_extended_theory/SimpleSPP/Database/Si-TDLDA"
     nfile = DataFile+"-epsR.csv" #TODO: rename nfile to ReEpsFile
     kfile = DataFile+"-epsC.csv" #TODO: rename kfile to ImEpsFile
     
@@ -2157,9 +2179,18 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     energy1=np.sort(energies1)
     energy2=np.sort(energies2)
     del energies1, energies2 
-    fni = InterpolatedUnivariateSpline(energy1, n, k=order)
-    fki = InterpolatedUnivariateSpline(energy2, kk, k=order)
-    
+    if(InterpolationMethod=='UnivariateSpline'):
+      fni = InterpolatedUnivariateSpline(energy1, n, k=order)
+      fki = InterpolatedUnivariateSpline(energy2, kk, k=order)
+    elif(InterpolationMethod=='cubic'):
+      fni = interp1d(energy1, n, kind='cubic', fill_value='extrapolate')
+      fki = interp1d(energy2, kk, kind='cubic', fill_value='extrapolate')
+    elif(InterpolationMethod=='linear'):
+      fni = interp1d(energy1, n,  kind='linear', fill_value='extrapolate')
+      fki = interp1d(energy2, kk, kind='linear', fill_value='extrapolate')
+    else: 
+      fni = interp1d(energy1, n, kind='nearest', fill_value='extrapolate')
+      fki = interp1d(energy2, kk, kind='nearest', fill_value='extrapolate')
     ##Interpolation for one optical constant
     #try:
       #ni = fni(wavelength); ki = fki(wavelength)
@@ -2190,6 +2221,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+  PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0, IndexTable['Functional']) #removes runs where functional is not LDA
   #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
   PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
   if(RiseTimeRequested == 2): #select by RiseTime only if it is defined in parameters
@@ -2368,19 +2400,25 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
 
   #wavelengths1_min = 200e-9; wavelengths1_max = 3300e-9 #2100e-9
-  wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, 500)
+  #wavelengths1_Keldysh_log = np.linspace(np.log10(np.float128(wavelengths1_min)), np.log10(np.float128(wavelengths1_max)), ContinuousKeldysh_Nb_Wavelengths)
+  #wavelengths1_Keldysh     = np.power(10., wavelengths1_Keldysh_log)
+  wavelengths1_Keldysh = np.linspace(wavelengths1_min, wavelengths1_max, ContinuousKeldysh_Nb_Wavelengths)
   #wavelengths1_min = 1e-6; wavelengths1_max = 20e-6 #3300e-9 #2100e-9
 
   ### Capturing the dielectric permittivity in experimental or TDLDA database
-  #epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## TODO: replace by LDA !
-  epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
+  if(OpticalDatabase == "Palik"):
+    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
+  elif(OpticalDatabase == "TDLDA"):
+    print(Header+"** WARNING! TDLDA database is poorly defined in mid-IR !!")
+    epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
   OpticalIndex = np.real(np.sqrt(epsilon_Si0))
     
   print(Header+"Building comparison with Keldysh-Gruzdev...")
   #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
-  print("Dielectric permittivity of Si at 800 nm")
+  print(Header+"** INFO TEST: Dielectric permittivity of Si at 800 nm")
   print("[Palik] | [Reining et al PRL 2002]")
-  print(str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
+  print("800 nm: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
+  print("3200 nm: "+str(ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
     
          
   for Efield1_compare in FieldOfInterest: #{{{ #INFO: good for Fig3b. 
@@ -2464,13 +2502,16 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #INFO: provides the Keldysh analysis part for Fig3a (inset).
   #WARNING: here we have disabled the contribution of optical index. Then one obtain the match for gap resonances with TDDFT. 
   # However, it seems W_PI amplitude is good only if we account for optical index. How the optical index should be treated in Keldysh theory or in TDDFT ?
-  for Efield1_compare in np.linspace(0,np.max(FieldOfInterest),100):
+  ContinuousKeldysh_Fields_Log=np.linspace(8,np.log10(np.max(FieldOfInterest)*np.sqrt(np.max(OpticalIndex))),ContinuousKeldysh_Nb_Fields)
+  ContinuousKeldysh_Fields    =np.power(10., ContinuousKeldysh_Fields_Log)
+  
+  for Efield1_compare in ContinuousKeldysh_Fields:
     
     PeakWpi_Gruzdev_continuous = GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, wavelengths1_Keldysh, Efield1_compare*np.sqrt(OpticalIndex_disabled), order, 1., False) #NOTE: Refractive index is accounted in field, not in adiabadicity coefficient
     
     # Dirty: choosing energy or wavelengths. Sorting the results with this choice. 
     if(EnergyAxis):
-        wavelengths1_Keldysh_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
+        wavelengths1_Keldysh_Show = np.divide(2.*np.pi*np.float128(c)*np.float128(hbar)/np.float128(e), wavelengths1_Keldysh) #eV
         wavelengths1_Keldysh_frozen_Show = np.divide(2.*np.pi*c*hbar/e, wavelengths1_Keldysh) #eV
     else:
         wavelengths1_Keldysh_Show = np.multiply(1E9, wavelengths1_Keldysh)
@@ -2501,13 +2542,44 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #}}} #end for plotting Fig1a inset.
   
   Keldysh_Peaks=np.array(Keldysh_Peaks).T; Keldysh_Valleys=np.array(Keldysh_Valleys).T
-  print(np.shape(Keldysh_Peaks), np.shape(Keldysh_Valleys))
+  #print(np.shape(Keldysh_Peaks), np.shape(Keldysh_Valleys))
   
   if(PlotValleysInset):
       ax11.scatter(np.multiply(1E-9,Keldysh_Valleys[0,:]), Keldysh_Valleys[1,:], s=0.3, c="blue", marker='*', label="Valleys Keldysh")
   else:
       ax11.scatter(np.multiply(1E-9,Keldysh_Peaks[0,:]), Keldysh_Peaks[1,:], s=0.3, c="blue", marker='*', label="Peaks Keldysh")
-    
+  
+  ## Here we would like to try adding blue curves from Keldysh (inset) to the main plot. 
+  if(PlotValleysInset):
+      EnergiesOfValleys=Keldysh_Valleys[1,:]
+      FieldsOfValleys=Keldysh_Valleys[0,:]
+      # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
+      
+  elif(not PlotValleysInset): #Valleys can be hills now. 
+      EnergiesOfValleys=Keldysh_Peaks[1,:]
+      FieldsOfValleys=Keldysh_Peaks[0,:]
+      # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
+      
+      #WpiValleys=GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, h*c/(EnergiesOfValleys*e), FieldsOfValleys, order, 1., False)
+      
+      #print("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
+      
+      #print("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
+      
+      #ax1.scatter(EnergiesOfValleys, WpiValleys, s=0.3, c="black", marker='*', label="")
+  if(Use128bitsFloats):
+      ContinuousKeldysh_Wavelengths=np.float128(h)*np.float128(c)/(np.float128(EnergiesOfValleys)*np.float128(e))
+  else:
+      ContinuousKeldysh_Wavelengths=(h*c)/(EnergiesOfValleys*e)
+  WpiValleys=GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, ContinuousKeldysh_Wavelengths, FieldsOfValleys, order, 1., False)
+  print("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
+  print("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
+  ax1.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
+  ax2.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
+  #ax1.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
+  #ax2.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
+  # WARNING: where are the jumps in energy coming from? These energies were captured as minimum of Keldysh function. Re-introducing them into Keldysh is a bit stupid maybe. 
+  
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
@@ -2522,10 +2594,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #ax11.set_title(r"Max of $\tilde{w}_{PI}$")
   ##ax11.set_xscale('log')
   #ax11.set_yscale('log')
-  ax2.set_yscale('symlog', linthreshy=1E20)
+  ax2.set_yscale('symlog', linthresh=1E20)
   ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
   ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
-  ax22.set_yscale('symlog', linthreshy=1E20)
+  ax22.set_yscale('symlog', linthresh=1E20)
   
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
@@ -2851,7 +2923,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #plt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
   ax3.set_xscale("log")
-  ax3.set_yscale("symlog", linthreshy=1e-9)
+  ax3.set_yscale("symlog", linthresh=1e-9)
   ax3.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax2.set_ylim((1E-9,5E2))
   #ax22.grid()
@@ -4171,8 +4243,8 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     
-    ### NOTE THIS IS THE ONE OF THE PRL
-    #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
+    ### NOTE THIS IS FIG3 OF THE PRL
+    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
     
     ## Checking what is happening in the mid-IR world. NOTE: NOT ENOUGH DATA? 
     #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
@@ -4193,7 +4265,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
     #for wavelength in [3200E-9, 2600e-9, 2200e-9, 1600e-9, 800e-9]: 
-    for wavelength in [800e-9, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
+    for wavelength in [3200e-9, 1600e-9, 800e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
       #try:
       plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
       #except:
