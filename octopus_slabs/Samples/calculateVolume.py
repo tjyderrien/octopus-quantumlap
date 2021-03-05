@@ -23,7 +23,7 @@ import os
 
 # IMPORT LIBRARIES
 import numpy as np
-from libString import *
+from octopus_slabs.Libs.libString import *
 from numpy import loadtxt
 
 Header = "[calculateVolume.py] "
