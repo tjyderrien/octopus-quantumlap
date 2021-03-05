@@ -37,3 +37,5 @@ isualizationWorkshop/instructions/C2H4_2D/data/
 *.gui
 *.session
 .idea/*
+doc/html/*
+doc/latex/*
