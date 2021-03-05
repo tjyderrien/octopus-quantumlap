@@ -2079,11 +2079,11 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTimeRequested=2, ShowFinalPlot=0, NumberOfAtoms=2., Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
-  PlotValleysInset=False #True: plot valleys, false: plot hills (max of Wpi)
+  PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation=False
   AccountForOpticalIndex=True #True: account for linear optical spectrum. False: forget it. WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
   global n0
-  ContinuousKeldysh_Nb_Fields=300 #100: not really sufficient, 400: OK but long
+  ContinuousKeldysh_Nb_Fields=500 #100: not really sufficient, 400: OK but long
   ContinuousKeldysh_Nb_Wavelengths=5000 #500: not sufficient. 2000: maybe better. 
   Use128bitsFloats=False; 
   OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation, very imprecise!! | "Palik" (super wide)
@@ -2339,7 +2339,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         #### PLOTTING
             #n0 = 4.*Density
             #if(not EnergyAxis):
-            plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
+            plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$w_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_value))+r' W/m$^2$')
             
             #plot_field, = ax1.plot(wavelengths1_sorted_show, wpi_sorted,'-^', linewidth=LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/m$^2$')
             plot1 += [plot_field]
@@ -2462,11 +2462,11 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     lists_frozen = sorted(zip(*[wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen]))
     wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show = list(zip(*lists_frozen)) 
     
-    plot_field, = ax2.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}^{\mathrm{KG}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/cm$^2$')
+    plot_field, = ax2.plot(wavelengths1_Keldysh_Show, PeakWpi_Gruzdev_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$, I='+str(FieldToIntensity(Efield1_compare))+r' W/cm$^2$')
     plot1 += [plot_field]
     
     ## Plotting Keldysh-Gruzdev theory in inset of Fig (bottom) (ax22). 
-    plot_field, = ax22.plot(wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$\widetilde{w}_{\mathrm{PI}}^{\mathrm{KG}}$ frozen, I='+str(FieldToIntensity(Efield1_compare))+r' W/cm$^2$')
+    plot_field, = ax22.plot(wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show, '-', antialiased=antialias, color=Colors[Efield1_compare], linewidth=LineWidthCoeff_rel*LineWidthCoeff_abs*LineWidths[Efield1_compare], label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$ frozen, I='+str(FieldToIntensity(Efield1_compare))+r' W/cm$^2$')
     
     
     if(PlotSaturation): 
@@ -2585,8 +2585,26 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
-  ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
-  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax1.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
+  
+  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
+  #locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  #ax1.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax1.yaxis.set_major_locator(locmaj)
+  
+  # Setting the minor ticks then
+  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
+  #subdiv=np.arange(0.,10.,0.5)
+  #locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  #ax1.xaxis.set_minor_locator(locmin)
+  #ax1.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  subdiv=np.arange(0.,10.,1)
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax1.yaxis.set_minor_locator(locmin)
+  ax1.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
+  #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator())
   ax11.set_xlabel(r'$E_{\mathrm{field}}$ (V/nm)')
   ax11.set_ylabel(r'$\hbar \omega$ (eV)')
@@ -2597,8 +2615,25 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ##ax11.set_xscale('log')
   #ax11.set_yscale('log')
   ax2.set_yscale('symlog', linthresh=1E20)
-  ax2.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
-  ax2.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax2.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
+  
+  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
+  #locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  #ax2.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax2.yaxis.set_major_locator(locmaj)
+  
+  # Setting the minor ticks then
+  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
+  #subdiv=np.arange(0.,10.,0.5)
+  #locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  #ax2.xaxis.set_minor_locator(locmin)
+  #ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  subdiv=np.arange(0.,10.,1)
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax2.yaxis.set_minor_locator(locmin)
+  ax2.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
   ax22.set_yscale('symlog', linthresh=1E20)
   
   if(ShowDensities): #{{{
@@ -2735,7 +2770,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
     print("nu: "+str(nu)) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
-    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## TODO: replace by LDA !
+    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## WARNING: this employs Palik data (at least, they are accurate, unline TDLDA).
     print("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
@@ -3113,7 +3148,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #if(not EnergyAxis):
     #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, color=Colors[Efield2_compare], linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], label=r'$\widetilde{w}_{\mathrm{PI}}$, I='+str(FieldToIntensity(Efield2_value))+r' W/m$^2$') #BACKUP
     #plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', antialiased=antialias, label=r'$\widetilde{w}_{\mathrm{PI}}$, I= ? W/m$^2$')
-    plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', label=r'$\widetilde{w}_{\mathrm{PI}}$, $\lambda_1$='+str(wavelength1*1E9)+' nm, $E_1$='+str(Field1*1E-9)+', $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
+    plot_field, = ax1.plot(wavelengths2_sorted_show, wpi_sorted,'-^', label=r'$w_{\mathrm{PI}}$, $\lambda_1$='+str(wavelength1*1E9)+' nm, $E_1$='+str(Field1*1E-9)+', $E_2$='+str(Efield2_compare*1E-9)+r' V/nm')
     #linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare] # BUG 
     plot1 += [plot_field]
     
@@ -3165,7 +3200,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
-  ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
+  ax1.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
   #ax2.set_yscale('log')
   
   if(ShowDensities): #{{{
