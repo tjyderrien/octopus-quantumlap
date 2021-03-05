@@ -27,25 +27,30 @@ Versioning strategy is as follows.
 
 # Databases
 
-Several databases are available. For now, they are separated into :
-* Material, i.e., periodic lattice definition, 
-* Ground state k-space grid,
-* Ground state real-space grid,
-* Groud state Fermi temperature,
-* Employed xc functional.
+Several databases generated using this code are available. 
+Since v2.0, there is only 1 database per material. Each database contains all the TD-runs made with various functionals,
+various k-grid precision, mesh precision, pulses shapes, etc.  
 
 # Documentation
-dOxygen documentation is available in ./doc. Generate using doc/generate.sh. 
+Automatic dOxygen documentation can be generated in ./doc using doc/generate.sh. "Dot" picture utility is necessary to 
+generate the automatic diagrams.  
+
+Tutorials, documentation, books, etc can be found on http://www.quantumlap.eu/
 
 # Direction/Languages
 
-The routines are a combination of Python and Bash. 
-Of course, it may not be completely optimum and transition to ASE (Python) would be desirable in future.
+The routines are a combination of Python and Bash.
+Bash is more long-lasting investment in time. 
+Transition to ASE (Python) would be desirable in future.
+Python is more trendy and more modular, and helps to prepare transition to ASE.  
 
 # List of folders
-Warning: avoid putting simulations into the git tree. Since generated data can be huge (> TB), 
+Warning: don't upload simulations results into the git tree. Generated data can be huge (> TB) and Git is NOT meant 
+to contain binary data. One thing exists from Git to host binary data: Git-LFS.
 
-* FHI-aims/: Some examples for FHI-aims are provided. Molecular dynamics software to build up the lattice structures: FHI-aims. This folder shall be removed at some point. 
+At the moment, folders starting with a number contain materials & files to start heavy DFT and TDDFT computations. 
+
+Folders below octopus_slabs/octopus_slabs/ contain libraries and post-treatment scripts for analysis.   
 
 * 00-SelfMadeFiles: Files made from the octopus tutorials. 
 
