@@ -2585,8 +2585,26 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
-  ax1.set_ylabel(r'$\tilde{w}_{PI}$ (m$^{-3}$.s$^{-1}$)')
-  ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
+  ax1.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
+  
+  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
+  #locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  #ax1.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax1.yaxis.set_major_locator(locmaj)
+  
+  # Setting the minor ticks then
+  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
+  #subdiv=np.arange(0.,10.,0.5)
+  #locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  #ax1.xaxis.set_minor_locator(locmin)
+  #ax1.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  subdiv=np.arange(0.,10.,1)
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax1.yaxis.set_minor_locator(locmin)
+  ax1.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
+  #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax1.yaxis.set_minor_locator(mp.ticker.LogLocator())
   ax11.set_xlabel(r'$E_{\mathrm{field}}$ (V/nm)')
   ax11.set_ylabel(r'$\hbar \omega$ (eV)')
@@ -2597,6 +2615,25 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ##ax11.set_xscale('log')
   #ax11.set_yscale('log')
   ax2.set_yscale('symlog', linthresh=1E20)
+  ax2.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
+  
+  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
+  #locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  #ax2.xaxis.set_major_locator(locmaj)
+  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
+  ax2.yaxis.set_major_locator(locmaj)
+  
+  # Setting the minor ticks then
+  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
+  #subdiv=np.arange(0.,10.,0.5)
+  #locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  #ax2.xaxis.set_minor_locator(locmin)
+  #ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  subdiv=np.arange(0.,10.,1)
+  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
+  ax2.yaxis.set_minor_locator(locmin)
+  ax2.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
+  
   ax2.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
 
   # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
@@ -2610,25 +2647,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #subdiv=np.arange(0.,10.,0.5)
   #locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
   #ax2.xaxis.set_minor_locator(locmin)
-  #ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
-  subdiv=np.arange(0.,10.,1)
-  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
-  ax2.yaxis.set_minor_locator(locmin)
-  ax2.yaxis.set_minor_formatter(mp.ticker.NullFormatter())
-
-  ax2.set_ylabel(r'$w_{PI}$ (m$^{-3}$ s$^{-1}$)')
-
-  # Setting the major ticks first (see https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large)
-  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
-  ax2.xaxis.set_major_locator(locmaj)
-  locmaj = mp.ticker.LogLocator(base=10,numticks=100)
-  ax2.yaxis.set_major_locator(locmaj)
-
-  # Setting the minor ticks then
-  # TODO: solution for minor ticks is here: https://stackoverflow.com/questions/44078409/matplotlib-semi-log-plot-minor-tick-marks-are-gone-when-range-is-large
-  subdiv=np.arange(0.,10.,0.5)
-  locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
-  ax2.xaxis.set_minor_locator(locmin)
   #ax2.xaxis.set_minor_formatter(mp.ticker.NullFormatter())
   subdiv=np.arange(0.,10.,1)
   locmin = mp.ticker.LogLocator(base=10.0,subs=subdiv,numticks=1000)
