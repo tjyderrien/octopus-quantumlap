@@ -15,11 +15,11 @@ except VersionConflict:
     print("Error: version of setuptools is too old (<38.3)!")
     sys.exit(1)
 
-try:
-    require("spp_extended_theory")
-except VersionConflict:
-    print("Error: version of spp_extended_theory is ill-defined!")
-    sys.exit(1)
+# try:
+#    require("spp-extended-theory")
+# except VersionConflict:
+#     print("Error: version of spp_extended_theory is ill-defined!")
+#     sys.exit(1)
 
 if __name__ == "__main__":
     setup()
