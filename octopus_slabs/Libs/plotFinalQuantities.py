@@ -2079,16 +2079,16 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTimeRequested=2, ShowFinalPlot=0, NumberOfAtoms=2., Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
-  PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
+  PlotValleysInset=False #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation=False
-  AccountForOpticalIndex=True #trying without optical index. 
+  AccountForOpticalIndex=True #True: account for linear optical spectrum. False: forget it. WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
   global n0
   ContinuousKeldysh_Nb_Fields=300 #100: not really sufficient, 400: OK but long
-  ContinuousKeldysh_Nb_Wavelengths=1000 #500: not sufficient. 2000: maybe better. 
-  DrawOrders=6
+  ContinuousKeldysh_Nb_Wavelengths=5000 #500: not sufficient. 2000: maybe better. 
   Use128bitsFloats=False; 
-  InterpolationMethod="UnivariateSpline" #"UnivariateSpline", "cubic", "linear", 'nearest'
-  OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation!! | "Palik" (super wide)
+  OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation, very imprecise!! | "Palik" (super wide)
+  InterpolationMethod="nearest" #"UnivariateSpline", "cubic", "linear", 'nearest'
+  DrawOrders=6 #only visual, nothing about precision
   
   meff_Waroquiers_LDA = 0.2226 #effective mass of electron
   #[Laflamme Janssen, J.; Gillet, Y.; Poncé, S.; Martin, A.; Torrent, M. & Gonze, X. Precise effective masses from density functional perturbation theory Physical Review B, 2016, 93, 205147]
@@ -2154,7 +2154,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     
     print(nfile, kfile)
     
-    print("** Info: opening "+nfile+" and "+kfile+".")
+    #print("** Info: opening "+nfile+" and "+kfile+".")
     narray = loadtxt(nfile, delimiter="\t", skiprows=2)
     karray = loadtxt(kfile, delimiter="\t", skiprows=2)
     
@@ -2175,7 +2175,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #print Header+"New wavelength mesh has "+str(numrows)+" rows."
     #print wavelengths
     
-    print(Header+"** Info: definition of interpolation functions...")
+    #print(Header+"** Info: definition of interpolation functions...")
     energy1=np.sort(energies1)
     energy2=np.sort(energies2)
     del energies1, energies2 
@@ -2316,6 +2316,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #}}}   
     #array_id=0
     for Efield1_compare in FieldOfInterest: #{{{ #WARNING: Efield1_value should be considered randomized
+    #TODO: PARALLELIZE THIS LOOP. It can be VERY long. 
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
             wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
             print("W_PI peaks are at: "+str(wavelengths_peaks))
@@ -2417,6 +2418,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
   print(Header+"** INFO TEST: Dielectric permittivity of Si at 800 nm")
   print("[Palik] | [Reining et al PRL 2002]")
+  print("400 nm: "+str(ImportPalikDatabase_epsilon_fromNK(400e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(400e-9, "Database/Si-TDLDA")))
   print("800 nm: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
   print("3200 nm: "+str(ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
     
