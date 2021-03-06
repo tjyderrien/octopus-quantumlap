@@ -50,7 +50,7 @@ to contain binary data. One thing exists from Git to host binary data: Git-LFS.
 
 At the moment, folders starting with a number contain materials & files to start heavy DFT and TDDFT computations. 
 
-Folders below octopus_slabs/octopus_slabs/ contain libraries and post-treatment scripts for analysis.   
+Folders below octopus-slabs/octopus_slabs/ contain libraries and post-treatment scripts for analysis.   
 
 * 00-SelfMadeFiles: Files made from the octopus tutorials. 
 
