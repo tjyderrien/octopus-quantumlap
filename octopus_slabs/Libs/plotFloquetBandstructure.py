@@ -367,7 +367,9 @@ def SingleKpointManyFields():  # {{{
 # }}}
 
 ## Plot the band structure at rest, along with the Floquet band structure for 1 value of field. 
-## BUG: Hypothesis that KpointPath.line_id = Kgrid.k_id is wrong.
+## NOTE: Hypothesis that KpointPath.line_id = Kgrid.k_id. This can be wrong.
+# The best way to check is to plot bandstructure kx,ky,kz in space and compare with k-point path
+# generated at https://tools.materialscloud.org/seekpath/compute/process_structure/
 def MultipleKpointsOneField(field):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
@@ -420,9 +422,12 @@ def MultipleKpointsOneField(field):  # {{{
     # k_point_files contains a table of names for all k-point files in a single direction.
     # k_point_files_idx contains a table of indices matching with the k_points_files. Only selection in X direction was made.
 
+    # We can also prepare a figure of the k-point position in 3D. Then we'll be able to check if it corresponds to
+    # Fermi sphere from books.
+
     plt.figure()
     ax1 = plt.subplot(212)
-    plt.title("Full unsorted band structure")
+    plt.title("Band structure")
 
     # ax1.set_xlabel("k-point id")
     ax1.set_ylabel("Energy (eV)")
