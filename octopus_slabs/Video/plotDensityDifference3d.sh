@@ -1,5 +1,5 @@
 #!/bin/bash
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 LoadEnvLibraries
 source $QuantumLaPsources/Video/loadModules.sh
 # $RunVisit 
