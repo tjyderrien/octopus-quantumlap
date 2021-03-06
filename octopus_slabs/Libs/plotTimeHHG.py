@@ -30,8 +30,8 @@ import spp_extended_theory.Keldysh.libKeldysh as Keldysh
 ## IMPORT LIBRARIES
 from numpy import fft
 
-import libMaterials
-from Libs.libPlotting import *
+# import octopus_slabs.Libs.libMaterials
+from octopus_slabs.Libs.libPlotting import *
 
 ## Materials properties
 

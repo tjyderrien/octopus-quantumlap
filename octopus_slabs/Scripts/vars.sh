@@ -16,7 +16,7 @@ LoadEnvLibraries  > /dev/null
 
 case "${ComputerName}" in 
 	${LenovoTibo})
-		export QuantumLaPsources="/home/hilase/Documents/octopus_slabs"
+		export QuantumLaPsources="/home/hilase/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/hilase/Documents/octopus"
 		echo "Stored variables for local laptop."
 	;;
@@ -27,25 +27,25 @@ case "${ComputerName}" in
 	;;
 
 	${SalomonLogin}*)
-		export QuantumLaPsources=/home/tjyderrien/octopus_slabs
-		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus_slabs.data
+		export QuantumLaPsources=/home/tjyderrien/octopus-slabs
+		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus-slabs.data
 	;;
 
         ${BIATRI}*)
-		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus_slabs"
+		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
 
 
         ${IBM})
-                export QuantumLaPsources="/home/tjyderrien/octopus_slabs"
+                export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
                 export QuantumLaPruns="/home/tjyderrien/octopus.data"
 
         ;;
 
         ${BarboraLogin} | ${BarboraRuns})
-                export QuantumLaPsources=/home/tjyderrien/octopus_slabs
-                export QuantumLaPruns=/scratch/project/open-20-5/octopus_slabs.data
+                export QuantumLaPsources=/home/tjyderrien/octopus-slabs
+                export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
         ;;
         
 
@@ -55,7 +55,7 @@ case "${ComputerName}" in
         ;;
 
 
-#		export QuantumLaPsources="~/Documents/octopus_slabs"
+#		export QuantumLaPsources="~/Documents/octopus-slabs"
 #        export QuantumLaPruns="~/Documents/octopus.data"
 esac
 

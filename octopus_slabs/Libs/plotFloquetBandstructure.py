@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016-2021 T. J.-Y. Derrien
@@ -18,26 +18,24 @@
 
 ## @package plotFloquetBandstructure
 # Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
-
-from matplotlib.cm import get_cmap
+import pdb
+from matplotlib.cm   import get_cmap
 from scipy.constants import c, epsilon_0, h
-from scipy.special import jn_zeros as BesselJZeros
+from scipy.special   import jn_zeros as BesselJZeros
 
-from Libs.libPlotting import *
-from libString import *
+from octopus_slabs.Libs.libPlotting import *
+from octopus_slabs.Libs.libString   import *
 
-# IntensityToField = import_module("spp_extended_theory.Keldysh.libKeldyshZhukov.IntensityToField")
 from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
-# ComputeFloquetBandStructure = import_module('spp_extended_theory.Keldysh.libStark.ComputeFloquetBandStructure')
-from spp_extended_theory.Keldysh.libStark.ComputeFloquetBandStructure import *
+from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 
 # Filenames = "ks_me_multipoles.*"
-Filenames = "ks_me_dipole.*"
-bandstructure = "bandstructure"  # NOTE: file may be absent sometimes
+Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
+bandstructure = "bandstructure"  #name of bandstructure file in octopus NOTE: file may be absent sometimes
 LocalFolder = "./"
 filename = Filenames.split('.')[0]
 # print Filenames
@@ -55,20 +53,24 @@ Explanation of the number of method employed by Octopus for indexing the k-grid 
 """
 
 ## Building materials dictionnary
-dirname=os.path.realpath("../02-Slab2D")
+dirname=os.path.realpath(".") #catch the present directory absolute path
 
 print(("** Info: directory name: "+str(dirname)))
 
-if "03-Bulk3D" in dirname:
-    material = "Si"
-elif "09-Au" in dirname: 
-    material = "Au"
-elif "06-Mo" in dirname: 
-    material = "Mo"
-elif "14-SiO2" in dirname: 
-    material = "SiO2"
-else: 
+print("** Info: capturing the present material...")
+try:
+    if "03-Bulk3D" in dirname:
+        material = "Si"
+    elif "09-Au" in dirname: 
+        material = "Au"
+    elif "06-Mo" in dirname: 
+        material = "Mo"
+    elif "14-SiO2" in dirname: 
+        material = "SiO2"
+    print("** Info: detected the material "+material)
+except:
     print(Header+"Which material are you trying to analyze?")
+    exit()
     
 # material = "Au"  # SiO2 | Si
 
@@ -92,7 +94,7 @@ PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
 LogPlotting = 1
 verbose = 0  # Show info and debug messages.
-SingleKpoint = 1  # 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields.
+SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields.
 
 BesselRootsID_max = 10
 
@@ -141,7 +143,7 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
 
 Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all materials properties we need to automatize
 
-# 2. Check consistency of the number of files with k-point employed in the computation
+# 2. Just shortening the filenames here
 nb_atoms = Materials[material]['nb_atoms']  # 1 #number of atoms #we actually treat a bulk, so it's one.
 Z_electrons = Materials[material][
     'Z_electrons']  # SiO2: 24 electrons. #Si: 4 #number of modeled valence electrons in the simulation box
@@ -160,14 +162,14 @@ KpointPath_len = Materials[material]['KpointPath_len']
 K_labels = Materials[material]['K_labels']
 
 
-## Prepare energy diagram as function of laser field strength at a single K point
+## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 def SingleKpointManyFields():  # {{{
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
     ## Capturing the Gamma k-point file in results of Octopus 
-    # TODO: generalize to a desired k-point
+    # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
     try:
         kpoints_number_inp = LookUpStringInFile("info",
-                                                "Dimensions of the k-point grid")  # WARNING: it seems this has changed
+                                                "Dimensions of the k-point grid")  # WARNING: it seems this has changed. 
         for i in np.arange(0, 10):  # TODO: replace with .strip() ?
             kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
             if (verbose == 1):
@@ -185,14 +187,17 @@ def SingleKpointManyFields():  # {{{
         # exit()
 
     print("Info: Capturing the file for the transition of interest.")
-    gamma_point_files, gamma_point_files_index = ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [1],
+    k_point_index_of_interest=1 #1 is GAMMA point. Points are sorted by distance to Gamma point. 
+    # WARNING: this captures the GAMMA POINT. 
+    gamma_point_files, gamma_point_files_index = ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [k_point_index_of_interest],
                                                                             CaptureDirectGap, verbose,
                                                                             field_polarization_dir)
+    #breakpoint()
 
     matrixelements, matrix_side = ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files,
                                                             Complex_valued_ME)
 
-    ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
+    ## 5. Extract eigen values at k-point <kpoints_index> from "info" file #WARNING: selecting first k-point (Gamma) here!
     eigenvalues = GetEigenValue(gamma_point_files_index[0], Z_electrons + unocc_states, "info", verbose)
     if (verbose == 1):
         print(eigenvalues)
@@ -362,14 +367,15 @@ def SingleKpointManyFields():  # {{{
 # }}}
 
 ## Plot the band structure at rest, along with the Floquet band structure for 1 value of field. 
-## BUG: Hypothesis that KpointPath.line_id = Kgrid.k_id is wrong. TODO: Find where this is employed in the algorithm. 
+## BUG: Hypothesis that KpointPath.line_id = Kgrid.k_id is wrong.
 def MultipleKpointsOneField(field):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
+    CaptureDirectGap = False #We force it here since we need a number of k-point values for this function.
     # Capture all the k-point files for one direction
     # try:
     kpoints_number_inp = LookUpStringInFile("info", "Total number of k-points")
-    kpoints_number = int(kpoints_number_inp.split("=")[1].strip())  # integer
+    kpoints_number = int(kpoints_number_inp.split("=")[1].strip())  # conversion to integer. Contains the total number of kpoints FOUND in the run.
 
     # Loading the bandstructure given by octopus (contains: kpointpath_index, kx, ky, kz, eigenvalues)
     bands = np.loadtxt(bandstructure, skiprows=1)
@@ -400,18 +406,19 @@ def MultipleKpointsOneField(field):  # {{{
     # print Header+"** Error: failed to capture the number of k points automatically."
     # exit()
 
-    # KpointPath_list: we know it is located after the kgrid description. No need for searching it. More efficient than searching algorithm with N**2 complexity. 
+    # KpointPath_list: we know it is located after the 3D kgrid made kpoints**3 entries (e.g. 16**3 = 4096 points). 
     KpointPath_list = np.arange(kpoints_manual ** 3 + 1,
-                                kpoints_manual ** 3 + KpointPath_len + 1)  # WARNING: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id
+                                kpoints_manual ** 3 + KpointPath_len + 1)  # WARNING: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id. Are they sorted by distance to Gamma too? 
+    # breakpoint()
     print(("KPointPath_list: " + str(len(KpointPath_list))))
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
     print("Info: Capturing the files for the transition at given k-points.")
-    k_point_files, gamma_point_files_index = ExtractFileForGivenKpoints(filename, kpoints_manual, listoffiles,
+    k_point_files, k_point_files_idx = ExtractFileForGivenKpoints(filename, kpoints_manual, listoffiles,
                                                                         KpointPath_list, CaptureDirectGap, verbose,
                                                                         field_polarization_dir)
 
     # k_point_files contains a table of names for all k-point files in a single direction.
-    # gamma_point_files_index contains a table of indices matching with the k_points_files. Only selection in X direction was made.
+    # k_point_files_idx contains a table of indices matching with the k_points_files. Only selection in X direction was made.
 
     plt.figure()
     ax1 = plt.subplot(212)
@@ -459,10 +466,10 @@ def MultipleKpointsOneField(field):  # {{{
     idx_t = []
     # print(np.shape(idx_t))
     # exit()
-    print((Header + "** Info: size of k_point_files: " + str(len(k_point_files))))
-    print((Header + "         size of gamma_point_files_index: " + str(len(gamma_point_files_index))))
+    print((Header + "** Debug: size of k_point_files: " + str(len(k_point_files))))
+    print((Header + "         size of k_point_files_idx: " + str(len(k_point_files_idx))))
     # print(Header+"         content of k_point_files: "+str(k_point_files))
-    # print(Header+"         content of gamma_point_files_index: "+str(gamma_point_files_index))
+    # print(Header+"         content of k_point_files_idx: "+str(k_point_files_idx))
 
     ## DOUBLE PARSING: 
     ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
@@ -472,13 +479,13 @@ def MultipleKpointsOneField(field):  # {{{
         print((Header + "** Info: k_idx in path: " + str(k_idx)))
         print((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
         print(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
-        print(("** Info: k_idx in full list is: " + str(gamma_point_files_index[k_idx])))
+        print(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
 
         # print(Z_electrons, unocc_states, k_point_file, Complex_valued_ME)
 
         ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
         print(("** Fetching eigenvalues for k-point " + str(k_point_files[k_idx])))
-        eigenvalues = GetEigenValue(gamma_point_files_index[k_idx], Z_electrons + unocc_states, "info", verbose)
+        eigenvalues = GetEigenValue(k_point_files_idx[k_idx], Z_electrons + unocc_states, "info", verbose)
         # if(verbose==1):
         print(eigenvalues)
 
@@ -507,7 +514,7 @@ def MultipleKpointsOneField(field):  # {{{
         # for MPI_number in MPI_numbers:
         MPI_number = MPI_numbers[0]
         eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
-                                                                     gamma_point_files_index[k_idx], unocc_states,
+                                                                     k_point_files_idx[k_idx], unocc_states,
                                                                      MPI_number, Efield_SI, wavelength_SI,
                                                                      num_time_steps, eigenvalues, matrixelements,
                                                                      Complex_valued_ME, field_polarization_dir,
@@ -541,12 +548,13 @@ def MultipleKpointsOneField(field):  # {{{
 
 # }}}
 
-if (SingleKpoint == 1):
-    SingleKpointManyFields()
-else:
-    # MultipleKpointsOneField(1E8)
-    MultipleKpointsOneField(1E9)
-    # MultipleKpointsOneField(5E9)
-    MultipleKpointsOneField(1E10)
-    MultipleKpointsOneField(1E11)
+if(__name__=="__main__"):  #runs only if file is called directly
+    if (SingleKpoint == 1):
+        SingleKpointManyFields()
+    else:
+        # MultipleKpointsOneField(1E8)
+        MultipleKpointsOneField(1E9)
+        # MultipleKpointsOneField(5E9)
+        MultipleKpointsOneField(1E10)
+        MultipleKpointsOneField(1E11)
 

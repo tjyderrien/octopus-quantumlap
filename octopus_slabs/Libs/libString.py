@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2021 T. J.-Y. Derrien
@@ -217,12 +217,13 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
     #print eigenvalues
     return np.asfarray(eigenvalues)
 
-## Among a list of files, extract the single-direction dipolar-date filename that matches with: direct transition, gamma point xor for the given list of k-points (indicated by their index).
+## Among a list of files, extract the single-direction dipolar-date filename that matches with: direct transition,
+## gamma point xor for the given list of k-points (indicated by their index).
 # @param filename: common part of the multiple filenames
 # @param kpoints: indicative number of kpoints in the simulation
-# @listoffiles: full list of the existing dipolar files
-# @listofkpoints: list of interesting kpoints
-# @CaptureDirectGap: bool for automatic detection.
+# @pram listoffiles: full list of the existing dipolar files
+# @param listofkpoints: list of interesting kpoints
+# @param CaptureDirectGap: bool for automatic detection.
 def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
     Header="[libString: ExtractFileForGivenKpoints()] "                                                                                                                                                    
     spatial_directions      = 3 #1 file for each direction. 
@@ -258,8 +259,8 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
     # NOTE: eigen values are sorted by norm. Then taking the first k point should be sufficient. 
     if(CaptureDirectGap):
         print(Header+"Capturing the Gamma point.")
-        print(Header+"Is there a direct gap value?")    
-        try: #we try to capture direct gap automatically.
+        print(Header+"Is there a direct gap value? Useful only for band-gap materials.")
+        try: #we try to capture direct gap from octopus static/info file.
             kpoints_index_inp   = LookUpStringInFile(info_file, "Direct gap")
             for i in np.arange(0,10):
                 kpoints_index_inp=kpoints_index_inp.replace("  ", " ")
@@ -305,7 +306,7 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
         gamma_point_file = filename+'.k'+str(num)+directions[field_polarization_dir]
         gamma_point_files.append(gamma_point_file)
     if(verbose==1):
-        print(Header+"Files containing the matrix at Gamma point: "+str(gamma_point_files))
+        print(Header+"Files containing the matrix at desired point: "+str(gamma_point_files)) #not only for Gamma point
     return gamma_point_files, gamma_point_files_index
 #}}}
 
