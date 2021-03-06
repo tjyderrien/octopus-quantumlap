@@ -2,6 +2,6 @@
 
 ## Requirements
 
-This module depends on spp_extended_theory (https://bitbucket.org/tjyderrien/spp_extended_theory/)
+This module depends on spp-extended-theory (https://bitbucket.org/tjyderrien/spp-extended-theory/)
 
 ## 

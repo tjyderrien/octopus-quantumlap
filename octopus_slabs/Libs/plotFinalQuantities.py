@@ -1139,7 +1139,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     plot2    += [plot23]
   #}}}  
   ## ZHUKOV
-  PathPrefix="/home/hilase/Documents/spp_extended_theory/spp_extended_theory/Keldysh/"
+  PathPrefix="/home/hilase/Documents/spp-extended-theory/spp_extended_theory/Keldysh/"
   PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal, PathPrefix) #we neglect optical index in atomic theory
   
   try: #we plot as function of external field
@@ -2079,12 +2079,12 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 # Energy is compared with analytical Drude model. 
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3, RiseTimeRequested=2, ShowFinalPlot=0, NumberOfAtoms=2., Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9, ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True, EnergyAxis=True): #{{{
   PlotStarkShift=False
-  PlotValleysInset=False #True: plot valleys, false: plot hills (max of Wpi)
+  PlotValleysInset=True #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation=False
   AccountForOpticalIndex=True #True: account for linear optical spectrum. False: forget it. WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
   global n0
   ContinuousKeldysh_Nb_Fields=500 #100: not really sufficient, 400: OK but long
-  ContinuousKeldysh_Nb_Wavelengths=5000 #500: not sufficient. 2000: maybe better. 
+  ContinuousKeldysh_Nb_Wavelengths=3000 #500: not sufficient. 2000: maybe better. 
   Use128bitsFloats=False; 
   OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation, very imprecise!! | "Palik" (super wide)
   InterpolationMethod="nearest" #"UnivariateSpline", "cubic", "linear", 'nearest'
@@ -2124,7 +2124,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
     import os
-    DataFile=os.environ["HOME"]+"/Documents/spp_extended_theory/spp_extended_theory/SimpleSPP/Database/Si-Palik" #Not system independent
+    DataFile=os.environ["HOME"]+"/Documents/spp-extended-theory/spp_extended_theory/SimpleSPP/Database/Si-Palik" #Not system independent
     DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
     wavelengths_source  = DataArray[:,0]
     if(np.min(np.diff(wavelengths_source))==0e0): 
@@ -2148,7 +2148,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                                                                                                   
     Header="** ImportPalikDatabase_epsilon_twofiles: "
     import os
-    DataFile=os.environ["HOME"]+"/Documents/spp_extended_theory/spp_extended_theory/SimpleSPP/Database/Si-TDLDA"
+    DataFile=os.environ["HOME"]+"/Documents/spp-extended-theory/spp_extended_theory/SimpleSPP/Database/Si-TDLDA"
     nfile = DataFile+"-epsR.csv" #TODO: rename nfile to ReEpsFile
     kfile = DataFile+"-epsC.csv" #TODO: rename kfile to ImEpsFile
     
