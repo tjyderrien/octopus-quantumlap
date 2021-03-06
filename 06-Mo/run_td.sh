@@ -3,7 +3,7 @@
 # Purpose: TD-evolution. 
 
 set -e
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadOctopusSalomonModulesFortran2020
 LoadEnvLibraries

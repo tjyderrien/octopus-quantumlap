@@ -31,7 +31,7 @@ pwd >> $QuantumLaPruns/LastRuns.log
 
 module purge
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 

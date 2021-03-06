@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 source $QuantumLaPsources/02-Slab2D/functions.sh
 CheckComputerName
 LoadEnvLibraries

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
 echo "Current machine: ${ComputerName}"

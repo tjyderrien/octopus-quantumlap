@@ -2,7 +2,7 @@
 
 set -e
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
 echo "Massive job submitter for QuantumLaP."

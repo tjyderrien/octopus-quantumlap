@@ -33,7 +33,7 @@ pwd >> $QuantumLaPruns/LastRuns.log
 # TEMPORARY FIX
 module purge
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 # export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.

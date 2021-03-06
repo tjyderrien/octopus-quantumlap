@@ -8,7 +8,7 @@ set -e
 DryRun=1
 kPoints=1
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 source $QuantumLaPsources/02-Slab2D/machines.env
 echo "[Checking] Variable basePath: $basePath"

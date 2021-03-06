@@ -2,7 +2,7 @@
 
 set -e
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
 echo "Massive job submitter for QuantumLaP."
@@ -15,7 +15,7 @@ echo "DRY-RUN: run_gs.sh contains a dry-run for safety."
 
 echo "In this file, you can define all numerical features of the run you may like to test."
 
-# Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
+# Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in ground state folder.
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."

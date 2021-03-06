@@ -8,7 +8,7 @@ set -e
 DryRun=0
 # kPoints=16
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 source $QuantumLaPsources/03-Bulk3D/machines.env

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"

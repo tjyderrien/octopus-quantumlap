@@ -1,5 +1,5 @@
 #!/bin/bash
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 
 CheckComputerName # if EOS: ModuleForEOS 
 
