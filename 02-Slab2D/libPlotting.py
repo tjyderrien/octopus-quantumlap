@@ -21,6 +21,7 @@
 
 from numpy import genfromtxt, loadtxt, chararray
 from scipy.integrate import cumtrapz
+from scipy.constants import epsilon_0, c
 import glob
 import os.path
 import numpy as np
