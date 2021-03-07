@@ -47,4 +47,4 @@ cp inp.03 inp
 srun $OCT_HOME/bin/oct-floquet &> floquet.$SLURM_JOB_ID.log
 
 sleep 5
-sed -i 's/FromScratch/#FromScracth/g' #Avoid to kill the data while restarting the job
+sed -i 's/FromScratch/#FromScratch/g' #Avoid to kill the data while restarting the job
