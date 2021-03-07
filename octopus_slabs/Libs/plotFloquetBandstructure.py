@@ -367,7 +367,7 @@ def SingleKpointManyFields():  # {{{
 # }}}
 
 ## Plot the band structure at rest, along with the Floquet band structure for 1 value of field. 
-## NOTE: Hypothesis that KpointPath.line_id = Kgrid.k_id. This can be wrong.
+## NOTE: Hypothesis that KpointPath.line_id = Kgrid.k_id. This can be wrong. Also check the K-point path in INPUT of octopus
 # The best way to check is to plot bandstructure kx,ky,kz in space and compare with k-point path
 # generated at https://tools.materialscloud.org/seekpath/compute/process_structure/
 def MultipleKpointsOneField(field):  # {{{
