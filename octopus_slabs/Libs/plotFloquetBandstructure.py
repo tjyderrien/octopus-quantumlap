@@ -18,7 +18,7 @@
 
 ## @package plotFloquetBandstructure
 # Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
-import pdb
+# import pdb
 from matplotlib.cm   import get_cmap
 from scipy.constants import c, epsilon_0, h
 from scipy.special   import jn_zeros as BesselJZeros
