@@ -25,13 +25,13 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
-from scipy.constants import pi
+from scipy.constants import pi, e
 from scipy.integrate import cumtrapz
 from scipy.interpolate import interp1d
 
 import octopus_slabs.Samples.calculateVolume as calcVol
-from octopus_slabs.Libs.libAtomicUnits import *
-from octopus_slabs.Libs.libString import *
+import octopus_slabs.Libs.libAtomicUnits     as au
+import octopus_slabs.Libs.libString          as libString
 
 Header = "[libPlotting]"
 
@@ -171,14 +171,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     else: 
         TheoryLevel = 1 #dft
          
-    ##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
-    # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
-    kpointgrid_inp=LookUpStringReturnNextLine(filename, "%KPointsGrid")
-    kpointgrid_inp2=kpointgrid_inp.strip()
-    kpointgrid_inp3=kpointgrid_inp2.split("|")
-    kpointgrid_inp4=kpointgrid_inp3[0] #capture the first coefficient of the grid
-    kpointgrid=float(kpointgrid_inp4)
-    del kpointgrid_inp, kpointgrid_inp2, kpointgrid_inp3, kpointgrid_inp4
+    kpointgrid=libString.CaptureKPointGridSizeFromINP(filename)
 
     # Capturing real-mesh grid spacing
     realmesh_inp=LookUpStringReturnNextLine(filename, "%Spacing")
