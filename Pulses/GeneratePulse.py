@@ -36,7 +36,7 @@ DebugMode = 0 #0: outputs the envelope of the field for octopus. 1: output the f
 # @param pulse duration (SI)
 # @param peak field amplitude (SI)
 # @param CEP (SI)
-# @param t0 (SI): time zero of the origin
+# @param t0 (SI): central instant of the pulse to generate
 # @param PulseDelay (SI): temporal delay for this pulse (useful to generate several pulses)
 # Outputs:
 # t (At. Units) | Envelope of the field A(t)
@@ -149,7 +149,7 @@ tauRise = 2.*pi*RiseCycle / (omega)
 
 tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant zero !
 
-ComputingT_min = 7./5.*(tauRise+tau+tauRise)
+ComputingT_min = 7./5.*(tauRise+tau+tauRise+PulseDelay) #this will avoid runs to terminate too early
 if(ComputingT_min > ComputingT):
     print(Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min))
     print(Header+"** TODO: replace the total value of computing time in inp as well.")
@@ -163,7 +163,7 @@ if(ComputingT_min > ComputingT):
 print(Header+"Computing time = "+str(float(ComputingT)))
 tmin = 0.
 tmax = float(ComputingT)
-Number = 50000 #NOTE: better to put too many nodes here ! Better to have something bigger than octopus time steps. 
+Number = 50000 #NOTE: better to put too many nodes here ! Better to have something wider than planned octopus time steps. 
 t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
 #print t
 #exit()

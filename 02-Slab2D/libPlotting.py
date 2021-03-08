@@ -21,6 +21,7 @@
 
 from numpy import genfromtxt, loadtxt, chararray
 from scipy.integrate import cumtrapz
+from scipy.constants import epsilon_0, c
 import glob
 import os.path
 import numpy as np
@@ -173,7 +174,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         TheoryLevel = 0 #independent particles
     else: 
         TheoryLevel = 1 #dft
-	 
+         
     ##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
     # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
     kpointgrid_inp=LookUpStringReturnNextLine(filename, "%KPointsGrid")
@@ -195,16 +196,16 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
     PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
-	 
+         
     FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     GaugeVectorField_inp2= LookUpStringInFile(filename, "GaugeVectorField")
     GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
     GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
 #    try:
-#	 FieldInduced_string = FieldInduced_inp[0]
+#        FieldInduced_string = FieldInduced_inp[0]
 #    except:
-#	 FieldInduced_string = ''
+#        FieldInduced_string = ''
 
     #=== Capture the angle of the field
     polarization_angle_inp = LookUpStringInFile(filename, "th1 =")
@@ -213,7 +214,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     else:
          polarization_angle = 0. #float('nan'). 0 for now.
 
-    #=== Capture of the pulse2-angle of field	 
+    #=== Capture of the pulse2-angle of field    
     CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then zero
     # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case. 
     if(CrossPolarization_inp): 
@@ -252,7 +253,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       print((Header+"** Entering second pulse input."))
       #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = GetParameterValueFromInputFile(filename, "lambdaB = ")
-	 
+         
       #PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
       PulseDuration2_SI     = GetParameterValueFromInputFile(filename, "tauBsi = ")
       
@@ -443,37 +444,37 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     ### Remove contradictory case
     #if(EnableInducedFieldAnalysis == 1 and FieldInduced_string == "#"):
-	 #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
-	 #continue
+         #print "Jumped: InducedFieldON but DISABLED in computation. [Case 1]"
+         #continue
     #if(EnableInducedFieldAnalysis == 0 and FieldInduced_string == "G" and FieldInduced_inp[22] == "y"):
-	 #print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
-	 #continue
+         #print "Jumped InducedFieldOFF but ENABLED in computation. [Case 2]"
+         #continue
     ### Matching cases also may have some exceptions
     #else: #{
-	 #if(FieldInduced_string == "#"):
-	   #print "Induced Field was DISABLED in computation."
-	 #elif(FieldInduced_string == "G"):
-	   #print "Induced field was ENABLED in computation."
-	 #else: #{
-	   #if(EnableInducedFieldAnalysis==1):
-		#print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
-		#continue
-	   #else:
-		#print "Induced field was not found in this computation. But we take it into account."
-	##}
+         #if(FieldInduced_string == "#"):
+           #print "Induced Field was DISABLED in computation."
+         #elif(FieldInduced_string == "G"):
+           #print "Induced field was ENABLED in computation."
+         #else: #{
+           #if(EnableInducedFieldAnalysis==1):
+                #print "Induced field: contradiction. GaugeFieldPropagate was not found in this computation. Jumped."
+                #continue
+           #else:
+                #print "Induced field was not found in this computation. But we take it into account."
+        ##}
     ##}
 
     ## Double-pulse cases: jump selections which don't match with desire. 
     #if(Efield2_SI > 1E0 and EnableDoublePulseAnalysis == 0): #In case we found a double-pulse
-	 #print "Jump [Case 3]"
-	 #continue #we jump this run, then 
+         #print "Jump [Case 3]"
+         #continue #we jump this run, then 
     #elif(Efield2_SI < 1E0 and EnableDoublePulseAnalysis == 1): 
-	 #print "Jump [Case 4]"
-	 #continue
+         #print "Jump [Case 4]"
+         #continue
 
   #  else: 
   #    print "SINGLE-PULSE MODE"
-	 # Remove the pulses with double
+         # Remove the pulses with double
 
     print((Header+"Wavelength (nm): "+str(wavelength_SI)))
     print((Header+"Pulse duration (s): "+str(PulseDuration_SI)))
@@ -731,20 +732,20 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # octopus files are in atomic units - we want to perform selection in atomic units to avoid roundoff).
         # Preparing tau_1, tau_2 definitions as function of pulse shape. 
         if(PulseTypeName=="SinSquared"):  
-                duration_tau_1 = 2*PulseDuration_SI #SI
-                duration_tau_2 = 2*PulseDuration2_SI #SI
+            duration_tau_1 = 2*PulseDuration_SI #SI
+            duration_tau_2 = 2*PulseDuration2_SI #SI
         elif(PulseTypeName=="StH"):
-                omega_1 = 2*pi*c/wavelength_SI #SI
-                omega_2 = 2*pi*c/wavelength2_SI #SI
-                duration_tau_1 = PulseDuration_SI  + RiseTime*pi/omega_1 #SI
-                duration_tau_2 = PulseDuration2_SI + RiseTime*pi/omega_2 #SI
+            omega_1 = 2*pi*c/wavelength_SI #SI
+            omega_2 = 2*pi*c/wavelength2_SI #SI
+            duration_tau_1 = PulseDuration_SI  + RiseTime*pi/omega_1 #SI
+            duration_tau_2 = PulseDuration2_SI + RiseTime*pi/omega_2 #SI
         else: 
-                print((Header+"** ERROR: capture of end of pulse is not managed."))
-                raise IndexError #TODO: prepare Exception("NotImplemented")
+            print((Header+"** ERROR: capture of end of pulse is not managed."))
+            raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
         timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
-                timeFarEnough += duration_tau_2 + Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
+            timeFarEnough += duration_tau_2 + Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
 
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
@@ -758,8 +759,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
  
         print((Header+"** Debug: size of Efield_AU, Efield2_AU: "+str(len(Efield_AU))+", "+str(len(Efield2_AU))))
         print((Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray]))+", "+str(len(timeNe))))
-        print((Header+"** Debug: size of dEfield_12_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU))))
-	print((Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray]))))
+        print(Header+"** Debug: size of dEfield_12_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
+        print(Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray])))
         print((Header+"** Debug: maximum existing instants for time, timeNe "+str(np.max(time))+", "+str(np.max(timeNe))))
         print((Header+"** Debug: timeNe ="+str(timeNe)))
         print((Header+"** Debug: time   ="+str(time)))
@@ -784,11 +785,12 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
-              print((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
+            print((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
 #              continue
 
-        # Identifying Efield == 0 and dEfield==0 on timeNe grid. 
-        FieldEqualZero_Ne =(Efield_AU_interp_Ne == 0) #Selects when field is null on timeNe grid. Now based on bicolor field.
+        # Identifying Efield == 0 and dEfield==0 on timeNe grid.
+        tolerance_ne=1E-4 
+        FieldEqualZero_Ne =(np.divide(Efield_AU_interp_Ne, np.max(Efield_AU_interp_Ne)) < tolerance_ne) #Selects when field is null on timeNe grid. Now based on bicolor field. #TODO: add a tolerance here ! Example shows 1E-4 would be fine. 
         dFieldEqualZero_Ne=(dEfield_AU_interp_Ne == 0)
         print((Header+"** DEBUG: shapes of Masks for Ne: "+str(np.shape(FieldEqualZero_Ne))+", "+str(np.shape(dFieldEqualZero_Ne))))
 
@@ -799,8 +801,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         ## CHECKING MASK INTEGRITY ... ie if manifolds contain at least 1 element (1 value of interest). 
         print((np.any(MaskNe)))
         if(not np.any(MaskNe)):
-		print((Header+"** ERROR: pulse may not be finished. Check n_ex!"))
-                raise IndexError
+            print((Header+"** ERROR: pulse may not be finished. Check n_ex!"))
+            raise IndexError
         if(not np.any(Mask)):
                 print((Header+"** ERROR: pulse may not be finished. Check energy file!"))
                 raise IndexError
@@ -813,7 +815,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # print(timeNe3)
 
         # Applying Mask on Energies
-#        timeEnergies2=timeEnergies[:len(timeEnergies)-2]	
+#        timeEnergies2=timeEnergies[:len(timeEnergies)-2]
         timeEnergies3=timeEnergies[Mask] #filtering with condition given by Mask
         
         # We defines masks for "sufficiently far instants after pulses" on the observables 
@@ -849,8 +851,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         #ExchangeEnergy_SI_afterpulse   = 0e0
         #EigenvaluesEnergy_SI_afterpulse= 0e0
         #ElectronDensityRightAfterPulse = 0e0
-	
-	#timeToFilterFrom = 0e0
+
+        #timeToFilterFrom = 0e0
     except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         print((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -898,23 +900,23 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     #print float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax)
     #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
-	      
+      
     StackToAdd = [ float(runid), float(RunDate), kpointgrid, realmeshgrid, float(wavelength_SI), float(PulseDuration_SI),
-	      float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
-	      float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
-	      float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-	      float(FieldInduced_enabled), 
-	      float(GaugeFieldAmplitude), 
-	      float(GaugeFieldDelay), 
-	      float(Functional),  float(FreezeHXC), float(MoveIon), 
-	      float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-	      float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
-	      float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), 
-	      float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), 
-	      float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check), float(Eext_SI_max), float(ElectronDensityRightAfterPulse), 
-	      float(density_proj_SI_final/PulseDuration_SI), float(ElectronDensityRightAfterPulse/PulseDuration_SI),
-	      PulseType, RiseTime, float(timeNe[len(timeNe)-1]), 
-	      float(timeToFilterFrom) ]
+              float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
+              float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
+              float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
+              float(FieldInduced_enabled), 
+              float(GaugeFieldAmplitude), 
+              float(GaugeFieldDelay), 
+              float(Functional),  float(FreezeHXC), float(MoveIon), 
+              float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
+              float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
+              float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), 
+              float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), 
+              float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check), float(Eext_SI_max), float(ElectronDensityRightAfterPulse), 
+              float(density_proj_SI_final/PulseDuration_SI), float(ElectronDensityRightAfterPulse/PulseDuration_SI),
+              PulseType, RiseTime, float(timeNe[len(timeNe)-1]), 
+              float(timeToFilterFrom) ]
 
     
     print(Header+"Stack contains:")

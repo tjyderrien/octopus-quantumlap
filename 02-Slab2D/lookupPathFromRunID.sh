@@ -24,7 +24,7 @@ do
   counter=$( python -c "print( $counter + 1 )" )
   gnuplot -p -e "folder='$line'.'/td.general/'; set title folder; set xrange [:4000]; p folder.'laser' u 2:3 w l t 'Pulse 1', folder.'laser' u 2:6 w l t 'Pulse 2', folder.'n_ex' u 2:3 w l t 'Nexc'; print folder"
   echo $counter / $( wc -l $1 )
-#  read -s -n 1 -p "Press any key to continue . . ."
+  read -s -n 1 -p "Press any key to continue . . ."
 done
 }
 # FetchPathFromID ListOfCandidates.dat

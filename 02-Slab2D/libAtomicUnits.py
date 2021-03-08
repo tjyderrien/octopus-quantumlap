@@ -20,7 +20,7 @@
 # Manage conversion between atomic units (AU) and International System (SI)
 
 from numpy import vectorize
-from scipy.constants import c, epsilon_0, mu_0, pi, e, m_e, h, hbar
+from scipy.constants import e, hbar
 
 BohrRadius=5.2917721067e-11 #m
 Hartree_Energy = 27.21138602 #eV

@@ -25,7 +25,7 @@ import os
 import glob
 import itertools
 
-from libDatabase import * #uses symbolic link
+import libDatabase
 #from ../../../spp-extended-theory/SimpleSPP/libDatabase import FilterDatabaseContains
 
 ## Returns the name of the most recent octopus logfile
@@ -93,19 +93,19 @@ def LookUpStringReturnNextLine(Filename, string): #{{{
 ## Looks for subfolders 
 def FindAllDirectories(directory): 
   for dirname, dirnames, filenames in os.walk(directory):
-	 # print path to all subdirectories first.
-	 for subdirname in dirnames:
-		print((os.path.join(dirname, subdirname)))
+         # print path to all subdirectories first.
+         for subdirname in dirnames:
+                print((os.path.join(dirname, subdirname)))
 
-	 ## print path to all filenames.
-	 #for filename in filenames:
-		#print(os.path.join(dirname, filename))
+         ## print path to all filenames.
+         #for filename in filenames:
+                #print(os.path.join(dirname, filename))
 
-	 # Advanced usage:
-	 # editing the 'dirnames' list will stop os.walk() from recursing into there.
-	 if '.git' in dirnames:
-		# don't go into any .git directories.
-		dirnames.remove('.git')
+         # Advanced usage:
+         # editing the 'dirnames' list will stop os.walk() from recursing into there.
+         if '.git' in dirnames:
+                # don't go into any .git directories.
+                dirnames.remove('.git')
   WholeTable=dirname+subdirname
   return WholeTable
 
@@ -122,12 +122,12 @@ def FilterDirectories(keyword, path, FieldIndex):
 # @param file <string> filename
 def GetLastLine(file):
   with open(file, "rb") as f:
-	 first = f.readline()      # Read the first line.
-	 f.seek(-2, 2)             # Jump to the second last byte.
-	 while f.read(1) != b"\n": # Until EOL is found...
-		f.seek(-2, 1)         # ...jump back the read byte plus one more.
-	 last = f.readline()       # Read last line.
-	 return last
+         first = f.readline()      # Read the first line.
+         f.seek(-2, 2)             # Jump to the second last byte.
+         while f.read(1) != b"\n": # Until EOL is found...
+                f.seek(-2, 1)         # ...jump back the read byte plus one more.
+         last = f.readline()       # Read last line.
+         return last
 
 ## Splitting, sorting and re-packing the table of ks_me_dipoles from octopus.
 def GetOrderedListOfFiles(Filename): #{{{

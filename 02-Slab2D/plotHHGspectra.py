@@ -213,7 +213,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     return 0
 #}}}
 
-## Prepares plot HHG(omega_HHG, CEP) 
+## Prepares color plot HHG(omega_HHG, CEP) 
 def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0): #{{{
     
     # Declaring variables
