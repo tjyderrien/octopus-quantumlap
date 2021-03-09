@@ -350,7 +350,7 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
 # @pram listoffiles: full list of the existing dipolar files
 # @param listofkpoints: list of interesting kpoints
 # @param CaptureDirectGap: bool for automatic detection.
-def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
+def ExtractFileForGivenKpoints(filename, kpoints, listoffiles, listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
     Header="[libString: ExtractFileForGivenKpoints()] "                                                                                                                                                    
     spatial_directions      = 3 #1 file for each direction. 
     #field_polarization_dir  = 0 #0: x, 1: y, 2: z. 
@@ -363,14 +363,14 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
         #degenerated_electrons_f=1
     
     # 2. Check consistency of the number of files with k
-    expected_num_files = spatial_directions * kpoints**3 #BUG: will never be good, since KpointPath is added after kPointGrid. Then we'll always fall into case of plotting all kpointpath. 
-    if(len(listoffiles) != expected_num_files):
-        print(Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files))
-    else: 
-        if(verbose==1): 
-            print(Header+"Info: number of files is correct.")
-        else: 
-            print("")
+    #expected_num_files = spatial_directions * kpoints**3 #BUG: will never be good, since KpointPath is added after kPointGrid. Then we'll always fall into case of plotting all kpointpath. 
+    #if(len(listoffiles) != expected_num_files):
+        #print(Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files))
+    #else: 
+        #if(verbose==1): 
+            #print(Header+"Info: number of files is correct.")
+        #else: 
+            #print("")
 
     # 3. Construct the big matrice of dipolar transition inside the Floquet Hamiltonian. 
     # WARNING: how to put m=-1, m=0, m=+1 ? does this order matter? 

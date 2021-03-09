@@ -20,7 +20,7 @@
 # Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
 #import pdb
 from matplotlib.cm   import get_cmap
-from scipy.constants import c, epsilon_0, h
+from scipy.constants import c, epsilon_0, h, e
 from scipy.special   import jn_zeros as BesselJZeros
 import os
 import numpy as np
@@ -131,7 +131,7 @@ SiO2 = {'MPI_numbers': [1, 2], 'kpoints_manual': 8,
         'nb_atoms': 1, 'unocc_states': 6,
         'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2,
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301, 
-        'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|K$', r'$H$']}
+        'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$']}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
 Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
@@ -169,7 +169,9 @@ K_labels = Materials[material]['K_labels']
 
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
-def SingleKpointManyFields():  # {{{
+# @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think ! 
+def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
+    Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "                                                                   
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
     ## Capturing the Gamma k-point file in results of Octopus 
     # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
@@ -185,15 +187,14 @@ def SingleKpointManyFields():  # {{{
         kpoints_number_array = kpoints_number_array[1].split(" ")
         kpoints = int(kpoints_number_array[1])
         print(kpoints)
-    except:
+    except IndexError: #recent octopus versions removed some info from info file
         kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
-        print(
-            Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
+        print(Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
                 kpoints))
         # exit()
 
     print("Info: Capturing the file for the transition of interest.")
-    k_point_index_of_interest=1 #1 is GAMMA point. Points are sorted by distance to Gamma point. 
+    #k_point_index_of_interest=1 #1 is GAMMA point. Points are sorted by distance to Gamma point. 
     # WARNING: this captures the GAMMA POINT. 
     gamma_point_files, gamma_point_files_index = libString.ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [k_point_index_of_interest],
                                                                             CaptureDirectGap, verbose,
@@ -204,7 +205,7 @@ def SingleKpointManyFields():  # {{{
                                                             Complex_valued_ME)
 
     ## 5. Extract eigen values at k-point <kpoints_index> from "info" file #WARNING: selecting first k-point (Gamma) here!
-    eigenvalues = GetEigenValue(gamma_point_files_index[0], Z_electrons + unocc_states, "info", verbose)
+    eigenvalues = libString.GetEigenValue(gamma_point_files_index[0], Z_electrons + unocc_states, "info", verbose)
     if (verbose == 1):
         print(eigenvalues)
 
@@ -440,8 +441,9 @@ def MultipleKpointsOneField(field):  # {{{
     # Deduce the number of points in the k-point path.
     KpointPath_len = kpoints_total_number - kpoints3D_number**3
     KpointPath_list = np.arange(kpoints3D_number ** 3 + 1,
-                                kpoints3D_number ** 3 + KpointPath_len) #TODO: KpointPath_len should be fetched automatically!!
-    # WARNING: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id. Are they sorted by distance to Gamma too?
+                                kpoints_total_number) #NOTE: this assumes no other path is added at the end!
+                                #kpoints3D_number ** 3 + KpointPath_len) #TODO: KpointPath_len should be fetched automatically!!
+    # NOTE: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id. I checked position of repeated Gamma points in the path. Dipolar elements were stricly equal at these positions. 
     # breakpoint()
     print(("KPointPath_list: " + str(len(KpointPath_list))))
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
@@ -457,14 +459,16 @@ def MultipleKpointsOneField(field):  # {{{
     # Fermi sphere from books.
 
     plt.figure()
-    ax1 = plt.subplot(212)
-    plt.title("Band structure")
-
-    # ax1.set_xlabel("k-point id")
+    ax1 = plt.subplot(211)
+    ax1.set_title("Band structure")
     ax1.set_ylabel("Energy (eV)")
+    
+    ax2 = plt.subplot(212)
+    ax2.set_title("Non-equilibrium band structure")
+    ax2.set_ylabel("Energy (eV)")
+    ax2.set_xlabel("k-point path")
 
-    ax2 = plt.subplot(211)
-    plt.title("Non-equilibrium band structure")
+    # ax2.set_xlabel("k-point id")
 
     ## NOTE: if we assume that laser light only REMOVES some high-symmetry points from the ones of the space group, 
     ## NOTE: then we have to get the k-points from the file <bandstructure> since interpolation is needed between the points of high-symmetry). INP file does not provide this. 
@@ -475,12 +479,11 @@ def MultipleKpointsOneField(field):  # {{{
     # exit()
 
     ## THIS IS the proper BAND STRUCTURE from <bandstructure>. We just plot it. 
-    plt.title("Band structure")
-    # ax2.set_xticklabels([])
-    ax2.set_xlabel("k-point path")
-    ax2.set_ylabel("Energy (eV)")
+    #plt.title("Band structure")
+    # ax1.set_xticklabels([])
+    #ax1.set_ylabel("Energy (eV)")
     for eig in np.arange(4, len(bands[0, :])):
-        ax2.scatter(bands[:, 0], au.Energy_Hartree_to_eV(bands[:, eig]),
+        ax1.scatter(bands[:, 0], au.Energy_Hartree_to_eV(bands[:, eig]),
                     s=2)  # each band will be plotted with a different color
     # plt.show()
 
@@ -532,7 +535,7 @@ def MultipleKpointsOneField(field):  # {{{
         print((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
 
         # X: we shall plot as function of bands[0,:]. 
-        ax1.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1)
+        ax2.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1, label="Eq.")
         if (not PlotFloquetBandStructure):
             continue
 
@@ -562,14 +565,15 @@ def MultipleKpointsOneField(field):  # {{{
         else:
             unitx = 1E0
             Efield_SI = Efield_SI * np.sqrt(RefractiveIndex)
-        ax1.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
+        ax2.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
                     s=SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
+        #breakpoint()
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
     ax1.set_xticks(np.linspace(0., 1., len(K_labels)))
-    ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
+    #ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
     ax1.set_xticklabels(K_labels, fontsize='15')
-    ax2.set_xticklabels(K_labels, fontsize='15')
+    #ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 0)) + "VperNm"
