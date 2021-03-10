@@ -36,6 +36,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
+ShowPlot = False #starts to be too consuming (800 MB per EPS file...)
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -571,9 +572,9 @@ def MultipleKpointsOneField(field):  # {{{
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
     ax1.set_xticks(np.linspace(0., 1., len(K_labels)))
-    #ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
+    ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
     ax1.set_xticklabels(K_labels, fontsize='15')
-    #ax2.set_xticklabels(K_labels, fontsize='15')
+    ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 0)) + "VperNm"
@@ -583,7 +584,8 @@ def MultipleKpointsOneField(field):  # {{{
         figurename += "-Field"
     plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
-    plt.show()
+    if(ShowPlot):
+        plt.show()
 
 
 # }}}
