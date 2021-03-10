@@ -10,6 +10,7 @@ dependencies:
   - scipy
   - matplotlib
   - numba
+  - CuPy
     #  - spp_extended_theory
 # for interactive work
   - ipython
