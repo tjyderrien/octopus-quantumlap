@@ -36,6 +36,11 @@ case "${ComputerName}" in
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
 	;;
 
+	${kastanienallee})
+		export QuantumLaPsources="/home/thibault/Documents/Codes/octopus-slabs"
+		export QuantumLaPruns="/home/thibault/Documents/Codes/octopus.data"
+
+	;;
 
         ${IBM})
                 export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
