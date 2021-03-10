@@ -333,8 +333,8 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
                 #print heading
                 #print lines
                 break #we stop iteration when pattern is found
-    print(Header+str(heading))
     if(verbose==1): 
+        print(Header+str(heading))
         print(Header+str(lines[0:NumberOfEigenValues]))
     eigenvalues=[]
     for id in lines[:NumberOfEigenValues]:
@@ -419,8 +419,9 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles, listofkpoints, Ca
             #gamma_point_files_index=[kpoints_index]
             ##gamma_point_files_index=[kpoints_index*spatial_directions, kpoints_index*spatial_directions+1, kpoints_index*spatial_directions+2]
     else: #we will here output all k-points corresponding to the direction of polarization. 
-        print((Header+"** Info: capturing all the indicated k-points..."))
-        print((Header+"** Info: number of selected k points: "+str(len(listofkpoints))))
+        if(verbose==1):
+            print((Header+"** Info: capturing all the indicated k-points..."))
+            print((Header+"** Info: number of selected k points: "+str(len(listofkpoints))))
         gamma_point_files_index=listofkpoints
         
         #print("** Info: number of k points: "+str(len(listoffiles)/3.))
