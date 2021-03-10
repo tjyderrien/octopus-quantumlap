@@ -96,6 +96,7 @@ spin_occupation = 2  # 1: levels with same spin should split, 2: levels of diffe
 Renormalize = False  # True: limits the plots maximum as function of wavelength
 PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
+SizeX = 12.; SizeY=12.
 LogPlotting = 1
 verbose = 0  # Show info and debug messages.
 SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields.
@@ -227,7 +228,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
 
             ## Plot the splitted energy levels at Gamma.
             for MPI_number in MPI_numbers:
-                plt.figure()
+                plt.figure(figsize=(SizeX,SizeY))
                 for field in Efield_SI:
                     eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
                                                                                  kpoints, unocc_states, MPI_number,
@@ -352,7 +353,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
                     for RootNumber in np.arange(0, np.size(BesselZeros)):
                         xx = Field_AU_to_SI(Efield_AU) * 1E-9
                         yy = au.Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j] * Efield_AU))
-                        plot_field = plt.scatter(xx, yy, s=10 * SizeOfDots,
+                        plot_field = plt.scatter(xx, yy, s=SizeOfDots,
                                                  label=str(trans_i) + r"$\rightarrow$" + str(trans_j), c=colorlist[
                                 trans_j - matrix_side / 2])  # colorlist[trans_j] is also possible #*matrix_side+trans_j]) #energies [eV]
                     plot1 += [plot_field]  # stores the last plot caption in a series of roots
@@ -515,32 +516,36 @@ def MultipleKpointsOneField(field):  # {{{
     ## - k_point_files[k_idx] belongs to KPointGrid (sync with info and ks_me_dipole*)
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
         # for k_point_file in k_point_files: #going through each kpoint. We here restrict the Floquet computation to the path of k-points.
-        print((Header + "** Info: k_idx in path: " + str(k_idx)))
-        print((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
-        print(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
-        print(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
+        if(verbose==1):
+            print((Header + "** Info: k_idx in path: " + str(k_idx)))
+            print((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
+            print(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
+            print(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
 
         # print(Z_electrons, unocc_states, k_point_file, Complex_valued_ME)
 
         ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
-        print(("** Fetching eigenvalues for k-point " + str(k_point_files[k_idx])))
+        if(verbose==1):
+            print(("** Fetching eigenvalues for k-point " + str(k_point_files[k_idx])))
         eigenvalues = libString.GetEigenValue(k_point_files_idx[k_idx], Z_electrons + unocc_states, "info", verbose)
-        # if(verbose==1):
-        print(eigenvalues)
+        if(verbose==1):
+            print(eigenvalues)
 
         # Plot the band structure at rest using provided k-point path
-        print((Header + "** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+        if(verbose==1):
+            print((Header + "** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
         # idx_t=eigenvalues
-
-        print((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+        if(verbose==1):
+            print((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
 
         # X: we shall plot as function of bands[0,:]. 
-        ax2.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1, label="Eq.")
+        #ax2.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1, label="Eq.")
         if (not PlotFloquetBandStructure):
             continue
 
         ## Loading matrix elements for the k-point.
-        print((Header + "** Info: fetching matrix elements."))
+        if(verbose==1):
+            print((Header + "** Info: fetching matrix elements."))
         matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]],
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
@@ -566,14 +571,14 @@ def MultipleKpointsOneField(field):  # {{{
             unitx = 1E0
             Efield_SI = Efield_SI * np.sqrt(RefractiveIndex)
         ax2.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
-                    s=SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
+                    s=0.1*SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
         #breakpoint()
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
     ax1.set_xticks(np.linspace(0., 1., len(K_labels)))
-    #ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
+    ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
     ax1.set_xticklabels(K_labels, fontsize='15')
-    #ax2.set_xticklabels(K_labels, fontsize='15')
+    ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 0)) + "VperNm"
@@ -581,7 +586,7 @@ def MultipleKpointsOneField(field):  # {{{
         figurename += "NoLog"
     if (not PlotIntensity):
         figurename += "-Field"
-    plt.savefig(figurename + ".eps")
+    #plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
     plt.show()
 
