@@ -362,7 +362,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
       FileName_opt=""
       
-  x_min  ={800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
+  x_min  ={483e-9: (1E9, 1E15), 800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
   
   print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
   #Filter: double pulses, same wavelengths, same polarization
@@ -414,6 +414,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
       PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
       EnableInsetMagnification=False
+  if(pulseWavelength==483e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
+      #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+      PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+      EnableInsetMagnification=False
   
   ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures. 
   ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs. 
@@ -447,6 +451,24 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   Symbols={10e-15: '+', 10.674e-15: '+', 20e-15: 'o', 30e-15: '^'}
   Colors={10e-15: 'g', 10.674e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
   LineWidth={10e-15: '10.', 10.674e-15: '10.', 20e-15: '0.1', 30e-15: '2.'}
+  
+  linestyle_tuple = {
+      'solid':                (0, ()),
+      'dotted':               (0, (1,1)),
+      'loosely dotted':        (0, (1, 10)),
+      'dotted':                (0, (1, 1)),
+      'densely dotted':        (0, (1, 1)),
+      'loosely dashed':        (0, (5, 10)),
+      'dashed':                (0, (5, 5)),
+      'densely dashed':        (0, (5, 1)),
+      'loosely dashdotted':    (0, (3, 10, 1, 10)),
+      'dashdotted':            (0, (3, 5, 1, 5)),
+      'densely dashdotted':    (0, (3, 1, 1, 1)),
+      'dashdotdotted':         (0, (3, 5, 1, 5, 1, 5)),
+      'loosely dashdotdotted': (0, (3, 10, 1, 10, 1, 10)),
+      'densely dashdotdotted': (0, (3, 1, 1, 1, 1, 1))
+      }
+  
   for pulse_value in pulses_uniq: #{{{
     # select the corresponding wavelength in results
     PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
@@ -569,9 +591,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
       #return nexc_mpi
     ##}}}
     
-    LineType_MPIfitArray={1: '--', 2: ':', 3: '-.', 4: ':', 5: '-'} #, 6: ':', 7: '--'}
+    #LineType_MPIfitArray={1: '--', 2: ':', 3: '-.', 4: ':', 5: '-'} #, 6: ':', 7: '--'}
     #LineType_MPIfitArray={1: linestyles_dict['solid'], 2: linestyles_dict['loosely dotted'], 3: linestyles_dict['dotted'], 4: linestyles_dict['densely dotted'], 5: linestyles_dict['dashed']}
-    #LineType_MPIfitArray={1: 'solid', 2: 'dotted', 3: 'dashed', 4: 'dashdot', 5: 'losely dashed', 6: 'densely dashed', 7: 'densely dashdotted'} #see https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html
+    LineType_MPIfitArray={1: 'solid', 2: 'dotted', 3: 'dashed', 4: 'dashdotted', 5: 'loosely dashed', 6: 'densely dashed', 7: 'densely dashdotted'} #see https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html
     
     ## Filters a part of the data and fit using the given function
     def FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument
@@ -603,7 +625,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             sigma_txt=""
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value]+LineType_MPIfitArray[1], label=sigma_txt) #NOTE add value of sigma_1 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_1PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[1]], label=sigma_txt) #NOTE add value of sigma_1 here
             #ax1.fill_betweenx(Nexc_1PI, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, color='blue', alpha=0.5)
         else:
             plot_field = []
@@ -642,7 +664,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             sigma_txt=""
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value]+LineType_MPIfitArray[2], label=sigma_txt) #NOTE add value of sigma_2 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_2PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[2]], label=sigma_txt) #NOTE add value of sigma_2 here
         else: 
             plot_field = []
         del Nexc_2PI, TwoPhotonAbsorption_params, Intensity_sorted_mask
@@ -682,7 +704,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
         #print Nexc_2PI
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value]+LineType_MPIfitArray[3], label=sigma_txt) #NOTE adds value of sigma_3 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_3PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[3]], label=sigma_txt) #NOTE adds value of sigma_3 here
         else:
             plot_field = []
         del Nexc_3PI, ThreePhotonAbsorption_params, Intensity_sorted_mask
@@ -720,7 +742,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
         #print Nexc_2PI
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value]+LineType_MPIfitArray[4], label=sigma_txt) #NOTE adds value of sigma_3 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_4PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[4]], label=sigma_txt) #NOTE adds value of sigma_3 here
         else:
             plot_field = []
         del Nexc_4PI, FourPhotonAbsorption_params, Intensity_sorted_mask
@@ -758,7 +780,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             sigma_txt=""
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value]+LineType_MPIfitArray[5], label=sigma_txt) #NOTE adds value of sigma_3 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_5PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[5]], label=sigma_txt) #NOTE adds value of sigma_3 here
         else:
             plot_field = []
         del Nexc_5PI, FivePhotonAbsorption_params, Intensity_sorted_mask
@@ -796,7 +818,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             sigma_txt=""
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value]+LineType_MPIfitArray[6], label=sigma_txt) #NOTE adds value of sigma_3 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_6PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[6]], label=sigma_txt) #NOTE adds value of sigma_3 here
         else:
             plot_field = []
         del Nexc_6PI, SixPhotonAbsorption_params, Intensity_sorted_mask
@@ -835,7 +857,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             sigma_txt=""
         
         if(plotMe):
-            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value]+LineType_MPIfitArray[7], label=sigma_txt) #NOTE adds value of sigma_3 here
+            plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted_mask), Nexc_7PI, Colors[pulse_value], linestyle=linestyle_tuple[LineType_MPIfitArray[7]], label=sigma_txt) #NOTE adds value of sigma_3 here
         else:
             plot_field = []
         del Nexc_7PI, SevenPhotonAbsorption_params, Intensity_sorted_mask
@@ -846,14 +868,59 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #TODO: one has to code a fitting method that sweeps intensity, but accepts ANY number of photons on each interval. 
     #NOTE: Maybe use the computed error to accept or reject each fitting? One can try all numbers of photons on each interval. 
     
-    if(pulseWavelength==800e-9): 
-        SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-        SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-        FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-        FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-        ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-        TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 1.4e15 #W/m2
-        OnePhotonIntensityRegime_min = 1.4e15; OnePhotonIntensityRegime_max = 1.4e17 #W/m2
+    if(pulseWavelength==483e-9): 
+        if(pulse_value==30e-15):
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+            OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        elif(pulse_value==20e-15):
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+            OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        else: #10 fs
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+            OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
+    
+    elif(pulseWavelength==800e-9): 
+        if(pulse_value==30e-15):
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+            OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        elif(pulse_value==20e-15):
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+            OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        else: #10 fs
+            SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+            SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+            ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+            TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+            OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
         
         ListOfInterestingGammas = [0.10, 1.0, 10.]
         
@@ -869,10 +936,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         if(pulse_value==20e-15):
             SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
             SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-            FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+            FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
             FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
             ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
-            TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+            TwoPhotonIntensityRegime_min = 1.3E15;  TwoPhotonIntensityRegime_max = 3.2E16
             OnePhotonIntensityRegime_min = 3.24E16; OnePhotonIntensityRegime_max = 1.33E17
         else:
             SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
@@ -1202,8 +1269,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
   else: 
     EffectiveMassList=[meff_Waroquiers_LDA]
   #wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #desired
-  wPI_min={800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
-  wPI_max={800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
+  wPI_min={483e-9: 1E35, 800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
+  wPI_max={483e-9: 1E45, 800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
   
   
   for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]: 
@@ -4362,7 +4429,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
     #for wavelength in [3200E-9, 2600e-9, 2200e-9, 1600e-9, 800e-9]: 
-    for wavelength in [3200e-9, 1600e-9, 800e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
+    for wavelength in [3200e-9, 1600e-9, 800e-9, 483e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
       #try:
       plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
       #except:
