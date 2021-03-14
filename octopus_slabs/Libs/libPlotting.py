@@ -70,7 +70,7 @@ def LoadRunOutputs(path): #{{{
 # Hence, localize yourself in td.general before using this function. 
 def GetParameterValueFromInputFile(filepath, string): #{{{
     Header="GetParameterValueFromInputFile: "
-    wavelength_inp       = libString.LookUpStringInFile((filepath, string)
+    wavelength_inp       = libString.LookUpStringInFile(filepath, string)
     # print Header+str(wavelength_inp)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
