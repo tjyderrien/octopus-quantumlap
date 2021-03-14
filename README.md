@@ -13,13 +13,13 @@ or
 
 1. git clone https://bitbucket.org/tjyderrien/octopus-slabs/
 
-1. git checkout Modules
+2. git checkout Modules
 
-1. conda env create -f environment.yaml if you want to install a separate conda environment for this code
+3. conda env create -f environment.yaml if you want to install a separate conda environment for this code
 
-1. conda activate octopus-slabs
+4. conda activate octopus-slabs
 
-1. pip install -e <folder_with_setup.py> (can be "." or "spp_extended_theory")
+5. pip install -e <folder_with_setup.py> (can be "." or "octopus-slabs", but NOT "octopus_slabs").
 
 
 ## Troubleshooting (Linux)

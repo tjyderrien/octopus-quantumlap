@@ -135,7 +135,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
     print((Header+"** Capturing the RUN ID of octopus..."))
-    runid=LookUpLatestLogFile(FolderName+"../octopus-td")
+    runid=libString.LookUpLatestLogFile(FolderName+"../octopus-td")
     print((Header+"LogFile="+str(runid)+", folder = "+FolderName))
     try: #there is quite much loss here, 30% maybe. 
       int(runid)
@@ -145,7 +145,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
 
-    machinename_t=LookUpStringInFile(LOG_newest, "swim")
+    machinename_t=libString.LookUpStringInFile(LOG_newest, "swim")
     print((Header+"** Debug: "+str(machinename_t)))
     try: 
         MachineName  =machinename_t.split()[5]
@@ -156,7 +156,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
     #if(MachineName)
     try: 
-        RunDate_t = LookUpStringInFile(LOG_newest, "started")
+        RunDate_t = libString.LookUpStringInFile(LOG_newest, "started")
         RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
         print((Header+"** Date of the run: "+str(RunDate)))
     except: 
@@ -164,7 +164,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     TheoryLevel          = 1 #default value
     ## Checking the theory level
-    TheoryLevel_inp      = LookUpStringInFile(filename, "TheoryLevel =")
+    TheoryLevel_inp      = libString.LookUpStringInFile(filename, "TheoryLevel =")
     try:
         TheoryLevel_string   = TheoryLevel_inp[14:]
     except:
@@ -177,7 +177,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     kpointgrid=libString.CaptureKPointGridSizeFromINP(filename)
 
     # Capturing real-mesh grid spacing
-    realmesh_inp=LookUpStringReturnNextLine(filename, "%Spacing")
+    realmesh_inp=libString.LookUpStringReturnNextLine(filename, "%Spacing")
     realmesh_inp2=realmesh_inp.strip()
     realmesh_inp3=realmesh_inp2.split("|")
     realmesh_inp4=realmesh_inp3[0]
@@ -189,8 +189,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
          
-    FieldInduced_inp     = LookUpStringInFile(filename, "GaugeFieldPropagate = ")
-    GaugeVectorField_inp2= LookUpStringInFile(filename, "GaugeVectorField")
+    FieldInduced_inp     = libString.LookUpStringInFile(filename, "GaugeFieldPropagate = ")
+    GaugeVectorField_inp2= libString.LookUpStringInFile(filename, "GaugeVectorField")
     GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
     GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
