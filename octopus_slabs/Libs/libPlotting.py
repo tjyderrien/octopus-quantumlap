@@ -620,10 +620,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     Eext_SI    = Ein_SI[:minLength-1] + PolarizationField_SI[:minLength]/epsilon_0 
     EextMinus_SI= Ein_SI[:minLength-1] - PolarizationField_SI[:minLength]/epsilon_0
 
-    Eext_AU_max=Eext_AU[minLength//2] #this gives the amplitude of the corresponding external field 
-    EextMinus_AU_max=EextMinus_AU[minLength//2]
-    Eext_SI_max=Eext_SI[minLength//2] #this gives the amplitude of the corresponding external field
-    EextMinus_SI_max=EextMinus_SI[minLength//2] #this gives the amplitude of the corresponding external field
+    Eext_AU_max=Eext_AU[minLength/2] #this gives the amplitude of the corresponding external field 
+    EextMinus_AU_max=EextMinus_AU[minLength/2]
+    Eext_SI_max=Eext_SI[minLength/2] #this gives the amplitude of the corresponding external field
+    EextMinus_SI_max=EextMinus_SI[minLength/2] #this gives the amplitude of the corresponding external field
 
     print((Header+"** Info: maximum external field +P (a.u.): "+str(float(Eext_AU_max))))
     print((Header+"** Info: maximum external field -P (a.u.): "+str(float(EextMinus_AU_max))))
@@ -735,9 +735,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
             print((Header+"** ERROR: capture of end of pulse is not managed."))
             raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
-        timeFarEnough = au.Time_SI_to_AU(duration_tau_1) #AU #VALID
+        timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
-            timeFarEnough += duration_tau_2 + au.Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
+            timeFarEnough += duration_tau_2 + Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
 
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
