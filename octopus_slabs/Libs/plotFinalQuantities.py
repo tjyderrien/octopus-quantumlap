@@ -4440,7 +4440,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     RatioExternal     = {'Si': 1.}    #Useful only for induced fields cases
     ## Plotting absorbed energy also
     for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
-        for wavelength in [3200E-9, 1600e-9, 800e-9]: 
+        for wavelength in [3200e-9, 1600e-9, 800e-9]: 
         #0: Gaussian; 1: SinSquared
             try: 
                 plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[wavelength], RatioExternal[material], MoveIon)
@@ -4448,7 +4448,15 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
                 print((Header+"Plotting of Energy for Si failed for wavelength "+str(int(1E9*wavelength))+", pulsetype: "+str(PulseType)))
     
 #}}}
+
+## Plotting excitation rate as function of intensity    
 def plot_Zhukov_SingleColor_TB09(): #{{{
+                                            
+    OpticalIndex={ #
+        483e-9: 4.4028, 484e-9: 4.3964,
+        800e-9: 3.6924167231905, 1600e-9: 3.4826, 
+        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}                                            
+                                            
     Egap_SI = 3.04*e
     Egap_SI_indirect = 0.98*e
     PulseType  = 3 #STH: 2, StH: 3
@@ -4481,18 +4489,25 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     
     # Compute ionization probability, effect of the pulse duration
     #ShowPlot=1
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect)
+    
+    for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
+      #try:
+      plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
+      #except:
+        #print Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm."
+    
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     
     #This one construct the ionization probabilities! 
     #wavelength = 483e-9 #Resonant wavelength results for LDA.
-    wavelength = 407.58e-9 #Resonant wavelength results for TB09. 
-    plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #This one construct the ionization probabilities! 
+    #wavelength = 407.58e-9 #Resonant wavelength results for TB09. 
+    #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #This one construct the ionization probabilities! 
     #exit()
     #wavelength = 484e-9 #Resonant wavelength results for LDA.
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot) #This one construct the ionization probabilities! 
     ## READY
-    wavelength = 800e-9
-    plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot, Egap_SI) 
+    #wavelength = 800e-9
+    #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 20e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot, Egap_SI) 
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 10e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot)
     #plotEffectOfIntensity_wavelengths(PlottingTable_filtered, 30e-15, 0., PlotWpiAxis, wavelength, PulseType, RiseCycles, ShowPlot)
     
