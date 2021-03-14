@@ -481,8 +481,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     TimeStep            = timestepTable[0] #they are all equal, just select the first
     Efield              = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
     Efield2             = - (np.diff(A2x)/np.diff(time))
-    Efield_AU           = Efield/c_AU #fixing dimension #TODO: clean me that...
-    Efield2_AU          = Efield2/c_AU
+    Efield_AU           = Efield/au.c_AU #fixing dimension #TODO: clean me that...
+    Efield2_AU          = Efield2/au.c_AU
     Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
     Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
     
