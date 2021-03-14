@@ -191,7 +191,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
          
     FieldInduced_inp     = libString.LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     GaugeVectorField_inp2= libString.LookUpStringInFile(filename, "GaugeVectorField")
-    GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
+    GaugeVectorField_inp = libString.LookUpStringReturnNextLine(filename, "GaugeVectorField")
     GaugeFieldDelay_inp  = libString.LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
 #    try:
