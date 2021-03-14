@@ -483,8 +483,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     Efield2             = - (np.diff(A2x)/np.diff(time))
     Efield_AU           = Efield/au.c_AU #fixing dimension #TODO: clean me that...
     Efield2_AU          = Efield2/au.c_AU
-    Efield_amplitude_SI = np.max(abs(Field_AU_to_SI(Efield_AU)))
-    Efield2_amplitude_SI= np.max(abs(Field_AU_to_SI(Efield2_AU)))
+    Efield_amplitude_SI = np.max(abs(au.Field_AU_to_SI(Efield_AU)))
+    Efield2_amplitude_SI= np.max(abs(au.Field_AU_to_SI(Efield2_AU)))
     
     print((Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."))
     print((Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."))
@@ -495,10 +495,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     except:
          print((Header+"** Warning: sample computation volume was jumped!"))
          continue
-    SuperCellVolume_SI = Volume_AU_to_SI(SuperCellVolume_AU)
+    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
     SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
     CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
-    SampleCellVolume_SI = Volume_AU_to_SI(SampleCellVolume_AU)
+    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
     
     print(Header+"** Sample volumes **")
     print(Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
@@ -508,7 +508,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     print(Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
     print(Header+"")
     print(Header+"Numerical cell volume = "+str(CellVolume_AU)+" Bohr**3.")
-    print(Header+"Numerical cell volume = "+str(Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
+    print(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
     print(Header+"") 
     
     print((Header+"** Importing simulation data..."))
@@ -521,7 +521,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         continue
     Nproj_AU         = np.asfarray(Ne[:,2]) #number of particles, not a density!
     density_proj_AU  = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
-    density_proj_SI  = Density_AU_to_SI(density_proj_AU)
+    density_proj_SI  = au.Density_AU_to_SI(density_proj_AU)
     sizeOfDensityTab = density_proj_SI.size
 
     density_proj_SI_final         = density_proj_SI[sizeOfDensityTab-1] ##NOTE: sometimes, n_ex changes with time after the pulse (particularly at low densities. This can change the slope of dN_exc/dI, inducing errors on necessary number of photons. This could explain the weird variations found in various results (e.g. Apostolova). It is better to capture the value right after the pulse. 
@@ -581,7 +581,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     TotalCurrent_Z_AU     = np.asfarray(TotalCurrent[:,4]) #a. u. 
     TotalCurrent_size     = TotalCurrent_X_AU.size
  
-    timeCurrent_SI        = Time_AU_to_SI(timeCurrent)
+    timeCurrent_SI        = au.Time_AU_to_SI(timeCurrent)
     TotalCurrent_X_SI     = Current_AU_to_SI(TotalCurrent_X_AU)
     TotalCurrent_Y_SI     = Current_AU_to_SI(TotalCurrent_Y_AU) 
     TotalCurrent_Z_SI     = Current_AU_to_SI(TotalCurrent_Z_AU) 
@@ -609,9 +609,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     PolarizationField_AU = cumtrapz(TotalCurrent_X_AU,x=timeCurrent)
     PolarizationField_AU_checkint = np.cumsum(TotalCurrent_X_AU)*TimeStep #integral of the current in time
 
-    Ein_SI     = Field_AU_to_SI(Ein_AU)
+    Ein_SI     = au.Field_AU_to_SI(Ein_AU)
     PolarizationField_SI = cumtrapz(TotalCurrent_X_SI[:minLength],x=timeCurrent_SI[:minLength])
-    PolarizationField_SI_checkint = np.cumsum((TotalCurrent_X_SI[:minLength])*Time_AU_to_SI(TimeStep))
+    PolarizationField_SI_checkint = np.cumsum((TotalCurrent_X_SI[:minLength])*au.Time_AU_to_SI(TimeStep))
 
     Eext_AU    = Ein_AU + 4.*pi*PolarizationField_AU[:minLength] #builds E_ext(t) = E_in(t)+P(t)/epsilon_0 
 
@@ -646,15 +646,15 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     EnergyPoynting_SI = - np.multiply(Ein_SI[:minLength], TotalCurrent_X_SI[:minLength]) #J.E in a.u.
     # EnergyPoynting_SI_sum = SampleCellVolume_SI/e*cumtrapz(EnergyPoynting_SI[:minLength], x=timeCurrent_SI[:minLength]) #int(J.E, dt) [J/m3] * Vol[m3] = Joules. #BUG: Integration on too small numbers? WARNING Divergenc²    EnergyPoynting_SI_sum_max = np.max(np.max(EnergyPoynting_SI_sum)) #maximum absorbed energy
     EnergyPoynting_SI_sum = cumtrapz(EnergyPoynting_SI[:minLength], x=timeCurrent_SI[:minLength])/e #int(J.E, dt) #Volume was removed since it must be already contained in J(t).
-    #EnergyPoynting_SI_sum_checkint = SampleCellVolume_SI/e*np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)
-    EnergyPoynting_SI_sum_checkint = np.cumsum(EnergyPoynting_SI[:minLength])*Time_AU_to_SI(TimeStep)/e #volume was removed here
+    #EnergyPoynting_SI_sum_checkint = SampleCellVolume_SI/e*np.cumsum(EnergyPoynting_SI[:minLength])*au.Time_AU_to_SI(TimeStep)
+    EnergyPoynting_SI_sum_checkint = np.cumsum(EnergyPoynting_SI[:minLength])*au.Time_AU_to_SI(TimeStep)/e #volume was removed here
     
     EnergyPoynting_SI_sum_final = EnergyPoynting_SI_sum[len(EnergyPoynting_SI_sum)-1] #final absorbed energy
    
-    EnergyPoynting_SI_check           =Energy_Hartree_to_eV(EnergyPoynting_AU)
-    EnergyPoynting_SI_sum_check       =Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
-    EnergyPoynting_SI_sum_max_check   =Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
-    EnergyPoynting_SI_sum_final_check =Energy_Hartree_to_eV(EnergyPoynting_AU_sum_final)
+    EnergyPoynting_SI_check           =au.Energy_Hartree_to_eVEnergyPoynting_AU)
+    EnergyPoynting_SI_sum_check       =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum)
+    EnergyPoynting_SI_sum_max_check   =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum_max)
+    EnergyPoynting_SI_sum_final_check =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum_final)
 #    print(Header+'** Info: max absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_max))
 #    print(Header+'** Info: max absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_max))
 #    print(Header+'** Info: max absorbed Poynting energy CHECK (eV): '+str(EnergyPoynting_SI_sum_max_check))
@@ -681,16 +681,16 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
     HartreeEnergy_AU_final = Hartree[Hartree.size-1] #WARNING: this may be equal to 0 most of the time. This could explain the discontinuity. 
-    HartreeEnergy_SI_final = float(Energy_Hartree_to_eV(HartreeEnergy_AU_final))
+    HartreeEnergy_SI_final = float(au.Energy_Hartree_to_eVHartreeEnergy_AU_final))
     
     ExchangeEnergy_AU_final = Exchange[Exchange.size-1]
-    ExchangeEnergy_SI_final = float(Energy_Hartree_to_eV(ExchangeEnergy_AU_final))
+    ExchangeEnergy_SI_final = float(au.Energy_Hartree_to_eVExchangeEnergy_AU_final))
     
     EigenvaluesEnergy_AU_final = Eigenvalues[Eigenvalues.size-1]
-    EigenvaluesEnergy_SI_final = float(Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
+    EigenvaluesEnergy_SI_final = float(au.Energy_Hartree_to_eVEigenvaluesEnergy_AU_final))
     
     ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1]  # WARNING: we shall select the first moment after the laser pulse comes back to zero [because induced fields can actually decrease the energy AFTER the pulse, for obscure reasons.
-    ElectronEnergy_SI_final = float(Energy_Hartree_to_eV(ElectronEnergy_AU_final))
+    ElectronEnergy_SI_final = float(au.Energy_Hartree_to_eVElectronEnergy_AU_final))
     print(Header+"End electron energy   increase (eV)     = "+str(ElectronEnergy_SI_final))
     print(Header+"End Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_final))
     print(Header+"End exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final))
@@ -832,10 +832,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         print((Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse)))           
 
     ## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
-        ElectronEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(ElectronEnergy[Mask][0]))
-        HartreeEnergy_SI_afterpulse    = float(Energy_Hartree_to_eV(Hartree    [Mask][0]))
-        ExchangeEnergy_SI_afterpulse   = float(Energy_Hartree_to_eV(Exchange   [Mask][0]))
-        EigenvaluesEnergy_SI_afterpulse= float(Energy_Hartree_to_eV(Eigenvalues[Mask][0]))
+        ElectronEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eVElectronEnergy[Mask][0]))
+        HartreeEnergy_SI_afterpulse    = float(au.Energy_Hartree_to_eVHartree    [Mask][0]))
+        ExchangeEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eVExchange   [Mask][0]))
+        EigenvaluesEnergy_SI_afterpulse= float(au.Energy_Hartree_to_eVEigenvalues[Mask][0]))
     #except IndexError: #if some table was empty (e.g., simulation was not finished)
         #print(Header+"** ERROR: energy or density after pulse could not be captured.")
         #ElectronEnergy_SI_afterpulse   = 0e0
@@ -923,10 +923,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 #    try:
 #    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
     
-    Efield_SI_final = Field_AU_to_SI(Efield_AU[minLength])
+    Efield_SI_final = au.Field_AU_to_SI(Efield_AU[minLength])
  #   except: 
   #      print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
-   #     Efield_SI_final = Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
+   #     Efield_SI_final = au.Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
 
 
     
@@ -1245,7 +1245,7 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
 
     omega = 2.*np.pi*c/wavelength_SI
     DampingTime = 2.*np.pi/omega #tau_rise
-    timeCurrent_SI = timeCurrent #* Time_AU_to_SI(1.)
+    timeCurrent_SI = timeCurrent #* au.Time_AU_to_SI(1.)
     
     #FinalDampingInstant = tmax #timeCurrent_SI[maxSize/2] #this one might be more reasonable
     print(Header+"** Info: HHG dampingTime: "+str(round(DampingTime*1E15))+" fs.")
