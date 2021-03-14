@@ -7,6 +7,8 @@ dependencies:
 # use specific Python version to avoid possible incompatibilities
   - python=3.6
   - numpy=1.19.4
+  - scipy
+  - matplotlib
     #  - spp_extended_theory
 # for interactive work
   - ipython
