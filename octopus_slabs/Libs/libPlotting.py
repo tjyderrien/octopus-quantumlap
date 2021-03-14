@@ -70,7 +70,7 @@ def LoadRunOutputs(path): #{{{
 # Hence, localize yourself in td.general before using this function. 
 def GetParameterValueFromInputFile(filepath, string): #{{{
     Header="GetParameterValueFromInputFile: "
-    wavelength_inp       = LookUpStringInFile(filepath, string)
+    wavelength_inp       = libString.LookUpStringInFile((filepath, string)
     # print Header+str(wavelength_inp)
     # split it using = sign, take the rhs then split again. 
     wavelength_SI_tmp    = wavelength_inp.split("=")
@@ -192,7 +192,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     FieldInduced_inp     = libString.LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     GaugeVectorField_inp2= libString.LookUpStringInFile(filename, "GaugeVectorField")
     GaugeVectorField_inp = LookUpStringReturnNextLine(filename, "GaugeVectorField")
-    GaugeFieldDelay_inp  = LookUpStringInFile(filename, "GaugeFieldDelaySI =")
+    GaugeFieldDelay_inp  = libString.LookUpStringInFile(filename, "GaugeFieldDelaySI =")
     
 #    try:
 #        FieldInduced_string = FieldInduced_inp[0]
@@ -200,14 +200,14 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 #        FieldInduced_string = ''
 
     #=== Capture the angle of the field
-    polarization_angle_inp = LookUpStringInFile(filename, "th1 =")
+    polarization_angle_inp = libString.LookUpStringInFile(filename, "th1 =")
     if(polarization_angle_inp): #if found
          polarization_angle = float(eval(polarization_angle_inp[6:13]))
     else:
          polarization_angle = 0. #float('nan'). 0 for now.
 
     #=== Capture of the pulse2-angle of field    
-    CrossPolarization_inp     = LookUpStringInFile(filename, "th2 =") #if not found, then zero
+    CrossPolarization_inp     = libString.LookUpStringInFile(filename, "th2 =") #if not found, then zero
     # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case. 
     if(CrossPolarization_inp): 
         if(type(CrossPolarization_inp[6:13])=="float"):
@@ -222,7 +222,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     ## Import CEP data
     try:
-        CEP1_inp             = LookUpStringInFile(filename, "CEPA = ")
+        CEP1_inp             = libString.LookUpStringInFile(filename, "CEPA = ")
         print((Header+"** CEP1_inp: "+str(CEP1_inp)))
         CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
         #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
@@ -237,19 +237,19 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
     print((Header+"** Info: CEP1: "+CEP1_inp[7:]))
        
-    #Efield2_inp          = LookUpStringInFile(filename, "EfieldBsi =")
+    #Efield2_inp          = libString.LookUpStringInFile(filename, "EfieldBsi =")
     Efield1_SI_input     = GetParameterValueFromInputFile(filename, "EfieldAsi = ")
     Efield2_SI_input     = GetParameterValueFromInputFile(filename, "EfieldBsi = ") #If non-zero, we enable double-pulse analysis. Else: disabled. 
         
     if(Efield2_SI_input > 1.0):#{ #get the second pulse data
       print((Header+"** Entering second pulse input."))
-      #wavelength2_inp       = LookUpStringInFile(filename, "lambdaB =")
+      #wavelength2_inp       = libString.LookUpStringInFile(filename, "lambdaB =")
       wavelength2_SI        = GetParameterValueFromInputFile(filename, "lambdaB = ")
          
-      #PulseDuration2_inp    = LookUpStringInFile(filename, "tauBsi = ")
+      #PulseDuration2_inp    = libString.LookUpStringInFile(filename, "tauBsi = ")
       PulseDuration2_SI     = GetParameterValueFromInputFile(filename, "tauBsi = ")
       
-      CEP2_inp              = LookUpStringInFile(filename, "CEPB =")
+      CEP2_inp              = libString.LookUpStringInFile(filename, "CEPB =")
       CEP2_SI               = eval(CEP2_inp[7:])
       CEP2_SI               = CEP2_SI - pi/2. #convention due to some shift in octopus
       #}
@@ -264,7 +264,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 
     # Gaussian | SinSquared pulse | bugged Soft Top Hat pulse (2) | Fixed STH (3) ?
 #    del PulseType_inp, PulseType_value
-    PulseType_inp   = LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
+    PulseType_inp   = libString.LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
     PulseType_value = PulseType_inp[48:] #this allows to have unique solution
     print((Header+"** Debug info: PulseType_value = "+str(PulseType_value)))
     if("Gaussian" in PulseType_value):
@@ -375,7 +375,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     ### Captures the functional which has been used for the computation.  #BUG: crashes when using TB09
     Functional_value = "lda" #default value: lda_x + lda_c_pz_mod
     try: 
-      Functional_string = LookUpStringInFile(filename, "XCFunctional")
+      Functional_string = libString.LookUpStringInFile(filename, "XCFunctional")
     except:
       Functional_string = 'lda'
       print((Header+"** Warning: search of XCFunctional failed. Default value was set: lda"))
@@ -409,7 +409,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
     try:
-      FreezeHXC_string = LookUpStringInFile(filename, "TDFreezeHXC")
+      FreezeHXC_string = libString.LookUpStringInFile(filename, "TDFreezeHXC")
       print((Header+"Info: TDFreezeHXC_string: "+str(FreezeHXC_string)))
     except:
       print((Header+"** Info: TDFreezeHXC was not found in the input file."))
@@ -424,7 +424,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     # Captures if MoveIon was enabled. 
     MoveIon = 0
     try: 
-      MoveIonString = LookUpStringInFile(filename, "MoveIons")
+      MoveIonString = libString.LookUpStringInFile(filename, "MoveIons")
       print((Header+"Info: MoveIon_string: "+str(MoveIonString)))
     except:
       print((Header+"Info: MoveIon was not found in the input file."))
