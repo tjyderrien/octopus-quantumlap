@@ -651,10 +651,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     EnergyPoynting_SI_sum_final = EnergyPoynting_SI_sum[len(EnergyPoynting_SI_sum)-1] #final absorbed energy
    
-    EnergyPoynting_SI_check           =au.Energy_Hartree_to_eVEnergyPoynting_AU)
-    EnergyPoynting_SI_sum_check       =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum)
-    EnergyPoynting_SI_sum_max_check   =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum_max)
-    EnergyPoynting_SI_sum_final_check =au.Energy_Hartree_to_eVEnergyPoynting_AU_sum_final)
+    EnergyPoynting_SI_check           =au.Energy_Hartree_to_eV(EnergyPoynting_AU)
+    EnergyPoynting_SI_sum_check       =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
+    EnergyPoynting_SI_sum_max_check   =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
+    EnergyPoynting_SI_sum_final_check =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum_final)
 #    print(Header+'** Info: max absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_max))
 #    print(Header+'** Info: max absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_max))
 #    print(Header+'** Info: max absorbed Poynting energy CHECK (eV): '+str(EnergyPoynting_SI_sum_max_check))
@@ -681,16 +681,16 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
     HartreeEnergy_AU_final = Hartree[Hartree.size-1] #WARNING: this may be equal to 0 most of the time. This could explain the discontinuity. 
-    HartreeEnergy_SI_final = float(au.Energy_Hartree_to_eVHartreeEnergy_AU_final))
+    HartreeEnergy_SI_final = float(au.Energy_Hartree_to_eV(HartreeEnergy_AU_final))
     
     ExchangeEnergy_AU_final = Exchange[Exchange.size-1]
-    ExchangeEnergy_SI_final = float(au.Energy_Hartree_to_eVExchangeEnergy_AU_final))
+    ExchangeEnergy_SI_final = float(au.Energy_Hartree_to_eV(ExchangeEnergy_AU_final))
     
     EigenvaluesEnergy_AU_final = Eigenvalues[Eigenvalues.size-1]
-    EigenvaluesEnergy_SI_final = float(au.Energy_Hartree_to_eVEigenvaluesEnergy_AU_final))
+    EigenvaluesEnergy_SI_final = float(au.Energy_Hartree_to_eV(EigenvaluesEnergy_AU_final))
     
     ElectronEnergy_AU_final = ElectronEnergy[ElectronEnergy.size-1]  # WARNING: we shall select the first moment after the laser pulse comes back to zero [because induced fields can actually decrease the energy AFTER the pulse, for obscure reasons.
-    ElectronEnergy_SI_final = float(au.Energy_Hartree_to_eVElectronEnergy_AU_final))
+    ElectronEnergy_SI_final = float(au.Energy_Hartree_to_eV(ElectronEnergy_AU_final))
     print(Header+"End electron energy   increase (eV)     = "+str(ElectronEnergy_SI_final))
     print(Header+"End Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_final))
     print(Header+"End exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_final))
@@ -832,10 +832,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         print((Header+"** Info: density right after the pulse: "+str(ElectronDensityRightAfterPulse)))           
 
     ## WE FETCH THE VALUE OF ENERGY RIGHT AFTER THE PULSE. 
-        ElectronEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eVElectronEnergy[Mask][0]))
-        HartreeEnergy_SI_afterpulse    = float(au.Energy_Hartree_to_eVHartree    [Mask][0]))
-        ExchangeEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eVExchange   [Mask][0]))
-        EigenvaluesEnergy_SI_afterpulse= float(au.Energy_Hartree_to_eVEigenvalues[Mask][0]))
+        ElectronEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eV(ElectronEnergy[Mask][0]))
+        HartreeEnergy_SI_afterpulse    = float(au.Energy_Hartree_to_eV(Hartree    [Mask][0]))
+        ExchangeEnergy_SI_afterpulse   = float(au.Energy_Hartree_to_eV(Exchange   [Mask][0]))
+        EigenvaluesEnergy_SI_afterpulse= float(au.Energy_Hartree_to_eV(Eigenvalues[Mask][0]))
     #except IndexError: #if some table was empty (e.g., simulation was not finished)
         #print(Header+"** ERROR: energy or density after pulse could not be captured.")
         #ElectronEnergy_SI_afterpulse   = 0e0
