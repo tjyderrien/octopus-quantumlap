@@ -28,6 +28,7 @@ import numpy as np
 from scipy.constants import pi, e
 from scipy.integrate import cumtrapz
 from scipy.interpolate import interp1d
+import glob
 
 import octopus_slabs.Samples.calculateVolume as calcVol
 import octopus_slabs.Libs.libAtomicUnits     as au

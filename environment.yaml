@@ -9,6 +9,7 @@ dependencies:
   - numpy=1.19.4
   - scipy
   - matplotlib
+#  - numba
     #  - spp_extended_theory
 # for interactive work
   - ipython
