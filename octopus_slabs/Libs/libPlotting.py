@@ -36,6 +36,8 @@ import octopus_slabs.Libs.libString          as libString
 
 Header = "[libPlotting]"
 
+IndexFunctional={'LDA': 0, 'TB09': 3, 'GGA': 2, 'MGGA': 1}
+
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
 # @param path: provides the link to the folder where we want to extract resuls from. 
 def LoadRunOutputs(path): #{{{
@@ -385,16 +387,16 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       Functional_mgga_position = Functional_value.find("MGGA")
       Functional_tb09_position = Functional_value.find("mgga_x_tb09")
       if(Functional_lda_position >= 0 and Functional_mgga_position == -1): #string was found
-        Functional = 0 #lda
+        Functional = IndexFunctional['LDA'] #lda
         print((Header+"** Info: Functional LDA detected."))
       elif(Functional_mgga_position >= 0 and Functional_lda_position == -1): #MMGA was enabled found
-        Functional = 1 #mgga
+        Functional = IndexFunctional['MGGA'] #mgga
         print((Header+"** Info: Functional MGGA detected."))
       elif(Functional_gga_position >= 0 and Functional_mgga_position == -1 and Functional_lda_position == -1): #GGA was found, not MGGA.
-        Functional = 2 #GGA
+        Functional = IndexFunctional['GGA'] #GGA
         print((Header+"** Info: Functional GGA detected."))
       elif(Functional_lda_position == -1 and Functional_tb09_position >= 0):
-        Functional = 3 #TB09
+        Functional = IndexFunctional['TB09'] #TB09
         print((Header+"** Info: Functional TB09 detected."))
       else: 
         print((Header+"** Error: XCFunctional contained unknown case."+str(Functional_value)))
@@ -402,7 +404,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     elif ( Functional_string == 'lda' ): #XCFunctional was not specified: assuming LDA.
       print((Header+"Warning: XCFunctional was not specified. Assuming default value: lda."))
       Functional = 0
-    
+
     
     ### Captures if FreezeHXC was used. 
     FreezeHXC = 0
