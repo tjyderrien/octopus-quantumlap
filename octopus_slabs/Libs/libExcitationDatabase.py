@@ -23,6 +23,7 @@
 # import libDatabase
 # from importlib import import_module
 # libDatabase = import_module("")
+import numpy as np
 import spp_extended_theory.Libs.libDatabase as libDatabase
 from octopus_slabs.Libs.libPlotting import ListAllOutput
 
@@ -33,7 +34,7 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
 #  path='*/*/td.general/'
   #DatabaseName = 'Database.csv'
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
-  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.1\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
+  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.2\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
 
   print((Header+"Attempting to load previous results..."))
   try:
