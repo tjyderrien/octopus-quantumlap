@@ -582,9 +582,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     TotalCurrent_size     = TotalCurrent_X_AU.size
  
     timeCurrent_SI        = au.Time_AU_to_SI(timeCurrent)
-    TotalCurrent_X_SI     = Current_AU_to_SI(TotalCurrent_X_AU)
-    TotalCurrent_Y_SI     = Current_AU_to_SI(TotalCurrent_Y_AU) 
-    TotalCurrent_Z_SI     = Current_AU_to_SI(TotalCurrent_Z_AU) 
+    TotalCurrent_X_SI     = au.Current_AU_to_SI(TotalCurrent_X_AU)
+    TotalCurrent_Y_SI     = au.Current_AU_to_SI(TotalCurrent_Y_AU) 
+    TotalCurrent_Z_SI     = au.Current_AU_to_SI(TotalCurrent_Z_AU) 
 
     ## Selecting last value of the current
     TotalCurrent_X_AU_final = TotalCurrent_X_AU[TotalCurrent_size-1] 
@@ -674,9 +674,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 
     
     
-    print(Header+"Final DC current (SI): X: "+str(float(Current_AU_to_SI(TotalCurrent_X_AU_final)))+", Y: "+str(float(Current_AU_to_SI(TotalCurrent_Y_AU_final)))+", Z: "+str(float(Current_AU_to_SI(TotalCurrent_Z_AU_final)))+" C/m²/s.")
+    print(Header+"Final DC current (SI): X: "+str(float(au.Current_AU_to_SI(TotalCurrent_X_AU_final)))+", Y: "+str(float(au.Current_AU_to_SI(TotalCurrent_Y_AU_final)))+", Z: "+str(float(au.Current_AU_to_SI(TotalCurrent_Z_AU_final)))+" C/m²/s.")
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
-    print(Header+"** Final DC current: "+str(float(Current_AU_to_SI(TotalCurrent_SI_final)))+" (S.I.) ")
+    print(Header+"** Final DC current: "+str(float(au.Current_AU_to_SI(TotalCurrent_SI_final)))+" (S.I.) ")
     
     # Extracting the final energy increase (total, and electronic)
     # NOTE: Total energy is constant with time. Then we use total energy field for Hartree term for now. In future, we may add a field for kinetic energy of atoms. 
