@@ -4725,17 +4725,19 @@ if "BicolorSummaries" in dirname:
     plot_Zhukov_BicolorMaps() #LDA gap
     
 elif "03-Bulk3D" in dirname:
-    #if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
-        ## since database construction now contains functionals. Better solution would be to detect the
-        ## available functional, to map the gap and effective masses to a database.
-        ## Is NOMAD capable to do that? And ASE?
-        #print((Header+"** Info: detected TB09 computations for Si..."))
-        #plot_Zhukov_SingleColor_TB09()
-    #else:
-        #print((Header+"** Info: running LDA single-color Keldysh analyses..."))
-        #plot_Zhukov_SingleColor_LDA()
+    ## NOTE: this is fine for local usage
+    if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
+        # since database construction now contains functionals. Better solution would be to detect the
+        # available functional, to map the gap and effective masses to a database.
+        # Is NOMAD capable to do that? And ASE?
+        print((Header+"** Info: detected TB09 computations for Si..."))
+        plot_Zhukov_SingleColor_TB09()
+    else:
+        print((Header+"** Info: running LDA single-color Keldysh analyses..."))
+        plot_Zhukov_SingleColor_LDA()
+    ## NOTE: this is rather for forcing usage
     #plot_Zhukov_SingleColor_LDA()
-    plot_Zhukov_SingleColor_TB09()
+    #plot_Zhukov_SingleColor_TB09()
 
 elif "09-Au" in dirname: 
     print((Header+"** Info: detected computations for Au..."))
