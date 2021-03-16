@@ -350,9 +350,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     # EnableStarkEffect =False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
     PlotSaturation    =False
     ShowPulseDurations=True #True: show the pulse duration in caption. False: hides it (for saving visual space)
-    WithOpticalIndex  =False #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
+    WithOpticalIndex  =True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
     SidePanels        =True #True for PRL Fig2.
-    ShowSigmaRates    =1 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
+    ShowSigmaRates    =2 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
     #EnableInsetMagnification=True #this is defined as function of wavelength below
     PlotVirtualExcitation = False #Not advised! This is not a real observable.
 
@@ -516,7 +516,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             tau_text=""
 
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=tau_text) #r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
         plot1 += [plot_field]
         #plt.xlim(x_min[pulseWavelength])
 
@@ -893,137 +893,267 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #NOTE: Maybe use the computed error to accept or reject each fitting? One can try all numbers of photons on each interval.
         #TODO: this part is functional-dependent. It should be generalized (these numbers are fine for LDA, not for TB09).
 
-        if(pulseWavelength==483e-9):
-            if(pulse_value==30e-15):
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
-                OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
-            elif(pulse_value==20e-15):
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
-                OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
-            else: #10 fs
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
-                OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+        if(Functional=="LDA"):
+            if(pulseWavelength==483e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                elif(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                else: #10 fs
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
 
-            ListOfInterestingGammas = [0.10, 1.0, 10.]
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-        elif(pulseWavelength==800e-9):
-            if(pulse_value==30e-15):
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
-                OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
-            elif(pulse_value==20e-15):
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
-                OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
-            else: #10 fs
-                SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
-                OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+            elif(pulseWavelength==800e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                elif(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                else: #10 fs
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
 
-            ListOfInterestingGammas = [0.10, 1.0, 10.]
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-        elif(pulseWavelength==1600e-9):
-            if(pulse_value==30e-15):
-                SevenPhotonIntensityRegime_min= 0e0;    SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
-                ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
-                TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
-                OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
-            if(pulse_value==20e-15):
-                SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
-                ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
-                TwoPhotonIntensityRegime_min = 1.3E15;  TwoPhotonIntensityRegime_max = 3.2E16
-                OnePhotonIntensityRegime_min = 3.24E16; OnePhotonIntensityRegime_max = 1.33E17
+            elif(pulseWavelength==1600e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min= 0e0;    SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+                    TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+                if(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+                    TwoPhotonIntensityRegime_min = 1.3E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.24E16; OnePhotonIntensityRegime_max = 1.33E17
+                else:
+                    SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
+                    TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+
+                #TwoPhotonIntensityRegime_min = 3.4E15
+                #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
+
+                #OnePhotonIntensityRegime_min = 4.7E16
+                #OnePhotonIntensityRegime_max = 1.3E17 #W/m2
+
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
+
+            elif(pulseWavelength==3200e-9): #added to Table
+                if(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max = 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.6E14
+                    FourPhotonIntensityRegime_min = 9.6E14;     FourPhotonIntensityRegime_max  = 2.6E15
+                    ThreePhotonIntensityRegime_min = 2.6E15; ThreePhotonIntensityRegime_max = 6.4E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 6.4E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+                elif(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max = 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.9E14 #1.3E15
+                    FourPhotonIntensityRegime_min = 9.9E14;     FourPhotonIntensityRegime_max  = 2.58E15
+                    ThreePhotonIntensityRegime_min = 2.58E15; ThreePhotonIntensityRegime_max = 5.31E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 5.31E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+                else: #works for 10 fs and 10.xx fs then
+                    SevenPhotonIntensityRegime_min= 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max= 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min  = 0E0;     SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 1.07E15
+                    FourPhotonIntensityRegime_min = 1.07E15;     FourPhotonIntensityRegime_max = 2.6E15
+                    ThreePhotonIntensityRegime_min= 2.87E15; ThreePhotonIntensityRegime_max= 8.3E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 8.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
             else:
-                SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
-                ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
-                TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
-                OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+                SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max  = 0E0
+                SixPhotonIntensityRegime_min = 0e0;   SixPhotonIntensityRegime_max  = 0E0
+                FivePhotonIntensityRegime_min = 0e0;  FivePhotonIntensityRegime_max  = 0E0
+                FourPhotonIntensityRegime_min = 0e0;  FourPhotonIntensityRegime_max  = 1.1E14
+                ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                TwoPhotonIntensityRegime_min = 0e0;   TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+                OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
 
-            #TwoPhotonIntensityRegime_min = 3.4E15
-            #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
+        elif(Functional=="TB09"):
+            if(pulseWavelength==483e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                elif(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                else: #10 fs
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
+                    OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
 
-            #OnePhotonIntensityRegime_min = 4.7E16
-            #OnePhotonIntensityRegime_max = 1.3E17 #W/m2
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-            ListOfInterestingGammas = [0.10, 1.0, 10.]
+            elif(pulseWavelength==800e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                elif(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                else: #10 fs
+                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
+                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-        elif(pulseWavelength==3200e-9): #added to Table
-            if(pulse_value==20e-15):
-                SevenPhotonIntensityRegime_min = 0E0 #2.1E14
-                SevenPhotonIntensityRegime_max = 0E0 #1.3E15
-                SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
-                FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.6E14
-                FourPhotonIntensityRegime_min = 9.6E14;     FourPhotonIntensityRegime_max  = 2.6E15
-                ThreePhotonIntensityRegime_min = 2.6E15; ThreePhotonIntensityRegime_max = 6.4E15 #W/m2
-                TwoPhotonIntensityRegime_min = 6.4E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
-                OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
-            elif(pulse_value==30e-15):
-                SevenPhotonIntensityRegime_min = 0E0 #2.1E14
-                SevenPhotonIntensityRegime_max = 0E0 #1.3E15
-                SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
-                FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.9E14 #1.3E15
-                FourPhotonIntensityRegime_min = 9.9E14;     FourPhotonIntensityRegime_max  = 2.58E15
-                ThreePhotonIntensityRegime_min = 2.58E15; ThreePhotonIntensityRegime_max = 5.31E15 #W/m2
-                TwoPhotonIntensityRegime_min = 5.31E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
-                OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
-            else: #works for 10 fs and 10.xx fs then
-                SevenPhotonIntensityRegime_min= 0E0 #2.1E14
-                SevenPhotonIntensityRegime_max= 0E0 #1.3E15
-                SixPhotonIntensityRegime_min  = 0E0;     SixPhotonIntensityRegime_max  = 0E0
-                FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 1.07E15
-                FourPhotonIntensityRegime_min = 1.07E15;     FourPhotonIntensityRegime_max = 2.6E15
-                ThreePhotonIntensityRegime_min= 2.87E15; ThreePhotonIntensityRegime_max= 8.3E15 #W/m2
-                TwoPhotonIntensityRegime_min = 8.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
-                OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+            elif(pulseWavelength==1600e-9):
+                if(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min= 0e0;    SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+                    TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
+                if(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
+                    TwoPhotonIntensityRegime_min = 1.3E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.24E16; OnePhotonIntensityRegime_max = 1.33E17
+                else:
+                    SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
+                    SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min  = 0e0;   FivePhotonIntensityRegime_max  = 0E0
+                    FourPhotonIntensityRegime_min = 1.1E14; FourPhotonIntensityRegime_max = 1.6E15 #W/m2
+                    ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
+                    TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
+                    OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
 
-            ListOfInterestingGammas = [0.10, 1.0, 10.]
-        else:
-            SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max  = 0E0
-            SixPhotonIntensityRegime_min = 0e0;   SixPhotonIntensityRegime_max  = 0E0
-            FivePhotonIntensityRegime_min = 0e0;  FivePhotonIntensityRegime_max  = 0E0
-            FourPhotonIntensityRegime_min = 0e0;  FourPhotonIntensityRegime_max  = 1.1E14
-            ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0 #W/m2
-            TwoPhotonIntensityRegime_min = 0e0;   TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
-            OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+                #TwoPhotonIntensityRegime_min = 3.4E15
+                #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
 
-            ListOfInterestingGammas = [0.10, 1.0, 10.]
+                #OnePhotonIntensityRegime_min = 4.7E16
+                #OnePhotonIntensityRegime_max = 1.3E17 #W/m2
 
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
+
+            elif(pulseWavelength==3200e-9): #added to Table
+                if(pulse_value==20e-15):
+                    SevenPhotonIntensityRegime_min = 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max = 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.6E14
+                    FourPhotonIntensityRegime_min = 9.6E14;     FourPhotonIntensityRegime_max  = 2.6E15
+                    ThreePhotonIntensityRegime_min = 2.6E15; ThreePhotonIntensityRegime_max = 6.4E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 6.4E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+                elif(pulse_value==30e-15):
+                    SevenPhotonIntensityRegime_min = 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max = 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min = 0E0;      SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 9.9E14 #1.3E15
+                    FourPhotonIntensityRegime_min = 9.9E14;     FourPhotonIntensityRegime_max  = 2.58E15
+                    ThreePhotonIntensityRegime_min = 2.58E15; ThreePhotonIntensityRegime_max = 5.31E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 5.31E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+                else: #works for 10 fs and 10.xx fs then
+                    SevenPhotonIntensityRegime_min= 0E0 #2.1E14
+                    SevenPhotonIntensityRegime_max= 0E0 #1.3E15
+                    SixPhotonIntensityRegime_min  = 0E0;     SixPhotonIntensityRegime_max  = 0E0
+                    FivePhotonIntensityRegime_min = 2.1E14;  FivePhotonIntensityRegime_max = 1.07E15
+                    FourPhotonIntensityRegime_min = 1.07E15;     FourPhotonIntensityRegime_max = 2.6E15
+                    ThreePhotonIntensityRegime_min= 2.87E15; ThreePhotonIntensityRegime_max= 8.3E15 #W/m2
+                    TwoPhotonIntensityRegime_min = 8.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
+                    OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
+
+                #ListOfInterestingGammas = [0.10, 1.0, 10.]
+            else:
+                SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max  = 0E0
+                SixPhotonIntensityRegime_min = 0e0;   SixPhotonIntensityRegime_max  = 0E0
+                FivePhotonIntensityRegime_min = 0e0;  FivePhotonIntensityRegime_max  = 0E0
+                FourPhotonIntensityRegime_min = 0e0;  FourPhotonIntensityRegime_max  = 1.1E14
+                ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0 #W/m2
+                TwoPhotonIntensityRegime_min = 0e0;   TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
+                OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+
+        ListOfInterestingGammas = [0.10, 1.0, 10.]
         omega = 2.*np.pi*c/wavelengths1[0]
         NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
         logger.info(NumberOfPhotons)
