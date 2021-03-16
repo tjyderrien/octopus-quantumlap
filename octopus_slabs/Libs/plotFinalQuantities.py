@@ -24,6 +24,7 @@
 #import matplotlib.pyplot as plt
 # from pylab import *
 
+import logging
 import matplotlib  as mp
 from   matplotlib import rc
 from   mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -44,6 +45,10 @@ from spp_extended_theory.Keldysh.libKeldysh import *
 # from libKeldysh import *
 from spp_extended_theory.Libs import libDatabase
 
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='plotFinalQuantities.log', level=logging.INFO)
+
+
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
 #rc('font', **{'family':'serif', 'serif':['Palatino'], 'size':'16'})
@@ -54,7 +59,7 @@ Header="[plotFinalQuantities] "
 
 # EnablePeakFinder           = 0 #TODO: base it on presence of file in code root. Easier for configuration.
 myhost = os.uname()[1]
-print(myhost)
+logging.info(myhost)
 if("biatri-srv" in myhost):
     EnablePeakFinder       = 0 #valid for BIATRI-SRV
 else: 
@@ -79,7 +84,7 @@ if(EnablePeakFinder):
 
 PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
 
-print(PlottingTable)
+logging.info(PlottingTable)
 
 #PlottingTable = FilterDatabase(PlottingTable, 0, IndexTable['FieldInduced']) #removes all induced fields data
 
@@ -87,8 +92,7 @@ print(PlottingTable)
 
 runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingTable)
 
-print(Header+"** Preparing the summary plots...")
-
+logging.info(Header+"** Preparing the summary plots...")
 
 #### =============== PLOTTING STARTS HERE ==================
 # The filtering will be done on the fly. Then we are sure of 
@@ -122,7 +126,7 @@ OneSizeFitsAll="small"  #caption size for all legends of physics or rocknroll
 
 ## Plot Nexc(RiseTime; single tau, 1 curve per Wavelength)
 def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e): #{{{
-  print("#====== Plot: SINGLE PULSE, EFFECT OF THE RISE TIME, 1 WAVELENGTH, 1 POLARIZATIONS: final density as function of RISETIME ======")
+  logging.info("#====== Plot: SINGLE PULSE, EFFECT OF THE RISE TIME, 1 WAVELENGTH, 1 POLARIZATIONS: final density as function of RISETIME ======")
   PlottingSinglePulses = PlottingTable #get the full database
   PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
   PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
@@ -157,8 +161,8 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
     #print "** Info: Sorting data..."
     #print Efield1_sorted, Ne_final_sorted
     plot_field, = ax1.plot(RiseTime_sorted, Ne_final_sorted, '-', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
-    print(Header+"plotEffectOfIntensity_CEP(): adding CEP "+str(round(CEP1_value*180./pi))+" to the the plot.")
-    print(plot_field)
+    logging.info(Header+"plotEffectOfIntensity_CEP(): adding CEP "+str(round(CEP1_value*180./pi))+" to the the plot.")
+    logging.info(plot_field)
     #print Header+"** Debug info: "+str(np.shape(plot_field))
     plot1 += [plot_field] # does cumulate each CEP now. Type: Line2D, not np.array. 
     
@@ -326,7 +330,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   ExportName = "EffectOfIntensity-"+str(int(pulseDuration*1E15))+"fs"
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
-  print(Header+"** Saved: Metaplot-SinglePulse-SingleColor-"+ExportName+".eps|png.")
+  logging.info(Header+"** Saved: Metaplot-SinglePulse-SingleColor-"+ExportName+".eps|png.")
   if(ShowFinalPlot==1):
     plt.show()
 
@@ -411,7 +415,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         try:
             PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
         except:
-            print(Header + "** Warning: no data for " + str(pulseWavelength))
+            logging.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
     if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
@@ -419,7 +423,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         try:
             PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
         except:
-            print(Header + "** Warning: no data for " + str(pulseWavelength))
+            logging.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         EnableInsetMagnification=False
     if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
@@ -427,7 +431,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         try:
             PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
         except:
-            print(Header + "** Warning: no data for " + str(pulseWavelength))
+            logging.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         EnableInsetMagnification=False
     if(pulseWavelength==483e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
@@ -435,7 +439,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         try:
             PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
         except:
-            print(Header + "** Warning: no data for " + str(pulseWavelength))
+            logging.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         EnableInsetMagnification=False
 
@@ -496,9 +500,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIonRun, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses) #TODO: use PANDAS HERE
 
-        print(Header+"** Info: saving the data in CSV file for fitting. ")
+        logging.info(Header+"** Info: saving the data in CSV file for fitting. ")
         filename = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm-tau"+str(int(pulse_value*1E15))+"fs"+FileName_opt
-        print(Header+"** Info: saving in "+filename+".csv")
+        logging.info(Header+"** Info: saving in "+filename+".csv")
         ExportToTxt(PlottingSinglePulses_pulses, filename+".csv")
         if(UseNexcAfterPulse):
             del Ne_final
@@ -517,7 +521,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #plt.xlim(x_min[pulseWavelength])
 
         #==== CURVE FITTING SHOULD COME HERE === as it is for each pulse duration.
-        print(Header+"** Info: Computation of multi-photon excitation")
+        logging.info(Header+"** Info: Computation of multi-photon excitation")
 
         ### Multiphotonic absorption law (used for fitting td-dft results)
         # d e f MultiPhotonAbsorption(intensity, sigma_n):
@@ -618,20 +622,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ## Filters a part of the data and fit using the given function
         def FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > OnePhotonIntensityRegime_min) and (Intensity_sorted_np < OnePhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > OnePhotonIntensityRegime_min) & (Intensity_sorted_np < OnePhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > OnePhotonIntensityRegime_min) & (Intensity_sorted_np < OnePhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             OnePhotonAbsorption_params = curve_fit(OnePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(OnePhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(OnePhotonAbsorption_params[0]))
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_1PI = OnePhotonAbsorption(Intensity_sorted_mask, OnePhotonAbsorption_params[0])
             #print Nexc_2PI
             if(ShowPulseDurations):
@@ -656,20 +660,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ## Filters a part of the data and fit using the given function
         def FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument --> Pointer?
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             TwoPhotonAbsorption_params = curve_fit(TwoPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0]))
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_2PI = TwoPhotonAbsorption(Intensity_sorted_mask, TwoPhotonAbsorption_params[0])
             #print Nexc_2PI
             if(ShowPulseDurations):
@@ -695,18 +699,18 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ## ==== FITTING THE 3-photon ionization plot
         def FitThreePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, ThreePhotonIntensityRegime_min, ThreePhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument instead of copying this function... :-(
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > ThreePhotonIntensityRegime_min) & (Intensity_sorted_np < ThreePhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > ThreePhotonIntensityRegime_min) & (Intensity_sorted_np < ThreePhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             ThreePhotonAbsorption_params = curve_fit(ThreePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(ThreePhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(ThreePhotonAbsorption_params[0]))
 
             if(ShowPulseDurations):
                 tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
@@ -720,7 +724,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             else:
                 sigma_txt=""
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_3PI = ThreePhotonAbsorption(Intensity_sorted_mask, ThreePhotonAbsorption_params[0])
             #print Nexc_2PI
             if(plotMe):
@@ -733,18 +737,18 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         def FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument instead of copying this function... :-(
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > FourPhotonIntensityRegime_min) & (Intensity_sorted_np < FourPhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FourPhotonIntensityRegime_min) & (Intensity_sorted_np < FourPhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             FourPhotonAbsorption_params = curve_fit(FourPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FourPhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FourPhotonAbsorption_params[0]))
 
             if(ShowPulseDurations):
                 tau_text=r', $\tau=$'+str(int(pulse_value*1E15))+' fs'
@@ -758,7 +762,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             else:
                 sigma_txt=""
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_4PI = FourPhotonAbsorption(Intensity_sorted_mask, FourPhotonAbsorption_params[0])
             #print Nexc_2PI
             if(plotMe):
@@ -771,20 +775,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         def FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument instead of copying this function... :-(
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > FivePhotonIntensityRegime_min) & (Intensity_sorted_np < FivePhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FivePhotonIntensityRegime_min) & (Intensity_sorted_np < FivePhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             FivePhotonAbsorption_params = curve_fit(FivePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FivePhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(FivePhotonAbsorption_params[0]))
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_5PI = FivePhotonAbsorption(Intensity_sorted_mask, FivePhotonAbsorption_params[0])
             #print Nexc_2PI
 
@@ -809,20 +813,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         def FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument instead of copying this function... :-(
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > SixPhotonIntensityRegime_min) & (Intensity_sorted_np < SixPhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SixPhotonIntensityRegime_min) & (Intensity_sorted_np < SixPhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             SixPhotonAbsorption_params = curve_fit(SixPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SixPhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SixPhotonAbsorption_params[0]))
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_6PI = SixPhotonAbsorption(Intensity_sorted_mask, SixPhotonAbsorption_params[0])
             #print Nexc_2PI
 
@@ -847,20 +851,20 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         def FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, n_photons, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max, plotMe=True): #TODO: pass function name in argument instead of copying this function... :-(
             #{{{
-            print(Header+"** Info: Filtering the fitting region...")
+            logging.info(Header+"** Info: Filtering the fitting region...")
             Intensity_sorted_np = np.array(Intensity_sorted) #filtering works for NumPy array, not for lists.
             #condition = (Intensity_sorted_np > TwoPhotonIntensityRegime_min) and (Intensity_sorted_np < TwoPhotonIntensityRegime_max)
             Intensity_sorted_mask = Intensity_sorted_np[(Intensity_sorted_np > SevenPhotonIntensityRegime_min) & (Intensity_sorted_np < SevenPhotonIntensityRegime_max)]
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SevenPhotonIntensityRegime_min) & (Intensity_sorted_np < SevenPhotonIntensityRegime_max)]
-            print(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logging.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             SevenPhotonAbsorption_params = curve_fit(SevenPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
-            print(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SevenPhotonAbsorption_params[0]))
+            logging.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(SevenPhotonAbsorption_params[0]))
 
-            print(Header+"** Info: adding the fitted curve to the plot")
+            logging.info(Header+"** Info: adding the fitted curve to the plot")
             Nexc_7PI = SevenPhotonAbsorption(Intensity_sorted_mask, SevenPhotonAbsorption_params[0])
             #print Nexc_2PI
 
@@ -1022,9 +1026,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         omega = 2.*np.pi*c/wavelengths1[0]
         NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
-        print(NumberOfPhotons)
+        logging.info(NumberOfPhotons)
         NumberOfPhotons_round = np.ceil(NumberOfPhotons)
-        print(Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(NumberOfPhotons_round))
+        logging.info(Header+"** INFO: NUMBER OF PHOTONS = "+str(NumberOfPhotons)+", rounded to: "+str(NumberOfPhotons_round))
 
         # Here we attempt to fit the excitation coefficient in the multiphotonic regime.
         # Hence, it depends on the number of photons required for overcoming the direct band gap energy.
@@ -1036,45 +1040,45 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case.
             #plotMe = (pulse_value == 20E-15)
             #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5):
-            print(Header+"** Info: fitting with 7-photon absortion...")
+            logging.info(Header+"** Info: fitting with 7-photon absortion...")
             plot_field = FitSevenPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 7, SevenPhotonIntensityRegime_min, SevenPhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 7-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 7-photon absorption failed. ")
 
         try:
             #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case.
             #plotMe = (pulse_value == 20E-15)
             #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5):
-            print(Header+"** Info: fitting with 6-photon absortion...")
+            logging.info(Header+"** Info: fitting with 6-photon absortion...")
             plot_field = FitSixPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 6, SixPhotonIntensityRegime_min, SixPhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 6-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 6-photon absorption failed. ")
 
         try:
             #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case.
             #plotMe = (pulse_value == 20E-15)
             #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5):
-            print(Header+"** Info: fitting with 5-photon absortion...")
+            logging.info(Header+"** Info: fitting with 5-photon absortion...")
             plot_field = FitFivePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 5, FivePhotonIntensityRegime_min, FivePhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 5-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 5-photon absorption failed. ")
 
         try:
             #NOTE: assumption here is the MAIN BAND GAP is employed for the transition. But it may NOT be the case.
             #plotMe = (pulse_value == 20E-15)
             #if(NumberOfPhotons_round >= 4 and NumberOfPhotons_round < 5):
-            print(Header+"** Info: fitting with 4-photon absortion...")
+            logging.info(Header+"** Info: fitting with 4-photon absortion...")
             plot_field = FitFourPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 4, FourPhotonIntensityRegime_min, FourPhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 4-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 4-photon absorption failed. ")
         try:
             #elif(NumberOfPhotons_round >= 3 and NumberOfPhotons_round < 4):
             print(Header+"** Info: fitting with 3-photon absortion...")
@@ -1082,23 +1086,23 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except:
-            print(Header+"** Fit using 3-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 3-photon absorption failed. ")
         try:
             #elif(NumberOfPhotons_round >= 2 and NumberOfPhotons_round < 3):
-            print(Header+"** Info: fitting with 2-photon absortion...")
+            logging.info(Header+"** Info: fitting with 2-photon absortion...")
             plot_field = FitTwoPhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 2, TwoPhotonIntensityRegime_min, TwoPhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 2-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 2-photon absorption failed. ")
         try:
             #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2):
-            print(Header+"** Info: fitting with 1-photon absortion...")
+            logging.info(Header+"** Info: fitting with 1-photon absortion...")
             plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
                 plot1 += [plot_field]
         except (NameError, ValueError):
-            print(Header+"** Fit using 1-photon absorption failed. ")
+            logging.warning(Header+"** Fit using 1-photon absorption failed. ")
             #else:
             #print Header+"** Warning: could not fit anything, surely because you are using the 2-band vision! :) "
 
@@ -1106,7 +1110,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #print Header+"** Fit using N-photon absorption failed. "
         # NOTE: this is NOT 3-photon absorption regime, this is NON-PERTURBATIVE regime. Transition to tunneling.
 
-        print(Header+"** Info: fitting the non-perturbative regime...")
+        logging.info(Header+"** Info: fitting the non-perturbative regime...")
         TunnelingIntensityRegime_min = 2E15 #TwoPhotonIntensityRegime_max #1e12
         TunnelingIntensityRegime_max = 2E17  #1.3e15 #W/m2
         #try:
@@ -1153,13 +1157,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ax2.set_title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
     else:
         ax1.set_title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
-    print(Header+"Generating comparison with Keldysh-Gruzdev model...") ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory.
+    logging.info(Header+"Generating comparison with Keldysh-Gruzdev model...") ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory.
     order = 50
     Efieldmin = np.min(Efield1_uniq)
     Efieldmax = np.max(Efield1_uniq) #5E10
     Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 2000)
     Efield1_Keldysh     = np.power(10., Efield1_Keldysh_log)
-    print(Efield1_Keldysh)
+    logging.debug(Efield1_Keldysh)
 
     for gammaValues in ListOfInterestingGammas:
         ax2.axvline(x=xscale*IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
@@ -1229,7 +1233,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
         Acoeff=1
         PeakWpi_Atomic_Keldysh = IonizationRateAtoms(pulseWavelength, meff_Keldysh, Egap_SI, Efield1_Keldysh, order, 1., Ntotal) #Optical index in gas in 1.
-        print(Header+"Info: Atomic Keldysh: "+str(np.min(PeakWpi_Atomic_Keldysh))+", "+str(np.max(PeakWpi_Atomic_Keldysh)))
+        logging.info(Header+"Info: Atomic Keldysh: "+str(np.min(PeakWpi_Atomic_Keldysh))+", "+str(np.max(PeakWpi_Atomic_Keldysh)))
         #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh, order, 1.)
         gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1, 1.) #for gamma, ONE MUST NOT USE OPTICAL INDEX (because gamma is oscillation time divided by tunneling time, hence optical index must vanish)
         #ax2x2 = ax2.twiny()
@@ -1255,7 +1259,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                 plot222_sat, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev_sat, '--.k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}} \times \frac{Z \times n_0-n_{\mathrm{exc}}}{Z \times n_0}$')
 
         # ATOMIC KELDYSH
-        print(Header+"Preparing atomic Keldysh...")
+        logging.info(Header+"Preparing atomic Keldysh...")
         plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-anal}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
         plot2    += [plot23]
     #}}}
@@ -1270,7 +1274,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         if(EnableInsetMagnification):
             plot232, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-num}}$')
     except:
-        print(Header+"** Warning: no data available from VP Zhukov for this wavelength.")
+        logging.warning(Header+"** Warning: no data available from VP Zhukov for this wavelength.")
 
     ## GULLEY 
     #plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Gulley, '-.', label=r'$w_{\mathrm{PI}}^{\mathrm{Gu.}}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
@@ -1573,7 +1577,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ExportName = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm"+MoveIonFile+FileName_opt+Filename_Sat
     plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
     plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
-    print(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
+    logging.info(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
     if(ShowFinalPlot==1):
         plt.show()
 
@@ -1626,7 +1630,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, MinPulseDuration, IndexTable['pulses1'])
   
   #wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
-  print((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
+  logging.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
   #print("Info: available pulse durations:\n"+str(pulses_uniq))
   
   Symbols={20e-15: '+', 30e-15: 'o', 60e-15: '^'}
@@ -1651,22 +1655,22 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   if(pulseWavelength == 800e-9): 
       # open the experimental file
       ElectronEnergy_experimental_sorted = np.loadtxt("Shugaev-2018-Exp-FluenceReflectivity.csv", delimiter="\t", skiprows=1)
-      print((ElectronEnergy_experimental_sorted[0,:]))
+      logging.info((ElectronEnergy_experimental_sorted[0,:]))
   
   
-  print((Header+"** Info: plotting full TDDFT..."))
+  logging.info((Header+"** Info: plotting full TDDFT..."))
   if(not PlotFrozenHxc):
     PlottingSinglePulses_Normal = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
     
     wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
-    print((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
-    print(("Info: available pulse durations:\n"+str(pulses_uniq)))
+    logging.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
+    logging.info(("Info: available pulse durations:\n"+str(pulses_uniq)))
     
-    print((Header+"** Info: Number of entries after FreezeHXC: "+str(len(PlottingSinglePulses_Normal))))
+    logging.info((Header+"** Info: Number of entries after FreezeHXC: "+str(len(PlottingSinglePulses_Normal))))
     for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
             PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_Normal, pulse_value, IndexTable['pulses1'])
-            print((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses_pulses))))
+            logging.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses_pulses))))
             #PlottingSinglePulses_pulses = FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
             
             wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
@@ -1715,8 +1719,8 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), ElectronEnergy_use_sorted, Colors[pulse_value]+'^', label=r'abs.'+CaptionText+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
             plot1 += [plot_field]
             
-            print((Header+"** Debug: contents of Energy Poynting table..."))
-            print(EnergyPoynting_SI_sum_final_sorted)
+            logging.debug((Header+"** Debug: contents of Energy Poynting table..."))
+            logging.debug(EnergyPoynting_SI_sum_final_sorted)
             
             if(ShowPoynting):
                 plot_field, = ax1.plot(np.multiply(xscale, Intensity_sorted), EnergyPoynting_SI_sum_final_sorted, Colors[pulse_value]+'-', label=r"$\int J(t').E(t') dt' $"+r', $\tau=$'+str(int(pulse_value*1E15))+" fs")
@@ -1751,12 +1755,12 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   #if(PlotFrozenHxc):
   else:
     ## We can now filter and plot the FreezeHXC results
-    print((Header, "** Info: plotting effect of Hxc..."))
+    logging.info((Header, "** Info: plotting effect of Hxc..."))
     PlottingSinglePulses_HXC = FilterDatabase(PlottingSinglePulses, 1., IndexTable['FreezeHXC']) #keep only fields where FreezeHXC != 0. 
     
     wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
-    print((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
-    print(("Info: available pulse durations:\n"+str(pulses_uniq)))
+    logging.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
+    logging.info(("Info: available pulse durations:\n"+str(pulses_uniq)))
     
     for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
@@ -1766,7 +1770,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
             wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
             
             if(len(Efield1_uniq)==0): 
-                print((Header, "** Warning: no data available for this run."))
+                logging.warning((Header, "** Warning: no data available for this run."))
                 continue
 
             runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = ExtractData(PlottingSinglePulses_pulses)
@@ -1864,7 +1868,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+FreezeHXC_name+MoveIonFile+WithInducedFields_txt
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
-  print(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
+  logging.info(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
   
   if(ShowFinalPlot==1):
     plt.show()
@@ -1912,9 +1916,9 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
     #print "** Info: Sorting data..."
     #print Efield1_sorted, Ne_final_sorted
     plot_field, = ax1.plot(Intensity_sorted, Ne_final_sorted, 'o', label=r'$N_{exc}^{final}$, $\phi_{CE}$='+str(round(CEP1_value*180./pi)))
-    print(Header+"plotEffectOfIntensity_CEP(): adding CEP "+str(round(CEP1_value*180./pi))+" to the the plot.")
-    print(plot_field)
-    print(Header+"{Fore.RED}** Debug info: "+str(np.shape(plot_field)))
+    logging.info(Header+"plotEffectOfIntensity_CEP(): adding CEP "+str(round(CEP1_value*180./pi))+" to the the plot.")
+    logging.info(plot_field)
+    logging.debug(Header+"{Fore.RED}** Debug info: "+str(np.shape(plot_field)))
     plot1 += [plot_field] # does cumulate each CEP now. Type: Line2D, not np.array. 
     
     #ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
@@ -2022,8 +2026,8 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   #print Efield1_sorted, Ne_final_sorted
   plot_field, = ax1.plot(np.multiply(CEP1_sorted,180./pi), Ne_final_sorted, 'o', label=r'$N_{exc}^{final}$')
   #print Header+"plotEffectOfIntensity_CEP(): adding CEP "+str(round(CEP1_value*180./pi))+" to the the plot."
-  print(plot_field)
-  print(Header+"{Fore.RED}** Debug info: "+str(np.shape(plot_field)))
+  logging.info(plot_field)
+  logging.debug(Header+"{Fore.RED}** Debug info: "+str(np.shape(plot_field)))
   plot1 += [plot_field] # does cumulate each CEP now. Type: Line2D, not np.array. 
     
     #ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
@@ -2250,7 +2254,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
     wavelengths_source  = DataArray[:,0]
     if(np.min(np.diff(wavelengths_source))==0e0): 
-        print(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ") 
+        logging.error(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ")
         #print np.diff(wavelengths_source)
         exit()
     OpticalN            = DataArray[:,1]
@@ -2274,7 +2278,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     nfile = DataFile+"-epsR.csv" #TODO: rename nfile to ReEpsFile
     kfile = DataFile+"-epsC.csv" #TODO: rename kfile to ImEpsFile
     
-    print(nfile, kfile)
+    logging.debug(nfile, kfile)
     
     #print("** Info: opening "+nfile+" and "+kfile+".")
     narray = loadtxt(nfile, delimiter="\t", skiprows=2)
@@ -2354,7 +2358,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
 
   ## TODO: check if CEP could count at smaller wavelength. 
 
-  print(Header+"Available data: ")
+  logging.info(Header+"Available data: ")
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
@@ -2421,7 +2425,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ## Returns position and value at the peaks and valley. 
     def FindMinAndMax(signal, width): #{{{
         Header="plotFinalQuantities: FindMinAndMax():"
-        print(Header)
+        logging.info(Header)
         #print np.shape(signal), np.shape(width)
         width=np.asfarray(width)
         #print width
@@ -2442,11 +2446,11 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #TODO: PARALLELIZE THIS LOOP. It can be VERY long. 
         if(abs(Efield1_value - Efield1_compare)/Efield1_value < FieldTolerance): #{{{
             wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(wpi_sorted, wavelengths1_sorted)
-            print("W_PI peaks are at: "+str(wavelengths_peaks))
-            print("W_PI hills are at: "+str(wavelengths_valleys))
+            logging.info("W_PI peaks are at: "+str(wavelengths_peaks))
+            logging.info("W_PI hills are at: "+str(wavelengths_valleys))
             NumberOfPeaks   = np.shape(wavelengths_peaks)
             NumberOfValleys = np.shape(wavelengths_valleys)
-            print("Adding extrema to a list for plotting...")
+            logging.info("Adding extrema to a list for plotting...")
             for element in wavelengths_peaks:
                 Peaks.append(  [Efield1_compare, element]) #one line per datapoint
             for element in wavelengths_valleys:
@@ -2474,7 +2478,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #}}} #end for
         
   Peaks=np.array(Peaks).T; Valleys=np.array(Valleys).T
-  print(np.shape(Peaks), np.shape(Valleys))
+  logging.info(np.shape(Peaks), np.shape(Valleys))
   ##Peaks_wavelengths=Peaks[0]
   if(ShowInset):
     if(PlotValleysInset):
@@ -2534,17 +2538,17 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   if(OpticalDatabase == "Palik"):
     epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
   elif(OpticalDatabase == "TDLDA"):
-    print(Header+"** WARNING! TDLDA database is poorly defined in mid-IR !!")
+    logging.warning(Header+"** WARNING! TDLDA database is poorly defined in mid-IR !!")
     epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
   OpticalIndex = np.real(np.sqrt(epsilon_Si0))
     
-  print(Header+"Building comparison with Keldysh-Gruzdev...")
+  logging.info(Header+"Building comparison with Keldysh-Gruzdev...")
   #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
-  print(Header+"** INFO TEST: Dielectric permittivity of Si at 800 nm")
-  print("[Palik] | [Reining et al PRL 2002]")
-  print("400 nm: "+str(ImportPalikDatabase_epsilon_fromNK(400e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(400e-9, "Database/Si-TDLDA")))
-  print("800 nm: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
-  print("3200 nm: "+str(ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
+  logging.info(Header+"** INFO TEST: Dielectric permittivity of Si at 800 nm")
+  logging.info("[Palik] | [Reining et al PRL 2002]")
+  logging.info("400 nm: "+str(ImportPalikDatabase_epsilon_fromNK(400e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(400e-9, "Database/Si-TDLDA")))
+  logging.info("800 nm: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
+  logging.info("3200 nm: "+str(ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
     
          
   for Efield1_compare in FieldOfInterest: #{{{ #INFO: good for Fig3b. 
@@ -2650,14 +2654,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     lists_frozen = sorted(zip(*[wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen]))
     wavelengths1_Keldysh_frozen_Show, PeakWpi_Gruzdev_frozen_Show = list(zip(*lists_frozen)) 
     
-    print(np.shape(PeakWpi_Gruzdev_Show), np.shape(wavelengths1_Keldysh_Show))
+    logging.debug(np.shape(PeakWpi_Gruzdev_Show), np.shape(wavelengths1_Keldysh_Show))
     wavelengths_peaks, wpi_peaks, wavelengths_valleys, wpi_valleys=FindMinAndMax(np.array(PeakWpi_Gruzdev_Show), np.array(wavelengths1_Keldysh_Show))
     
-    print("W_PI peaks are at: "+str(wavelengths_peaks))
-    print("W_PI hills are at: "+str(wavelengths_valleys))
+    logging.info("W_PI peaks are at: "+str(wavelengths_peaks))
+    logging.info("W_PI hills are at: "+str(wavelengths_valleys))
     NumberOfPeaks   = np.shape(wavelengths_peaks)
     NumberOfValleys = np.shape(wavelengths_valleys)
-    print("Adding extrema to a list for plotting...")
+    logging.info("Adding extrema to a list for plotting...")
     for element in wavelengths_peaks:
         Keldysh_Peaks.append(  [Efield1_compare, element]) #one line per datapoint
     for element in wavelengths_valleys:
@@ -2699,8 +2703,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   else:
       ContinuousKeldysh_Wavelengths=(h*c)/(EnergiesOfValleys*e)
   WpiValleys=GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, ContinuousKeldysh_Wavelengths, FieldsOfValleys, order, 1., False)
-  print("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
-  print("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
+  logging.info("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
+  logging.info("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
   ax1.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
   ax2.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
   #ax1.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
@@ -2784,7 +2788,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
     #plt.title('Final density as function of laser wavelength')
-    print(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
+    logging.info(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
     
     for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
         #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
@@ -2850,7 +2854,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #ax1.grid()
   
   ResonantWavelength = h*c/Egap_SI
-  print("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
+  logging.info("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
   
   for order in np.arange(1,DrawOrders+1):
     if(not EnergyAxis):
@@ -2916,10 +2920,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     omega   = np.divide(2. * np.pi * c, wavelengths1_sorted)
     #print Header+"omega: "+str(omega) #Valid
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
-    print("nu: "+str(nu)) #Valid
+    logging.info("nu: "+str(nu)) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
     epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## TODO: replace by LDA !
-    print("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
+    logging.debug("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
@@ -2927,17 +2931,17 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     #Epsilon = epsilon_Si0 - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega))
     #NumberOfPhotons = Egap_SI / (hbar * omega)
     NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
-    print(NumberOfPhotons)
+    logging.info(NumberOfPhotons)
     #NumberOfPhotons_round = np.round(NumberOfPhotons,0)
     NumberOfPhotons_round = np.ceil(NumberOfPhotons)
-    print(Header+"sqrt(Epsilon): "+str(np.min(np.sqrt(Epsilon)))+", "+str(np.max(np.sqrt(Epsilon)))) #Valid
+    logging.debug(Header+"sqrt(Epsilon): "+str(np.min(np.sqrt(Epsilon)))+", "+str(np.max(np.sqrt(Epsilon)))) #Valid
     alpha                = np.multiply(2.* omega/c, np.imag(np.sqrt(Epsilon))) #valid
     EnergyExcess         = np.multiply(NumberOfPhotons_round * hbar * omega, Ne_final_sorted) * SampleVolume / e  #result in eV
     EnergyBremsstrahlung = np.multiply( omega * epsilon_0 * (Epsilon.imag), np.multiply(Efield, Efield)) * SampleVolume / e  * pulseDuration
     EnergyBremsstrahlung_approx =  EnergyBremsstrahlung #NOTE: not used for now. Another collision freq? 
     #EnergyBremsstrahlung_approx = np.multiply( 4.*np.pi / c * np.divide(Epsilon.imag, (np.sqrt(Epsilon)).real), )) ) * SampleVolume / e
-    print(Header+"FcrEnergy (eV): "+str(np.min(EnergyBremsstrahlung))+", "+str(np.max(EnergyBremsstrahlung)))
-    print(Header+"Excess energy (n hbar omega) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess)))
+    logging.info(Header+"FcrEnergy (eV): "+str(np.min(EnergyBremsstrahlung))+", "+str(np.max(EnergyBremsstrahlung)))
+    logging.info(Header+"Excess energy (n hbar omega) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess)))
     EnergyFreeCarrier    = EnergyExcess + EnergyBremsstrahlung
     EnergyFreeCarrier_approx = EnergyExcess + EnergyBremsstrahlung_approx
     return EnergyFreeCarrier, EnergyFreeCarrier_approx
@@ -3040,7 +3044,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
 
   if(PlotFreeCarrierAbsorption):
-      print(Header+"Now plotting the free carrier energy absorption...")
+      logging.info(Header+"Now plotting the free carrier energy absorption...")
       for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
         #PlottingSinglePulses_Efield = FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
         PlottingSinglePulses_Efield = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
@@ -3119,7 +3123,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   
   #ResonantWavelength = h*c/Egap_SI
-  print("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
+  logging.info("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
   
   for order in np.arange(1,DrawOrders+1):
     if(not EnergyAxis):
@@ -3229,7 +3233,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
 
   ## TODO: check if CEP could count at smaller wavelength. 
 
-  print(Header+"Available data: ")
+  logging.info(Header+"Available data: ")
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingDoublePulses)
   #if(len(CEP1_uniq) == 1): #{{{ #single color simulations
   # Complexity level: 2
@@ -3237,7 +3241,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #print("Number of Efield2 uniq: ")
   #print np.shape(Efield2_uniq)
   
-  print(CEP2_uniq)
+  logging.info(CEP2_uniq)
   #exit()
   
   plt.figure(figsize=(12,6)) #new figure
@@ -3282,14 +3286,14 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     
     # This loop is run len(Efield2_uniq) times
     #for Efield2_compare in FieldOfInterest: #{{{
-    print((Header+"Strange there are 1 FieldOfInterest, but we are getting once more in this loop. Efield2_compare: "+str(Efield2_compare*1E-9)))
+    logging.warning((Header+"Strange there are 1 FieldOfInterest, but we are getting once more in this loop. Efield2_compare: "+str(Efield2_compare*1E-9)))
     #LocalCondition = False
     #if(Efield2_compare==0):
         #LocalCondition = (Efield2_value == Efield2_compare)
     #else:
         #LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_value <= FieldTolerance) #Many loops should not induce one new plot each time. 
     #if(LocalCondition): #{{{ #If Efield2_value is close enough to a field we would like to see, then we plot one new line. If we already had the value accepted once, we plot again?? No... So we should construct a set of data by merging all these values. 
-    print(Header+"Available data for the specific field E2="+str(Efield2_compare*1E-9)+" V/nm.")
+    logging.info(Header+"Available data for the specific field E2="+str(Efield2_compare*1E-9)+" V/nm.")
     tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9 = CountTheNumberOfLaserParameters(PlottingDoublePulses_Efield)
     #### PLOTTING
     
@@ -3354,7 +3358,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   if(ShowDensities): #{{{
     ax12 = ax1.twinx()
     #plt.title('Final density as function of laser wavelength')
-    print(Header+"Total number of datasets: "+str(len(set(Efield2_uniq))))
+    logging.info(Header+"Total number of datasets: "+str(len(set(Efield2_uniq))))
     
     for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
         #PlottingDoublePulses_Efield = FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
@@ -3436,7 +3440,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #ax1.grid()
   
   ResonantWavelength = h*c/Egap_SI
-  print("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
+  logging.info("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
   
   if(not EnergyAxis):
     ax1.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
@@ -3473,7 +3477,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
       DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
       wavelengths_source  = DataArray[:,0]
       if(np.min(np.diff(wavelengths_source))==0e0): 
-          print(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ") 
+          logging.warning(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ")
           #print np.diff(wavelengths_source)
           exit()
       OpticalN            = DataArray[:,1]
@@ -3496,10 +3500,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     omega   = np.divide(2. * np.pi * c, wavelengths1_sorted)
     #print Header+"omega: "+str(omega) #Valid
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
-    print("nu: "+str(nu)) #Valid
+    logging.info("nu: "+str(nu)) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
     epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ##TODO: replace by LDA !
-    print("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
+    logging.debug("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
@@ -3507,17 +3511,17 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #Epsilon = epsilon_Si0 - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega))
     #NumberOfPhotons = Egap_SI / (hbar * omega)
     NumberOfPhotons = np.divide(Egap_SI/hbar, omega)
-    print(NumberOfPhotons)
+    logging.info(NumberOfPhotons)
     #NumberOfPhotons_round = np.round(NumberOfPhotons,0)
     NumberOfPhotons_round = np.ceil(NumberOfPhotons)
-    print(Header+"sqrt(Epsilon): "+str(np.min(np.sqrt(Epsilon)))+", "+str(np.max(np.sqrt(Epsilon)))) #Valid
+    logging.debug(Header+"sqrt(Epsilon): "+str(np.min(np.sqrt(Epsilon)))+", "+str(np.max(np.sqrt(Epsilon)))) #Valid
     alpha                = np.multiply(2.* omega/c, np.imag(np.sqrt(Epsilon))) #valid
     EnergyExcess         = np.multiply(NumberOfPhotons_round * hbar * omega, Ne_final_sorted) * SampleVolume / e  #result in eV
     EnergyBremsstrahlung = np.multiply( omega * epsilon_0 * (Epsilon.imag), np.multiply(Efield, Efield)) * SampleVolume / e  * pulseDuration
     EnergyBremsstrahlung_approx =  EnergyBremsstrahlung #NOTE: not used for now. Another collision freq? 
     #EnergyBremsstrahlung_approx = np.multiply( 4.*np.pi / c * np.divide(Epsilon.imag, (np.sqrt(Epsilon)).real), )) ) * SampleVolume / e
-    print(Header+"FcrEnergy (eV): "+str(np.min(EnergyBremsstrahlung))+", "+str(np.max(EnergyBremsstrahlung)))
-    print(Header+"Excess energy (n hbar omega) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess)))
+    logging.info(Header+"FcrEnergy (eV): "+str(np.min(EnergyBremsstrahlung))+", "+str(np.max(EnergyBremsstrahlung)))
+    logging.info(Header+"Excess energy (n hbar omega) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess)))
     EnergyFreeCarrier    = EnergyExcess + EnergyBremsstrahlung
     EnergyFreeCarrier_approx = EnergyExcess + EnergyBremsstrahlung_approx
     return EnergyFreeCarrier, EnergyFreeCarrier_approx
@@ -3562,9 +3566,9 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     #if(LocalCondition):  #if we have captured the fields we are interested in, we plot  
     #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-', linewidth=LineWidthCoeff_abs*LineWidths[Efield2_compare], color=Colors[Efield2_compare])
     plot_field, = ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-^', label=r'$\lambda_1=$'+str(wavelength1*1E9)+' nm, $E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
-    print((Header+"Plotting energy: Adding one plot..."))
-    print(wavelengths2_sorted_show)
-    print(Energy_max_sorted)
+    logging.info((Header+"Plotting energy: Adding one plot..."))
+    logging.info(wavelengths2_sorted_show)
+    logging.debug(Energy_max_sorted)
     plot1 += [plot_field]
     #ax3.plot(wavelengths2_sorted_show, Energy_max_sorted, '-')
             
@@ -3625,7 +3629,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   # This part adds an analytical estimation based on Drude(n_exc_TDDFT)
   if(PlotFreeCarrierAbsorption):
-      print(Header+"Now plotting the free carrier energy absorption...")
+      logging.info(Header+"Now plotting the free carrier energy absorption...")
       for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
         #PlottingDoublePulses_Efield = FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
         PlottingDoublePulses_Efield = FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), IndexTable['Efield2'])
@@ -3711,7 +3715,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   
   
   #ResonantWavelength = h*c/Egap_SI
-  print("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
+  logging.info("** Adding vertical bar for the resonant transitions at: "+str(round(1e9*ResonantWavelength))+"nm.")
   
   if(not EnergyAxis):
     ax3.axvline(x=1e9*ResonantWavelength, color='k', linestyle='--', linewidth=1)
@@ -3735,7 +3739,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   filename='Metaplot-DoublePulse-BiColor-EffectOfWavelength'+str(round(wavelength1*1E9,0))+'nm-Efield1_Tol-'+str(round(Field1*1E-9,1))+'Vnm-Drude-'+str(int(pulseDuration*1E15))
   plt.savefig(filename+'.eps')
   plt.savefig(filename+'.png')
-  print((Header+"Bicolor_plotEffectOfWavelength_Tolerance: successfully wrote the bicolor Stark analysis."))
+  logging.info((Header+"Bicolor_plotEffectOfWavelength_Tolerance: successfully wrote the bicolor Stark analysis."))
   if(ShowFinalPlot==1):
     plt.show()
 
@@ -3785,8 +3789,8 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   lists = sorted(zip(*[CEP2, Ne_final, W_pi, ElectronEnergy_max, Efield2]))
   CEP2_sorted, Ne_final_sorted, W_pi_sorted, Energy_max_sorted, Efield2_sorted = list(zip(*lists))
   plot_field, = ax1.plot(np.multiply(CEP2_sorted,180./pi), Ne_final_sorted, 'r-+', label=r'$n_{\mathrm{exc}}^{\mathrm{final}}$, $E^{\mathrm{peak}}_{1,2}=$'+str(round(FieldAmplitude1*1E-9))+' V/nm.')
-  print(plot_field)
-  print(Header+"** Debug info:"+str(np.shape(plot_field)))
+  logging.debug(plot_field)
+  logging.debug(Header+"** Debug info:"+str(np.shape(plot_field)))
   plot1 += [plot_field] # does cumulate each CEP now. Type: Line2D, not np.array. 
     
   #ax1.legend(loc=4, borderaxespad=0.) #bbox_to_anchor=(1.05, 1), 
@@ -3875,7 +3879,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 
   ## TODO: check if CEP could count at smaller wavelength. 
 
-  print(Header+"Available data: ")
+  logging.info(Header+"Available data: ")
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
   #plt.figure(figsize=(SizeX,SizeY)) #new figure
@@ -3883,7 +3887,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
   #print DensityMax2D
   #ax1 = plt.subplot(111)
   plt.title('Final density as function of laser wavelength')
-  print(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
+  logging.info(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
   
   ##Building up the stack to plot here, therefore we could plot anytype of plot. 
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
@@ -3900,7 +3904,7 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
   
   # Stack is built. Export, show and plot on a heat map. 
-  print("** Exporting the sub-plot2D: Ne_final(wavelength, Field)... Useful to visualize available data with GNUplot. ")
+  logging.info("** Exporting the sub-plot2D: Ne_final(wavelength, Field)... Useful to visualize available data with GNUplot. ")
   ExportToTxt(DensityMax2D, "Wavelength-Field-NeFinal.csv")
   plt.figure()
   #CS = plt.imshow(DensityMax2D, cmap=plt.cm.Blues) #WORKS, but data are too small (no interpolation)
@@ -3966,7 +3970,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
     PlottingDoublePulses = FilterDatabase(PlottingDoublePulses, RiseCycles, IndexTable['RiseTime']) # Selecting Rise Time
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= CountTheNumberOfLaserParameters(PlottingDoublePulses)
-  print(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq))))
+  logging.info(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq))))
   
   TotalField2D      = np.empty((0,3)) #preparing the 2D plot
   DensityMax2D      = np.empty((0,3)) #preparing the 2D plot
@@ -4022,8 +4026,8 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   #print(Header+" ** Debug: PulseType: "+str(PulseType))
   PulseTypeName = int(np.asfarray(PulseType))
   # Stack is built. Export, show and plot on a heat map. 
-  print("** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)...")
-  print("** Info: useful to visualize available data with GNUplot. ")
+  logging.info("** Info: exporting the sub-plot2D: Ne_final(Field1, Field2)...")
+  logging.info("** Info: useful to visualize available data with GNUplot. ")
   filename_field   = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-EPeakWithE1E2"
   filename         = "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-NeFinalWithE1E2"
   filename_gradNexc= "Bicolor-"+str(PulseTypeName)+"-Color1-"+str(round(wavelength1*1E9))+"-Color2-"+str(round(wavelength2*1E9))+"-"+str(int(PulseDuration*1e15))+"fs-NexcWithI1I2"
@@ -4078,7 +4082,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       ExportToTxt(WpiMax2Dsorted, filename+".csv")
   else: 
       PlotGradient=False
-      print(Header+"** plot_Zhukov_BicolorMaps: wrong request!")
+      logging.error(Header+"** plot_Zhukov_BicolorMaps: wrong request!")
   
   
   # Shaping the tables
@@ -4090,7 +4094,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   if(not len(BrutZ)==0): 
       RegX, RegY, RegZ = plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
   else: 
-      print((Header+"** Error: Selected database is empty."))
+      logging.error((Header+"** Error: Selected database is empty."))
       exit()
   
   ## SPECIAL CASE: preparing figure to support Nadya's idea that BICOLOR induces higher absorption than separed single-colors. 
@@ -4203,7 +4207,7 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
         ToBeAddedCurrent = np.array([wavelengths1[0], wavelengths2[0], TotalCurrent_final[0]])
         ToBeAddedEnergy  = np.array([wavelengths1[0], wavelengths2[0], ElectronEnergy_max[0]])
         ToBeAddedWpi     = np.array([wavelengths1[0], wavelengths2[0], W_pi[0]])
-        print(ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi)
+        logging.debug(ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi)
         DensityMax2D=np.vstack((DensityMax2D, ToBeAdded))
         CurrentMax2D=np.vstack((CurrentMax2D, ToBeAddedCurrent))
         EnergyMax2D =np.vstack((EnergyMax2D, ToBeAddedEnergy))
@@ -4211,8 +4215,8 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
         del ToBeAdded, ToBeAddedCurrent, ToBeAddedEnergy, ToBeAddedWpi
         
   # Stack is built. Export, show and plot on a heat map. 
-  print("** Info: exporting the sub-plot2D: Ne_final(wavelength, Field), TotalCurrent_Final(), ElectronEnergy_max()...")
-  print("** Info: useful to visualize available data with GNUplot. ")
+  logging.info("** Info: exporting the sub-plot2D: Ne_final(wavelength, Field), TotalCurrent_Final(), ElectronEnergy_max()...")
+  logging.info("** Info: useful to visualize available data with GNUplot. ")
   filename         = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-NeFinal"
   filename_current = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-JeFinal"
   filename_energy  = "Bicolor-Field"+str(round(FieldStrength*1E-9))+"VperNm-Energy"
@@ -4251,9 +4255,9 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   BrutX = 1E9*DensityMax2Dsorted[:,0]
   BrutY = 1E9*DensityMax2Dsorted[:,1]
   BrutZ = DensityMax2Dsorted[:,2]
-  print(len(BrutX))
-  print(len(BrutY))
-  print(len(BrutZ))
+  logging.debug(len(BrutX))
+  logging.debug(len(BrutY))
+  logging.debug(len(BrutZ))
   
   X=list(set(BrutX))
   Y=list(BrutY) ##BUG: we have degeneracy, investigate why and remove the problem. 
@@ -4466,7 +4470,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
             try: 
                 plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[wavelength], RatioExternal[material], MoveIon)
             except: 
-                print((Header+"Plotting of Energy for Si failed for wavelength "+str(int(1E9*wavelength))+", pulsetype: "+str(PulseType)))
+                logging.warning((Header+"Plotting of Energy for Si failed for wavelength "+str(int(1E9*wavelength))+", pulsetype: "+str(PulseType)))
     
 #}}}
 
@@ -4614,7 +4618,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         for Field1 in [2.5E8]: #, 1.0E9]: # TODO: how to add the E2=0 & E1!=0 ?
             #try:
             Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, 1E-5, Field1, FieldLimit, tau, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect)
-            print((Header+"Bicolor_plotEffectOfWavelength_Tolerance() success for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E-9)+" V/nm)"))
+            logging.info((Header+"Bicolor_plotEffectOfWavelength_Tolerance() success for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E-9)+" V/nm)"))
             #except:
                 #print(Header+"Bicolor_plotEffectOfWavelength_Tolerance() failed for (tau, wavelength, Efield1)=("+str(tau*1E15)+" fs, "+str(wavelength1*1E9)+" nm, "+str(Field1*1E9)+" V/nm)")
     exit()
@@ -4686,7 +4690,7 @@ def plot_Vorobyev_Au(material):
         #0: Gaussian; 1: SinSquared
             plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
     else:
-        print((Header+"** Error: material is not well specified."))
+        logging.error((Header+"** Error: material is not well specified."))
         exit()
 # VALID but some degeneracies !
 #plotEffectOfIntensity(PlottingTable, 10e-15, 1, 1, 1) #validated
@@ -4722,13 +4726,13 @@ print("** Info: Automatic detection of the routine to run...")
 
 dirname=os.path.realpath("../02-Slab2D")
 
-print(("** Info: directory name: "+str(dirname)))
+logging.info("** Info: directory name: "+str(dirname))
 
 ## Zhukov single color plotting [Phys. Rev. B]
 
 if "BicolorSummaries" in dirname:
     ## Zhukov bicolor plotting
-    print((Header+"** Info: running bicolor analyses of Si LDA..."))
+    logging.info(Header+"** Info: running bicolor analyses of Si LDA...")
     plot_Zhukov_BicolorMaps() #LDA gap
     
 elif "03-Bulk3D" in dirname:
@@ -4741,23 +4745,23 @@ elif "03-Bulk3D" in dirname:
         # since database construction now contains functionals. Better solution would be to detect the
         # available functional, to map the gap and effective masses to a database.
         # Is NOMAD capable to do that? And ASE?
-        print((Header+"** Info: detected TB09 computations for Si..."))
+        logging.info(Header+"** Info: detected TB09 computations for Si...")
         plot_Zhukov_SingleColor_TB09()
     else:
-        print((Header+"** Info: running LDA single-color Keldysh analyses..."))
+        logging.info(Header+"** Info: running LDA single-color Keldysh analyses...")
         plot_Zhukov_SingleColor_LDA()
 
 elif "09-Au" in dirname: 
-    print((Header+"** Info: detected computations for Au..."))
+    logging.info((Header+"** Info: detected computations for Au..."))
     plot_Vorobyev_Au('Au')
 elif "06-Mo" in dirname: 
-    print((Header+"** Info: detected computations for Mo..."))
+    logging.info((Header+"** Info: detected computations for Mo..."))
     plot_Vorobyev_Au('Mo')
 elif "14-SiO2" in dirname: 
-    print((Header+"** Info: detected simulation for SiO2..."))
+    logging.info((Header+"** Info: detected simulation for SiO2..."))
     plot_Zhukov_SingleColor_SiO2()
 else: 
-    print("Other routines are available, but may not be up to date.")
+    logging.warning("Other routines are available, but may not be up to date.")
     
 ## Rubio shift current plotting
 #plot_ShiftCurrents()
