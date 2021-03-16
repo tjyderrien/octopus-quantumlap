@@ -3,6 +3,34 @@ Thibault J.-Y. Derrien <derrien@fzu.cz>
 HiLASE Centre, Institute of Physics (Prague, Czech Academy of Sciences)
 Max Planck Institute for Structure and Dynamics of Matter (Hamburg, Germany)
 
+# Installation
+
+## Simple install for beginners and developpers
+
+pip install -e git+https://bitbucket.org/tjyderrien/octopus-slabs/
+
+or
+
+1. git clone https://bitbucket.org/tjyderrien/octopus-slabs/
+
+2. git checkout Modules
+
+3. conda env create -f environment.yaml if you want to install a separate conda environment for this code
+
+4. conda activate octopus-slabs
+
+5. pip install -e <folder_with_setup.py> (can be "." or "octopus-slabs", but NOT "octopus_slabs").
+
+
+## Troubleshooting (Linux)
+
+If this fails, look for your install of Conda ("whereis conda" or "locate conda"). Usually it is practical to introduce this into .bashrc: export PATH=/opt/miniconda3/bin:$PATH
+
+
+## Simple uninstall for beginners
+
+pip uninstall octopus-slabs
+
 # Coding standards
 
 To converge and merge with Atomic Environment Simulation (ASE) in future, we aim at adopting coding standards detailed 

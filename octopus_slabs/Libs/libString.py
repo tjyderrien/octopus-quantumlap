@@ -20,6 +20,7 @@
 ## Look for strings in files.
 
 import glob
+# from ase.io.octopus import read_static_info_kpoints
 # IMPORT LIBRARIES
 import os
 # from libDatabase import * #uses symbolic link
@@ -28,6 +29,7 @@ import os
 
 # libDatabase = import_module("spp_extended_theory.SimpleSPP.libDatabase")
 from spp_extended_theory.Libs.libDatabase import *
+# from octopus_slabs.Libs.libPlotting import CaptureKPointGridSizeFromINP
 
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{
@@ -70,6 +72,28 @@ def LookUpStringInFile(Filename, string): #{{{
       break; #stop as soon as first element is found, to avoid taking next lines
   return result
 #}}}
+
+## Return the line that follows an identified pattern
+def LookUpStringReturnPreviousLine(Filename, string):  # {{{
+    import glob
+    newest = max(glob.iglob(Filename), key=os.path.getctime)
+
+    # Open the log file
+    searchfile = open(newest, "r")
+
+    # Search into this file the <line> with <string>
+    result = ''
+    found = False
+    linePrev = ""
+    for line in searchfile:
+        if string in line:
+            found = True
+        if (found):
+            result = linePrev  # returns the line N+1 when pattern is found in line N
+            break
+        linePrev = line
+    return result
+    # }}}
 
 ## Return the line that follows an identified pattern
 def LookUpStringReturnNextLine(Filename, string): #{{{
@@ -186,7 +210,109 @@ def group_by_heading( some_source, header ):
     yield buffer
     
 
+##Getting k-grid value: capture the first line after the declaration on k #NOTE: this may be already done in ASE
+    # Warning: This assumes isotropic k-point grid meshing. Can be improved by necessity in future.
+def CaptureKPointGridSizeFromINP(filename):
+    kpointgrid_inp=LookUpStringReturnNextLine(filename, "%KPointsGrid")
+    kpointgrid_inp2=kpointgrid_inp.strip()
+    kpointgrid_inp3=kpointgrid_inp2.split("|")
+    kpointgrid_inp4=kpointgrid_inp3[0] #capture the first coefficient of the grid
+    kpointgrid=float(kpointgrid_inp4)
+    del kpointgrid_inp, kpointgrid_inp2, kpointgrid_inp3, kpointgrid_inp4
+    return kpointgrid
 
+## Get the k-grid size from the second line containing Gamma point
+# @param filename: path/filename of the bandstructure file
+# Assumes that KPointPath starts with Gamma point
+# Assumes that k-grid size is same in every dimensions.
+# WRONGLY assumes that bandstructure follows k_idx. It's not the case.
+def CaptureKPointGridSizeFromBandStructureFile(filename="bandstructure"):
+    bands = np.loadtxt(filename, skiprows=1)
+    kpointpath_index=bands[:,0]
+    kpointpath_kx   =bands[:,1]
+    kpointpath_ky   =bands[:,2]
+    kpointpath_kz   =bands[:,3]
+    Mask=np.logical_and(np.logical_and(np.logical_and(kpointpath_kx==0, kpointpath_ky==0), kpointpath_kz==0), kpointpath_index==0)
+    print(np.where(Mask))
+    return np.where(Mask) #returns the line number of last line before gamma point
+    #kgrid=LookUpStringReturnPreviousLine(filename, "0,0,0")
+
+## Captures a block of instructions
+# TODO: This function should be replaced by a parser for reading octopus file (ASE must have this...)
+# NOTE: yes, and the function in ase.io.octopus is named read_static_info_kpoints()
+def CaptureBlock(filename, string, shift=0):
+    Header="libString: CaptureBlock(): "
+    import pathlib
+    linenumber=0; loopshift=0
+    block=[]
+    CaptureText=False
+    filepath=pathlib.Path(filename)
+    with filepath.open("r") as file_reader:
+        for line in file_reader:
+            # print(Header+"** Debug: "+line)
+            linenumber+=1
+            if(string in line): #if we find our pattern, we capture the text that follows
+                CaptureText = True
+#                print(Header+"** Info: text found line "+str(linenumber)+". Acquisition can start. Loopshift = "+str(loopshift))
+            if("\n" == line and CaptureText):
+                CaptureText = False
+#                print(Header+"** Info: acquisition can stop.")
+            if(CaptureText):
+                if(loopshift<shift):
+                    loopshift += 1
+                else:
+                    block.append(line.strip().split()) #building up the block
+            #Then we can capture the block until finding two newlines finishing the block
+    return(block)
+
+def read_static_info_kpoints(fd):
+    for line in fd:
+        if line.startswith('List of k-points'):
+            break
+
+    tokens = next(fd).split()
+    assert tokens == ['ik', 'k_x', 'k_y', 'k_z', 'Weight']
+    bar = next(fd)
+    assert bar.startswith('---')
+
+    kpts = []
+    weights = []
+
+    for line in fd:
+        # Format:        index   kx      ky      kz     weight
+        m = re.match(r'\s*\d+\s*(\S+)\s*(\S+)\s*(\S+)\s*(\S+)', line)
+        if m is None:
+            break
+        kxyz = m.group(1, 2, 3)
+        weight = m.group(4)
+        kpts.append(kxyz)
+        weights.append(weight)
+
+    ibz_k_points = np.array(kpts, float)
+    k_point_weights = np.array(weights, float)
+    return dict(ibz_k_points=ibz_k_points, k_point_weights=k_point_weights)
+
+## Get the k-grid size from the second line containing Gamma point
+# @param filename: path/filename of the bandstructure file
+# Assumes that KPointPath starts with Gamma point
+# Assumes that k-grid size is same in every dimensions.
+def CaptureKPointGridSizeFromInfoFile(filename="info"):
+    shift=3 #3 lines between signal and text to capture
+    block=CaptureBlock(filename, "List of k-points:", shift) #line of first k-point
+    block_t = np.asfarray(block)
+    kpointpath_index=block_t[:,0]
+    kpointpath_kx   =block_t[:,1]
+    kpointpath_ky   =block_t[:,2]
+    kpointpath_kz   =block_t[:,3]
+
+    test1 = (kpointpath_kx == 0)
+    test2 = (kpointpath_ky == 0)
+    test3 = (kpointpath_kz == 0)
+    Mask = np.logical_and(np.logical_and(test1, test2), test3)
+    #Mask = np.logical_and(np.logical_and(np.logical_and(kpointpath_kx==0, kpointpath_ky==0), kpointpath_kz==0), kpointpath_index==0)
+    # block = read_static_info_kpoints(filename)
+    NumberOf3dKpoints=np.where(Mask)[0][1]
+    return round(np.power(NumberOf3dKpoints,1/3))
 
 ## Capture eigenvalues for a given k-point from "info" file
 # @param kpoints_index: index of the k-point of interest
@@ -207,8 +333,8 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
                 #print heading
                 #print lines
                 break #we stop iteration when pattern is found
-    print(Header+str(heading))
     if(verbose==1): 
+        print(Header+str(heading))
         print(Header+str(lines[0:NumberOfEigenValues]))
     eigenvalues=[]
     for id in lines[:NumberOfEigenValues]:
@@ -220,11 +346,11 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
 ## Among a list of files, extract the single-direction dipolar-date filename that matches with: direct transition,
 ## gamma point xor for the given list of k-points (indicated by their index).
 # @param filename: common part of the multiple filenames
-# @param kpoints: indicative number of kpoints in the simulation
+# @param kpoints: indicative number of 3D kpoints in the simulation (not the path)
 # @pram listoffiles: full list of the existing dipolar files
 # @param listofkpoints: list of interesting kpoints
 # @param CaptureDirectGap: bool for automatic detection.
-def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
+def ExtractFileForGivenKpoints(filename, kpoints, listoffiles, listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
     Header="[libString: ExtractFileForGivenKpoints()] "                                                                                                                                                    
     spatial_directions      = 3 #1 file for each direction. 
     #field_polarization_dir  = 0 #0: x, 1: y, 2: z. 
@@ -237,14 +363,14 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
         #degenerated_electrons_f=1
     
     # 2. Check consistency of the number of files with k
-    expected_num_files = spatial_directions * kpoints**3 #BUG: will never be good, since KpointPath is added after kPointGrid. Then we'll always fall into case of plotting all kpointpath. 
-    if(len(listoffiles) != expected_num_files):
-        print(Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files))
-    else: 
-        if(verbose==1): 
-            print(Header+"Info: number of files is correct.")
-        else: 
-            print("")
+    #expected_num_files = spatial_directions * kpoints**3 #BUG: will never be good, since KpointPath is added after kPointGrid. Then we'll always fall into case of plotting all kpointpath. 
+    #if(len(listoffiles) != expected_num_files):
+        #print(Header+"Warning: set of data may be incomplete. Expected number of files: "+str(expected_num_files))
+    #else: 
+        #if(verbose==1): 
+            #print(Header+"Info: number of files is correct.")
+        #else: 
+            #print("")
 
     # 3. Construct the big matrice of dipolar transition inside the Floquet Hamiltonian. 
     # WARNING: how to put m=-1, m=0, m=+1 ? does this order matter? 
@@ -293,8 +419,9 @@ def ExtractFileForGivenKpoints(filename, kpoints, listoffiles,  listofkpoints, C
             #gamma_point_files_index=[kpoints_index]
             ##gamma_point_files_index=[kpoints_index*spatial_directions, kpoints_index*spatial_directions+1, kpoints_index*spatial_directions+2]
     else: #we will here output all k-points corresponding to the direction of polarization. 
-        print((Header+"** Info: capturing all the indicated k-points..."))
-        print((Header+"** Info: number of selected k points: "+str(len(listofkpoints))))
+        if(verbose==1):
+            print((Header+"** Info: capturing all the indicated k-points..."))
+            print((Header+"** Info: number of selected k points: "+str(len(listofkpoints))))
         gamma_point_files_index=listofkpoints
         
         #print("** Info: number of k points: "+str(len(listoffiles)/3.))

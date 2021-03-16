@@ -49,4 +49,4 @@ export I_MPI_DAPL_TRANSLATION_CACHE=0 #fixes the MPI problem with Draco.
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
-sed -i.bak 's/FromScratch/#FromScracth/g' inp #Avoid to kill the data while restarting the job
+sed -i.bak 's/FromScratch/#FromScratch/g' inp #Avoid to kill the data while restarting the job
