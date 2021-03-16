@@ -69,7 +69,7 @@ BoxShape = parallelepiped
    kPointsValue | kPointsValue | kPointsValue
 %
 
-kpts=100
+kpts=1000 #sufficient density is necessary!! 100 is usually too low!
 %KPointsPath
 # Path1: Γ—M—K—Γ—A—L—H—A|L—M|H—K (Seekpath library)
 # Gamma | M | K | Gamma | A | L | H | A|L | M|K | H
