@@ -29,7 +29,7 @@ NumNodes=4
 Mission="AuGS"
 SampleLayers="1"
 SampleXY="1"
-kPoints="28 32" # "12 16 24"
+kPoints="16" #28 32" # "12 16 24"
 InitialTemperature="0e0"
 SmearingTe="0.025" #"1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !

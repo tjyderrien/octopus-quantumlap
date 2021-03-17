@@ -35,7 +35,7 @@ SampleXY="1"
 kPoints="24" # 16"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 AngleIncidence_list="0" # 0.25"
 # AngleIncidence_list="0.05 0.10 0.15 0.20"
