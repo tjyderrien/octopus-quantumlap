@@ -19,7 +19,7 @@ BoxShape = parallelepiped
 
 ParDomains = yes
 
-KPointsUseSymmetries = yes
+KPointsUseSymmetries = no #yes
 
 # %LatticeVectors
 #   1.  | 0.0 | 0.0
@@ -50,20 +50,35 @@ KPointsUseSymmetries = yes
 # Predicting which simulation axis will be broken during excitation. 
 theta_inc = 0. #angle of incidence of the laser
 ell = 0. #ellipticity
-%SymmetryBreakDir
- cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
-%
+# %SymmetryBreakDir
+#  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+# %
 #
 
 %KPointsGrid
   kPointsValue | kPointsValue | kPointsValue
 %
 
-# kpts=100
+kpts=100
 
-# %KPointsPath # Gamma | X | W | K | Gamma | L | U | W | L | K|U | X 
-# Consistency problem: if using the primitive cell for atmos, one has to introduced kPointsPath in b1b2b3 basis. If introducing cubic cell for atoms, one has to introduce KPointsPath in xyz basis. 
-# kpts | kpts | kpts | kpts | kpts 
+%KPointsPath
+# Consistency problem: if using the primitive cell for atmos, one has to introduced kPointsPath in b1b2b3 basis.
+# If introducing cubic cell for atoms, one has to introduce KPointsPath in xyz basis.
+### Proposition from MaterialsCloud.org
+# Suggested by k-point path generator: Γ—X—U|K—Γ—L—W—X (https://tools.materialscloud.org/seekpath/compute/process_structure/)
+# Since it is not contiguous, we attempt to put 0 on the discontinuity.
+kpts | kpts | 0 | kpts | kpts | kpts | kpts
+0     | 0     | 0     #Gamma
+0.5   | 0     | 0.5   #X
+0.625 | 0.25  | 0.625 #U|
+0.375 | 0.375 | 0.375 #K
+0     | 0     | 0     #Gamma
+0.5   | 0.5   | 0.5   #L
+0.5   | 0.25  | 0.75  #W
+0.5   | 0     | 0.5   #X
+
+### OLD PROPOSITION: # Gamma | X | W | K | Gamma | L | U | W | L | K|U | X
+# kpts | kpts | kpts | kpts | kpts
  # 0 | 0 | 0 #Gamma
  # 0.5 | 0 | 0.5 #X
 # 0.5 | 0.25 | 0.75 #W
@@ -75,7 +90,7 @@ ell = 0. #ellipticity
 # 0.375 | 0.375 | 0.75 #K
  # 0.5 | 0.5 | 0.5  #L
  #K|U ? 
-#%
+%
 
 # PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
@@ -90,7 +105,8 @@ ell = 0. #ellipticity
 SmearingFunction = fermi_dirac
 Smearing = SmearingTe*eV #300 K
 
-Output = geometry + dos
+Output = geometry + dos + matrix_elements
+OutputMatrixElements=dipole
 OutputFormat = xyz
 
 DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei

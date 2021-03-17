@@ -8,9 +8,9 @@ set -e
 DryRun=0
 # kPoints=16
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
-source $QuantumLaPsources/03-Bulk3D/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
 # Renaming inputs

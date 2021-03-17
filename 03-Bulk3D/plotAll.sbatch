@@ -36,7 +36,7 @@ pwd >> $QuantumLaPruns/LastRuns.log
 # module load plgrid/libs/python-scipy/1.0.1-python-2.7
 
 echo "===== SBATCH loads modules ===="
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName #works
 LoadEnvLibraries #fails?
 module list #nothing loaded...

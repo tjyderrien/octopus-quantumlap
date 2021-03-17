@@ -2,7 +2,7 @@
 silicon_tddft*
 *.err
 *.ou
-FHI-aims/
+01-ExamplesByMPSD/FHI-aims/
 restart/
 exec/
 static/
@@ -27,13 +27,15 @@ td.general/
 *.pyc
 *.old
 02-Slab2D/Si-*
-Benasque/05-PE/ConvergeSpacing/Mesh*
-Benasque/05-PE/ConvergeSphereRadius/Sphere*
+01-ExamplesByMPSD/Benasque/05-PE/ConvergeSpacing/Mesh*
+01-ExamplesByMPSD/Benasque/05-PE/ConvergeSphereRadius/Sphere*
 02-Slab2D/Obselete/
-Benasque/03-LinearReponse/CH3/Casida/casida/
+01-ExamplesByMPSD/Benasque/03-LinearReponse/CH3/Casida/casida/
 02-Slab2D/ConvergeMesh/Si-*
 02-Slab2D/ConvergeVacuum/Si-*
 isualizationWorkshop/instructions/C2H4_2D/data/
 *.gui
 *.session
 .idea/*
+doc/html/*
+doc/latex/*

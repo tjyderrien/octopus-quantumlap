@@ -3,49 +3,82 @@ Thibault J.-Y. Derrien <derrien@fzu.cz>
 HiLASE Centre, Institute of Physics (Prague, Czech Academy of Sciences)
 Max Planck Institute for Structure and Dynamics of Matter (Hamburg, Germany)
 
+# Installation
+
+## Simple install for beginners and developpers
+
+pip install -e git+https://bitbucket.org/tjyderrien/octopus-slabs/
+
+or
+
+1. git clone https://bitbucket.org/tjyderrien/octopus-slabs/
+
+2. git checkout Modules
+
+3. conda env create -f environment.yaml if you want to install a separate conda environment for this code
+
+4. conda activate octopus-slabs
+
+5. pip install -e <folder_with_setup.py> (can be "." or "octopus-slabs", but NOT "octopus_slabs").
+
+
+## Troubleshooting (Linux)
+
+If this fails, look for your install of Conda ("whereis conda" or "locate conda"). Usually it is practical to introduce this into .bashrc: export PATH=/opt/miniconda3/bin:$PATH
+
+
+## Simple uninstall for beginners
+
+pip uninstall octopus-slabs
+
 # Coding standards
 
-To converge and merge with Atomic Environment Simulation (ASE) in future, one adopts same coding standards detailed here: <https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html>
+To converge and merge with Atomic Environment Simulation (ASE) in future, we aim at adopting coding standards detailed 
+here: <https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html>
 
 # Description
 
 Private repository made to develop Octopus simulations for: 
-- MSCA-IF-2015/QuantumLaP (prof. Bulgakova / T. Derrien)
+- MSCA-IF-2015/QuantumLaP (prof. N. M. Bulgakova / T. Derrien)
 - CZ/BIATRI (prof. Bulgakova)
 - MSCA-RISE-2018/ATLANTIC (T. Derrien)
 
-WARNING: the repository spp-extended-theory is necessary to run the routines. Download the program here: git clone git@bitbucket.org:tjyderrien/spp-extended-theory.git.  
+WARNING: the repository "spp_extended_theory" is necessary to run the routines. Download the program here: 
+git clone git@bitbucket.org:tjyderrien/spp_extended_theory.git.  
 
-WARNING2: before having a successful usage, you might have to link some libraries by hand with symbolic links. #TODO: automake should do that for us someday. Or simply linking libraries properly in Python. 
+WARNING2: if you meet necessity of employing symbolic linking, write to developer! Solution for this is now understood.
 
 # Versioning information
 Versioning strategy is as follows. 
 1. Each new format/structure of database is a major change, and therefore defines a new version v0.1, v0.2, etc.
 2. New feature or retro-active modification of the code is a minor change, and defines a sub-version v0.1.2, etc.
 
-Since this logic would induce already be at v13 when enabling version tagging, it was decided to adopt this less hurry scheme.
-
 # Databases
 
-Several databases are available. For now, they are separated into :
-* Material, i.e., periodic lattice definition, 
-* Ground state k-space grid,
-* Ground state real-space grid,
-* Groud state Fermi temperature,
-* Employed xc functional.
+Several databases generated using this code are available. 
+Since v2.0, there is only 1 database per material. Each database contains all the TD-runs made with various functionals,
+various k-grid precision, mesh precision, pulses shapes, etc.  
 
 # Documentation
-dOxygen documentation is available in ./doc. Generate using doc/generate.sh. 
+Automatic dOxygen documentation can be generated in ./doc using doc/generate.sh. "Dot" picture utility is necessary to 
+generate the automatic diagrams.  
+
+Tutorials, documentation, books, etc can be found on http://www.quantumlap.eu/
 
 # Direction/Languages
 
-The routines are a combination of Python and Bash. 
-Of course, it may not be completely optimum and transition to ASE (Python) would be desirable in future.
+The routines are a combination of Python and Bash.
+Bash is more long-lasting investment in time. 
+Transition to ASE (Python) would be desirable in future.
+Python is more trendy and more modular, and helps to prepare transition to ASE.  
 
 # List of folders
-Warning: avoid putting simulations into the git tree. Since generated data can be huge (> TB), 
+Warning: don't upload simulations results into the git tree. Generated data can be huge (> TB) and Git is NOT meant 
+to contain binary data. One thing exists from Git to host binary data: Git-LFS.
 
-* FHI-aims/: Some examples for FHI-aims are provided. Molecular dynamics software to build up the lattice structures: FHI-aims. This folder shall be removed at some point. 
+At the moment, folders starting with a number contain materials & files to start heavy DFT and TDDFT computations. 
+
+Folders below octopus-slabs/octopus_slabs/ contain libraries and post-treatment scripts for analysis.   
 
 * 00-SelfMadeFiles: Files made from the octopus tutorials. 
 

@@ -2,7 +2,7 @@
 
 set -e
 
-source $QuantumLaPsources/machines.env
+source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
 echo "Massive job submitter for QuantumLaP."
@@ -29,7 +29,7 @@ NumNodes=4
 Mission="SiO2-dipole"
 SampleLayers="1"
 SampleXY="1"
-kPoints="8 16" # 12 16 20 24"
+kPoints="8" # 16" # 12 16 20 24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #PBE: gap=6.03 eV. #LDA does not contain 'O' specy!! Use PBE.". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
