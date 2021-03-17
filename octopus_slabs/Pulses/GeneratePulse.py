@@ -21,12 +21,14 @@
 # A routine provides the pulse envelope in the octopus:td_from_file-compatible format. 
 # See octopus-code.org. 
 
+import sys
+
 from scipy import integrate
 
-from libAtomicUnits import *
-from libDatabase import ExportToTxt
+from octopus_slabs.Libs.libAtomicUnits import *
+from spp_extended_theory.Libs.libDatabase import ExportToTxt
 from spp_extended_theory.Keldysh.libKeldyshPulses import PulseSmoothTopHatShape
-from spp_extended_theory.SimpleSPP.libSPP import *
+from spp_extended_theory.Libs.libSPP import *
 
 Header="[octopus_slabs: GeneratePulses.py] "
 DebugMode = 0 #0: outputs the envelope of the field for octopus. 1: output the fields and plots. 
