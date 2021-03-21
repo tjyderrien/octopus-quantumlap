@@ -2337,7 +2337,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   ShowInset       = False
   PlotValleysInset= True #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation  = False
-  AccountForOpticalIndex=True #True: account for linear optical spectrum. False: forget it. WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
+  AccountForOpticalIndex=False #True: account for linear optical spectrum. False: does not account. 
+  #WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
   global n0
   ContinuousKeldysh_Nb_Fields     =500  #100: not really sufficient, 500: Good for publication.
   ContinuousKeldysh_Nb_Wavelengths=3000  #500: not sufficient.        3000: Good for publication.
@@ -2671,6 +2672,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     logger.warning(Header+"** WARNING! TDLDA database is poorly defined in mid-IR !!")
     epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
   OpticalIndex = np.real(np.sqrt(epsilon_Si0))
+  OpticalIndex_disabled = np.divide(OpticalIndex, OpticalIndex)
+  
+  if(not AccountForOpticalIndex):
+      OpticalIndex = OpticalIndex_disabled 
     
   logger.info(Header+"Building comparison with Keldysh-Gruzdev...")
   #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
@@ -2758,11 +2763,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   # Main figure will account for field, but the inset should not account for field [why?]
   #if(not AccountForOpticalIndex):
-  OpticalIndex_disabled = np.divide(OpticalIndex, OpticalIndex)
   #INFO: provides the Keldysh analysis part for Fig3a (inset).
   #WARNING: here we have disabled the contribution of optical index. Then one obtain the match for gap resonances with TDDFT. 
   # However, it seems W_PI amplitude is good only if we account for optical index. How the optical index should be treated in Keldysh theory or in TDDFT ?
-  ContinuousKeldysh_Fields_Log=np.linspace(8,np.log10(np.max(FieldOfInterest)*np.sqrt(np.max(OpticalIndex))),ContinuousKeldysh_Nb_Fields)
+  if(not AccountForOpticalIndex): 
+      CoeffForDrawingValuesBeyond = 4 #we simply plot more values on grey lines, since TDDFT data have higher W_PI than Keldysh (when disregarding optical index correction)
+  else: 
+      CoeffForDrawingValuesBeyond=1 #optical index is sufficient to cover all the needed points in the plot
+  ContinuousKeldysh_Fields_Log=np.linspace(8,np.log10(CoeffForDrawingValuesBeyond*np.max(FieldOfInterest)*np.sqrt(np.max(OpticalIndex))),ContinuousKeldysh_Nb_Fields)
   ContinuousKeldysh_Fields    =np.power(10., ContinuousKeldysh_Fields_Log)
   
   for Efield1_compare in ContinuousKeldysh_Fields:
@@ -2976,9 +2984,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     ax2.set_xlabel('Photon energy (eV)')
     ax2.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
     ax22.set_xlim([h*c/wavelengths1_max/e, h*c/wavelengths1_min/e])
-  ax1.set_ylim([1E35,1E43])
-  ax2.set_ylim([1E35,1E43])
-  ax22.set_ylim([1E35,1E43])
+  if(AccountForOpticalIndex): 
+      ax1.set_ylim([1E35,1E43])
+      ax2.set_ylim([1E35,1E43])
+      ax22.set_ylim([1E35,1E43])
+  else: 
+      ax1.set_ylim([1E32,1E43])
+      ax2.set_ylim([1E32,1E43])
+      ax22.set_ylim([1E32,1E43])
   #ax1.set_xscale('log')
   #ax1.set_yscale('log')
   #ax1.grid()
@@ -4563,7 +4576,7 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     
     ### NOTE THIS IS FIG3 OF THE PRL
-    #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
+    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
     
     ## Checking what is happening in the mid-IR world. NOTE: NOT ENOUGH DATA? 
     #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
