@@ -19,6 +19,7 @@
 ## @package plotFloquetBandstructure
 # Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
 #import pdb
+import logging
 from matplotlib.cm   import get_cmap
 from scipy.constants import c, epsilon_0, h, e
 from scipy.special   import jn_zeros as BesselJZeros
@@ -57,12 +58,15 @@ Explanation of the number of method employed by Octopus for indexing the k-grid 
 - One k-point path is given at the end of the numbering. e.g. 1001 files remain for k-point path. 
 """
 
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='plotFloquetBandstructure.log', level=logging.INFO)
+
 ## Building materials dictionnary
 dirname=os.path.realpath(".") #catch the present directory absolute path
 
-print(("** Info: directory name: "+str(dirname)))
+logging.info(("** Info: directory name: "+str(dirname)))
 
-print("** Info: capturing the present material...")
+logging.info("** Info: capturing the present material...")
 try:
     if "03-Bulk3D" in dirname:
         material = "Si"
@@ -72,9 +76,9 @@ try:
         material = "Mo"
     elif "14-SiO2" in dirname: 
         material = "SiO2"
-    print("** Info: detected the material "+material)
+    logging.info("** Info: detected the material "+material)
 except:
-    print(Header+"Which material are you trying to analyze?")
+    logging.error(Header+"Which material are you trying to analyze?")
     exit()
     
 # material = "Au"  # SiO2 | Si
@@ -183,19 +187,19 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
         for i in np.arange(0, 10):  # TODO: replace with .strip() ?
             kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
             if (verbose == 1):
-                print(Header + "** Info: decreasing number of spaces")
-                print(kpoints_number_inp)
+                logging.info(Header + "** Info: decreasing number of spaces")
+                logging.info(kpoints_number_inp)
         kpoints_number_array = kpoints_number_inp.split("=")
         kpoints_number_array = kpoints_number_array[1].split(" ")
         kpoints = int(kpoints_number_array[1])
-        print(kpoints)
+        logging.info(kpoints)
     except IndexError: #recent octopus versions removed some info from info file
         kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
-        print(Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
+        logging.error(Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
                 kpoints))
         # exit()
 
-    print("Info: Capturing the file for the transition of interest.")
+    logging.info("Info: Capturing the file for the transition of interest.")
     #k_point_index_of_interest=1 #1 is GAMMA point. Points are sorted by distance to Gamma point. 
     # WARNING: this captures the GAMMA POINT. 
     gamma_point_files, gamma_point_files_index = libString.ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [k_point_index_of_interest],
@@ -209,7 +213,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
     ## 5. Extract eigen values at k-point <kpoints_index> from "info" file #WARNING: selecting first k-point (Gamma) here!
     eigenvalues = libString.GetEigenValue(gamma_point_files_index[0], Z_electrons + unocc_states, "info", verbose)
     if (verbose == 1):
-        print(eigenvalues)
+        logging.debug(eigenvalues)
 
     # tunneling_stops=[]
     if (PlotFloquetBandStructure):
@@ -320,11 +324,11 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
             # for BesselRootsID in np.arange(1,BesselRootsID_max):
             BesselZeros = BesselJZeros(MPI_number, BesselRootsID_max)
             # print "BesselRoot #"+str(BesselRootsID_max)
-            print("BesselJZeros(" + str(MPI_number) + ", " + str(BesselRootsID_max) + ")=" + str(BesselZeros))
+            logging.debug("BesselJZeros(" + str(MPI_number) + ", " + str(BesselRootsID_max) + ")=" + str(BesselZeros))
             for RootNumber in np.arange(0, np.size(BesselZeros)):  # NOTE: we mix the various roots of Bessel function
                 tunneling_stops.append(np.divide(matrixelements, BesselZeros[
                     RootNumber]))  # = omega**2/E. #NOTE: concatenation of all the roots of Bessel.
-            print(np.shape(tunneling_stops))
+            logging.info(np.shape(tunneling_stops))
             # print tunneling_stops #omega**2/E (in at.u.)
             # plt.figure()
             plt.matshow(np.log10(tunneling_stops[MPI_number]))  # omega**2/E
@@ -337,7 +341,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
             figurename = str(material) + "-BesselTunnelingStop-" + str(kpoints) + "MPI-" + str(
                 round(MPI_number, 0)) + "-BesselRoot-" + str(BesselRootsID_max)
 
-            print("Plotting couples of (E, omega) that blocks transition with " + str(MPI_number) + " photons.")
+            logging.info("Plotting couples of (E, omega) that blocks transition with " + str(MPI_number) + " photons.")
             # for wavelength_SI in wavelength_SI_t: #for each wavelength
             plt.figure()
 
@@ -388,15 +392,15 @@ def MultipleKpointsOneField(field):  # {{{
     try:
         kpoints_number_inp = libString.LookUpStringInFile("info", "Total number of k-points")
         kpoints_total_number = int(kpoints_number_inp.split("=")[1].strip())  # conversion to integer. Contains the total number of kpoints FOUND in the run.
-        print(Header+"** Info: total number of k-points = "+str(kpoints_total_number))
+        logging.info(Header+"** Info: total number of k-points = "+str(kpoints_total_number))
     except:
-        print(Header+"** Error: total number of k-points could not be detected.")
+        logging.error(Header+"** Error: total number of k-points could not be detected.")
         exit()
 
 
     # Loading the bandstructure given by octopus (contains: kpointpath_index, kx, ky, kz, eigenvalues)
     bands = np.loadtxt(bandstructure, skiprows=1)
-    print((len(bands)))
+    logging.info((len(bands)))
     # bands_t=np.zeros()
     # exit()
     # 1. Build list of kpoint-index employed by octopus in <info> from the <bandstructure>.
@@ -432,9 +436,10 @@ def MultipleKpointsOneField(field):  # {{{
          try:
              kpoints3D_number=libString.CaptureKPointGridSizeFromINP("../inp")
          except: #if file was not found
-             print(Header+"** Warning: could not capture size of K-point grid in INP file. Most probably absent.")
+             logging.warning(Header+"** Warning: could not capture size of K-point grid in INP file. Most probably absent.")
              kpoints3D_number = kpoints_manual
-    print(Header+"**          Employing manual k-point number as last resort: "+str(kpoints3D_number))
+             logging.warning(Header+"**          Employing manual k-point number as last resort: ")
+    logging.info(Header+"** Number of 3D kpoints: "+str(kpoints3D_number))
 
     # Capture the total number of k-points (available in info file)
     ## Captures the number of 3D k-points in the 2D-path
@@ -447,9 +452,9 @@ def MultipleKpointsOneField(field):  # {{{
                                 #kpoints3D_number ** 3 + KpointPath_len) #TODO: KpointPath_len should be fetched automatically!!
     # NOTE: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id. I checked position of repeated Gamma points in the path. Dipolar elements were stricly equal at these positions. 
     # breakpoint()
-    print(("KPointPath_list: " + str(len(KpointPath_list))))
+    logging.info(("KPointPath_list: " + str(len(KpointPath_list))))
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
-    print("Info: Capturing the files for the transition at given k-points.")
+    logging.info("Info: Capturing the files for the transition at given k-points.")
     k_point_files, k_point_files_idx = libString.ExtractFileForGivenKpoints(filename, kpoints3D_number, listoffiles,
                                                                         KpointPath_list, CaptureDirectGap, verbose,
                                                                         field_polarization_dir)
@@ -507,8 +512,8 @@ def MultipleKpointsOneField(field):  # {{{
     idx_t = []
     # print(np.shape(idx_t))
     # exit()
-    print((Header + "** Debug: size of k_point_files: " + str(len(k_point_files))))
-    print((Header + "         size of k_point_files_idx: " + str(len(k_point_files_idx))))
+    logging.debug((Header + "** Debug: size of k_point_files: " + str(len(k_point_files))))
+    logging.debug((Header + "         size of k_point_files_idx: " + str(len(k_point_files_idx))))
     # print(Header+"         content of k_point_files: "+str(k_point_files))
     # print(Header+"         content of k_point_files_idx: "+str(k_point_files_idx))
 
@@ -518,26 +523,26 @@ def MultipleKpointsOneField(field):  # {{{
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
         # for k_point_file in k_point_files: #going through each kpoint. We here restrict the Floquet computation to the path of k-points.
         if(verbose==1):
-            print((Header + "** Info: k_idx in path: " + str(k_idx)))
-            print((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
-            print(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
-            print(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
+            logging.debug((Header + "** Info: k_idx in path: " + str(k_idx)))
+            logging.debug((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
+            logging.debug(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
+            logging.debug(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
 
         # print(Z_electrons, unocc_states, k_point_file, Complex_valued_ME)
 
         ## 5. Extract eigen values at k-point <kpoints_index> from "info" file
         if(verbose==1):
-            print(("** Fetching eigenvalues for k-point " + str(k_point_files[k_idx])))
+            logging.debug(("** Fetching eigenvalues for k-point " + str(k_point_files[k_idx])))
         eigenvalues = libString.GetEigenValue(k_point_files_idx[k_idx], Z_electrons + unocc_states, "info", verbose)
         if(verbose==1):
-            print(eigenvalues)
+            logging.debug(eigenvalues)
 
         # Plot the band structure at rest using provided k-point path
         if(verbose==1):
-            print((Header + "** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+            logging.debug((Header + "** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
         # idx_t=eigenvalues
         if(verbose==1):
-            print((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+            logging.debug((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
 
         # X: we shall plot as function of bands[0,:]. 
         #ax2.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1, label="Eq.")
@@ -546,7 +551,7 @@ def MultipleKpointsOneField(field):  # {{{
 
         ## Loading matrix elements for the k-point.
         if(verbose==1):
-            print((Header + "** Info: fetching matrix elements."))
+            logging.info((Header + "** Info: fetching matrix elements."))
         matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]],
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field

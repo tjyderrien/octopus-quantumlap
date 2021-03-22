@@ -620,10 +620,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     Eext_SI    = Ein_SI[:minLength-1] + PolarizationField_SI[:minLength]/epsilon_0 
     EextMinus_SI= Ein_SI[:minLength-1] - PolarizationField_SI[:minLength]/epsilon_0
 
-    Eext_AU_max=Eext_AU[minLength/2] #this gives the amplitude of the corresponding external field 
-    EextMinus_AU_max=EextMinus_AU[minLength/2]
-    Eext_SI_max=Eext_SI[minLength/2] #this gives the amplitude of the corresponding external field
-    EextMinus_SI_max=EextMinus_SI[minLength/2] #this gives the amplitude of the corresponding external field
+    Eext_AU_max=Eext_AU[minLength//2] #this gives the amplitude of the corresponding external field 
+    EextMinus_AU_max=EextMinus_AU[minLength//2]
+    Eext_SI_max=Eext_SI[minLength//2] #this gives the amplitude of the corresponding external field
+    EextMinus_SI_max=EextMinus_SI[minLength//2] #this gives the amplitude of the corresponding external field
 
     print((Header+"** Info: maximum external field +P (a.u.): "+str(float(Eext_AU_max))))
     print((Header+"** Info: maximum external field -P (a.u.): "+str(float(EextMinus_AU_max))))
