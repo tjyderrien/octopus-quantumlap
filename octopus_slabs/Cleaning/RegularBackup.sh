@@ -5,7 +5,7 @@
 
 # set -e
 
-source $QuantumLaPsources/Cleaning/TarResults.sh
+source $QuantumLaPsources/octopus_slabs/Cleaning/TarResults.sh
 source $QuantumLaPsources/02-Slab2D/functions.sh
 cd $QuantumLaPruns
 
