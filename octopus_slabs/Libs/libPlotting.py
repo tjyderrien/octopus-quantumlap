@@ -735,9 +735,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
             print((Header+"** ERROR: capture of end of pulse is not managed."))
             raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
-        timeFarEnough = Time_SI_to_AU(duration_tau_1) #AU #VALID
+        timeFarEnough = au.Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
-            timeFarEnough += duration_tau_2 + Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
+            timeFarEnough += duration_tau_2 + au.Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
 
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
