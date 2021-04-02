@@ -517,7 +517,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             tau_text=""
 
-        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted, Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
+        plot_field, = ax1.plot(np.multiply(xscale,Intensity_sorted), Ne_final_sorted,
+                               Colors[pulse_value]+Symbols[pulse_value], linewidth=LineWidth[pulse_value], label=r'$n_{\mathrm{exc}}^{\mathrm{TDDFT}}$'+tau_text)
         plot1 += [plot_field]
         #plt.xlim(x_min[pulseWavelength])
 

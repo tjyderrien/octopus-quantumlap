@@ -98,10 +98,10 @@ num_wavelengths = 100
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 2  # number of electric field values for the plotting
-Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
+num_fields = 30  # number of electric field values for the plotting
+Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[1E9, 1E10]
+SelectedFieldsForPlotting=[0.5E9, 0.75E9, 1E9]
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
@@ -113,7 +113,7 @@ spin_occupation = 2  # 1: levels with same spin should split, 2: levels of diffe
 UseRefractiveIndex = False  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
 PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
-SizeX = 12.; SizeY=12.
+SizeX = 8.2; SizeY=6.
 LogPlotting = 1
 verbose = 0  # Show info and debug messages.
 SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
@@ -185,7 +185,12 @@ KpointPath_len = Materials[material]['KpointPath_len']
 # print
 K_labels = Materials[material]['K_labels']
 
+# photon_energy_SI_t=np.linspace(h*c/wavelength_SI_max/e,h*c/wavelength_SI_min/e, num_wavelengths) #eV
 wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_wavelengths)
+# wavelength_SI_t = h*c / e / photon_energy_SI_t #meters
+# wavelength_SI_t = wavelength_SI_t[::-1] #to keep it in increasing order
+
+logger.info(wavelength_SI_t)
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
@@ -345,7 +350,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # ax2.set_xlabel("Pump wavelength (nm)")
         ax2.set_xlabel("Pump photon energy (eV)")
         ax2.set_ylabel("Energy levels (eV)")
-        ax2.set_xscale("log")
+
+        # ax2.set_xscale("log")
 
         # replicas_data(Efield_SI, wavelength_t)
         # Select eigenvalues where field is above a certain value
@@ -366,9 +372,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 
             FloquetKeldysh_X = h*c/FloquetKeldysh_X / e #eV
 
-            FloquetKeldysh_Y = au.Energy_Hartree_to_eV(FloquetKeldysh.values)
+            FloquetKeldysh_Y = np.reshape(au.Energy_Hartree_to_eV(FloquetKeldysh.values), (1,np.size(FloquetKeldysh_X)))
             logger.debug(np.shape(FloquetKeldysh_X), np.shape(FloquetKeldysh_Y))
-            ax2.scatter(FloquetKeldysh_X,FloquetKeldysh_Y, s=SizeOfDots,
+            ax2.scatter(FloquetKeldysh_X, FloquetKeldysh_Y[0], s=SizeOfDots,
                                     label="Floquet replicates")
             color_idx+=1
         ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
