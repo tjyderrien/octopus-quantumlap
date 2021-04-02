@@ -44,6 +44,7 @@ from octopus_slabs.Libs.libLogging import init_logger
 from spp_extended_theory.Keldysh.libKeldysh import *
 # from libKeldysh import *
 from spp_extended_theory.Libs import libDatabase
+from spp_extended_theory.Libs import libImportOpticalData as libOpticalData
 
 #logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 #logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()]) #filename='plotFinalQuantities.log', 
@@ -349,11 +350,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     # EnableKeldysh     = True
     # EnableStarkEffect =False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
     PlotSaturation    =False
-    ShowPulseDurations=True #True: show the pulse duration in caption. False: hides it (for saving visual space)
+    ShowPulseDurations=False #True #: show the pulse duration in caption. False: hides it (for saving visual space)
     WithOpticalIndex  =True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
-    SidePanels        =True #True for PRL Fig2.
-    ShowSigmaRates    =2 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
-    #EnableInsetMagnification=True #this is defined as function of wavelength below
+    SidePanels        =True #True: [a] | [b]. False: a above b. 
+    ShowSigmaRates    =1 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
+    EnableInsetMagnification=False #this is defined as function of wavelength below
     PlotVirtualExcitation = False #Not advised! This is not a real observable.
 
     Ntotal=5.0E28
@@ -413,11 +414,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
         #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 29e-15, IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
-        EnableInsetMagnification=WithOpticalIndex #Show magnification only for matching results
+        #EnableInsetMagnification #Show magnification only for matching results
     if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
         #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
@@ -425,7 +426,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
-        EnableInsetMagnification=False
+        #EnableInsetMagnification=False
     if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
         #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
@@ -433,7 +434,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
-        EnableInsetMagnification=False
+        #EnableInsetMagnification=False
     if(pulseWavelength==483e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
         #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
@@ -441,7 +442,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
-        EnableInsetMagnification=False
+        #EnableInsetMagnification=False
 
     ## NOTE: For clarity, I will filter results that are supplementary for the paper's figures.
     ## Let's remove the results of 1600 nm with 20 fs pulse duration. We can keep 30 fs.
@@ -457,7 +458,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             ncols=1
         else:
             plotA=211; plotB=212;#2 rows figure
-            ncols=3
+            ncols=2
             #plt.figure(figsize=(SizeY, SizeX/3.*2.))
         plt.figure(figsize=(SizeX/3.*2.,SizeY))
     else:
@@ -1447,6 +1448,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #plt.ylim((wPI_min[pulseWavelength],1E45)) #we adjust min of the wPI as function of wavelength
     #plt.xlim(x_min[pulseWavelength])
     ax1.set_xlim(x_min[pulseWavelength])
+    ax1.set_ylim([5E20, 1E30])
     ax2.set_xlim(x_min[pulseWavelength])
     ax2.set_ylim([wPI_min[pulseWavelength],wPI_max[pulseWavelength]]) #this removes subticks without asking
     if(EnableInsetMagnification):
@@ -2340,8 +2342,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   AccountForOpticalIndex=False #True: account for linear optical spectrum. False: does not account. 
   #WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
   global n0
-  ContinuousKeldysh_Nb_Fields     =500  #100: not really sufficient, 500: Good for publication.
-  ContinuousKeldysh_Nb_Wavelengths=3000  #500: not sufficient.        3000: Good for publication.
+  ContinuousKeldysh_Nb_Fields     =100  #100: not really sufficient, 500: Good for publication.
+  ContinuousKeldysh_Nb_Wavelengths=500  #500: not sufficient.        3000: Good for publication.
   Use128bitsFloats=False; 
   OpticalDatabase="Palik" #"TDLDA" (down to 2 eV, then extrapolation, very imprecise!! | "Palik" (super wide)
   InterpolationMethod="nearest" #"UnivariateSpline", "cubic", "linear", 'nearest'
@@ -2379,26 +2381,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   EffectiveMass={FieldOfInterest[i]:meff_HighField for i in range(0,NumberOfColors)}
   # Simple pulse, single color
   
-  def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
-    import os
-    DataFile=os.environ["HOME"]+"/Documents/spp-extended-theory/spp_extended_theory/SimpleSPP/Database/Si-Palik" #Not system independent
-    DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
-    wavelengths_source  = DataArray[:,0]
-    if(np.min(np.diff(wavelengths_source))==0e0): 
-        logger.error(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ")
-        #print np.diff(wavelengths_source)
-        exit()
-    OpticalN            = DataArray[:,1]
-    OpticalK            = DataArray[:,2]
-    order = 1
-    fni = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalN, k=order)
-    fki = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalK, k=order)
-    OpticalN_new = fni(wavelengths)
-    OpticalK_new = fki(wavelengths)
-    epsilon = np.power(OpticalN_new+np.multiply(1j, OpticalK_new), 2)
-    #epsR = np.real(epsilon); epsC = np.imag(epsilon)
-    return epsilon
-  #}}}
+
 
   ### TODO: MOVE TO libPlotting.py to access it for plotTimeKeldysh and plotTimeHHG.py. 
   def ImportPalikDatabase_epsilon_twofiles_eV(wavelengths, DataFile='Database/Si-TDLDA'): #{{{
@@ -2667,7 +2650,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
 
   ### Capturing the dielectric permittivity in experimental or TDLDA database
   if(OpticalDatabase == "Palik"):
-    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
+    epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelengths1_Keldysh) ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
   elif(OpticalDatabase == "TDLDA"):
     logger.warning(Header+"** WARNING! TDLDA database is poorly defined in mid-IR !!")
     epsilon_Si0 = ImportPalikDatabase_epsilon_twofiles_eV(wavelengths1_Keldysh, "Database/Si-TDLDA")
@@ -2681,9 +2664,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #wavelengths1_min = np.min(wavelengths1); wavelengths1_max = np.max(wavelengths1)
   logger.info(Header+"** INFO TEST: Dielectric permittivity of Si at 800 nm")
   logger.info("[Palik] | [Reining et al PRL 2002]")
-  logger.info("400 nm: "+str(ImportPalikDatabase_epsilon_fromNK(400e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(400e-9, "Database/Si-TDLDA")))
-  logger.info("800 nm: "+str(ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
-  logger.info("3200 nm: "+str(ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
+  logger.info("400 nm: "+str(libOpticalData.ImportPalikDatabase_epsilon_fromNK(400e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(400e-9, "Database/Si-TDLDA")))
+  logger.info("800 nm: "+str(libOpticalData.ImportPalikDatabase_epsilon_fromNK(800e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(800e-9, "Database/Si-TDLDA")))
+  logger.info("3200 nm: "+str(libOpticalData.ImportPalikDatabase_epsilon_fromNK(3200e-9))+" | "+str(ImportPalikDatabase_epsilon_twofiles_eV(3200e-9, "Database/Si-TDLDA")))
     
          
   for Efield1_compare in FieldOfInterest: #{{{ #INFO: good for Fig3b. 
@@ -3065,8 +3048,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
     logger.info("nu: "+str(nu)) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
-    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## TODO: replace by LDA !
-    logger.debug("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
+    epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ## TODO: replace by LDA !
+    logger.debug("Dielectric permittivity of Si at 800 nm : "+str(libOpticalData.ImportPalikDatabase_epsilon_fromNK(800e-9)))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
@@ -3614,28 +3597,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   plt.savefig(filename+'.eps')
   plt.savefig(filename+'.png')
   
-  ## Imports the optical data from Palik database
-  # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
-  def ImportPalikDatabase_epsilon_fromNK(wavelengths, DataFile="Si-Palik"): #{{{
-      DataArray           = np.loadtxt(DataFile, delimiter="\t", skiprows=4)
-      wavelengths_source  = DataArray[:,0]
-      if(np.min(np.diff(wavelengths_source))==0e0): 
-          logger.warning(Header+"Error in wavelengths_source. Careful! Palik book combines different optical data, hence there can be overlap, sometimes! It must be removed to be imported properly here. ")
-          #print np.diff(wavelengths_source)
-          exit()
-      OpticalN            = DataArray[:,1]
-      OpticalK            = DataArray[:,2]
-      order = 1
-      fni = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalN, k=order)
-      fki = InterpolatedUnivariateSpline(wavelengths_source*1E-10, OpticalK, k=order)
-      OpticalN_new = fni(wavelengths)
-      OpticalK_new = fki(wavelengths)
-      epsilon = np.power(OpticalN_new+np.multiply(1j, OpticalK_new), 2)
-      #epsR = np.real(epsilon); epsC = np.imag(epsilon)
-      return epsilon
-  #}}}
-  
-  ## Computes the free carrier energy contained in the volume <SampleVolume>.  
+  ## Computes the free carrier energy contained in the volume <SampleVolume>.
   def EnergyFromFreeCarrierAbsorption(pulseDuration, wavelengths1_sorted, Efield, Ne_final_sorted, w_PI_sorted, Egap_SI = 2.56*e, meff = 0.2226, SampleVolume=2 * 5E28**-1): #{{{
     # dEnergy/dt = alpha * intensity + ( n har omega - Egap ) x sigma_n I^n
     # where we approach sigma_n I^n by pulse-averaged w_PI 
@@ -3645,8 +3607,8 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     nu = 6e-15**-1 #1.1 fs: Solowski-Tinten adjustment. Can also use the one from Shunsuke Sato, PRB 2015 (Numerical pump probe)
     logger.info("nu: "+str(nu)) #Valid
     #epsilon_Si0 = 13.64 + 0.048j #TODO: get the optical data in extended spp theory for Si
-    epsilon_Si0 = ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ##TODO: replace by LDA !
-    logger.debug("Dielectric permittivity of Si at 800 nm : "+str(ImportPalikDatabase_epsilon_fromNK(800e-9)))
+    epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelengths1_sorted) ##TODO: replace by LDA !
+    logger.debug("Dielectric permittivity of Si at 800 nm : "+str(libOpticalData.ImportPalikDatabase_epsilon_fromNK(800e-9)))
     omega_p2    = np.multiply(Ne_final_sorted, e**2 / m_e / meff / epsilon_0)
     #print "omega_p: "+str(np.sqrt(omega_p2)) # Valid
     # NOTE: THIS IS A CHOICE. WE JUST HAVE TO BE CONSISTENT ON WHICH PROCESS WE WISH FOR. 
@@ -4500,8 +4462,7 @@ def plot_Zhukov_SingleColor_SiO2(): #{{{
 #}}}                                            
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
-def plot_Zhukov_SingleColor_LDA(): #{{{
-
+def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
     #Egap_SI = 1.5*e #Manually adjusted gap. 
@@ -4576,7 +4537,8 @@ def plot_Zhukov_SingleColor_LDA(): #{{{
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     
     ### NOTE THIS IS FIG3 OF THE PRL
-    plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
+    if(EnableMultiwavelengthPlot):
+        plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9)
     
     ## Checking what is happening in the mid-IR world. NOTE: NOT ENOUGH DATA? 
     #plotEffectOfWavelength_Tolerance(PlottingTable, 1E-4, 60e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI, Egap_SI_indirect, 3e-6, 25e-6)
@@ -4661,9 +4623,7 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     
     for wavelength in [800e-9]: #, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
       #try:
-      plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis,
-                                          ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon,
-                                          Functional="TB09")
+      plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
       #except:
         #print Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm."
     
@@ -4860,60 +4820,61 @@ def plot_Vorobyev_Au(material):
 #plotEffectOfDoublePulse_sameAmplitude_samePulseDurations(PlottingTable)
 #plotEffectOfDoublePulse_diffWavelengths(PlottingTable)
 
+# Execute only if called directly from console
+if(__name__=="__main__"):
+    #====================================== EXECUTION ZONE ============================
 
-#====================================== EXECUTION ZONE ============================
+    print("Welcome to Octopus-slab plotter.")
+    print("================================\n")
+    print("** Info: Automatic detection of the routine to run...")
 
-print("Welcome to Octopus-slab plotter.")
-print("================================\n")
-print("** Info: Automatic detection of the routine to run...")
+    dirname=os.path.realpath("../02-Slab2D")
 
-dirname=os.path.realpath("../02-Slab2D")
+    logger.info("** Info: directory name: "+str(dirname))
 
-logger.info("** Info: directory name: "+str(dirname))
+    ## Zhukov single color plotting [Phys. Rev. B]
 
-## Zhukov single color plotting [Phys. Rev. B]
+    if "BicolorSummaries" in dirname:
+        ## Zhukov bicolor plotting
+        logger.info(Header+"** Info: running bicolor analyses of Si LDA...")
+        plot_Zhukov_BicolorMaps() #LDA gap
+        
+    elif "03-Bulk3D" in dirname:
+        ## NOTE: this is rather for forcing usage
+        #plot_Zhukov_SingleColor_LDA()
+        # plot_Zhukov_SingleColor_TB09()
+        ## NOTE: this is fine for local usage
+    #    exit()
+        if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
+            # since database construction now contains functionals. Better solution would be to detect the
+            # available functional, to map the gap and effective masses to a database.
+            # Is NOMAD capable to do that? And ASE?
+            logger.info(Header+"** Info: detected TB09 computations for Si...")
+            plot_Zhukov_SingleColor_TB09()
+        else:
+            logger.info(Header+"** Info: running LDA single-color Keldysh analyses...")
+            plot_Zhukov_SingleColor_LDA()
 
-if "BicolorSummaries" in dirname:
-    ## Zhukov bicolor plotting
-    logger.info(Header+"** Info: running bicolor analyses of Si LDA...")
-    plot_Zhukov_BicolorMaps() #LDA gap
-    
-elif "03-Bulk3D" in dirname:
-    ## NOTE: this is rather for forcing usage
-    #plot_Zhukov_SingleColor_LDA()
-    # plot_Zhukov_SingleColor_TB09()
-    ## NOTE: this is fine for local usage
-#    exit()
-    if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
-        # since database construction now contains functionals. Better solution would be to detect the
-        # available functional, to map the gap and effective masses to a database.
-        # Is NOMAD capable to do that? And ASE?
-        logger.info(Header+"** Info: detected TB09 computations for Si...")
-        plot_Zhukov_SingleColor_TB09()
-    else:
-        logger.info(Header+"** Info: running LDA single-color Keldysh analyses...")
-        plot_Zhukov_SingleColor_LDA()
+    elif "09-Au" in dirname: 
+        logger.info((Header+"** Info: detected computations for Au..."))
+        plot_Vorobyev_Au('Au')
+    elif "06-Mo" in dirname: 
+        logger.info((Header+"** Info: detected computations for Mo..."))
+        plot_Vorobyev_Au('Mo')
+    elif "14-SiO2" in dirname: 
+        logger.info((Header+"** Info: detected simulation for SiO2..."))
+        plot_Zhukov_SingleColor_SiO2()
+    else: 
+        logger.warning("Other routines are available, but may not be up to date.")
+        
+    ## Rubio shift current plotting
+    #plot_ShiftCurrents()
 
-elif "09-Au" in dirname: 
-    logger.info((Header+"** Info: detected computations for Au..."))
-    plot_Vorobyev_Au('Au')
-elif "06-Mo" in dirname: 
-    logger.info((Header+"** Info: detected computations for Mo..."))
-    plot_Vorobyev_Au('Mo')
-elif "14-SiO2" in dirname: 
-    logger.info((Header+"** Info: detected simulation for SiO2..."))
-    plot_Zhukov_SingleColor_SiO2()
-else: 
-    logger.warning("Other routines are available, but may not be up to date.")
-    
-## Rubio shift current plotting
-#plot_ShiftCurrents()
+    ## Preparing HHG spectra dependencies for Hamed Merdji
+    #plot_HHG()
 
-## Preparing HHG spectra dependencies for Hamed Merdji
-#plot_HHG()
+    ## Preparing plots for Vorobyev
 
-## Preparing plots for Vorobyev
-
-print(Header+"End of program.")
-#exit()
+    print(Header+"End of program.")
+    #exit()
 

@@ -33,11 +33,13 @@ import octopus_slabs.Libs.libAtomicUnits     as au
 
 from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
 from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
+import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False #starts to be too consuming (800 MB per EPS file...)
+StorePlot = False #we generate so many figures with this... Let's avoid this at the moment.
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -84,13 +86,18 @@ except:
 # material = "Au"  # SiO2 | Si
 
 # exit()
-wavelength_SI_t = [800e-9]  # , 400e-9] #484e-9, 343e-9] #10e-6
+# wavelength_SI_t = [800e-9, 400e-9]  # , 400e-9] #484e-9, 343e-9] #10e-6
 
 num_time_steps = 100 #should be small enough to ensure convergence
-num_fields = 300  # number of electric field values for the plotting
 
+num_wavelengths = 2
+wavelength_SI_min = 800e-9
+wavelength_SI_max = 1000e-9
+
+num_fields = 300  # number of electric field values for the plotting
 Efield_SI_min = IntensityToField(1E10 * 1E4)
 Efield_SI_max = IntensityToField(1E19 * 1E4)
+
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
 
@@ -98,13 +105,13 @@ Complex_valued_ME = False #True for non-Hermitian eigenvalues?
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 spin_occupation = 2  # 1: levels with same spin should split, 2: levels of different spins don't split.
 
-Renormalize = False  # True: limits the plots maximum as function of wavelength
+UseRefractiveIndex = False  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
 PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 12.; SizeY=12.
 LogPlotting = 1
 verbose = 0  # Show info and debug messages.
-SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields.
+SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
 BesselRootsID_max = 10
 
@@ -126,7 +133,7 @@ OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.
 
 OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
 
-# In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field. 
+# In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1, 2, 3], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si,
@@ -136,7 +143,7 @@ Si = {'MPI_numbers': [1, 2, 3], 'kpoints_manual': 16,
 SiO2 = {'MPI_numbers': [1, 2], 'kpoints_manual': 8,
         'nb_atoms': 1, 'unocc_states': 6,
         'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2,
-        'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301, 
+        'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
         'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$']}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
@@ -159,8 +166,8 @@ Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all ma
 nb_atoms = Materials[material]['nb_atoms']  # 1 #number of atoms #we actually treat a bulk, so it's one.
 Z_electrons = Materials[material][
     'Z_electrons']  # SiO2: 24 electrons. #Si: 4 #number of modeled valence electrons in the simulation box
-# (3p)² x 2 for Si (biatomic) lattice. 
-# SiO2 ? matrix is 30 e- states, 6 unocc. 
+# (3p)² x 2 for Si (biatomic) lattice.
+# SiO2 ? matrix is 30 e- states, 6 unocc.
 unocc_states = Materials[material][
     'unocc_states']  # 4 #SiO2: 6. #Si: 4. This is defined in the inp. If not, then it's zero.
 
@@ -173,17 +180,18 @@ KpointPath_len = Materials[material]['KpointPath_len']
 # print
 K_labels = Materials[material]['K_labels']
 
+wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_wavelengths)
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
-# @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think ! 
-def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
-    Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "                                                                   
+# @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
+def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
+    Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
-    ## Capturing the Gamma k-point file in results of Octopus 
+    ## Capturing the Gamma k-point file in results of Octopus
     # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
     try:
         kpoints_number_inp = libString.LookUpStringInFile("info",
-                                                "Dimensions of the k-point grid")  # WARNING: it seems this has changed. 
+                                                          "Dimensions of the k-point grid")  # WARNING: it seems this has changed.
         for i in np.arange(0, 10):  # TODO: replace with .strip() ?
             kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
             if (verbose == 1):
@@ -196,19 +204,19 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
     except IndexError: #recent octopus versions removed some info from info file
         kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
         logging.error(Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
-                kpoints))
+            kpoints))
         # exit()
 
     logging.info("Info: Capturing the file for the transition of interest.")
     #k_point_index_of_interest=1 #1 is GAMMA point. Points are sorted by distance to Gamma point. 
     # WARNING: this captures the GAMMA POINT. 
     gamma_point_files, gamma_point_files_index = libString.ExtractFileForGivenKpoints(filename, kpoints, listoffiles, [k_point_index_of_interest],
-                                                                            CaptureDirectGap, verbose,
-                                                                            field_polarization_dir)
+                                                                                      CaptureDirectGap, verbose,
+                                                                                      field_polarization_dir)
     #breakpoint()
 
     matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files,
-                                                            Complex_valued_ME)
+                                                                      Complex_valued_ME)
 
     ## 5. Extract eigen values at k-point <kpoints_index> from "info" file #WARNING: selecting first k-point (Gamma) here!
     eigenvalues = libString.GetEigenValue(gamma_point_files_index[0], Z_electrons + unocc_states, "info", verbose)
@@ -216,14 +224,18 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
         logging.debug(eigenvalues)
 
     # tunneling_stops=[]
-    if (PlotFloquetBandStructure):
-        for wavelength_SI in wavelength_SI_t:
+    epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
+    RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
 
-            RefractiveIndex = OpticalIndex[wavelength_SI]
+    if (PlotFloquetBandStructure):
+        # for wavelength_SI in wavelength_SI_t:
+        for wavelength_idx in np.arange(0,len(wavelength_t)):
+            wavelength_SI = wavelength_t[wavelength_idx]
+            OpticalIndex = RefractiveIndex_t[wavelength_idx] #This is a continuum formulation from Palik data
 
             ## Renormalize the intensity range using refractive index
-            if (Renormalize):
-                Efield_SI_max = Efield_SI_max / np.sqrt(OpticalIndex[wavelength_SI])
+            if (UseRefractiveIndex):
+                Efield_SI_max = Efield_SI_max / np.sqrt(OpticalIndex) #field becomes wavelength dependent?
 
             if (LogPlotting):
                 Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
@@ -245,10 +257,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
                     # Plotting using external intensity, whence internal intensity acts on the sample
                     if (PlotIntensity):
                         unitx = 1E-4
-                        field = 0.5 * c * epsilon_0 * field ** 2 * RefractiveIndex
+                        field = 0.5 * c * epsilon_0 * field ** 2 * OpticalIndex
                     else:
                         unitx = 1E0
-                        field = field * np.sqrt(RefractiveIndex)
+                        field = field * np.sqrt(OpticalIndex)
                     plt.scatter(np.ones(np.size(replicas)) * field * unitx, au.Energy_Hartree_to_eV(np.real(replicas)),
                                 c="red", s=SizeOfDots,
                                 label="Floquet replicates")  # these are the interesting lines for the final plot
@@ -258,9 +270,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
                     # tunneling_stops.append(np.sqrt(dipoles * field_AU / BesselJZeros(n,k)))
 
                 if (PlotIntensity):
-                    Intensity_min = 0.5 * c * epsilon_0 * Efield_SI[0] ** 2 * RefractiveIndex
+                    Intensity_min = 0.5 * c * epsilon_0 * Efield_SI[0] ** 2 * OpticalIndex
                 else:
-                    Intensity_min = Efield_SI[0] * np.sqrt(RefractiveIndex)
+                    Intensity_min = Efield_SI[0] * np.sqrt(OpticalIndex)
 
                 # Plotting eigenvalues at rest
                 plt.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
@@ -284,8 +296,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
                 plt.ylim(Materials[material]['ymin_ymax'])  # Si
                 # plt.ylim((-8,8)) #SiO2
                 plt.tight_layout()
-                plt.savefig(figurename + ".eps")
-                plt.savefig(figurename + ".png")
+                if(StorePlot):
+                    plt.savefig(figurename + ".eps")
+                    plt.savefig(figurename + ".png")
                 # Plotting dressed levels directly on the figure, from n=1 to MPI_number
                 for MPI in np.arange(1, MPI_number + 1):
                     plt.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
@@ -294,9 +307,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
                     plt.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
                                 au.Energy_Hartree_to_eV(np.real(eigenvalues)) - MPI * h * c / wavelength_SI / e, c="blue",
                                 s=10, label="non-interacting replicates")
-
-                plt.savefig(figurename + "-Suppl" + ".eps")
-                plt.savefig(figurename + "-Suppl" + ".png")
+                if(StorePlot):
+                    plt.savefig(figurename + "-Suppl" + ".eps")
+                    plt.savefig(figurename + "-Suppl" + ".png")
                 # plt.legend()
             # plt.show()
         # print Header+"Preparing (omega,Efield) values that should disable the tunneling in the sample..."
@@ -312,8 +325,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
         plt.matshow(matrixelements)
         plt.colorbar()
         plt.tight_layout()
-        plt.savefig(figurename + ".eps")
-        plt.savefig(figurename + ".png")
+        if(StorePlot):
+            plt.savefig(figurename + ".eps")
+            plt.savefig(figurename + ".png")
 
     if (PlotRabiFrequencyMatrices):
         for MPI_number in np.arange(-np.max(MPI_numbers), np.max(
@@ -335,8 +349,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
             plt.title(r'$n=$' + str(MPI_number))  # +", slice "+str(BesselRootsID_max-1))
             plt.colorbar()
             plt.tight_layout()
-            plt.savefig(figurename + ".eps")
-            plt.savefig(figurename + ".png")
+            if(StorePlot):
+                plt.savefig(figurename + ".eps")
+                plt.savefig(figurename + ".png")
 
             figurename = str(material) + "-BesselTunnelingStop-" + str(kpoints) + "MPI-" + str(
                 round(MPI_number, 0)) + "-BesselRoot-" + str(BesselRootsID_max)
@@ -372,8 +387,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
             plt.ylim((0, 1.5))
             plt.xlim((0, 5))
             plt.title(r"Tunneling $(E,\omega)$, $n=$" + str(MPI_number))
-            plt.savefig(figurename + ".eps")
-            plt.savefig(figurename + ".png")
+            if(StorePlot):
+                plt.savefig(figurename + ".eps")
+                plt.savefig(figurename + ".png")
             # plt.show()
 
 
@@ -557,7 +573,7 @@ def MultipleKpointsOneField(field):  # {{{
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         wavelength_SI = wavelength_SI_t[0]
         RefractiveIndex = OpticalIndex[wavelength_SI]
-        if (Renormalize):
+        if (UseRefractiveIndex):
             Efield_SI = field / np.sqrt(OpticalIndex[wavelength_SI])
         else:
             Efield_SI = field
@@ -593,7 +609,8 @@ def MultipleKpointsOneField(field):  # {{{
     if (not PlotIntensity):
         figurename += "-Field"
     #plt.savefig(figurename + ".eps")
-    plt.savefig(figurename + ".png")
+    if(StorePlot):
+        plt.savefig(figurename + ".png")
     if(ShowPlot):
         plt.show()
 
