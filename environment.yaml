@@ -10,6 +10,7 @@ dependencies:
   - scipy
   - matplotlib
   - glob
+  - xarray
 #  - numba
     #  - spp_extended_theory
 # for interactive work

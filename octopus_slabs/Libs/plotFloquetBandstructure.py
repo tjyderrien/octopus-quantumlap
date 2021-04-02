@@ -25,6 +25,7 @@ from scipy.special   import jn_zeros as BesselJZeros
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import xarray as xr
 
 import octopus_slabs.Libs.libPlotting as libPlotting
 import octopus_slabs.Libs.libString   as libString
@@ -92,13 +93,14 @@ except:
 
 num_time_steps = 100 #should be small enough to ensure convergence
 
-num_wavelengths = 6
-wavelength_SI_min = 483e-9
+num_wavelengths = 100
+wavelength_SI_min = 483e-9 #483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 300  # number of electric field values for the plotting
+num_fields = 1  # number of electric field values for the plotting
 Efield_SI_min = IntensityToField(1E10 * 1E4)
 Efield_SI_max = IntensityToField(1E19 * 1E4)
+SelectedFieldsForPlotting=[1E9]
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
@@ -136,7 +138,7 @@ OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.
 OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
-Si = {'MPI_numbers': [1, 2, 3], 'kpoints_manual': 16,
+Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si,
       'ymin_ymax': (3, 8), 'CaptureDirectGap': True, 'KpointPath_len': 301,
@@ -197,7 +199,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         for i in np.arange(0, 10):  # TODO: replace with .strip() ?
             kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
             if (verbose == 1):
-                logger.info(Header + "** Info: decreasing number of spaces")
+                logger.info("** Info: decreasing number of spaces")
                 logger.info(kpoints_number_inp)
         kpoints_number_array = kpoints_number_inp.split("=")
         kpoints_number_array = kpoints_number_array[1].split(" ")
@@ -205,7 +207,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         logger.info(kpoints)
     except IndexError: #recent octopus versions removed some info from info file
         kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
-        logger.error(Header + "** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
+        logger.error("** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
             kpoints))
         # exit()
 
@@ -229,25 +231,31 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!!
     RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
 
+    if (LogPlotting):
+        Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
+        Efield_SI = np.power(10., Efield_SI_log)
+    else:
+        Efield_SI = np.linspace(Efield_SI_min, Efield_SI_max, num_fields)
+
+    SizeOfReplica = (Z_electrons+unocc_states)*( 2 * MPI_numbers[0] + 1 )
+    eigen_idx = np.arange(0, SizeOfReplica ) #we only care about simple replicas at the moment
+    # Creating data array for easier visualization
+    replicas_data = xr.DataArray(np.zeros((len(Efield_SI), len(wavelength_t), len(eigen_idx))),
+                                 dims=("E", "wavelength", "eigen_idx"),
+                                 coords={"E": Efield_SI, "wavelength": wavelength_t, "eigen_idx": eigen_idx})
+    logger.info("Prepared tensor for storing the results. "+str(replicas_data))
     if (PlotFloquetBandStructure):
         # for wavelength_SI in wavelength_SI_t:
 
         fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
-        replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
+        # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in np.arange(0,len(wavelength_t)):
             wavelength_SI = wavelength_t[wavelength_idx]
             OpticalIndex = RefractiveIndex_t[wavelength_idx] #This is a continuum formulation from Palik data
 
-            ## Renormalize the intensity range using refractive index
-            if (UseRefractiveIndex):
-                Efield_SI_max = Efield_SI_max / np.sqrt(OpticalIndex) #field becomes wavelength dependent?
-
-            if (LogPlotting):
-                Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
-                Efield_SI = np.power(10., Efield_SI_log)
-            else:
-                Efield_SI = np.linspace(Efield_SI_min, Efield_SI_max, num_fields)
-
+            ## Renormalize the intensity range using refractive index - TODO: re-enable using xarray
+#            if (UseRefractiveIndex):
+#                Efield_SI_max = Efield_SI_max / np.sqrt(OpticalIndex) #field becomes wavelength dependent?
 
             ## Plot the splitted energy levels at Gamma.
             for MPI_number in MPI_numbers:
@@ -274,7 +282,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                                 label="Floquet replicates")  # these are the interesting lines for the final plot
                     # ax2.scatter(np.ones(np.size(replicas)) * wavelength_SI * 1E9, au.Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates")
 
-                    # replica_t[wavelength_idx, field_idx] = replicas #array of lists, we might need XARRAY
+                    # if(MPI_number==1):
+                    replicas_data[field_idx, wavelength_idx, :] = np.real(replicas) #array of lists, we might need XARRAY
+                        # breakpoint()
                     # TODO: Prepare the table [wavelength, n, E, Rabi Freq such as BesselJ(n,RabiFreqs_SI/omegaLaser)=0. #BruteForce method. 
                     # TODO: Do we need the function BesselJZeros(n,x)? To search omegaLaser that induce a stop in tunneling! 
                     # tunneling_stops.append(np.sqrt(dipoles * field_AU / BesselJZeros(n,k)))
@@ -324,13 +334,33 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 # plt.legend()
             # plt.show()
             ## Plotting eigenvalues of wavelength
-            ax2.matshow(replica_t)
-            ax2.set_xlabel("Fields")
-            ax2.set_ylabel("Wavelengths")
-            if(StorePlot):
-                figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
-                    kpoints) + "MPI-" + str(round(MPI_number, 0))
-                plt.savefig(figurename_multiwavelengths)
+        # End of wavelength loop
+        # Prepare the plot as function of wavelength for few intensities
+        ax2.set_xlabel("Pump wavelength (nm)")
+        ax2.set_ylabel("Energy levels (eV)")
+
+        # replicas_data(Efield_SI, wavelength_t)
+        # Select eigenvalues where field is above a certain value
+        # breakpoint()
+        for field in SelectedFieldsForPlotting:
+            FloquetKeldysh = replicas_data.sel(E=field, method="nearest")
+            FloquetKeldysh_X = np.repeat(FloquetKeldysh.wavelength, SizeOfReplica)*1E9
+            FloquetKeldysh_Y = au.Energy_Hartree_to_eV(FloquetKeldysh.values)
+            logger.debug(np.shape(FloquetKeldysh_X), np.shape(FloquetKeldysh_Y))
+            ax2.scatter(FloquetKeldysh_X,FloquetKeldysh_Y, c="red", s=SizeOfDots,
+                                    label="Floquet replicates")
+        fig2.tight_layout()
+        if(ShowPlot):
+            fig2.show()
+
+        if(StorePlot):
+            figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
+                kpoints) + "MPI-" + str(round(MPI_number, 0))
+            fig2.savefig(figurename_multiwavelengths + ".eps")
+            fig2.savefig(figurename_multiwavelengths + ".png")
+
+
+
 
         # print Header+"Preparing (omega,Efield) values that should disable the tunneling in the sample..."
         # plt.figure()
@@ -341,9 +371,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 
     if (PlotMatrixElements):
         figurename = str(material) + "-MatrixElements-k-" + str(kpoints)
-        ax3 = plt.subplot(111)
+        fig3, ax3 = plt.subplots()
         ax3.matshow(matrixelements)
-        ax3.colorbar()
+        # plt.colorbar()
+        # fig3.colorbar(mappable=None)
         plt.tight_layout()
         if(StorePlot):
             plt.savefig(figurename + ".eps")
@@ -428,9 +459,9 @@ def MultipleKpointsOneField(field):  # {{{
     try:
         kpoints_number_inp = libString.LookUpStringInFile("info", "Total number of k-points")
         kpoints_total_number = int(kpoints_number_inp.split("=")[1].strip())  # conversion to integer. Contains the total number of kpoints FOUND in the run.
-        logger.info(Header+"** Info: total number of k-points = "+str(kpoints_total_number))
+        logger.info("** Info: total number of k-points = "+str(kpoints_total_number))
     except:
-        logger.error(Header+"** Error: total number of k-points could not be detected.")
+        logger.error("** Error: total number of k-points could not be detected.")
         exit()
 
 
@@ -472,10 +503,10 @@ def MultipleKpointsOneField(field):  # {{{
          try:
              kpoints3D_number=libString.CaptureKPointGridSizeFromINP("../inp")
          except: #if file was not found
-             logger.warning(Header+"** Warning: could not capture size of K-point grid in INP file. Most probably absent.")
+             logger.warning("** Warning: could not capture size of K-point grid in INP file. Most probably absent.")
              kpoints3D_number = kpoints_manual
-             logger.warning(Header+"**          Employing manual k-point number as last resort: ")
-    logger.info(Header+"** Number of 3D kpoints: "+str(kpoints3D_number))
+             logger.warning("**          Employing manual k-point number as last resort: ")
+    logger.info("** Number of 3D kpoints: "+str(kpoints3D_number))
 
     # Capture the total number of k-points (available in info file)
     ## Captures the number of 3D k-points in the 2D-path
@@ -548,10 +579,10 @@ def MultipleKpointsOneField(field):  # {{{
     idx_t = []
     # print(np.shape(idx_t))
     # exit()
-    logger.debug((Header + "** Debug: size of k_point_files: " + str(len(k_point_files))))
-    logger.debug((Header + "         size of k_point_files_idx: " + str(len(k_point_files_idx))))
-    # print(Header+"         content of k_point_files: "+str(k_point_files))
-    # print(Header+"         content of k_point_files_idx: "+str(k_point_files_idx))
+    logger.debug(("** Debug: size of k_point_files: " + str(len(k_point_files))))
+    logger.debug(("         size of k_point_files_idx: " + str(len(k_point_files_idx))))
+    # print("         content of k_point_files: "+str(k_point_files))
+    # print("         content of k_point_files_idx: "+str(k_point_files_idx))
 
     ## DOUBLE PARSING: 
     ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
@@ -559,8 +590,8 @@ def MultipleKpointsOneField(field):  # {{{
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
         # for k_point_file in k_point_files: #going through each kpoint. We here restrict the Floquet computation to the path of k-points.
         if(verbose==1):
-            logger.debug((Header + "** Info: k_idx in path: " + str(k_idx)))
-            logger.debug((Header + "** Info: k_point_file: " + str(k_point_files[k_idx])))
+            logger.debug(("** Info: k_idx in path: " + str(k_idx)))
+            logger.debug(("** Info: k_point_file: " + str(k_point_files[k_idx])))
             logger.debug(("** Info: fetching matrix elements from " + str(k_point_files[k_idx])))
             logger.debug(("** Info: k_idx in full list is: " + str(k_point_files_idx[k_idx])))
 
@@ -575,10 +606,10 @@ def MultipleKpointsOneField(field):  # {{{
 
         # Plot the band structure at rest using provided k-point path
         if(verbose==1):
-            logger.debug((Header + "** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+            logger.debug(("** Info: shapes: " + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
         # idx_t=eigenvalues
         if(verbose==1):
-            logger.debug((Header + str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
+            logger.debug((str(np.shape(idx_t)) + ", " + str(np.shape(eigenvalues))))
 
         # X: we shall plot as function of bands[0,:]. 
         #ax2.scatter(bands[k_idx, 0] * np.ones(len(eigenvalues)), au.Energy_Hartree_to_eV(eigenvalues), c="blue", s=0.1, label="Eq.")
@@ -587,7 +618,7 @@ def MultipleKpointsOneField(field):  # {{{
 
         ## Loading matrix elements for the k-point.
         if(verbose==1):
-            logger.info((Header + "** Info: fetching matrix elements."))
+            logger.info(("** Info: fetching matrix elements."))
         matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]],
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
