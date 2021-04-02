@@ -98,10 +98,10 @@ num_wavelengths = 100
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 10  # number of electric field values for the plotting
-Efield_SI_min = IntensityToField(1E10 * 1E4)
-Efield_SI_max = IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[1E9, 1E10, 1E11]
+num_fields = 2  # number of electric field values for the plotting
+Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
+Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
+SelectedFieldsForPlotting=[1E9, 1E10]
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
@@ -142,7 +142,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si,
-      'ymin_ymax': (3, 8), 'CaptureDirectGap': True, 'KpointPath_len': 301,
+      'ymin_ymax': (-5, 15), 'CaptureDirectGap': True, 'KpointPath_len': 301,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
 
 SiO2 = {'MPI_numbers': [1, 2], 'kpoints_manual': 8,
@@ -345,6 +345,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # ax2.set_xlabel("Pump wavelength (nm)")
         ax2.set_xlabel("Pump photon energy (eV)")
         ax2.set_ylabel("Energy levels (eV)")
+        ax2.set_xscale("log")
 
         # replicas_data(Efield_SI, wavelength_t)
         # Select eigenvalues where field is above a certain value
@@ -370,7 +371,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             ax2.scatter(FloquetKeldysh_X,FloquetKeldysh_Y, s=SizeOfDots,
                                     label="Floquet replicates")
             color_idx+=1
-        # ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
+        ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
         fig2.tight_layout()
         if(ShowPlot):
             fig2.show()
