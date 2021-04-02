@@ -20,6 +20,7 @@
 # Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
 #import pdb
 from matplotlib.cm   import get_cmap
+from cycler import cycler
 from scipy.constants import c, epsilon_0, h, e
 from scipy.special   import jn_zeros as BesselJZeros
 import os
@@ -42,7 +43,7 @@ PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False #starts to be too consuming (800 MB per EPS file...)
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
+StorePlot = False #we generate so many figures with this... Let's avoid this at the moment.
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -91,16 +92,16 @@ except:
 # exit()
 # wavelength_SI_t = [800e-9, 400e-9]  # , 400e-9] #484e-9, 343e-9] #10e-6
 
-num_time_steps = 100 #should be small enough to ensure convergence
+num_time_steps = 300 #should be small enough to ensure convergence
 
 num_wavelengths = 100
-wavelength_SI_min = 483e-9 #483e-9
+wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 1  # number of electric field values for the plotting
+num_fields = 10  # number of electric field values for the plotting
 Efield_SI_min = IntensityToField(1E10 * 1E4)
 Efield_SI_max = IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[1E9]
+SelectedFieldsForPlotting=[1E9, 1E10, 1E11]
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
@@ -191,6 +192,9 @@ wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_waveleng
 def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
+
+    plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y'])))
+
     ## Capturing the Gamma k-point file in results of Octopus
     # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
     try:
@@ -246,8 +250,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     logger.info("Prepared tensor for storing the results. "+str(replicas_data))
     if (PlotFloquetBandStructure):
         # for wavelength_SI in wavelength_SI_t:
-
         fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
+        ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in np.arange(0,len(wavelength_t)):
             wavelength_SI = wavelength_t[wavelength_idx]
@@ -316,48 +320,66 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
                 # plt.ylim((-8,8)) #SiO2
-                plt.tight_layout()
+                fig1.tight_layout()
                 if(StorePlot):
-                    plt.savefig(figurename + ".eps")
-                    plt.savefig(figurename + ".png")
+                    fig1.savefig(figurename + ".eps")
+                    fig1.savefig(figurename + ".png")
                 # Plotting dressed levels directly on the figure, from n=1 to MPI_number
                 for MPI in np.arange(1, MPI_number + 1):
-                    plt.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
+                    ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
                                 au.Energy_Hartree_to_eV(np.real(eigenvalues)) + MPI * h * c / wavelength_SI / e, c="red",
                                 s=10, label="non-interacting replicates")
-                    plt.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
+                    ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
                                 au.Energy_Hartree_to_eV(np.real(eigenvalues)) - MPI * h * c / wavelength_SI / e, c="blue",
                                 s=10, label="non-interacting replicates")
                 if(StorePlot):
-                    plt.savefig(figurename + "-Suppl" + ".eps")
-                    plt.savefig(figurename + "-Suppl" + ".png")
+                    fig1.savefig(figurename + "-Suppl" + ".eps")
+                    fig1.savefig(figurename + "-Suppl" + ".png")
+                plt.close(fig1) #free the memory?
+                del fig1, ax1
                 # plt.legend()
             # plt.show()
             ## Plotting eigenvalues of wavelength
         # End of wavelength loop
         # Prepare the plot as function of wavelength for few intensities
-        ax2.set_xlabel("Pump wavelength (nm)")
+        # ax2.set_xlabel("Pump wavelength (nm)")
+        ax2.set_xlabel("Pump photon energy (eV)")
         ax2.set_ylabel("Energy levels (eV)")
 
         # replicas_data(Efield_SI, wavelength_t)
         # Select eigenvalues where field is above a certain value
         # breakpoint()
+
+        """# Rotation on colors
+        cm = get_cmap('hsv')
+        NumberOfElements = len(SelectedFieldsForPlotting)
+        colors = [cm(1. * i / NumberOfElements) for i in range(NumberOfElements)]
+        xy = list(range(NumberOfElements))
+        colorlist = [colors[x] for x in xy]
+        """
+        color_idx=0
         for field in SelectedFieldsForPlotting:
+
             FloquetKeldysh = replicas_data.sel(E=field, method="nearest")
-            FloquetKeldysh_X = np.repeat(FloquetKeldysh.wavelength, SizeOfReplica)*1E9
+            FloquetKeldysh_X = np.repeat(FloquetKeldysh.wavelength, SizeOfReplica)
+
+            FloquetKeldysh_X = h*c/FloquetKeldysh_X / e #eV
+
             FloquetKeldysh_Y = au.Energy_Hartree_to_eV(FloquetKeldysh.values)
             logger.debug(np.shape(FloquetKeldysh_X), np.shape(FloquetKeldysh_Y))
-            ax2.scatter(FloquetKeldysh_X,FloquetKeldysh_Y, c="red", s=SizeOfDots,
+            ax2.scatter(FloquetKeldysh_X,FloquetKeldysh_Y, s=SizeOfDots,
                                     label="Floquet replicates")
+            color_idx+=1
+        # ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
         fig2.tight_layout()
         if(ShowPlot):
             fig2.show()
 
-        if(StorePlot):
-            figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
-                kpoints) + "MPI-" + str(round(MPI_number, 0))
-            fig2.savefig(figurename_multiwavelengths + ".eps")
-            fig2.savefig(figurename_multiwavelengths + ".png")
+        # if(StorePlot):
+        figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
+            kpoints) + "MPI-" + str(round(MPI_numbers[0], 0))
+        fig2.savefig(figurename_multiwavelengths + ".eps")
+        fig2.savefig(figurename_multiwavelengths + ".png")
 
 
 
