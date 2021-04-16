@@ -4,8 +4,9 @@ import logging
 import colorlog
 
 def init_logger(dunder_name, verbose) -> logging.Logger:
+
+    #         '%(asctime)s - '
     log_format = (
-        '%(asctime)s - '
         '%(name)s - '
         '%(funcName)s - '
         '%(levelname)s - '
