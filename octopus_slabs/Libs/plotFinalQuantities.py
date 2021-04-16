@@ -4829,7 +4829,7 @@ if(__name__=="__main__"):
     print("================================\n")
     print("** Info: Automatic detection of the routine to run...")
 
-    dirname=os.path.realpath("../02-Slab2D")
+    dirname=os.path.realpath(".") #./02-Slab2D")  ##TODO: this is no longer valid. 
 
     logger.info("** Info: directory name: "+str(dirname))
 
