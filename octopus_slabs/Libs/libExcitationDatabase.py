@@ -43,7 +43,7 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
     print(Database)
     print((Header+"** Info: Previous database was found. Attempting to complete it."))
     FromScratch=False
-    libPlotting.ListAllOutput(path, DatabaseName, FromScratch)
+    ListAllOutput(path, DatabaseName, FromScratch)
   except:
     print((Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch."))
     FromScratch = True
