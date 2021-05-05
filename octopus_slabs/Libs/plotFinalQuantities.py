@@ -354,10 +354,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     # EnableKeldysh     = True
     # EnableStarkEffect =False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
     PlotSaturation    =False
-    ShowPulseDurations=False #True #: show the pulse duration in caption. False: hides it (for saving visual space)
+    ShowPulseDurations=True #True #: show the pulse duration in caption. False: hides it (for saving visual space)
     WithOpticalIndex  =True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
     SidePanels        =True #True: [a] | [b]. False: a above b. 
-    ShowSigmaRates    =1 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
+    ShowSigmaRates    = 2 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
     EnableInsetMagnification=False #this is defined as function of wavelength below
     PlotVirtualExcitation = False #Not advised! This is not a real observable.
 
@@ -373,7 +373,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     else:
         FileName_opt=""
 
-    x_min  ={483e-9: (1E9, 1E15), 800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
+    x_min  = {407.58E-9: (1E9, 1E15), 483e-9: (1E9, 1E15), 800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
 
     print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
     #Filter: double pulses, same wavelengths, same polarization
@@ -898,8 +898,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #TODO: one has to code a fitting method that sweeps intensity, but accepts ANY number of photons on each interval.
         #NOTE: Maybe use the computed error to accept or reject each fitting? One can try all numbers of photons on each interval.
         #TODO: this part is functional-dependent. It should be generalized (these numbers are fine for LDA, not for TB09).
-
-        if(Functional=="LDA"):
+        #OnePhotonIntensityRegime_min=0; OnePhotonIntensityRegime_max=0; 
+        if(Functional[0]==IndexFunctional['LDA']):
+            logger.info("Entered LDA functional fitting...")
             if(pulseWavelength==483e-9):
                 if(pulse_value==30e-15):
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
@@ -1030,9 +1031,12 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                 OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
 
                 #ListOfInterestingGammas = [0.10, 1.0, 10.]
-        elif(Functional=="TB09"):
-            if(pulseWavelength==483e-9):
+        elif(Functional[0]==IndexFunctional['TB09']):
+            logger.info("Entered TB09 functional fitting...")
+            if(abs(pulseWavelength-407.58e-9) < 1E-9 ):
+                logger.info("Entered TB09 functional fitting for 407 nm...")
                 if(pulse_value==30e-15):
+                    logger.info("Entered TB09 functional fitting for 407 nm, 30 fs...")
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
@@ -1041,6 +1045,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
                     OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
                 elif(pulse_value==20e-15):
+                    logger.info("Entered TB09 functional fitting for 407 nm, 20 fs...")
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
@@ -1049,6 +1054,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     TwoPhotonIntensityRegime_min = 0e0;    TwoPhotonIntensityRegime_max = 0E0 #W/m2
                     OnePhotonIntensityRegime_min = 1.22e9*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
                 else: #10 fs
+                    logger.info("Entered TB09 functional fitting for 407 nm, any fs...")
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
@@ -1059,8 +1065,10 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
                 #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-            elif(pulseWavelength==800e-9):
+            elif(abs(pulseWavelength)-800e-9 < 1E-9):
+                logger.info("Entered TB09 functional fitting for 800 nm...")
                 if(pulse_value==30e-15):
+                    logger.info("Entered TB09 functional fitting for 800 nm, 30 fs ...")
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
@@ -1069,14 +1077,19 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
                     OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
                 elif(pulse_value==20e-15):
-                    SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
-                    SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
-                    FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
-                    FourPhotonIntensityRegime_min = 0e0;   FourPhotonIntensityRegime_max = 0e0 #W/m2
-                    ThreePhotonIntensityRegime_min = 0e0;  ThreePhotonIntensityRegime_max = 0e0 #W/m2
-                    TwoPhotonIntensityRegime_min = 1.22e9*1E4; TwoPhotonIntensityRegime_max = 1.4e11*1E4 #W/m2
-                    OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
+                    logger.info("Entered TB09 functional fitting for 800 nm, 20 fs ...")
+                    SevenPhotonIntensityRegime_min = 0E0*1E4;  SevenPhotonIntensityRegime_max        = 0E0*1E4
+                    SixPhotonIntensityRegime_min   = 0E0*1E4;    SixPhotonIntensityRegime_max        = 0E0*1E4
+                    FivePhotonIntensityRegime_min  = 0E0*1E4;   FivePhotonIntensityRegime_max        = 0E0*1E4
+                    FourPhotonIntensityRegime_min  = 0E0*1E4;   FourPhotonIntensityRegime_max        = 0E0*1E4 #W/m2
+                    ThreePhotonIntensityRegime_min = 0E0*1E4;  ThreePhotonIntensityRegime_max = 0E0*1E4 #W/m2
+                    TwoPhotonIntensityRegime_min   = 2.87e9*1E4; TwoPhotonIntensityRegime_max    = 1.21E12*1E4 #W/m2
+                    OnePhotonIntensityRegime_min   = 1.60e12*1E4; OnePhotonIntensityRegime_max   = 1.34E13*1E4 #W/m2
+                    #ThreePhotonIntensityRegime_min = 1.23e11*1E4;  ThreePhotonIntensityRegime_max = 1.6512*1E4 #W/m2
+                    #TwoPhotonIntensityRegime_min = 2.99e9*1E4; TwoPhotonIntensityRegime_max = 1.23e11*1E4 #W/m2
+                    #OnePhotonIntensityRegime_min = 1.23e11*1E4; OnePhotonIntensityRegime_max = 1.45E13*1E4 #W/m2
                 else: #10 fs
+                    logger.info("Entered TB09 functional fitting for 800 nm, any fs ...")
                     SevenPhotonIntensityRegime_min = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;   FivePhotonIntensityRegime_max  = 0E0
@@ -1086,8 +1099,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     OnePhotonIntensityRegime_min = 1.4e11*1E4; OnePhotonIntensityRegime_max = 1.4e13*1E4 #W/m2
                 #ListOfInterestingGammas = [0.10, 1.0, 10.]
 
-            elif(pulseWavelength==1600e-9):
-                if(pulse_value==30e-15):
+            elif(abs(pulseWavelength-1600e-9)<1E-9):
+                if(abs(pulse_value-30e-15))<1E-15:
                     SevenPhotonIntensityRegime_min= 0e0;    SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
@@ -1095,7 +1108,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
                     TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
                     OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
-                if(pulse_value==20e-15):
+                elif(pulse_value==20e-15):
                     SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
@@ -1158,6 +1171,16 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                 ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0 #W/m2
                 TwoPhotonIntensityRegime_min = 0e0;   TwoPhotonIntensityRegime_max = 1.3e15 #W/m2
                 OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
+        else: #any other functional
+            logger.info("Entered unknown functional analysis...")
+            logger.debug("Functional contains: "+str(Functional))
+            SevenPhotonIntensityRegime_min = 1e12; SevenPhotonIntensityRegime_max  = 1.3e15
+            SixPhotonIntensityRegime_min   = 1e12;   SixPhotonIntensityRegime_max  = 1.3e15
+            FivePhotonIntensityRegime_min  = 1e12;  FivePhotonIntensityRegime_max  = 1.3e15
+            FourPhotonIntensityRegime_min  = 1e12;  FourPhotonIntensityRegime_max  = 1.3e15
+            ThreePhotonIntensityRegime_min = 1e12; ThreePhotonIntensityRegime_max  = 1.3e15 #W/m2
+            TwoPhotonIntensityRegime_min   = 1e12;   TwoPhotonIntensityRegime_max  = 1.3e15 #W/m2
+            OnePhotonIntensityRegime_min   = 1e12;  OnePhotonIntensityRegime_max   = 1.3e15 #W/m2
 
         ListOfInterestingGammas = [0.10, 1.0, 10.]
         omega = 2.*np.pi*c/wavelengths1[0]
@@ -1232,7 +1255,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         except (NameError, ValueError):
             logger.warning(Header+"** Fit using 2-photon absorption failed. ")
         try:
-            #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2):
+        #elif (NumberOfPhotons_round >= 1 and NumberOfPhotons_round < 2):
             logger.info(Header+"** Info: fitting with 1-photon absortion...")
             plot_field = FitOnePhotonIonizationRateFromNeIntensity(Intensity_sorted, Ne_final_sorted, 1, OnePhotonIntensityRegime_min, OnePhotonIntensityRegime_max, PlotTheFittedLines)
             if(ShowSigmaRates>0):
@@ -1430,8 +1453,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     else:
         EffectiveMassList=[meff_Waroquiers_LDA]
     #wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #desired
-    wPI_min={483e-9: 1E35, 800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
-    wPI_max={483e-9: 1E45, 800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
+    wPI_min={407.58e-9: 1E35, 483e-9: 1E35, 800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
+    wPI_max={407.58e-9: 1E45, 483e-9: 1E45, 800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
 
 
     for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]:
@@ -4467,7 +4490,7 @@ def plot_Zhukov_SingleColor_SiO2(): #{{{
 #}}}                                            
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
-def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
+def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
     #Egap_SI = 1.5*e #Manually adjusted gap. 
@@ -4585,10 +4608,9 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
 #}}}
 
 ## Plotting excitation rate as function of intensity    
-def plot_Zhukov_SingleColor_TB09(): #{{{
-                                            
+def plot_Zhukov_SingleColor_TB09(): #{{{                                            
     OpticalIndex={ #
-        483e-9: 4.4028, 484e-9: 4.3964,
+        407.58e-9: 5.3705, 483e-9: 4.4028, 484e-9: 4.3964,
         800e-9: 3.6924167231905, 1600e-9: 3.4826, 
         2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}                                            
     MoveIon=0
@@ -4626,11 +4648,14 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     # Compute ionization probability, effect of the pulse duration
     #ShowPlot=1
     
-    for wavelength in [1600e-9]: #, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+
+#    for wavelength in [1600e-9]: #, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+
+    for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
       #try:
-      plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
+        plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
       #except:
-        #print Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm."
+        #logger.warning(Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm.")
     
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     
@@ -4650,7 +4675,10 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     ShowPlot=1
     #plotEffectOfWavelength_2dMap(PlottingTable, 20e-15, PulseType, RiseCycles, ShowPlot)
     # plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect)
-    plotEffectOfWavelength_Tolerance(PlottingTable_filtered, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9, False, False, True, True, "TB09")
+    
+    #NICE FIGURE
+    #plotEffectOfWavelength_Tolerance(PlottingTable_filtered, 1E-4, 20e-15, 0., PulseType, RiseCycles, ShowPlot, NumberOfAtoms, Egap_SI, Egap_SI_indirect, 500e-9, 3300e-9, False, False, True, True, "TB09")
+    
     #plotEffectOfWavelength_Tolerance(PlottingTable, 0.03, 30e-15, 0., PulseType, RiseCycles, ShowPlot, Egap_SI)
     ### OLD STUFFS
     #plotEffectOfIntensity_CEP(PlottingTable, wavelength, 10e-15, PulseType, RiseCycles, ShowPlot)
