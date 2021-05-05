@@ -40,10 +40,10 @@ import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 PlotMatrixElements = True
-PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
+PlotFloquetBandStructure = False  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False #starts to be too consuming (800 MB per EPS file...)
-StorePlot = False #we generate so many figures with this... Let's avoid this at the moment.
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -401,9 +401,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     if (PlotMatrixElements):
         figurename = str(material) + "-MatrixElements-k-" + str(kpoints)
         fig3, ax3 = plt.subplots()
-        ax3.matshow(matrixelements)
-        # plt.colorbar()
-        # fig3.colorbar(mappable=None)
+        #ax3.matshow(matrixelements)
+        im3 = ax3.imshow(np.log10(matrixelements))
+        #plt.colorbar()
+        fig3.colorbar(im3)
         plt.tight_layout()
         if(StorePlot):
             plt.savefig(figurename + ".eps")

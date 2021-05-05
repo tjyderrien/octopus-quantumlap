@@ -345,7 +345,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
 # Wpi is compared to Keldysh analytical solid theory, and numerically integrated Keldysh if available. # Wpi is also compared to tunneling limit case. 
 # ElectronEnergy (intensity) is given. 
 def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, CEP0=0., PulseType=3, RiseCycles=2, PlotWpiAxis=False, ShowFinalPlot=0, Egap_SI=2.56*e, Egap_SI_indirect=0.51*e, OpticalIndex=1.0, MoveIon=0, Functional="LDA"): #{{{
-    UseNexcAfterPulse = True #instead of density at end of simulation, one capture the ones very close to the end of the pulse.
+    UseNexcAfterPulse = False #instead of density at end of simulation, one capture the ones very close to the end of the pulse.
     PlotEnergy        = False #PRL: False. #PRB: True.
     # EnableKeldysh     = True
     # EnableStarkEffect =False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
@@ -376,7 +376,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     PlottingSinglePulses = PlottingTable #get the full database
     PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
     PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-    PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, IndexFunctional[Functional], IndexTable['Functional']) #removes runs where functional is not LDA
+    PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, IndexFunctional[Functional], IndexTable['Functional']) #removes runs where functional is not the chosen functional
     PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
     PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
     #PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1'])
@@ -414,7 +414,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
         #PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 29e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
@@ -1314,8 +1314,13 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         ax1.set_title(r'$\lambda = $'+str(int(pulseWavelength*1E9))+r' nm, $n=\left\lceil\frac{E_g^\Gamma}{\hbar \omega}\right\rceil=$'+str(int(NumberOfPhotons_round))+MoveIonTitle)
     logger.info(Header+"Generating comparison with Keldysh-Gruzdev model...") ## Looking forward to plot w_PI[intensity] from Keldysh_Gruzdev theory.
     order = 50
-    Efieldmin = np.min(Efield1_uniq)
-    Efieldmax = np.max(Efield1_uniq) #5E10
+    try: 
+        Efieldmin = np.min(Efield1_uniq)
+        Efieldmax = np.max(Efield1_uniq) #5E10
+    except:
+        logger.error("Could not prepare the run for wavelength = "+str(pulseWavelength)+" m, Efield1_uniq = "+str(Efield1_uniq)+". It can be linked to hard filtering of pulse duration in program.")
+        Efieldmin = 1E9
+        Efieldmax = 1E11
     Efield1_Keldysh_log = np.linspace(np.log10(Efieldmin), np.log10(Efieldmax), 2000)
     Efield1_Keldysh     = np.power(10., Efield1_Keldysh_log)
     logger.debug(Efield1_Keldysh)
@@ -4645,10 +4650,10 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     #ShowPlot=1
     
     for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
-      #try:
+      try:
         plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
-      #except:
-        #logger.warning(Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm.")
+      except:
+        logger.warning(Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm.")
     
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     
