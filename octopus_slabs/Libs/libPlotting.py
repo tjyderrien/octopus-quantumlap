@@ -20,14 +20,14 @@
 # Define shared functions for plotting routines and database construction
 
 import os.path
-
+import pdb
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
 from scipy.constants import pi, e, epsilon_0, c
 from scipy.integrate import cumtrapz
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, UnivariateSpline
 import glob
 
 import octopus_slabs.Samples.calculateVolume as calcVol
@@ -477,10 +477,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     time                = np.asfarray(laser[:,1]) #column 2
     A1x                 = np.asfarray(laser[:,2]) #column number 3
     A2x                 = np.asfarray(laser[:,5]) #column number 6
-    timestepTable       = np.diff(time) #size N-1
+    timestepTable       = np.gradient(time) #size N-1
     TimeStep            = timestepTable[0] #they are all equal, just select the first
-    Efield              = - (np.diff(A1x)/np.diff(time)) #correct value is *1/c 
-    Efield2             = - (np.diff(A2x)/np.diff(time))
+    Efield              = - (np.gradient(A1x)/np.gradient(time)) #correct value is *1/c 
+    Efield2             = - (np.gradient(A2x)/np.gradient(time))
     Efield_AU           = Efield/au.c_AU #fixing dimension #TODO: clean me that...
     Efield2_AU          = Efield2/au.c_AU
     Efield_amplitude_SI = np.max(abs(au.Field_AU_to_SI(Efield_AU)))
@@ -543,14 +543,19 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     ## NOTE: Octopus does not compute Hartree energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
-    Hartree_nonzero = np.nonzero(Hartree)
-
+    Hartree_raw = Hartree
+    Hartree_nonzero = np.nonzero(Hartree_raw) #returns index of elements that are non zero, but a strange dimension
+    Hartree_nonzero = np.asarray(Hartree_nonzero)[0] #correcting dimension problem. flatnonzero() could also do it in principle.
     # print("** Debug: shape Hartree: "+str(np.shape(Hartree)))
     # print("**        shape Hartree_nonzero: "+str(np.shape(Hartree_nonzero)))
     Hartree_interp = interp1d(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero]) #this remains to be a function
-    # print("**        shape Hartree_interp: "+str(np.shape(Hartree_interp)))
+#    Hartree_interp = UnivariateSpline(timeEnergies[Hartree_nonzero], Hartree[Hartree_nonzero], k=1)
+    # print("**        shape Hartree_interp: "+str(np.shape(Hartree_interp))) 
     Hartree        = Hartree_interp(timeEnergies)
-    del Hartree_interp, Hartree_nonzero
+    # except ValueError:
+    #     print(Header+"Hartree energy could not be interpolated. I kept the initial value with ZERO when octopus was lazy to compute.")
+    #     Hartree        = Hartree_nonzero #WARNING: not effective. 
+#    del Hartree_interp, Hartree_nonzero
     
     ## NOTE: Octopus does not compute Exchange-Correlation energy at all timesteps, it would be too expensive. 
     ## Redefining the zero with interpolated values between defined points. 
@@ -702,20 +707,20 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     # 2. t > tau_1+tau_2+delay, where tau_1,2 depend on the pulse shape. SinSquare: tau_1,2->2*tau_1,2. STH: tau_1 -> tau_1+2*2*pi/omega_1 (idem for tau_2). 
     # 1. E_tot^laser = 0 along with dE_tot^laser/dt=0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
-    try: 
+    try: #if(True): #try: 
         print((Header+"** Info: trying condition for computing ElectronDensity n_exc and ElectronEnergy right after the pulse: "))
- 
+        tolerance_ne=1E-4; tolerance_Efield = 1E-3  
         # Accounting for a second field, then only considering differential of field.
         Efield_12_AU=np.maximum(np.abs(Efield_AU),np.abs(Efield2_AU))
         # Computing differential of Efield_12_AU (then we can transparently work with two fields). 
-        Efield_12_AU_diff=np.diff(Efield_12_AU) #second derivative of A.
+        Efield_12_AU_diff=np.gradient(Efield_12_AU) #second derivative of A.
         
         ## CONDITION 3. Searching for region where energy (or density) stagnate (ie not a strict stabilization, e.g.,
         # when using induced fields). Preparing dNe, dEnergy, d(Efield1)
         # ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
         # Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
-        FieldEqualZero=(Efield_12_AU == 0) #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
-        FieldDiffEqualZero = (Efield_12_AU_diff == 0)[:len(ElectronEnergy)] #restricts size of the mapping
+        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
+        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield)[:len(ElectronEnergy)] #restricts size of the mapping
         
         print((Header+"** Debug: Shape(FieldEqualZero    )="+str(np.shape(FieldEqualZero))))
         print((Header+"** Debug: Shape(FieldDiffEqualZero)="+str(np.shape(FieldDiffEqualZero))))
@@ -733,7 +738,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
             duration_tau_2 = PulseDuration2_SI + RiseTime*pi/omega_2 #SI
         else: 
             print((Header+"** ERROR: capture of end of pulse is not managed."))
-            raise IndexError #TODO: prepare Exception("NotImplemented")
+            # raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
         timeFarEnough = au.Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
@@ -764,7 +769,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         Efield_AU_interp_func = interp1d(time[:len(Efield_12_AU)], Efield_12_AU) #fails when max(time of Efield) is equal to max(time of Ne), ie, when simulation reaches the end... I suggest to remove error raise upon interpolation on final point. 
         # Computing dEfield_AU_NeGrid using dEfield_timeGrid and interpolating (ie changing grid). It should be more precise. 
         print((Header+"** Debug: before defining interp dEfield_AU_interp_func: "+str(len(time))+", "+str(len(Efield_12_AU_diff)))) 
-        dEfield_AU_interp_func = interp1d(time[:len(Efield_12_AU_diff)], Efield_12_AU_diff)
+        dEfield_AU_interp_func = interp1d(time[:len(Efield_12_AU_diff)], Efield_12_AU_diff) #, fill_value="extrapolate") #DEBUG
         
         Efield_AU_interp_Ne   =  Efield_AU_interp_func(timeNe) #timeNe and timeLaser do have the same values, but not the same discretization, neither dimension
         Efield_AU_interp_error=  (np.max(np.max(Efield_12_AU))-np.max(np.max(Efield_AU_interp_Ne)))/np.max(np.max(Efield_12_AU))
@@ -781,9 +786,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
-        tolerance_ne=1E-4 
+        
         FieldEqualZero_Ne =(np.divide(Efield_AU_interp_Ne, np.max(Efield_AU_interp_Ne)) < tolerance_ne) #Selects when field is null on timeNe grid. Now based on bicolor field. #TODO: add a tolerance here ! Example shows 1E-4 would be fine. 
-        dFieldEqualZero_Ne=(dEfield_AU_interp_Ne == 0)
+        dFieldEqualZero_Ne=(dEfield_AU_interp_Ne < tolerance_Efield )
         print((Header+"** DEBUG: shapes of Masks for Ne: "+str(np.shape(FieldEqualZero_Ne))+", "+str(np.shape(dFieldEqualZero_Ne))))
 
         # Building the mask that should apply to any observable based on time-grid of Ne
@@ -794,10 +799,10 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         print((np.any(MaskNe)))
         if(not np.any(MaskNe)):
             print((Header+"** ERROR: pulse may not be finished. Check n_ex!"))
-            raise IndexError
+            # raise IndexError
         if(not np.any(Mask)):
                 print((Header+"** ERROR: pulse may not be finished. Check energy file!"))
-                raise IndexError
+            #    raise IndexError
         
         ## THIS SEEMS FOR SOLVING DIMENSION PROBLEMS
 #       print(Header, "** Info: timesteps where we found conditions to capture EnergyAfterPulse: ")
@@ -805,7 +810,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 #       print(timeNe2)
         timeNe3      =timeNe[MaskNe]
         # print(timeNe3)
-
+#         breakpoint()
         # Applying Mask on Energies
 #        timeEnergies2=timeEnergies[:len(timeEnergies)-2]
         timeEnergies3=timeEnergies[Mask] #filtering with condition given by Mask
@@ -845,6 +850,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         #ElectronDensityRightAfterPulse = 0e0
 
         #timeToFilterFrom = 0e0
+    #"""
     except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         print((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -854,7 +860,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 
-    except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    else: #except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         print((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
@@ -863,7 +869,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 #        exit()
-    
+
+#"""    
     print(Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse))
     print(Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse))
     print(Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse))
