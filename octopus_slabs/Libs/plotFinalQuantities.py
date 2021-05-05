@@ -32,7 +32,7 @@ from scipy.optimize import curve_fit
 from scipy.constants import h, c, e
 
 import os
-
+import pdb
 from octopus_slabs.Libs import libExcitationDatabase
 # import libKeldysh as Keldysh
 # from libAtomicUnits import *
@@ -48,7 +48,7 @@ from spp_extended_theory.Libs import libImportOpticalData as libOpticalData
 
 #logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 #logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()]) #filename='plotFinalQuantities.log', 
-logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -79,11 +79,15 @@ xscale = 1E-4 #convert W/m2 to W/cm2.
 # For histocal reasons, two locations are possilbe.
 path1='*/*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/*/td.general/'
+path3='*/*/td.general/'
+
+
 
 if(EnablePeakFinder): 
   from scipy.signal import find_peaks
 
 PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
+    
 
 logger.info(PlottingTable)
 
@@ -4649,6 +4653,9 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     # Compute ionization probability, effect of the pulse duration
     #ShowPlot=1
     
+
+#    for wavelength in [1600e-9]: #, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+
     for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
       try:
         plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
