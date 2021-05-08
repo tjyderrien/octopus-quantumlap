@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -126,7 +126,8 @@ if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
 #    ShowFinalPlot  = 0     # MORE SAFE. 
-  except: 
+  except:
+    print("Exception case: Capturing EnableLogScale==2.")
     print("Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1> <ShowFinalPlot? 0 | 1>.")
     exit()
 if(sys.argv[3] == ""):
