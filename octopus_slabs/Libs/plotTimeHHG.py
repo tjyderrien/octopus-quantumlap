@@ -31,7 +31,7 @@ import spp_extended_theory.Keldysh.libKeldysh as Keldysh
 from spp_extended_theory.Libs.libDatabase import ExportToTxt
 
 from numpy import fft
-from scipy.constants import hbar, m_e, epsilon_0, e
+from scipy.constants import hbar, m_e, epsilon_0, e, h, hbar
 
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
