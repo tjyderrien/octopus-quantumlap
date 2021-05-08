@@ -126,11 +126,11 @@ if(PlottingMode == "auto"):
     print("** Plotting mode automatic: "+PlottingMode)
   #}}}
 if(int(EnableLogScale) == 2):
-  # try:
+  try:
     EnableLogScale = int(sys.argv[2]) #read from terminal
     print("Detected from input: "+str(EnableLogScale))
 #    ShowFinalPlot  = 0     # MORE SAFE. 
-  #except:
+  except:
     print("Exception case: Capturing EnableLogScale==2.")
     print("Usage: plotTimeKeldysh.py <PlottingMode = auto | keldysh | doublepulse | nonthermalmelting> <LogScale? 0|1> <ShowFinalPlot? 0 | 1>.")
     exit()
