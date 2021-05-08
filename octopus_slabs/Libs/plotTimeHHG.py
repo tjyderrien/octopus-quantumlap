@@ -34,6 +34,7 @@ from numpy import fft
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
 from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
+from octopus_slabs.Libs.libAtomicUnits import c_AU
 
 ## Materials properties
 
