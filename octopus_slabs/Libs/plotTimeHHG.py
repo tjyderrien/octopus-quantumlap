@@ -28,6 +28,7 @@ import sys
 
 import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
+from spp_extended_theory.Libs.libDatabase import ExportToTxt
 
 from numpy import fft
 from scipy.constants import hbar, m_e, epsilon_0, e
