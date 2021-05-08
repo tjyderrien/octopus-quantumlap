@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,5 +31,6 @@ def SiBulk(): #{{{
         400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
         600e-9: 3.947144634525661,
         800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
+        2200e-9: 3.4548, 2600e-9: 3.4457, 2656e-9: 3.4510, #this one is for 2um, but with corrected gap
+        3200e-9: 3.43438589865999}
   return Egap_SI, meff, OpticalIndex
