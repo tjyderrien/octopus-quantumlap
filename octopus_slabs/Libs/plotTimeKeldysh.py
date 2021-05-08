@@ -33,7 +33,7 @@ import spp_extended_theory.Keldysh.libKeldysh as Keldysh
 from numpy import fft
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.optimize import curve_fit
-from scipy.constants import hbar
+from scipy.constants import hbar, m_e, epsilon_0, e
 
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
