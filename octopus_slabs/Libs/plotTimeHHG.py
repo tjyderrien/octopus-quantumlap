@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,13 +25,16 @@
 # from pylab import *
 import decimal
 
-import Samples.calculateVolume as Sample
+import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
+
+
 ## IMPORT LIBRARIES
 from numpy import fft
 
-# import octopus_slabs.Libs.libMaterials
-from octopus_slabs.Libs.libPlotting import *
+import octopus_slabs.Libs.libMaterials as libMaterials
+from   octopus_slabs.Libs.libPlotting import *
+from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
 
 ## Materials properties
 
