@@ -571,7 +571,7 @@ wPI_TDDFT_average_global = wPI_TDDFT_average_global_t.cumsum()
 # wPI_TDDFT_average = integrate.cumtrapz(wPI_TDDFT_average_instant, (timeNe[:NumberOfTimeSteps-1]/UnitTime))
 print(Header+"** Final value for <w_PI>_tau = "+str(wPI_TDDFT_average_global[wPI_TDDFT_average_global.size-1]))
 print(Header+"** Final value for w_PI_wild ~ nexc_final / tau = "+str(wPI_TDDFT_wild[wPI_TDDFT_wild.size-1]))
-print(Header+"** Some value for w_PI_moving = "+str(wPI_TDDFT_moving[(wPI_TDDFT_moving.size-1)/2]))
+print(Header+"** Some value for w_PI_moving = "+str(wPI_TDDFT_moving[(wPI_TDDFT_moving.size-1)//2]))
 # print Header+"** Some value for w_PI_moving_nico = "+str(wPI_TDDFT_moving_nico[(wPI_TDDFT_moving_nico.size-1)/2])
 
 print(Header+"** Size of w_PI moving averaging = "+str(wPI_TDDFT_moving.size))
