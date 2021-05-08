@@ -126,6 +126,7 @@ if(PlottingMode == "auto"):
 if(int(EnableLogScale) == 2):
   try: 
     EnableLogScale = int(sys.argv[2]) #read from terminal
+    print("Detected from input: "+str(EnableLogScale))
 #    ShowFinalPlot  = 0     # MORE SAFE. 
   except:
     print("Exception case: Capturing EnableLogScale==2.")
