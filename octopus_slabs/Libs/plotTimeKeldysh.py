@@ -25,15 +25,16 @@
 # from pylab import *
 import decimal
 
-import Samples.calculateVolume as Sample
+import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
 ## IMPORT LIBRARIES
 from numpy import fft
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.optimize import curve_fit
 
-import libMaterials
-from Libs.libPlotting import *
+import octopus_slabs.Libs.libMaterials as libMaterials
+from   octopus_slabs.Libs.libPlotting import *
+from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
 
 ## Materials properties
 
