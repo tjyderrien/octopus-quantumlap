@@ -30,6 +30,7 @@ import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
 
 from numpy import fft
+from scipy.constants import hbar
 
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
