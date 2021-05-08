@@ -44,8 +44,11 @@ def VolumePerPoint_Log(Filename): #{{{
   newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
 
   #Open the log file
-  searchfile = open(newest, "r") 
-
+  try:
+    searchfile = open(newest, "r", encoding="utf-8", errors='ignore') 
+  except:
+    logging.warning("Could not open the latest Octopus LOG file.")
+  
   # Search into this file the line with volume/cell
   for line in searchfile:
     if 'volume/point' in line: 
