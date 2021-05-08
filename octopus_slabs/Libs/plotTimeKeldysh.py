@@ -37,7 +37,7 @@ from scipy.optimize import curve_fit
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
 from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
-from   octopus_slabs.Libs.libAtomicUnits import  c_AU, Field_AU_to_SI
+from   octopus_slabs.Libs.libAtomicUnits import  c_AU, Field_AU_to_SI, Time_AU_to_SI
 
 ## Materials properties
 
