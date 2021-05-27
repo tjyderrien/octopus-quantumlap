@@ -360,7 +360,8 @@ def plotHHG_batch_CEP(): #{{{
                 print(Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
                 continue
 #}}}
+
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
 # plotHHG_batch_Efield() #Related to Derrien et al., https://arxiv.org/abs/2104.08971
-PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=1.05E10, tau=13.945E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0) #HHG spectra
+PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=1.05E10, tau=13.945E-15, MoveIon=0, PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
