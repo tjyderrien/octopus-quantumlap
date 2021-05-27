@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2016-2021 T. J.-Y. Derrien
@@ -24,10 +24,16 @@ import glob
 import os
 
 from spp_extended_theory.Keldysh import libKeldysh
-from spp_extended_theory.Libs.libDatabase import ExportToTxt
-from scipy.interpolate import interp1d
 
-from Libs import libPlotting
+from spp_extended_theory.Libs import libDatabase
+# from spp_extended_theory.Keldysh.libKeldysh import *
+
+from scipy.interpolate import interp1d
+from octopus_slabs.Libs import libPlotting
+
+from matplotlib import rc
+import matplotlib as mp
+import numpy as np
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -209,7 +215,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxT(np.transpose([X, Y, Z]), filename+".csv")
 
     print("** Preparing plot...")
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
@@ -329,7 +335,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxT(np.transpose([X, Y, Z]), filename+".csv")
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     print("** Preparing plot...")
@@ -344,16 +350,16 @@ def plotHHG_batch_Efield():
 	    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
     
 # HHG(omegaHHG, CEP1; Efield1)
-def plotHHG_batch_CEP():
-	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
-        for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
-            for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
-                try: 
-                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
-                except:
-                    print(Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
-                    continue
-
+def plotHHG_batch_CEP(): #{{{
+    tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
+    for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
+        for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
+            try: 
+                PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+            except:
+                print(Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
+                continue
+#}}}
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
 # plotHHG_batch_Efield() #Related to Derrien et al., https://arxiv.org/abs/2104.08971
