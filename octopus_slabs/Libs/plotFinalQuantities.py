@@ -635,7 +635,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > OnePhotonIntensityRegime_min) & (Intensity_sorted_np < OnePhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header+""+str(Intensity_sorted_mask)+""+str(Ne_final_sorted_mask)) #Works well
 
             OnePhotonAbsorption_params = curve_fit(OnePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
@@ -673,8 +673,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > TwoPhotonIntensityRegime_min) & (Intensity_sorted_np < TwoPhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
-
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
             TwoPhotonAbsorption_params = curve_fit(TwoPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             logger.info(Header+"** Ionization parameters for tau="+str(int(1e15*pulse_value))+" fs: "+str(TwoPhotonAbsorption_params[0]))
@@ -712,7 +712,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > ThreePhotonIntensityRegime_min) & (Intensity_sorted_np < ThreePhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
 
             ThreePhotonAbsorption_params = curve_fit(ThreePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #TwoPhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
@@ -750,7 +751,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FourPhotonIntensityRegime_min) & (Intensity_sorted_np < FourPhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
 
             FourPhotonAbsorption_params = curve_fit(FourPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
@@ -788,7 +790,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > FivePhotonIntensityRegime_min) & (Intensity_sorted_np < FivePhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
 
             FivePhotonAbsorption_params = curve_fit(FivePhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
@@ -826,7 +829,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SixPhotonIntensityRegime_min) & (Intensity_sorted_np < SixPhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
 
             SixPhotonAbsorption_params = curve_fit(SixPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
@@ -864,7 +868,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
             Ne_final_sorted_np  = np.array(Ne_final_sorted)
             Ne_final_sorted_mask  = Ne_final_sorted_np[(Intensity_sorted_np > SevenPhotonIntensityRegime_min) & (Intensity_sorted_np < SevenPhotonIntensityRegime_max)]
-            logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            # logger.info(Intensity_sorted_mask, Ne_final_sorted_mask) #Works well
+            logger.info(Header + "" + str(Intensity_sorted_mask) + "" + str(Ne_final_sorted_mask))  # Works well
 
             SevenPhotonAbsorption_params = curve_fit(SevenPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
             #ThreePhotonAbsorption_params = curve_fit(MultiPhotonAbsorption, Intensity_sorted_mask, Ne_final_sorted_mask)
