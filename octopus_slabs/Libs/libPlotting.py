@@ -1202,19 +1202,22 @@ def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulse
 # @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
 def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration, PulseType=3, RiseTime=2, MoveIon=0, InducedFields=0): #{{{ 
         PlottingSinglePulses = Database  #get the full database
-        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works 
         PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
         PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
         PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
-        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+#        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. #TODO: management of cross polarization is PROBLEMATIC. See libPlotting.py:213 CrossPolarization_Angle issue.
+
 #        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, InducedFields, IndexTable['FieldInduced'])
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
         PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+#        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument # NOT EFFICIENT
+        PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, pulseDuration*1.1, IndexTable['pulses1'])
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, pulseDuration*0.9, IndexTable['pulses1'])
         if(RiseTime >= 1): #select by RiseTime only if it is defined
                 PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
         # Inform the user of the contents.
@@ -1504,11 +1507,11 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       plt.ylim((ylimit[0], ylimit[1]))
 
       # Adding vertical bars for the gap energy
-      for n in [1,2,3,4]:
+      for n in [1,2,3,4,5,6]:
         plt.axvline(x=Egap/e/n, linestyle=":")
         plt.axhline(y=1E6*h*c/(Egap/n), linestyle=':') 
         plt.axvline(x=n*Egap/e, linestyle=":")
-        # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevent
+        # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevant
 
       # plt.savefig(filename+'.eps')
       plt.savefig(filename+'.png')
