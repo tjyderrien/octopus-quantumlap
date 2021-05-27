@@ -25,7 +25,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
-from scipy.constants import pi, e, epsilon_0, c
+from scipy.constants import pi, e, epsilon_0, c, h
 from scipy.integrate import cumtrapz
 from scipy.interpolate import interp1d, UnivariateSpline
 import glob

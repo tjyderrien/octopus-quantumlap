@@ -29,6 +29,7 @@ from spp_extended_theory.Libs import libDatabase
 # from spp_extended_theory.Keldysh.libKeldysh import *
 
 from scipy.interpolate import interp1d
+from scipy.constants import e, h, hbar
 from octopus_slabs.Libs import libPlotting
 
 from matplotlib import rc
@@ -76,7 +77,7 @@ def ParseAllFolders(): #{{{
 	
 	        # List all the files HHG-spectrums.csv in subfolders
 	        # try: 
-	        HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+	        HHG=np.loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
 	        # except:
 	        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
 	        # Size of the spectrum? 
@@ -152,9 +153,9 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
         print(runid_folder)
         try:
-            HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+            HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-            print("** Error: Loading of HHG-Spectrum.csv failed.") 
+            print("** ERROR: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.") 
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -215,7 +216,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    libDatabase.ExportToTxT(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     print("** Preparing plot...")
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
@@ -246,11 +247,12 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     # Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
 
     # Extracting the data from filtered database
-    try: 
-        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
-    except:
-        print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
-        exit()
+    # try: 
+#    runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
+    runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse,  EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(Sorted2)
+    # except:
+    #    print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
+    #    exit()
 
     # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
     # if(DuplicatedEntries): #we keep only the longest runs
@@ -266,9 +268,10 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
         print(runid_folder)
         try:
-            HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+            HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-            print("** Error: Loading of HHG-Spectrum.csv failed.") 
+#            print("** Error: Loading of HHG-Spectrum.csv failed.") 
+            print("** Error: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -335,7 +338,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    libDatabase.ExportToTxT(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     print("** Preparing plot...")
