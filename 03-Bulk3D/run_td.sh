@@ -8,7 +8,7 @@ CheckComputerName
 source $QuantumLaPsources/octopus_slabs/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
-source $OctopusSlabsSources/03-Bulk3D/functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!

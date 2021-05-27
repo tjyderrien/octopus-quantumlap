@@ -5,7 +5,7 @@ module load gnuplot
 module load anaconda
 module list
 
-source functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
  
 rm *.tmp 
 
