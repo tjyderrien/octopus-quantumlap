@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ## @package plotHHGspectra
-# Collects the generated time-dependent octopus simulations spectra HHG.dat from all subfolders (can last minutes)
+# Collects the generated time-dependent octopus simulations spectra HHG.csv from all subfolders (can last minutes)
 # Then prepares a picture using the collected data for each identified field amplitude
 
 import glob
@@ -215,7 +215,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     return 0
 #}}}
 
-## Prepares color plot HHG(omega_HHG, CEP) 
+## Prepares color plot HHG(omega_HHG, CEP) from database
 def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0): #{{{
     
     # Declaring variables
@@ -355,5 +355,5 @@ def plotHHG_batch_CEP():
 
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
-plotHHG_batch_Efield() 
-
+# plotHHG_batch_Efield() #Related to Derrien et al., https://arxiv.org/abs/2104.08971
+PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=1.05E10, tau=13.945E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0) #HHG spectra
