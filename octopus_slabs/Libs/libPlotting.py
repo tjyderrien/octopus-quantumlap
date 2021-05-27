@@ -1176,18 +1176,18 @@ def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulse
         PlottingSinglePulses = Database  #get the full database
         PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
         PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
-        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
-        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+        PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
         if(RiseTime >= 1): #select by RiseTime only if it is defined
-                PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+                PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
         # Inform the user of the contents.
         CountTheNumberOfLaserParameters(PlottingSinglePulses)
         return PlottingSinglePulses
@@ -1204,19 +1204,19 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
         PlottingSinglePulses = Database  #get the full database
         PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
         PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
-        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
-        PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+        PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
 #        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, InducedFields, IndexTable['FieldInduced']) 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-        PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, InducedFields, IndexTable['FieldInduced'])
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon'])
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+        PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
         if(RiseTime >= 1): #select by RiseTime only if it is defined
-                PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+                PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
         # Inform the user of the contents.
         CountTheNumberOfLaserParameters(PlottingSinglePulses)
         return PlottingSinglePulses
