@@ -1,13 +1,12 @@
 #!/bin/bash
 
-
-# set -e 
+set -e 
 
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
 echo " **** SH loads modules ****"
-source ${QuantumLaPsources}/machines.env
+source ${QuantumLaPsources}/octopus_slabs/machines.env
 
 # module purge
 # module load git
@@ -15,7 +14,6 @@ source ${QuantumLaPsources}/machines.env
 
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 LoadEnvLibraries
-
 
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
 
@@ -207,9 +205,9 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-# plotExcitation  #Prepare all plots for n_ex analysis.
+plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-# plotHHG         #Generate the CSV files with HHG spectra. 
+plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
