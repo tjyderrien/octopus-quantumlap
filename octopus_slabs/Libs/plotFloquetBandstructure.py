@@ -162,7 +162,7 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au,
       'ymin_ymax': (-2, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$L$', r'$X$']}
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
       #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
 
 Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all materials properties we need to automatize
