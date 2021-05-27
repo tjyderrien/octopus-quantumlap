@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 import glob
 import os
 
-from spp_extended_theory.Keldysh.libKeldysh import *
+from spp_extended_theory.Keldysh import libKeldysh
+from spp_extended_theory.Libs.libDatabase import ExportToTxt
 from scipy.interpolate import interp1d
 
 from Libs import libPlotting
