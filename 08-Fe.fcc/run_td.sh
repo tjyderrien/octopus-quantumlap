@@ -5,7 +5,7 @@
 set -e
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
-source $QuantumLaPsources/octopus_slabs/machines.env
+# source $QuantumLaPsources/octopus_slabs/machines.env
 echo "[Checking] Variable basePath: $basePath"
 
 source $QuantumLaPsources/Scripts/functions.sh
