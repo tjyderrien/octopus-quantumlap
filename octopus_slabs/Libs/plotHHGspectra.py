@@ -109,7 +109,7 @@ def ParseAllFolders(): #{{{
 #}}}
     
 
-Database = np.loadtxt(DatabaseFile, skiprows=0)
+Database = np.loadtxt(DatabaseFile, skiprows=3)
 ## ======== METHOD 2: construct the sub-database of interest
 
 def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
@@ -225,7 +225,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
 ## Prepares color plot HHG(omega_HHG, CEP) from database
 def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0): #{{{
-    
+    global Database 
     # Declaring variables
     X=[]; Y=[]; Z=[]
    
@@ -235,8 +235,16 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     #CEP    =0
     #MoveIon=0
     #PulseType=3; RiseCycles=2
-    Filtered1= libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, RiseCycles, InducedFields)
+    # CHECKING SIZE OF DATABASE
+    libPlotting.CountTheNumberOfLaserParameters(Database)
+
+    print("INFO: FILTERING...")
+    Filtered1= libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, 0, RiseCycles, InducedFields)
     Filtered1=np.asfarray(Filtered1) #lets use only numbers there.
+
+    # CHECKING size of returned table
+    print("INFO: size of returned table: "+str(np.size(Filtered1)))
+    
     # SORTING
     # One must sort here the DB as function of the sequence we would like to plot.
     # Sorted1=np.sort(Filtered1, axis=0)
@@ -329,8 +337,8 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     PlotTriangles=False
     PlotGradient =False
     
-    xlimit     = [0,50] #eV
-    ylimit     = [-90,90] #deg
+    xlimit     = [0,5] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    ylimit     = [-180,180] #deg
     numberoflevels=30
     Egap=2.56*e
     
@@ -367,4 +375,6 @@ def plotHHG_batch_CEP(): #{{{
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
 # plotHHG_batch_Efield() #Related to Derrien et al., https://arxiv.org/abs/2104.08971
-PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=1.05E10, tau=13.945E-15, MoveIon=0, PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
+for Efield in [3E9, 1.05E10]:
+    PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0, PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
+#    PlotHHGsinglePulsewithCEP(2656e-9, Efield, 13.945E-15, 0, 1, 0, 0)
