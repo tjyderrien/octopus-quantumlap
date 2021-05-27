@@ -28,7 +28,7 @@ import sys
 
 import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
-from spp_extended_theory.Libs.libDatabase import ExportToTxt
+from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 
 from numpy import fft
 from scipy.constants import hbar, m_e, epsilon_0, e, h, hbar
@@ -36,7 +36,7 @@ from scipy.constants import hbar, m_e, epsilon_0, e, h, hbar
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
 from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
-from octopus_slabs.Libs.libAtomicUnits import *
+from   octopus_slabs.Libs.libAtomicUnits import *
 
 ## Materials properties
 
@@ -71,7 +71,7 @@ ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
-maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 3*200 #maximum number of samples to cut the spectrum with. This only controls maximum energy. 
 
 Header="[octopus_slabs] "
 
@@ -385,7 +385,7 @@ CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI,
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(CurrentX_HHG)+fft.fft(CurrentY_HHG)+fft.fft(CurrentZ_HHG) #Larmot formula with approximation of d/dt J_i n_i
+HHG_AU=fft.fft(CurrentX_HHG)+fft.fft(CurrentY_HHG)+fft.fft(CurrentZ_HHG) #Larmor formula with approximation of d/dt J_i n_i
 HHG_AU_X = fft.fft(CurrentX_HHG)
 HHG_AU_Y = fft.fft(CurrentY_HHG)
 HHG_AU_Z = fft.fft(CurrentZ_HHG)
@@ -395,9 +395,8 @@ HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
 HHG_AU_duration=1./HHG_AU_omega
 # Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
 
-
 ##TODO: Prepare the conductivity plots, also! 
-## Do not use FFT, see reasons in Numerical Recipes. 
+## NTD: Do not use FFT, see reasons in Numerical Recipes. 
 # print "** Conductivity"
 # Epsilon_maxSize = CurrentX_AU_FT.size
 # # print Efield_AU_FT.size
@@ -711,7 +710,7 @@ ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
 Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
-Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2 #FULL HHG spectrum is taken (X, Y and Z)
+Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2 #FULL HHG spectrum is taken (X, Y and Z). This is Larmor formula
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xticks(np.arange(1,30, step=2))
 
