@@ -30,10 +30,11 @@ from scipy.integrate import cumtrapz
 from scipy.interpolate import interp1d, UnivariateSpline
 import glob
 
-import octopus_slabs.Samples.calculateVolume as calcVol
+import octopus_slabs.Samples.calculateVolume as  calcVol
 import octopus_slabs.Libs.libAtomicUnits     as au
 import octopus_slabs.Libs.libString          as libString
 from   octopus_slabs.Libs.libLogging         import init_logger
+from   spp_extended_theory.Libs              import libDatabase
 
 Header = "[libPlotting]"
 
@@ -1173,8 +1174,8 @@ def CountTheNumberOfLaserParameters(Database):#{{{
 # @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
 def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulseDuration, CEP, PulseType=3, RiseTime=2, MoveIon=0): #{{{ 
         PlottingSinglePulses = Database  #get the full database
-        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
         PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
         PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
@@ -1201,13 +1202,13 @@ def FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulse
 # @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
 def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration, PulseType=3, RiseTime=2, MoveIon=0, InducedFields=0): #{{{ 
         PlottingSinglePulses = Database  #get the full database
-        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
         PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
         PlottingSinglePulses = FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, wavelength1, IndexTable['wavelengths1'])
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
-#        PlottingSinglePulses = FilterDatabaseGreaterThan(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons. 
+#        PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0. 
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, InducedFields, IndexTable['FieldInduced']) 
         PlottingSinglePulses = FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft. 
