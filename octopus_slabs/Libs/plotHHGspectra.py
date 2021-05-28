@@ -45,7 +45,7 @@ mp.rcParams['legend.numpoints'] = 1
 Header="[plotHHGspectra] "
 
 ShowFinalPlot              = 1
-HHG_samples                = 600 #*2, *3, *4
+HHG_samples                = 6534 #6534: good!! 600: insufficient!!
 
 path = "*/td.general/"
 DatabaseFile="Database.csv"
@@ -248,8 +248,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     # SORTING
     # One must sort here the DB as function of the sequence we would like to plot.
     # Sorted1=np.sort(Filtered1, axis=0)
-    Sorted2=Filtered1[np.lexsort((Filtered1[:, libPlotting.IndexTable['Efield1']], Filtered1[:,
-                                                                                   libPlotting.IndexTable['CEP1']]))]
+    Sorted2=Filtered1[np.lexsort((Filtered1[:, libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['CEP1']]))]
     # NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. For now: manually disabling duplicated entries in DB. 
     # One could use np.unique() function, but we may loose the JobID then? 
     # Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
@@ -288,7 +287,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print("** Info: interpolating...")
 #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero'
+            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero' #WARNING: this part seems to destroy integrity of the plot
 
             HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
 
@@ -331,13 +330,14 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 #    cmap='Blues'
 #    cmap='RdBu_r'
     # afmhot_r, hot, hot_r, bone_r, 
-    colormap='bone_r'
+#    colormap='bone_r'
+    colormap="RdBu_r"
 
     ShowFinalPlot=False
     PlotTriangles=False
     PlotGradient =False
     
-    xlimit     = [0,5] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    xlimit     = [0.1,5] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
     ylimit     = [-180,180] #deg
     numberoflevels=30
     Egap=2.56*e
