@@ -497,6 +497,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         'loosely dashdotdotted': (0, (3, 10, 1, 10, 1, 10)),
         'densely dashdotdotted': (0, (3, 1, 1, 1, 1, 1))
     }
+    ListOfInterestingGammas = [0.10, 1.0, 10.]
 
     for pulse_value in pulses_uniq: #{{{
         # select the corresponding wavelength in results
