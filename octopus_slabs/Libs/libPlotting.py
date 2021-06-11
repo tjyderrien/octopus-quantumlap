@@ -43,28 +43,28 @@ IndexFunctional={'LDA': 0, 'TB09': 3, 'GGA': 2, 'MGGA': 1}
 logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ## Load geometry, n_el, laser and total_current files out of an Octopus TD run (atomic units)
-# @param path: provides the link to the folder where we want to extract resuls from. 
-def LoadRunOutputs(path): #{{{
+# @param localpath: provides the link to the folder where we want to extract resuls from.
+def LoadRunOutputs(localpath): #{{{
   
-  #geometry = path+"../Si.xyz" #static method
+  #geometry = localpath+"../Si.xyz" #static method
   #laser=np.loadtxt("../td.general/laser", dtype='str', skiprows=6) #should be replaced by genfromtxt method, as some errors are present in laser file
   
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
-      laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
+      laser=np.genfromtxt(localpath+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
   except:
-      laser = np.genfromtxt(path + "../td.general/laser", dtype='str', skip_header=6, loose=False,
+      laser = np.genfromtxt(localpath + "../td.general/laser", dtype='str', skip_header=6, loose=False,
                             invalid_raise=True, filling_values=0.)
       logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
                              "Did you run plotAll.sh first? Laser file has some column width problem from octopus.\n"+
                             "We'll try to fly with usual laser file instead. ")
   
   # PostTreatedDensity = np.loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU).
-  TotalCurrent=np.loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
-  Energy = np.genfromtxt(path+"../td.general/energy", dtype='str', skip_header=5)
+  TotalCurrent=np.loadtxt(localpath+"../td.general/total_current", dtype='str', skiprows=4)
+  Energy = np.genfromtxt(localpath+"../td.general/energy", dtype='str', skip_header=5)
   try:
       # This should work for dielectrics
-      Ne=np.loadtxt(path+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
+      Ne=np.loadtxt(localpath+"../td.general/n_ex", dtype='str', skiprows=9) #total number of excited electrons, not a density!
   except:
       # This should be for metallic materials.
       logger.error((Header+"** Capturing N_exc: failed --> maybe the material is a metal? Then we set N_exc=0 and set the rest using laser field."))
@@ -101,8 +101,8 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 # 2. For each run, check if it is already available in database by comparing the ID of the run. 
 # 3. If not available, we shall add it to the database. Otherwise, we pass to the next one. 
 # Keep care to not delete the already available database. 
-#  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
-def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
+#  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
+def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
 
   def GetMachineName(file):
@@ -199,7 +199,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   logger.info((Header+"Fetching all subfolders...\n"))
-  for FolderName in glob.glob(path): #{{{
+  for FolderName in glob.glob(localpath): #{{{
     #TODO: this is not general enough, directory level does not help
     logger.info((Header+"** Info: entering folder: "+str(FolderName)+"\n"))
     
