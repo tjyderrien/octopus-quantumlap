@@ -104,7 +104,86 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 #  @param path: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
-  
+
+  def GetMachineName(file):
+      machinename_t = libString.LookUpStringInFile(file, "swim")
+      logger.debug((Header + "** Debug: " + str(machinename_t)))
+      try:
+          MachineName = machinename_t.split()[5]
+          logger.info((Header + " ** Name of the machine which produced the result: " + str(MachineName)))
+      except:
+          logger.warning((Header + "** Warning: machine name could not be extracted."))
+      # MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
+      # MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
+      # if(MachineName)
+      try:
+          RunDate_t = libString.LookUpStringInFile(file, "started")
+          RunDate = float(RunDate_t.strip().split()[3].replace("/", ""))
+          logger.info((Header + "** Date of the run: " + str(RunDate)))
+      except:
+          RunDate = float("nan")
+      return RunDate
+
+  def GetTheoryLevel(filename):
+      TheoryLevel = 1  # default value
+      ## Checking the theory level
+      TheoryLevel_inp = libString.LookUpStringInFile(filename, "TheoryLevel =")
+      try:
+          TheoryLevel_string = TheoryLevel_inp[14:]
+      except:
+          TheoryLevel_string = ''
+      if (TheoryLevel_string == "independent_particles"):
+          TheoryLevel = 0  # independent particles
+      else:
+          TheoryLevel = 1  # dft
+      return TheoryLevel
+
+      # Capturing real-mesh grid spacing
+  def GetRealMeshGrid(filename):
+      realmesh_inp = libString.LookUpStringReturnNextLine(filename, "%Spacing")
+      realmesh_inp2 = realmesh_inp.strip()
+      realmesh_inp3 = realmesh_inp2.split("|")
+      realmesh_inp4 = realmesh_inp3[0]
+      realmeshgrid = float(realmesh_inp4)
+      # del realmesh_inp, realmesh_inp2, realmesh_inp3, realmesh_inp4
+      return realmeshgrid
+
+  ## Capture angle of secondPulse polarization in respect of first pulse
+  def GetCrossPolarizationAngle(filename)
+      # === Capture of the pulse2-angle of field
+      CrossPolarization_inp = libString.LookUpStringInFile(filename, "th2 =")  # if not found, then zero
+      # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case.
+      if (CrossPolarization_inp):
+          if (type(CrossPolarization_inp[6:13]) == "float"):
+              CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13].strip()))
+          elif ("th1" in CrossPolarization_inp[6:13]):  # if it is refering to th1
+              CrossPolarization_angle = polarization_angle
+          else:
+              CrossPolarization_angle = 0.
+      else:  # if th2 was not found in the input file
+          CrossPolarization_angle = 0.
+      logger.debug((Header + "CrossPol" + str(CrossPolarization_angle)))
+      return CrossPolarization_angle
+
+  ## Import CEP
+  def GetCEP1(filename):
+      try:
+          CEP1_inp = libString.LookUpStringInFile(filename, "CEPA = ")
+          logger.info((Header + "** CEP1_inp: " + str(CEP1_inp)))
+          CEP1_SI = eval(CEP1_inp[7:])  # the wrong expression can be selected sometimes
+          # if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
+          # CEP1_SI = 0.5*pi
+          # print Header+"** Exception on CEP1_SI."
+      except:
+          CEP1_inp = "pi/2."
+          logger.warning((Header + "** Exception: CEP1 was se to 0 due to failure."))
+          CEP1_SI = 0.5 * pi
+
+      # CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
+      logger.info((Header + "** Info: CEP1: " + CEP1_inp[7:]))
+
+      return CEP1_SI
+
   #Load the existing database
   # 1. Load the existing database
   try: 
@@ -129,8 +208,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     if(os.path.isfile(FolderName+"../DISABLED")):
         logger.warning((Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. "))
         continue
-    
-    
+
     # Import the quantities from the subfolders
     try:
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
@@ -138,7 +216,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       logger.warning((Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder: "+str(FolderName)))
       continue #could not load the files, it did not run, then jump this run.
     
-    # Collect the laser parameters
+    # Collect the laser parameters in the input file name
     filename             = FolderName+"../inp"
     
     # We can start by checking the RUN ID. If not available, no need to register this run... 
@@ -153,50 +231,16 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
 
-    machinename_t=libString.LookUpStringInFile(LOG_newest, "swim")
-    logger.debug((Header+"** Debug: "+str(machinename_t)))
-    try: 
-        MachineName  =machinename_t.split()[5]
-        logger.info((Header+" ** Name of the machine which produced the result: "+str(MachineName)))
-    except: 
-        logger.warning((Header+"** Warning: machine name could not be extracted."))
-    #MachineNameList={0: "EOS", 1: "Draco", 2: "Salomon", 3: "Prometheus"}
-    #MachineNameHeader={"draco": 1, "salomon": 2, "p": 3}
-    #if(MachineName)
-    try: 
-        RunDate_t = libString.LookUpStringInFile(LOG_newest, "started")
-        RunDate   = float(RunDate_t.strip().split()[3].replace("/", ""))
-        logger.info((Header+"** Date of the run: "+str(RunDate)))
-    except: 
-        RunDate = float("nan")
-    
-    TheoryLevel          = 1 #default value
-    ## Checking the theory level
-    TheoryLevel_inp      = libString.LookUpStringInFile(filename, "TheoryLevel =")
-    try:
-        TheoryLevel_string   = TheoryLevel_inp[14:]
-    except:
-        TheoryLevel_string   = ''
-    if(TheoryLevel_string == "independent_particles"):
-        TheoryLevel = 0 #independent particles
-    else: 
-        TheoryLevel = 1 #dft
-         
+    RunDate = GetMachineName(LOG_newest)
+    TheoryLevel = GetTheoryLevel(filename)
     kpointgrid=libString.CaptureKPointGridSizeFromINP(filename)
-
-    # Capturing real-mesh grid spacing
-    realmesh_inp=libString.LookUpStringReturnNextLine(filename, "%Spacing")
-    realmesh_inp2=realmesh_inp.strip()
-    realmesh_inp3=realmesh_inp2.split("|")
-    realmesh_inp4=realmesh_inp3[0]
-    realmeshgrid=float(realmesh_inp4)
-    del realmesh_inp, realmesh_inp2, realmesh_inp3, realmesh_inp4
+    realmeshgrid = GetRealMeshGrid(filename)
 
     # Capturing basic parameters
     wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
     PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
-         
+
     FieldInduced_inp     = libString.LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     GaugeVectorField_inp2= libString.LookUpStringInFile(filename, "GaugeVectorField")
     GaugeVectorField_inp = libString.LookUpStringReturnNextLine(filename, "GaugeVectorField")
@@ -214,36 +258,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     else:
          polarization_angle = 0. #float('nan'). 0 for now.
 
-    #=== Capture of the pulse2-angle of field    
-    CrossPolarization_inp     = libString.LookUpStringInFile(filename, "th2 =") #if not found, then zero
-    # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case. 
-    if(CrossPolarization_inp): 
-        if(type(CrossPolarization_inp[6:13])=="float"):
-            CrossPolarization_angle = float(eval(CrossPolarization_inp[6:13].strip()))
-        elif("th1" in CrossPolarization_inp[6:13]): #if it is refering to th1
-            CrossPolarization_angle = polarization_angle
-        else: 
-            CrossPolarization_angle = 0.
-    else: #if th2 was not found in the input file
-        CrossPolarization_angle = 0.
-    logger.debug((Header+"CrossPol"+str(CrossPolarization_angle)))
+    CrossPolarization_angle = GetCrossPolarizationAngle(filename) #angle between the 2 fields!
     
-    ## Import CEP data
-    try:
-        CEP1_inp             = libString.LookUpStringInFile(filename, "CEPA = ")
-        logger.info((Header+"** CEP1_inp: "+str(CEP1_inp)))
-        CEP1_SI              = eval(CEP1_inp[7:]) #the wrong expression can be selected sometimes
-        #if(len(CEP1_SI)==0): #there exists some cases where "try" succeeds but CEP1 is empty...
-          #CEP1_SI = 0.5*pi
-          #print Header+"** Exception on CEP1_SI."
-    except: 
-        CEP1_inp             = "pi/2."
-        logger.debug((Header+"** Exception: CEP1 was se to 0 due to failure."))
-        CEP1_SI              = 0.5*pi
-
-
-    #CEP1_SI              = CEP1_SI - pi/2. #convention due to some shift in octopus #exec(CEP1_inp[7:])
-    logger.info((Header+"** Info: CEP1: "+CEP1_inp[7:]))
+    CEP1_SI=GetCEP1(filename) #WARNING: GetCEP1 does not remove pi/2 but CEP2 does?
        
     #Efield2_inp          = libString.LookUpStringInFile(filename, "EfieldBsi =")
     Efield1_SI_input     = GetParameterValueFromInputFile(filename, "EfieldAsi = ")
@@ -276,30 +293,35 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     PulseType_value = PulseType_inp[48:] #this allows to have unique solution although its really rough
     logger.debug((Header+"** Debug info: PulseType_value = "+str(PulseType_value)))
 
-    #TODO: can this be matched using PulseTypeID_rev
+
     if("Gaussian" in PulseType_value):
-      logger.info((Header+"** Info: Gaussian pulse detected..."))
-      PulseTypeName="gaussian"
+        logger.info((Header+"** Info: Gaussian pulse detected..."))
+        PulseTypeName="gaussian"
     elif ("SinSquared" in PulseType_value):
-      logger.info((Header+"** Info: Squared Sinus pulse detected..."))
-      PulseTypeName="SinSquared"
-    elif ("SinFourth" in PulseType_value): 
-      logger.info((Header+"** Info: Sinus**4 pulse detected..."))
-      PulseTypeName="SinFourth"
+        logger.info((Header+"** Info: Squared Sinus pulse detected..."))
+        PulseTypeName="SinSquared"
+    elif ("SinFourth" in PulseType_value):
+        logger.info((Header+"** Info: Sinus**4 pulse detected..."))
+        PulseTypeName="SinFourth"
     elif ("STH" in PulseType_value):
-      logger.info((Header+"** Info: BUGGY Soft Top Hat pulse detected..."))
-      PulseTypeName="STH"
+        logger.info((Header+"** Info: BUGGY Soft Top Hat pulse detected..."))
+        PulseTypeName="STH"
     elif ("StH4" in PulseType_value): #fixed StH with sin4 envelope #comes first in priority
-      logger.info((Header+"** Info: SIN4 soft top hat pulse detected..."))
-      PulseTypeName="StH4"
-    elif ("StH" in PulseType_value): #fixed STH 
-      logger.info((Header+"** Info: FIXED Soft Top Hat pulse detected..."))
-      PulseTypeName="StH"
+        logger.info((Header+"** Info: SIN4 soft top hat pulse detected..."))
+        PulseTypeName="StH4"
+    elif ("StH" in PulseType_value): #fixed STH
+        logger.info((Header+"** Info: FIXED Soft Top Hat pulse detected..."))
+        PulseTypeName="StH"
     else:
-      logger.error((Header+"** Error: pulse type was not recognized."))
-      logger.error((Header+"** Error PulseType_value = "+str(PulseType_value)))
-      exit()
-    logger.info((Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName)))
+        logger.error((Header+"** Error: pulse type was not recognized."))
+        logger.error((Header+"** Error PulseType_value = "+str(PulseType_value)))
+        exit()
+    # TODO: test the match developed below, that uses PulseTypeID_rev
+    # for element in PulseTypeID_rev: #for eah type of pulse we know
+    #     if(element in PulseType_value):
+    #         PulseTypeName = element
+    #         logger.info(Header+"** Info: the pulse type is: "+str(element))
+    logger.info(Header+"** Info: PulseTypeID is fetching "+str(PulseTypeName))
     PulseType = PulseTypeID[str(PulseTypeName)] #refers to dictionnary of libPlotting
     del PulseType_inp, PulseType_value
 
