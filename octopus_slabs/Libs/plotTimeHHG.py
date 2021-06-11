@@ -134,16 +134,16 @@ A1y  = np.asfarray(laser[:,3]) #column number 4
 A2x  = np.asfarray(laser[:,5]) #column number 6 
 A2y  = np.asfarray(laser[:,6]) #column number 7
 
-timestepTable = np.diff(time) #size N-1
+timestepTable = np.gradient(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
 #A_squared = A1x**2
 #A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 
 # oscillating fields from octopus (real valued)
-Efield_X  = - (np.diff(A1x)/np.diff(time)) #physical value is *1/c 
-Efield2_X = - (np.diff(A2x)/np.diff(time)) #physical value is *1/c
-Efield_Y  = - (np.diff(A1y)/np.diff(time)) #physical value is *1/c 
-Efield2_Y = - (np.diff(A2y)/np.diff(time)) #physical value is *1/c
+Efield_X  = - (np.gradient(A1x)/np.gradient(time)) #physical value is *1/c 
+Efield2_X = - (np.gradient(A2x)/np.gradient(time)) #physical value is *1/c
+Efield_Y  = - (np.gradient(A1y)/np.gradient(time)) #physical value is *1/c 
+Efield2_Y = - (np.gradient(A2y)/np.gradient(time)) #physical value is *1/c
 
 ## Correcting the value by 1/c_AU
 Efield_X_AU =Efield_X/c_AU
@@ -363,8 +363,7 @@ ShrinkBy=0
 
 timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent)
 
-maxSize=timeCurrent.size-ShrinkBy
-
+maxSize=timeCurrent.size-ShrinkBy 
 tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
 tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 
@@ -381,10 +380,19 @@ CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI,
 CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 2*PulseDuration_SI)
 CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 2*PulseDuration_SI)
 
+assert(len(CurrentX_HHG) == len(CurrentX)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision. 
+
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
+
+# Let's try to increase number of samples in HHG signal. NOT THE RIGHT TECHNIQUE, since timeCurrent cannot be extended as such. 
+# CurrentX_HHG.resize(len(CurrentX_HHG)*2) #this affect the object itself directly
+# CurrentY_HHG.resize(len(CurrentY_HHG)*2)
+# CurrentZ_HHG.resize(len(CurrentZ_HHG)*2)
+
 SizeOfCurrentHHG = len(CurrentX_HHG)
+
 # DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
 HHG_AU=fft.rfft(CurrentX_HHG)+fft.rfft(CurrentY_HHG)+fft.rfft(CurrentZ_HHG) #Larmor formula with approximation of d/dt J_i n_i
 HHG_AU_X = fft.rfft(CurrentX_HHG)
@@ -572,7 +580,7 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+plot_field, = ax1.plot(time, (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
@@ -711,10 +719,15 @@ ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
 Xaxis = HHG_AU_omega*hbar/e #energy of the harmonics
-Yaxis = np.power(HHG_AU_omega,2.)*np.abs(HHG_AU)**2 #FULL HHG spectrum is taken (X, Y and Z). This is Larmor formula
+Yaxis = np.power(HHG_AU_omega,2.)*np.abs(HHG_AU)**2 #FULL HHG spectrum is taken (X, Y and Z). This is Larmor formula, but in atomic units. It may generate too large numbers. #TODO: check Larmor formula SI vs AU. 
+"""
+WARNING: this formula matters very much for comparison of spectra with experiments. 
+         If neglecting the quantity for multiplying, one can see big noise in high 
+         harmonics whereas experiment would see nothing. 
+"""
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xlim([0,10]) #eV
-plt.xticks(np.arange(1,30, step=2))
+# plt.xticks(np.arange(1,30, step=2))
 
 filename = "HHG-Spectrum"
 SampleArray=list(zip(*[Xaxis, Yaxis]))
