@@ -40,3 +40,5 @@ isualizationWorkshop/instructions/C2H4_2D/data/
 doc/html/*
 doc/latex/*
 *checkpoint*
+*.ipynb_checkpoints
+.ipynb_checkpoints/*
