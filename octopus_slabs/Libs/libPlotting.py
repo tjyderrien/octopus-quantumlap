@@ -149,7 +149,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
       return realmeshgrid
 
   ## Capture angle of secondPulse polarization in respect of first pulse
-  def GetCrossPolarizationAngle(filename)
+  def GetCrossPolarizationAngle(filename):
       # === Capture of the pulse2-angle of field
       CrossPolarization_inp = libString.LookUpStringInFile(filename, "th2 =")  # if not found, then zero
       # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case.
