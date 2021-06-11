@@ -20,7 +20,7 @@
 # Define shared functions for plotting routines and database construction
 
 import os.path
-import pdb
+# import pdb
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
@@ -52,9 +52,12 @@ def LoadRunOutputs(path): #{{{
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
       laser=np.genfromtxt(path+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
-  except: 
-      logger.error((Header+"** Critical error: file could not be retrieved. Stopping the database fetching... Did you run plotAll.sh first? Laser file has some column width problem from octopus. "))
-      exit()
+  except:
+      laser = np.genfromtxt(path + "../td.general/laser", dtype='str', skip_header=6, loose=False,
+                            invalid_raise=True, filling_values=0.)
+      logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
+                             "Did you run plotAll.sh first? Laser file has some column width problem from octopus.\n"+
+                            "We'll try to fly with usual laser file instead. ")
   
   # PostTreatedDensity = np.loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU).
   TotalCurrent=np.loadtxt(path+"../td.general/total_current", dtype='str', skiprows=4)
@@ -102,7 +105,8 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
   
-  #Load the existing database                                                                    # 1. Load the existing database
+  #Load the existing database
+  # 1. Load the existing database
   try: 
     Database = np.loadtxt(DatabaseName, skiprows=0)
     logger.info((Header+"** Info: the existing database was found. We will reuse the existing DB. "))
@@ -268,9 +272,11 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 
     # Gaussian | SinSquared pulse | bugged Soft Top Hat pulse (2) | Fixed STH (3) ?
 #    del PulseType_inp, PulseType_value
-    PulseType_inp   = libString.LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-') #BUG: To which file do we refer each time ?
-    PulseType_value = PulseType_inp[48:] #this allows to have unique solution
+    PulseType_inp   = libString.LookUpStringInFile(FolderName+"../inp", '| "FieldColorA-')
+    PulseType_value = PulseType_inp[48:] #this allows to have unique solution although its really rough
     logger.debug((Header+"** Debug info: PulseType_value = "+str(PulseType_value)))
+
+    #TODO: can this be matched using PulseTypeID_rev
     if("Gaussian" in PulseType_value):
       logger.info((Header+"** Info: Gaussian pulse detected..."))
       PulseTypeName="gaussian"
@@ -607,12 +613,12 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     TotalCurrent_AU_Ymax  = np.max(TotalCurrent_Y_AU)
     TotalCurrent_AU_Zmax  = np.max(TotalCurrent_Z_AU)
 
-    TotalCurrent_SI_norm  = np.sqrt( np.power(TotalCurrent_X_SI,2)+np.power(TotalCurrent_Y_SI,2)+np.power(TotalCurrent_Z_SI,2) ) #computes norm of the current
+    # TotalCurrent_SI_norm  = np.sqrt( np.power(TotalCurrent_X_SI,2)+np.power(TotalCurrent_Y_SI,2)+np.power(TotalCurrent_Z_SI,2) ) #computes norm of the current
  
     # Computing External field reconstructed using the current. Work in atomic units. 
     minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
 
-    Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
+    # Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
 
     Ein_AU     = Efield_AU[:minLength]
     PolarizationField_AU = cumtrapz(TotalCurrent_X_AU,x=timeCurrent)
@@ -660,9 +666,9 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     
     EnergyPoynting_SI_sum_final = EnergyPoynting_SI_sum[len(EnergyPoynting_SI_sum)-1] #final absorbed energy
    
-    EnergyPoynting_SI_check           =au.Energy_Hartree_to_eV(EnergyPoynting_AU)
-    EnergyPoynting_SI_sum_check       =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
-    EnergyPoynting_SI_sum_max_check   =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
+    # EnergyPoynting_SI_check           =au.Energy_Hartree_to_eV(EnergyPoynting_AU)
+    # EnergyPoynting_SI_sum_check       =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum)
+    # EnergyPoynting_SI_sum_max_check   =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum_max)
     EnergyPoynting_SI_sum_final_check =au.Energy_Hartree_to_eV(EnergyPoynting_AU_sum_final)
 #    print(Header+'** Info: max absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_max))
 #    print(Header+'** Info: max absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_max))
@@ -713,8 +719,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
 
     try: 
-        logger.info((Header+"** Info: trying condition for computing ElectronDensity n_exc and ElectronEnergy right after the pulse: "))
-        tolerance_ne=1E-4; tolerance_Efield = 1E-3  
+        logger.info(Header+"** Info: trying condition for capturing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
+        tolerance_ne=1E-4; tolerance_Efield = 1E-3 #atomic units
 
         # Accounting for a second field, then only considering differential of field.
         Efield_12_AU=np.maximum(np.abs(Efield_AU),np.abs(Efield2_AU))
@@ -725,8 +731,8 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
         # when using induced fields). Preparing dNe, dEnergy, d(Efield1)
         # ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
         # Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
-        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
-        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield)[:len(ElectronEnergy)] #restricts size of the mapping
+        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomuc units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
+        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) #[:len(ElectronEnergy)] #restricts size of the mapping
         
         logger.debug((Header+"** Debug: Shape(FieldEqualZero    )="+str(np.shape(FieldEqualZero))))
         logger.debug((Header+"** Debug: Shape(FieldDiffEqualZero)="+str(np.shape(FieldDiffEqualZero))))
@@ -743,7 +749,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
             duration_tau_1 = PulseDuration_SI  + RiseTime*pi/omega_1 #SI
             duration_tau_2 = PulseDuration2_SI + RiseTime*pi/omega_2 #SI
         else: 
-            logger.error((Header+"** ERROR: capture of end of pulse is not managed."))
+            logger.error(Header+"** ERROR: capture of end of pulse is not managed.")
             raise IndexError #TODO: prepare Exception("NotImplemented")
             # raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
@@ -992,6 +998,7 @@ def ListAllOutput(path='*/*/*/td.general/', DatabaseName='Database.csv', FromScr
 ## Unfold the data from an array of octopus results
 # @param PlottingTable: array of floats containing the data to extract. 
 # /!\ The size of the table must match the one given in ListAllOutput()
+# TODO: this function should be replaced by Pandas usage.
 def ExtractData(PlottingTable): #{{{
   runid                        = PlottingTable[:,0]
   RunDate                      = PlottingTable[:,1]
@@ -1051,6 +1058,7 @@ def ExtractData(PlottingTable): #{{{
       EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom
 #}}}
 
+# TODO: this also can be replaced by Pandas usage
 IndexTable = {'runid':                        0, 
               'rundate':                      1,
               'kpointgrid':                   2,
@@ -1231,8 +1239,8 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
 # STH was not well controlled (stupid mistake)
 # StH was well controlled. 
 # StH4 is experimental.
-PulseTypeID = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4, 'SinFourth': 5}
-PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4', 5: 'SinFourth'}
+PulseTypeID     = {'gaussian': 0, 'SinSquared': 1, 'STH': 2, 'StH': 3, 'StH4': 4, 'SinFourth': 5}
+PulseTypeID_rev = {0: 'gaussian', 1: 'SinSquared', 2: 'STH', 3: 'StH', 4: 'StH4', 5: 'SinFourth'} #reversed
 
 ## Splits the currents into several objects (all in atomic units)
 def GetTotalCurrent(TotalCurrent): #{{{
