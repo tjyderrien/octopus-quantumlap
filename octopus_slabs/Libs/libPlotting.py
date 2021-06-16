@@ -51,13 +51,18 @@ def LoadRunOutputs(localpath): #{{{
   
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
-      laser=np.genfromtxt(localpath+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
+      laser=np.genfromtxt(localpath+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=False, filling_values=0.)
   except:
-      laser = np.genfromtxt(localpath + "../td.general/laser", dtype='str', skip_header=6, loose=False,
-                            invalid_raise=True, filling_values=0.)
-      logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
+      try: 
+          laser = np.genfromtxt(localpath + "../td.general/laser", dtype='str', skip_header=6, loose=False,
+                            invalid_raise=False, filling_values=0.)
+          logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
                              "Did you run plotAll.sh first? Laser file has some column width problem from octopus.\n"+
                             "We'll try to fly with usual laser file instead. ")
+      except:
+          logger.error(Header+"** Critical error: laser file could not be retrieved. It seems run is corrupted since\n"+
+                              "laser nor laser.tmp could be loaded. \n"+
+                              "This RUN should be DISABLED, maybe.") 
   
   # PostTreatedDensity = np.loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU).
   TotalCurrent=np.loadtxt(localpath+"../td.general/total_current", dtype='str', skiprows=4)
@@ -1454,7 +1459,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -1470,20 +1475,30 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
   # If the size is big enough, let's make a plot.
   #if(len(DensityMax2D) >= 2): #{{{
   if(len(BrutZ) >= 2): #{{{
-      #try:
-      triang = tri.Triangulation(BrutX, BrutY)
-      triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
-                               BrutY[triang.triangles].mean(axis=1))
-                      < 0.15)
+      ## CONCEPT: initial mesh is plotted using a non-structured grid. 
+      ##          while the gradient is computed after interpolation on
+      ##          a structured mesh
+      logger.info("Building the unstructured mesh triangulation...")
+      triang = tri.Triangulation(BrutX, BrutY) #computes Delaunay triangulation
+#      triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
+#                               BrutY[triang.triangles].mean(axis=1))
+#                      < 0.15)
       # We can project the triangular mesh on a orthogonal by performing interpolation as done here. https://matplotlib.org/3.1.0/gallery/images_contours_and_fields/triinterp_demo.html
+
+      logger.info("Preparing refinement objects...")
       refiner = tri.UniformTriRefiner(triang)
-      tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
-      
-      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), 100), np.linspace(np.min(BrutY), np.max(BrutY), 100) )
-      #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
-      #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
-      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
-#      interp_linear= tri.LinearTriInterpolator(tri_refi, z_test_refi) #consumes much less. 
+      tri_refi, z_test_refi = refiner.refine_field(BrutZ, triinterpolator=None, subdiv=0) #For strange reasons, refining induces some very bad result.
+
+#      logger.info("Preparing TriCubic interpolation...")
+#      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #min_E, geom
+
+#      logger.info("Refining the field...")
+#      tri_refi, z_test_refi = refiner.refine_field(BrutZ, interp_cubic, subdiv=3)
+
+      logger.info("Interpolation on a structured grid to compute the gradient...")
+     # E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), resolutionX), np.linspace(np.min(BrutY), np.max(BrutY), resolutionY) ) #this one returns weird pics for HHG with CEP
+      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), xlimit, resolutionX), np.linspace(np.min(BrutY), ylimit, resolutionY) ) #let's try to limit the axis of energies (Y-axis)
+      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #min_E, geom
       Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
       Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
       
@@ -1539,7 +1554,7 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       # Adding vertical bars for the gap energy
       for n in [1,2,3,4,5,6]:
         plt.axvline(x=Egap/e/n, linestyle=":")
-        plt.axhline(y=1E6*h*c/(Egap/n), linestyle=':') 
+        plt.axhline(y=1E6*h*c/(Egap/e/n), linestyle=':') 
         plt.axvline(x=n*Egap/e, linestyle=":")
         # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevant
 
