@@ -29,7 +29,7 @@ from spp_extended_theory.Libs import libDatabase
 # from spp_extended_theory.Keldysh.libKeldysh import *
 
 from scipy.interpolate import interp1d
-from scipy.constants import e, h, hbar
+from scipy.constants import e, h, hbar, c
 from octopus_slabs.Libs import libPlotting
 
 from matplotlib import rc
@@ -315,10 +315,14 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     Y = np.asfarray(Y)
 
     # Returns log10 of Z, but clean.
-    Z_clipped=np.clip(Z, 2, np.max(Z))
-    Z_log=np.log10(Z_clipped)
+    Z_clipped=np.clip(Z, 0, np.max(np.max(Z))) #we remove zones lower than 2
+#    Z_log=np.log10(Z_clipped)
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
-    Z=Z_log #Z_clipped
+    Z_av = np.mean(Z_clipped)
+    print("Average value of the distribution: "+str(Z_av) )
+    Z_fluctuation = Z_clipped - Z_av #recommended by M. Kozak
+    Z = Z_fluctuation
+#    Z=Z_log #Z_clipped #plotting fluctuations
     # Z=Z_clipped
     # From here, we have all the files we need. 
 
@@ -333,13 +337,14 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 #    colormap='bone_r'
     colormap="RdBu_r"
 
-    ShowFinalPlot=False
-    PlotTriangles=False
+    ShowFinalPlot=True
+    PlotTriangles=True
     PlotGradient =False
     
-    xlimit     = [0.1,5] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
-    ylimit     = [-180,180] #deg
+    xlimit     = [0.,h*c/200e-9/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    ylimit     = [-90.,90.] #deg
     numberoflevels=30
+    grad_precisionX=10; grad_precisionY=10; #number of cells for interpolation for gradient computation
     Egap=2.56*e
     
     filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))
@@ -350,7 +355,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     print("** Preparing plot...")
-    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
+    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap, grad_precisionX, grad_precisionY)
     return 0
 #}}}
 

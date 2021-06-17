@@ -719,9 +719,9 @@ ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
 Xaxis = HHG_AU_omega*hbar/e #energy of the harmonics
-Yaxis = np.power(HHG_AU_omega*hbar,2.)*np.abs(HHG_AU)**2 #FULL HHG spectrum is taken (X, Y and Z).
 # This is Larmor formula, but in atomic units. It may generate too large numbers.
 # #TODO: check Larmor formula SI vs AU.
+Yaxis = np.power(HHG_AU_omega*hbar/e,2.)*np.abs(HHG_AU)**2 #FULL HHG spectrum is taken (X, Y and Z). This is Larmor formula, but in atomic units. It may generate too large numbers. #TODO: check Larmor formula SI vs AU. 
 """
 WARNING: this formula matters very much for comparison of spectra with experiments. 
          If neglecting the quantity for multiplying, one can see big noise in high 
@@ -736,7 +736,7 @@ SampleArray=list(zip(*[Xaxis, Yaxis]))
 ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
 # ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log")
+# ax4.set_yscale("log")
 
 # Enable the NonLinear Frequency Conversion visuals if E_B is large
 plotNLFC=(Efield_amplitudeB_SI > 1)

@@ -51,13 +51,18 @@ def LoadRunOutputs(localpath): #{{{
   
   #NOTE: the laser file must be treated by a script because there is a bug there.  
   try:
-      laser=np.genfromtxt(localpath+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=True, filling_values=0.)
+      laser=np.genfromtxt(localpath+"../td.general/laser.tmp", dtype='str', skip_header=6, loose=False, invalid_raise=False, filling_values=0.)
   except:
-      laser = np.genfromtxt(localpath + "../td.general/laser", dtype='str', skip_header=6, loose=False,
-                            invalid_raise=True, filling_values=0.)
-      logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
+      try: 
+          laser = np.genfromtxt(localpath + "../td.general/laser", dtype='str', skip_header=6, loose=False,
+                            invalid_raise=False, filling_values=0.)
+          logger.warning(Header+"** Critical error: file could not be retrieved. Stopping the database fetching...\n"+
                              "Did you run plotAll.sh first? Laser file has some column width problem from octopus.\n"+
                             "We'll try to fly with usual laser file instead. ")
+      except:
+          logger.error(Header+"** Critical error: laser file could not be retrieved. It seems run is corrupted since\n"+
+                              "laser nor laser.tmp could be loaded. \n"+
+                              "This RUN should be DISABLED, maybe.") 
   
   # PostTreatedDensity = np.loadtxt("postCalculationNexcited.log", dtype='str', skiprows=1) #Unit: number of electrons, which should be multiplied by cell volume (AU).
   TotalCurrent=np.loadtxt(localpath+"../td.general/total_current", dtype='str', skiprows=4)
@@ -149,7 +154,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       return realmeshgrid
 
   ## Capture angle of secondPulse polarization in respect of first pulse
-  def GetCrossPolarizationAngle(filename)
+  def GetCrossPolarizationAngle(filename):
       # === Capture of the pulse2-angle of field
       CrossPolarization_inp = libString.LookUpStringInFile(filename, "th2 =")  # if not found, then zero
       # Since Dec 2020, one consider angle th1 for orienting the electric field in the crystal. In some inp files, th2 is set equal to th1. The following lines should account for this case.
@@ -709,8 +714,6 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     logger.info((Header+'** Info: final absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_final)))
     logger.info((Header+'** Info: final absorbed Poynting energy (Hartree->eV): '+str(EnergyPoynting_SI_sum_final_check)))
     logger.info((Header+'** Info: final absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_final)))
-
-    
     
     logger.info(Header+"Final DC current (SI): X: "+str(float(au.Current_AU_to_SI(TotalCurrent_X_AU_final)))+", Y: "+str(float(au.Current_AU_to_SI(TotalCurrent_Y_AU_final)))+", Z: "+str(float(au.Current_AU_to_SI(TotalCurrent_Z_AU_final)))+" C/m²/s.")
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
@@ -741,9 +744,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # 1. E_tot^laser = 0 along with dE_tot^laser/dt=0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
 
-    try: 
+    if(True): #try: 
         logger.info(Header+"** Info: trying condition for capturing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
         tolerance_ne=1E-4; tolerance_Efield = 1E-3 #atomic units
+        tolerance_Efield_relative=1E-1 #tolerance for selecting the end of bicolor pulses. Some of them have non varying density anymore, particularly during the last laser oscillations. 
 
         # Accounting for a second field, then only considering differential of field.
         Efield_12_AU=np.maximum(np.abs(Efield_AU),np.abs(Efield2_AU))
@@ -754,8 +758,11 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # when using induced fields). Preparing dNe, dEnergy, d(Efield1)
         # ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
         # Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
-        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomuc units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
-        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) #[:len(ElectronEnergy)] #restricts size of the mapping
+        Efield_12_AU_max=np.max(np.max(Efield_12_AU)) #maximum amplitude of the field (AU)
+        FieldRelativeVariation = np.abs(Efield_12_AU - Efield_12_AU_max)/Efield_12_AU_max
+        FieldRelativeVariation_bool_t = (FieldRelativeVariation < tolerance_Efield_relative)
+        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomic units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
+        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) 
         
         logger.debug((Header+"** Debug: Shape(FieldEqualZero    )="+str(np.shape(FieldEqualZero))))
         logger.debug((Header+"** Debug: Shape(FieldDiffEqualZero)="+str(np.shape(FieldDiffEqualZero))))
@@ -782,22 +789,22 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
-        SizeOfWorkingArray=len(FieldDiffEqualZero)       #size limiter for the electric field
+        SizeOfWorkingArray=np.minimum(len(FieldEqualZero), len(timeEnergies))       # limiting size to smallest file
         # BUILDING MASK FOR ENERGY - does not require interpolartion
         logger.debug((Header+"** Debug: size of FieldEqualZero, FieldDiffEqualZero, (timeEnergies > timeFarEnough): "+str(FieldEqualZero)+", "+str(FieldDiffEqualZero)+", "+str((timeEnergies > timeFarEnough))))
-        Mask1= np.logical_and(FieldDiffEqualZero, FieldEqualZero[:SizeOfWorkingArray])
+        Mask1= np.logical_and(FieldDiffEqualZero[:SizeOfWorkingArray], FieldEqualZero[:SizeOfWorkingArray])
         Mask = np.logical_and(Mask1, (timeEnergies > timeFarEnough)[:SizeOfWorkingArray]) #Mask for the energy observable expressed in the timeLaser grid (provided laser and enery time grids are the same)
         logger.debug((Header+"** Debug: size of Mask for Energy: "+str(len(Mask))))
         logger.debug((Header+"** Debug: Mask = "+str(Mask)))
  
         logger.debug((Header+"** Debug: size of Efield_AU, Efield2_AU: "+str(len(Efield_AU))+", "+str(len(Efield2_AU))))
-        logger.debug((Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray]))+", "+str(len(timeNe))))
+        logger.debug((Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU))+", "+str(len(timeNe))))
         logger.debug(Header+"** Debug: size of dEfield_12_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
-        logger.debug(Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray])))
+        logger.debug(Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
         logger.debug((Header+"** Debug: maximum existing instants for time, timeNe "+str(np.max(time))+", "+str(np.max(timeNe))))
         logger.debug((Header+"** Debug: timeNe ="+str(timeNe)))
         logger.debug((Header+"** Debug: time   ="+str(time)))
-        logger.debug((Header+"** Debug: Efield_12_AU="+str(Efield_12_AU[:SizeOfWorkingArray])))
+        logger.debug((Header+"** Debug: Efield_12_AU="+str(Efield_12_AU)))
         logger.debug((Header+"** Debug: max(Efield_12_AU)="+str(np.max(Efield_12_AU))))
 
         # BUILDING MASK FOR DENSITY - requires interpolation
@@ -887,8 +894,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         #ElectronDensityRightAfterPulse = 0e0
 
         #timeToFilterFrom = 0e0
-    # else: 
-    except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    else: 
+    # except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
@@ -896,7 +903,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-    #"""
+    """
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -906,7 +913,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 #        exit()
-    #"""
+    """
     logger.info(Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse))
@@ -1455,7 +1462,7 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -1471,20 +1478,30 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
   # If the size is big enough, let's make a plot.
   #if(len(DensityMax2D) >= 2): #{{{
   if(len(BrutZ) >= 2): #{{{
-      #try:
-      triang = tri.Triangulation(BrutX, BrutY)
-      triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
-                               BrutY[triang.triangles].mean(axis=1))
-                      < 0.15)
+      ## CONCEPT: initial mesh is plotted using a non-structured grid. 
+      ##          while the gradient is computed after interpolation on
+      ##          a structured mesh
+      logger.info("Building the unstructured mesh triangulation...")
+      triang = tri.Triangulation(BrutX, BrutY) #computes Delaunay triangulation
+#      triang.set_mask(np.hypot(BrutX[triang.triangles].mean(axis=1),
+#                               BrutY[triang.triangles].mean(axis=1))
+#                      < 0.15)
       # We can project the triangular mesh on a orthogonal by performing interpolation as done here. https://matplotlib.org/3.1.0/gallery/images_contours_and_fields/triinterp_demo.html
+
+      logger.info("Preparing refinement objects...")
       refiner = tri.UniformTriRefiner(triang)
-      tri_refi, z_test_refi = refiner.refine_field(BrutZ, subdiv=3)
-      
-      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), 100), np.linspace(np.min(BrutY), np.max(BrutY), 100) )
-      #I1_t = .5*c*epsilon_0*np.power(E1_t*1E9,2.)
-      #I2_t = .5*c*epsilon_0*np.power(E2_t*1E9,2.)
-      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #kind='min_E' | 'geom'
-#      interp_linear= tri.LinearTriInterpolator(tri_refi, z_test_refi) #consumes much less. 
+      tri_refi, z_test_refi = refiner.refine_field(BrutZ, triinterpolator=None, subdiv=0) #For strange reasons, refining induces some very bad result.
+
+#      logger.info("Preparing TriCubic interpolation...")
+#      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #min_E, geom
+
+#      logger.info("Refining the field...")
+#      tri_refi, z_test_refi = refiner.refine_field(BrutZ, interp_cubic, subdiv=3)
+
+      logger.info("Interpolation on a structured grid to compute the gradient...")
+     # E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), np.max(BrutX), resolutionX), np.linspace(np.min(BrutY), np.max(BrutY), resolutionY) ) #this one returns weird pics for HHG with CEP
+      E1_t, E2_t = np.meshgrid( np.linspace(np.min(BrutX), xlimit, resolutionX), np.linspace(np.min(BrutY), ylimit, resolutionY) ) #let's try to limit the axis of energies (Y-axis)
+      interp_cubic = tri.CubicTriInterpolator(tri_refi, z_test_refi, kind='geom') #min_E, geom
       Nexc_t     = interp_cubic(E1_t, E2_t) #Now we should have Nexc_t interpolated on a chosen E1, E2 grid. 
       Nexc_t_grad = interp_cubic.gradient(E1_t, E2_t) #should provide the slope of Nexc(E1, E2) in both directions E1 and E2 :-)
       
@@ -1540,7 +1557,7 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       # Adding vertical bars for the gap energy
       for n in [1,2,3,4,5,6]:
         plt.axvline(x=Egap/e/n, linestyle=":")
-        plt.axhline(y=1E6*h*c/(Egap/n), linestyle=':') 
+        plt.axhline(y=1E6*h*c/(Egap/e/n), linestyle=':') 
         plt.axvline(x=n*Egap/e, linestyle=":")
         # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevant
 
