@@ -231,6 +231,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
 
+    # Capturing metadata
     RunDate = GetMachineName(LOG_newest)
     TheoryLevel = GetTheoryLevel(filename)
     kpointgrid=libString.CaptureKPointGridSizeFromINP(filename)
