@@ -81,13 +81,12 @@ path1='*/*/*/output_iter/' #valid for the runs computed from a same k-grid folde
 path2='*/*/*/td.general/'
 path3='*/*/td.general/'
 
-
+UseThisPath=path2
 
 if(EnablePeakFinder): 
   from scipy.signal import find_peaks
 
-PlottingTable = libExcitationDatabase.GetExcitationDatabase(path2) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
-    
+PlottingTable = libExcitationDatabase.GetExcitationDatabase(UseThisPath) #completes the existing database, or fetches the new one in all the subfolders where this is executed. 
 
 logger.info(PlottingTable)
 

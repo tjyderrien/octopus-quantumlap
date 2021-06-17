@@ -713,8 +713,6 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     logger.info((Header+'** Info: final absorbed Poynting energy (Hartree): '+str(EnergyPoynting_AU_sum_final)))
     logger.info((Header+'** Info: final absorbed Poynting energy (Hartree->eV): '+str(EnergyPoynting_SI_sum_final_check)))
     logger.info((Header+'** Info: final absorbed Poynting energy (eV): '+str(EnergyPoynting_SI_sum_final)))
-
-    
     
     logger.info(Header+"Final DC current (SI): X: "+str(float(au.Current_AU_to_SI(TotalCurrent_X_AU_final)))+", Y: "+str(float(au.Current_AU_to_SI(TotalCurrent_Y_AU_final)))+", Z: "+str(float(au.Current_AU_to_SI(TotalCurrent_Z_AU_final)))+" C/m²/s.")
     TotalCurrent_SI_final = abs(TotalCurrent_X_AU_final) + abs(TotalCurrent_Y_AU_final) + abs(TotalCurrent_Z_AU_final)
@@ -745,9 +743,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # 1. E_tot^laser = 0 along with dE_tot^laser/dt=0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
 
-    try: 
+    if(True): #try: 
         logger.info(Header+"** Info: trying condition for capturing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
         tolerance_ne=1E-4; tolerance_Efield = 1E-3 #atomic units
+        tolerance_Efield_relative=1E-1 #tolerance for selecting the end of bicolor pulses. Some of them have non varying density anymore, particularly during the last laser oscillations. 
 
         # Accounting for a second field, then only considering differential of field.
         Efield_12_AU=np.maximum(np.abs(Efield_AU),np.abs(Efield2_AU))
@@ -758,8 +757,11 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # when using induced fields). Preparing dNe, dEnergy, d(Efield1)
         # ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
         # Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
-        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomuc units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
-        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) #[:len(ElectronEnergy)] #restricts size of the mapping
+        Efield_12_AU_max=np.max(np.max(Efield_12_AU)) #maximum amplitude of the field (AU)
+        FieldRelativeVariation = np.abs(Efield_12_AU - Efield_12_AU_max)/Efield_12_AU_max
+        FieldRelativeVariation_bool_t = (FieldRelativeVariation < tolerance_Efield_relative)
+        FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomic units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
+        FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) 
         
         logger.debug((Header+"** Debug: Shape(FieldEqualZero    )="+str(np.shape(FieldEqualZero))))
         logger.debug((Header+"** Debug: Shape(FieldDiffEqualZero)="+str(np.shape(FieldDiffEqualZero))))
@@ -786,22 +788,22 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
-        SizeOfWorkingArray=len(FieldDiffEqualZero)       #size limiter for the electric field
+        SizeOfWorkingArray=np.minimum(len(FieldEqualZero), len(timeEnergies))       # limiting size to smallest file
         # BUILDING MASK FOR ENERGY - does not require interpolartion
         logger.debug((Header+"** Debug: size of FieldEqualZero, FieldDiffEqualZero, (timeEnergies > timeFarEnough): "+str(FieldEqualZero)+", "+str(FieldDiffEqualZero)+", "+str((timeEnergies > timeFarEnough))))
-        Mask1= np.logical_and(FieldDiffEqualZero, FieldEqualZero[:SizeOfWorkingArray])
+        Mask1= np.logical_and(FieldDiffEqualZero[:SizeOfWorkingArray], FieldEqualZero[:SizeOfWorkingArray])
         Mask = np.logical_and(Mask1, (timeEnergies > timeFarEnough)[:SizeOfWorkingArray]) #Mask for the energy observable expressed in the timeLaser grid (provided laser and enery time grids are the same)
         logger.debug((Header+"** Debug: size of Mask for Energy: "+str(len(Mask))))
         logger.debug((Header+"** Debug: Mask = "+str(Mask)))
  
         logger.debug((Header+"** Debug: size of Efield_AU, Efield2_AU: "+str(len(Efield_AU))+", "+str(len(Efield2_AU))))
-        logger.debug((Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray]))+", "+str(len(timeNe))))
+        logger.debug((Header+"** Debug: shrinked size of Efield_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU))+", "+str(len(timeNe))))
         logger.debug(Header+"** Debug: size of dEfield_12_AU, Efield2_AU, Efield_12_AU: timeNe: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
-        logger.debug(Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU[:SizeOfWorkingArray]))+", "+str(len(Efield_12_AU[:SizeOfWorkingArray]))+", "+str(len(Efield2_AU[:SizeOfWorkingArray])))
+        logger.debug(Header+"** Debug: size of shrinked dEfield_12_AU, Efield2_AU, Efield_12_AU: "+str(len(Efield_AU))+", "+str(len(Efield_12_AU))+", "+str(len(Efield2_AU)))
         logger.debug((Header+"** Debug: maximum existing instants for time, timeNe "+str(np.max(time))+", "+str(np.max(timeNe))))
         logger.debug((Header+"** Debug: timeNe ="+str(timeNe)))
         logger.debug((Header+"** Debug: time   ="+str(time)))
-        logger.debug((Header+"** Debug: Efield_12_AU="+str(Efield_12_AU[:SizeOfWorkingArray])))
+        logger.debug((Header+"** Debug: Efield_12_AU="+str(Efield_12_AU)))
         logger.debug((Header+"** Debug: max(Efield_12_AU)="+str(np.max(Efield_12_AU))))
 
         # BUILDING MASK FOR DENSITY - requires interpolation
@@ -891,8 +893,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         #ElectronDensityRightAfterPulse = 0e0
 
         #timeToFilterFrom = 0e0
-    # else: 
-    except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    else: 
+    # except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
@@ -900,7 +902,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-    #"""
+    """
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -910,7 +912,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 #        exit()
-    #"""
+    """
     logger.info(Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse))
