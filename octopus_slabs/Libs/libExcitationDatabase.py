@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2020 T. J.-Y. Derrien
+# Copyright (C) 2013-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,16 +25,17 @@
 # libDatabase = import_module("")
 import numpy as np
 import spp_extended_theory.Libs.libDatabase as libDatabase
-from octopus_slabs.Libs.libPlotting import ListAllOutput
+from   octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
 
 ## Calls for the construction of excitation database and manages exceptions. 
 def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
-#  path='*/*/td.general/'
   #DatabaseName = 'Database.csv'
+  ## DEBUG PURPOSE ONLY
+  # path="Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/lambda800e-9-tau30E-15-field5E8-CEP0.0-StH2/lambda1600e-9-tau30E-15-field9E9-CEP0.0-delay0e-15-StH/td.general/"
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
-  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.2\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
+  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.2.1\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude (au)\tProbeFieldDelay (s)\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent (ua)\tMaxJx\tMaxJy\tMaxJz\tEnergy (eV)\tEigenvalues (eV)\tHartree Energy (eV)\tExchangeEnergy (eV)\tEnergy afterpulse (eV)\tEigenvalues afterpulse (eV)\tHartree Energy afterpulse (eV)\tExchangeEnergy afterpulse (eV)\tPoyntingEnergyFinal(eV)\tEext_peak (V/m)\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
 
   print((Header+"Attempting to load previous results...")) 
 
