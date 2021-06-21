@@ -744,10 +744,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # 1. E_tot^laser = 0 along with dE_tot^laser/dt=0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
 
-    if(True): #try: 
+    try: 
         logger.info(Header+"** Info: trying condition for capturing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
         tolerance_ne=1E-4; tolerance_Efield = 1E-3 #atomic units
-        tolerance_Efield_relative=1E-1 #tolerance for selecting the end of bicolor pulses. Some of them have non varying density anymore, particularly during the last laser oscillations. 
+        tolerance_Efield_relative=1E-7 #tolerance for selecting the end of bicolor pulses. Some of them have non varying density anymore, particularly during the last laser oscillations. 
 
         # Accounting for a second field, then only considering differential of field.
         Efield_12_AU=np.maximum(np.abs(Efield_AU),np.abs(Efield2_AU))
@@ -758,9 +758,14 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # when using induced fields). Preparing dNe, dEnergy, d(Efield1)
         # ElectronEnergy_diff = np.diff(ElectronEnergy)  #this provides variation of energy with timeLaser grid
         # Ne_diff             = np.diff(density_proj_SI) #this provides variation of density with timeNe grid
-        Efield_12_AU_max=np.max(np.max(Efield_12_AU)) #maximum amplitude of the field (AU)
-        FieldRelativeVariation = np.abs(Efield_12_AU - Efield_12_AU_max)/Efield_12_AU_max
+        Efield_12_AU_max=np.amax(np.amax(np.abs(Efield_12_AU))) #maximum amplitude of the field (AU)
+        FieldRelative = np.abs(Efield_12_AU)/Efield_12_AU_max #meaningless: we should compare distance to zero, normalized
+        FieldRelativeVariation = np.abs(Efield_12_AU_diff) #/Efield_12_AU_max #time-derivative dE_1+2, compared relatively to maximum field. dE/E should be small.  
+        logger.warning("Maximum dE/E (normalized): "+str(np.amax(np.amax(FieldRelativeVariation))))
+        logger.warning("Last dE/E (normalized): "+str(FieldRelativeVariation[len(FieldRelativeVariation)-1]))
         FieldRelativeVariation_bool_t = (FieldRelativeVariation < tolerance_Efield_relative)
+#        if(not FieldRelativeVariation_bool_t[:len(FieldRelativeVariation_bool_t)]): 
+        logger.warning("Relative variation of field at last cell is: "+str(FieldRelativeVariation))
         FieldEqualZero=(Efield_12_AU < tolerance_Efield) #atomic units #this provides an array indexed on timestep where field does no longer variates (accounts for double pulse cases)
         FieldDiffEqualZero = (Efield_12_AU_diff < tolerance_Efield) 
         
@@ -894,8 +899,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         #ElectronDensityRightAfterPulse = 0e0
 
         #timeToFilterFrom = 0e0
-    else: 
-    # except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    # else: 
+    except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
@@ -903,7 +908,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-    """
+    
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -913,7 +918,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 #        exit()
-    """
+    
     logger.info(Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse))
