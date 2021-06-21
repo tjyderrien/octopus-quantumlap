@@ -788,16 +788,22 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
             raise IndexError #TODO: prepare Exception("NotImplemented")
             # raise IndexError #TODO: prepare Exception("NotImplemented")
         # Computing a time right after the pulse, accounting for situations of double pulse of SinSquared or StH shapes. 
+        # The criterion of selection slightly varies if we use single or double pulses. It is 
+        # more tolerant for double pulses (it is meant to re-use runs that are sufficiently converged in density, although the double pulse is not completely finished).   
         timeFarEnough = au.Time_SI_to_AU(duration_tau_1) #AU #VALID
         if(Efield2_SI_input > 1.): #as was well used line 250 (TODO: make a function)
             timeFarEnough += duration_tau_2 + au.Time_SI_to_AU(DoublePulseDelay_SI) #AU ScalarValue
-
+            SizeOfWorkingArray=np.amin(len(FieldRelativeVariation_bool_t), len(timeEnergies))
+        else: 
+            SizeOfWorkingArray=np.amin(len(FieldEqualZero), len(timeEnergies)) # limiting size to smallest file
+            
         ## MASK FOR JOINT CONDITION 1 and CONDITION 2. 
         # Build a mask to select region with all the conditions together, applicable on any object expressed on time grid of laser (and energy, provided they are the same)
-        SizeOfWorkingArray=np.minimum(len(FieldEqualZero), len(timeEnergies))       # limiting size to smallest file
         # BUILDING MASK FOR ENERGY - does not require interpolartion
-        logger.debug((Header+"** Debug: size of FieldEqualZero, FieldDiffEqualZero, (timeEnergies > timeFarEnough): "+str(FieldEqualZero)+", "+str(FieldDiffEqualZero)+", "+str((timeEnergies > timeFarEnough))))
-        Mask1= np.logical_and(FieldDiffEqualZero[:SizeOfWorkingArray], FieldEqualZero[:SizeOfWorkingArray])
+            logger.debug((Header+"** Debug: size of FieldEqualZero, FieldDiffEqualZero, (timeEnergies > timeFarEnough): "+str(FieldEqualZero)+", "+str(FieldDiffEqualZero)+", "+str((timeEnergies > timeFarEnough))))
+            Mask1= np.logical_and(FieldDiffEqualZero[:SizeOfWorkingArray], FieldEqualZero[:SizeOfWorkingArray])
+        
+        
         Mask = np.logical_and(Mask1, (timeEnergies > timeFarEnough)[:SizeOfWorkingArray]) #Mask for the energy observable expressed in the timeLaser grid (provided laser and enery time grids are the same)
         logger.debug((Header+"** Debug: size of Mask for Energy: "+str(len(Mask))))
         logger.debug((Header+"** Debug: Mask = "+str(Mask)))

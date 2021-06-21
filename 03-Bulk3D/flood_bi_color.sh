@@ -3,6 +3,7 @@ set -e
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
@@ -18,6 +19,7 @@ echo "** DRY-RUN: run_td.sh contains a dry-run for safety."
 echo "Note: In this file, you can define all laser pulses of the run you may like to submit."
 
 ## ========= COMMON PARTS =============
+echo "** Info: defining material and methods"
 # Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
@@ -43,7 +45,7 @@ Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
-Mission="Bicolor-lambda"
+Mission="BicolorNadya"
 
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
@@ -80,14 +82,14 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield2="5E8 7.5E8 1E9 1.25E9 1.5E9 1.75E9 2E9" #1E8 5E8 1E9 5E9"
 Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8"
 Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
-Efield1=${Efield1_1E9}
-Efield2="2.5E9" #1E10 #IMPORTANT FOR STARK SHIFT IN BICOLOR FIELD
+Efield1=1E9 # ${Efield1_1E9} ##
+# Efield2="2.5E9" ##WARNING: temporarily, we fix the SAME energy for both. ##1E10 #IMPORTANT FOR STARK SHIFT IN BICOLOR FIELD
 
 
 # Pulse duration
-tau1="30E-15" # 20e-15 30E-15 10E-15"
+tau1="20E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="30E-15"
+tau2="20E-15"
 
 lambda2="515e-9"
 # lambda2="200e-9 300e-9 343e-9" # 400e-9 500e-9 515e-9 550e-9 600e-9 700e-9 750e-9 800e-9 850e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1150e-9 1200e-9 1250e-9 1300e-9 1350e-9 1400e-9 1450e-9 1500e-9 1600e-9 1650e-9 1700e-9 1750e-9 1800e-9 1900e-9 2000e-9 2100e-9"
@@ -95,6 +97,8 @@ lambda1="1030e-9"
 # lambda2="1005e-9 1010e-9 1015e-9 1020e-9 1025e-9 1030e-9 1035e-9 1040e-9 1045e-9 1050e-9"
 # lambda2="1600e-9"
 # lambda2="1600e-9 1030e-9"
+
+AngleIncidence_list="0"
 
 # ============ SHIFT CURRENT LASER PARAMETERS =========
 #PulseShape="SinSquared"
@@ -115,6 +119,9 @@ lambda1="1030e-9"
 ## Pulse duration
 # tau1="30e-15"
 # tau2="30e-15"
+
+for iAngleIncidence in ${AngleIncidence_list};
+do
 for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
 do
 for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
@@ -129,8 +136,8 @@ do
  do
   for iEfield1 in ${Efield1}; 
   do
-   for iEfield2 in ${Efield2};
-   do
+#   for iEfield2 in ${Efield2};
+#   do
     for itau1 in ${tau1};
     do
      for itau2 in ${tau2};
@@ -155,7 +162,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield1} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence}
 #           done
           done
 #          done
@@ -169,6 +176,7 @@ do
  done
 done
 done
+#done
 done
 done
 done
