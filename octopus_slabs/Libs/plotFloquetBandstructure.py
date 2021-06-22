@@ -24,7 +24,7 @@ from scipy.constants import c, epsilon_0, h, e
 from scipy.special   import jn_zeros as BesselJZeros
 import os
 # import numpy as np
-import cupy as np
+import cupy as cp
 import matplotlib.pyplot as plt
 
 import octopus_slabs.Libs.libPlotting as libPlotting
@@ -380,7 +380,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1):  # {{{
 ## NOTE: Hypothesis that KpointPath.line_id = Kgrid.k_id. This can be wrong. Also check the K-point path in INPUT of octopus
 # The best way to check is to plot bandstructure kx,ky,kz in space and compare with k-point path
 # generated at https://tools.materialscloud.org/seekpath/compute/process_structure/
-@njit
+# @njit
 def MultipleKpointsOneField(field):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
