@@ -40,10 +40,10 @@ from   octopus_slabs.Libs.libAtomicUnits import *
 
 ## Materials properties
 
-Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkLDA() #libMaterials.py
 
 #Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
-#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+#meff_opt = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 ##0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
@@ -285,17 +285,17 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
   ## Computing final excited electron density for Pulse 1
   print(Header+"Computing Keldysh for Pulse 1: ")
   try: 
-    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
+    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
   except:
     N_Keldysh_SI = FieldEnvelope * 0e0
     N_Gruzdev_SI = FieldEnvelope * 0e0
     timeKeldysh  = FieldEnvelope * 0e0
-  #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
+  #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful?
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print(Header+"Computing Keldysh for Pulse 2: ")
     try: 
-      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     except: 
       N_KeldyshB_SI = N_Keldysh_SI * 0e0
       N_GruzdevB_SI = N_Gruzdev_SI * 0e0
@@ -307,13 +307,13 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 
     if(wavelength_SI == wavelengthB_SI):
   #    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     else:
       print("Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]")
 #}}}
 elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI, FieldEnvelope, order)
 else: 
   print(Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse.")
   exit()

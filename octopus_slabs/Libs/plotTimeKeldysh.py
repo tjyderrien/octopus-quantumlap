@@ -41,13 +41,13 @@ from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
 from   octopus_slabs.Libs.libAtomicUnits import  *
 
 ## Materials properties
-
-Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+#TODO: this will depend on which functional we have used! TB09 or LDA !
+Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkLDA() #libMaterials.py
 
 # Z_at    = 2 #Number of atoms per unit cell #This may be misleading!!!
-# Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+# Egap_SI = 2.56*e #LDA: 2.56*e, TB09: 3.04*e [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
 
-# meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+# meff_opt = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 # 0.18 # Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 FigureName    = 'Fig2a' #Fig2a, Fig2b, Fig6a, Fig6b, Fig9a, Fig9b, Fig9c
@@ -308,14 +308,20 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print(Header+"Computing Keldysh for Pulse 1: ")
-  timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)  
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order) #NOTE: we have now corrected Keldysh model. It should help.
+  timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI,
+                                                                       PulseDuration_SI, FieldEnvelope, dtPrecision,
+                                                                       order, ShowPlot, CentralTime, ValenceBandMax)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI,
+                                                    FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order)
   print((Header+"** Debug: Dimension of timeKeldysh and N_Gruzdev_SI: "+str(np.shape(timeKeldysh))+","+str(np.shape(N_Gruzdev_SI))))
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print(Header+"Computing Keldysh for Pulse 2: ")
     try: 
-      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelengthB_SI,
+                                                                              PulseDurationB_SI, FieldEnvelope2,
+                                                                              dtPrecision, order, ShowPlot,
+                                                                              CentralTimeB, ValenceBandMax)
     except: 
       N_KeldyshB_SI = N_Keldysh_SI * 0e0
       N_GruzdevB_SI = N_Gruzdev_SI * 0e0
@@ -327,13 +333,18 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 
     if(wavelength_SI == wavelengthB_SI):
   #    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI,
+                                                                                 PulseDurationB_SI+CentralTimeB,
+                                                                                 FieldEnvelopeAB.real, dtPrecision,
+                                                                                 order, ShowPlot, CentralTimeB,
+                                                                                 ValenceBandMax)
     else:
       print("Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]")
 #}}}
 elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI,
+                                                    FieldEnvelope*np.sqrt(OpticalIndex[wavelength_SI]), order)
 else: 
   print(Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse.")
   exit()
@@ -833,7 +844,7 @@ Efield_X_SI_interp_Ne = Field_AU_to_SI(Efield_X_AU_interp_Ne)
 NumberOfPhotons = np.ceil(np.divide(Egap_SI/hbar, omega))
 print(Header+"Number of photons to overcome the gap: "+str(NumberOfPhotons))
 
-# omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff / epsilon_0)
+# omega_p2    = np.multiply(observable_proj, e**2 / m_e / meff_opt / epsilon_0)
 epsilon_Si0 = 13.64+0.048j #NOTE: for now, let's take a constant 
 ExcessEnergy         = (NumberOfPhotons * hbar * omega) * observable_proj * SuperCellVolume_SI / e 
 AboveBandExcessEnergy= (NumberOfPhotons * hbar * omega - Egap_SI) * observable_proj * SuperCellVolume_SI / e
@@ -849,7 +860,7 @@ InterBandEnergy             = Egap_SI/e * observable_proj * SuperCellVolume_SI #
 #IntraBandEnergy      = np.multiply(np.cumsum(IntraBandEnergy_diff),  dtCurrent) #if we integrate on time
 
 def FitDrudeModel(n_exc, nu):
-    omega_p2    = np.multiply(n_exc, e**2 / m_e / meff / epsilon_0)
+    omega_p2    = np.multiply(n_exc, e**2 / m_e / meff_opt / epsilon_0)
     Epsilon = 1.  - np.divide(omega_p2, np.power(omega, 2)) * np.divide(1.,1. + np.divide(1.j * nu, omega)) #conduction band absorption, no interband contribution
     return Epsilon
 
