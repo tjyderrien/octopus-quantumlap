@@ -24,13 +24,29 @@
 
 from scipy.constants import e
 
-def SiBulk(): #{{{
+def SiBulkLDA(): #{{{
   Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
-  meff = 0.2226    #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
+  meff_opt = 0.2226    #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
   OpticalIndex={
-        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964, 
+        400e-9: 5.568072776280323,
+        483e-9: 4.4028,
+        484e-9: 4.3964,
+        600e-9: 3.947144634525661,
+        800e-9: 3.6924167231905,
+        1030e-9: 3.57807133869753,
+        1200e-9: 3.51933432518597,
+        1600e-9: 3.4826,
+        2200e-9: 3.4548, 2600e-9: 3.4457, 2656e-9: 3.4510, #this one is for 2um, but with corrected gap
+        3200e-9: 3.43438589865999}
+  return Egap_SI, meff_opt, OpticalIndex
+
+def SiBulkReal300K(): #{{{
+  Egap_SI = 3.1*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)]
+  meff_opt = 0.2226    #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)]
+  OpticalIndex={ #Palik data for 300K
+        400e-9: 5.568072776280323, 483e-9: 4.4028, 484e-9: 4.3964,
         600e-9: 3.947144634525661,
         800e-9: 3.6924167231905, 1030e-9: 3.57807133869753, 1200e-9: 3.51933432518597, 1600e-9: 3.4826,
         2200e-9: 3.4548, 2600e-9: 3.4457, 2656e-9: 3.4510, #this one is for 2um, but with corrected gap
         3200e-9: 3.43438589865999}
-  return Egap_SI, meff, OpticalIndex
+  return Egap_SI, meff_opt, OpticalIndex
