@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2020 T. J.-Y. Derrien
+# Copyright (C) 2013-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -109,6 +109,8 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
   
   return Output1, Output2, 0.*t_AU #GOOD for octopus if Output is an envelope
   #}}}
+
+# if __name__ == "__main__":
 
 # Read pulse data from command line
 # =======================================================
