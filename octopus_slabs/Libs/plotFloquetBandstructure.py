@@ -35,7 +35,7 @@ from  octopus_slabs.Libs.libLogging import init_logger
 
 from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
 from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
-import spp_extended_theory.Libs.libImportOpticalData as ibOpticalData
+import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
@@ -94,11 +94,11 @@ except:
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-num_wavelengths = 100
+num_wavelengths = 10
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 30  # number of electric field values for the plotting
+num_fields = 10  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 0.75E9, 1E9]
