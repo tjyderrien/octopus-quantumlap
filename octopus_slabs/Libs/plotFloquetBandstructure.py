@@ -40,7 +40,7 @@ import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 PlotMatrixElements = True
-PlotFloquetBandStructure = False  # Provide field dependent band structure at Gamma Point
+PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False #starts to be too consuming (800 MB per EPS file...)
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
@@ -239,7 +239,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     # tunneling_stops=[]
     epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
     RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
-
+    breakpoint()
     if (LogPlotting):
         Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
         Efield_SI = np.power(10., Efield_SI_log)
