@@ -94,11 +94,11 @@ except:
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-num_wavelengths = 100
+num_wavelengths = 10
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 30  # number of electric field values for the plotting
+num_fields = 10  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 0.75E9, 1E9]
@@ -141,26 +141,26 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
-      'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si,
+      'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'ymin_ymax': (-5, 15), 'CaptureDirectGap': True, 'KpointPath_len': 301,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
 
 SiO2 = {'MPI_numbers': [1, 2], 'kpoints_manual': 8,
         'nb_atoms': 1, 'unocc_states': 6,
-        'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2,
+        'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
         'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$']}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
 Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
-      'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo,
+      'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 'OpticalIndexFile': "Mo-Palik",
       'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
       'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$']}
 
 Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
-      'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au,
+      'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-2, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
       #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
@@ -175,6 +175,7 @@ Z_electrons = Materials[material][
 # SiO2 ? matrix is 30 e- states, 6 unocc.
 unocc_states = Materials[material][
     'unocc_states']  # 4 #SiO2: 6. #Si: 4. This is defined in the inp. If not, then it's zero.
+OpticalIndexFile = Materials[material]['OpticalIndexFile'] #routes to continous optical data from Palik
 
 CaptureDirectGap = Materials[material]['CaptureDirectGap']
 
@@ -196,7 +197,7 @@ logger.info(wavelength_SI_t)
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
 def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
-    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states
+    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile
 
     plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y'])))
 
@@ -237,10 +238,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         logger.debug(eigenvalues)
 
     # tunneling_stops=[]
-    epsilon_Si0       = 1 #libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
-    RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
-    # breakpoint()
 
+    epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t, OpticalIndexFile)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
+    RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
     if (LogPlotting):
         Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
         Efield_SI = np.power(10., Efield_SI_log)
