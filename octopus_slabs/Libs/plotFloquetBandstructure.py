@@ -44,6 +44,7 @@ PlotFloquetBandStructure = True  # Provide field dependent band structure at Gam
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = True #starts to be too consuming (800 MB per EPS file...)
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
+Enable_A2=False #take A2 term into Floquet hamiltonian
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -195,7 +196,7 @@ logger.info(wavelength_SI_t)
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
-def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
+def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t, Enable_A2=True):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile
 
@@ -258,8 +259,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         logger.warning("If you want to visualize Floquet band structures, check the value of PlotFloquetBandStructure!")
     if (PlotFloquetBandStructure):
         # for wavelength_SI in wavelength_SI_t:
-        fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
-        ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
+        
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in np.arange(0,len(wavelength_t)):
             wavelength_SI = wavelength_t[wavelength_idx]
@@ -281,7 +281,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                                                                                  eigenvalues, matrixelements,
                                                                                  Complex_valued_ME,
                                                                                  field_polarization_dir,
-                                                                                 spin_occupation, verbose)
+                                                                                 spin_occupation, verbose, Enable_A2)
                     # Plotting using external intensity, whence internal intensity acts on the sample
                     if (PlotIntensity):
                         unitx = 1E-4
@@ -351,8 +351,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # End of wavelength loop
         # Prepare the plot as function of wavelength for few intensities
         # ax2.set_xlabel("Pump wavelength (nm)")
-        ax2.set_xlabel("Pump photon energy (eV)")
-        ax2.set_ylabel("Energy levels (eV)")
+        
 
         # ax2.set_xscale("log")
 
@@ -369,7 +368,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         """
         color_idx=0
         for field in SelectedFieldsForPlotting:
-
+            fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
+            ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
             FloquetKeldysh = replicas_data.sel(E=field, method="nearest")
             FloquetKeldysh_X = np.repeat(FloquetKeldysh.wavelength, SizeOfReplica)
 
@@ -379,17 +379,24 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             logger.debug(np.shape(FloquetKeldysh_X), np.shape(FloquetKeldysh_Y))
             ax2.scatter(FloquetKeldysh_X, FloquetKeldysh_Y[0], s=SizeOfDots,
                                     label="Floquet replicates")
-            color_idx+=1
-        ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
-        fig2.tight_layout()
-        if(ShowPlot):
-            fig2.show()
+            ax2.set_xlabel("Pump photon energy (eV)")
+            ax2.set_ylabel("Energy levels (eV)")
+            ax2.set_title("Field "+str(round(field,1)*1E-9)+" V/nm")
+            figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
+            kpoints) + "MPI-" + str(round(MPI_numbers[0], 0))+"-Field"+str(round(field,0))
+            fig2.savefig(figurename_multiwavelengths + ".eps")
+            fig2.savefig(figurename_multiwavelengths + ".png")
+            ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
+            fig2.tight_layout()
+            if(ShowPlot):
+                fig2.show()
+            del fig2, ax2
+        color_idx+=1
+        
+        
 
         # if(StorePlot):
-        figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
-            kpoints) + "MPI-" + str(round(MPI_numbers[0], 0))
-        fig2.savefig(figurename_multiwavelengths + ".eps")
-        fig2.savefig(figurename_multiwavelengths + ".png")
+        
 
 
 
@@ -668,7 +675,7 @@ def MultipleKpointsOneField(field):  # {{{
                                                                      MPI_number, Efield_SI, wavelength_SI,
                                                                      num_time_steps, eigenvalues, matrixelements,
                                                                      Complex_valued_ME, field_polarization_dir,
-                                                                     spin_occupation, verbose)
+                                                                     spin_occupation, verbose, Enable_A2)
 
         if (PlotIntensity):
             unitx = 1E-4
