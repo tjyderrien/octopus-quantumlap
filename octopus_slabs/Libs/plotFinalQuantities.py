@@ -2426,7 +2426,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                                                                                                   
     Header="** ImportPalikDatabase_epsilon_twofiles: "
     import os
-    DataFile=os.environ["HOME"]+"/Documents/spp-extended-theory/spp_extended_theory/SimpleSPP/Database/Si-TDLDA"
+    DataFile=os.environ["spp_extended_theory"]+"/spp_extended_theory/SimpleSPP/Database/Si-TDLDA"
     nfile = DataFile+"-epsR.csv" #TODO: rename nfile to ReEpsFile
     kfile = DataFile+"-epsC.csv" #TODO: rename kfile to ImEpsFile
     
