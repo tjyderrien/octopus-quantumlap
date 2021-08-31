@@ -50,7 +50,7 @@ Mission="BicolorNadya"
 # Phase
 CEP1="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
 # CEP2="0.0"
-CEP2="0.0" # 0.5 0.333333333 0.25 0.142857142857143 0.125"
+CEP2="0.25"  # "0.5 0.333333333 0.25 0.125"
 # CEP2="0.5 0.16666667" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
@@ -80,20 +80,32 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield2="1.5E9"
 # Efield1="2.5E8"
 # Efield2="5E8 7.5E8 1E9 1.25E9 1.5E9 1.75E9 2E9" #1E8 5E8 1E9 5E9"
+# Field amplitude
+Efield_fast="5E8 1E9 2.5E9 5E9 7.5E9 1E10 2.5E10 5E10 7.5E10 9E10"
+# Efield_detailed="9.75E8 1E9 1.5E9 2E9"
+Efield_detailed="1.1E9 1.2E9 1.3E9 1.4E9 6.5E9 7E9 8E9 9E9 9.5E9"
+# Efield_detailed="2E8 2.5E8 3E8 3.5E8 4E8 4.5E8" # 5.5E8 6E8 6.5E8 7E8 7.5E8 8E8 8.5E8 9E8 9.5E8 2.5E9 3.5E9 4.5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
+Efield_superdetailed="2.1E9 2.2E9 2.3E9 2.4E9 2.5E9 2.6E9 2.7E9 2.8E9 2.9E9 3.1E9 3.2E9 3.3E9 3.4E9"
+Efield_saturation="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8"
 Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
-Efield1=1E9 # ${Efield1_1E9} ##
+
+Efield1="${Efield1_1E8} ${Efield1_1E9}"
+
 # Efield2="2.5E9" ##WARNING: temporarily, we fix the SAME energy for both. ##1E10 #IMPORTANT FOR STARK SHIFT IN BICOLOR FIELD
 
 
 # Pulse duration
-tau1="20E-15" # 20e-15 30E-15 10E-15"
+#tau1="4.563E-15" # 1 cycle renormalized LDA-EXP 1030 nm 
+# tau1="9.126E-15" # 2 cycle renormalized LDA-EXP 1030 nm
+tau1="4.563E-15 9.126E-15 1.3689E-14" # 3 cycle renormalized LDA-EXP 1030 nm
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="20E-15"
+# tau2="4.563E-15" #normalization for 515 nm to LDA. WE KEEP SAME PULSE DURATION AS FIRST PULSE !
 
-lambda2="515e-9"
+lambda1="1367.968e-9"
+lambda2="683.98e-9" #second harmonic
 # lambda2="200e-9 300e-9 343e-9" # 400e-9 500e-9 515e-9 550e-9 600e-9 700e-9 750e-9 800e-9 850e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1150e-9 1200e-9 1250e-9 1300e-9 1350e-9 1400e-9 1450e-9 1500e-9 1600e-9 1650e-9 1700e-9 1750e-9 1800e-9 1900e-9 2000e-9 2100e-9"
-lambda1="1030e-9"
+
 # lambda2="1005e-9 1010e-9 1015e-9 1020e-9 1025e-9 1030e-9 1035e-9 1040e-9 1045e-9 1050e-9"
 # lambda2="1600e-9"
 # lambda2="1600e-9 1030e-9"
@@ -140,8 +152,8 @@ do
 #   do
     for itau1 in ${tau1};
     do
-     for itau2 in ${tau2};
-     do
+#     for itau2 in ${tau2};
+#     do
       for iCEP1 in ${CEP1};
       do
        for iCEP2 in ${CEP2};
@@ -162,7 +174,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield1} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence}
+            $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield1} ${itau1} ${itau1} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence}
 #           done
           done
 #          done
@@ -180,4 +192,4 @@ done
 done
 done
 done
-done
+# done
