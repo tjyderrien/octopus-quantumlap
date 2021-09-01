@@ -101,7 +101,7 @@ wavelength_SI_max = 3200e-9
 num_fields = 10  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[0.5E9, 0.75E9, 1E9]
+SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
@@ -114,7 +114,7 @@ UseRefractiveIndex = False  # True: limits the plots maximum as function of wave
 PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 8.2; SizeY=6.
-LogPlotting = 1
+LogPlotting = 2 #0: regular linear scale, 1: regular logscale, 2: explicit list of fields
 verbose = 0  # Show info and debug messages.
 SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
@@ -240,11 +240,13 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     # tunneling_stops=[]
     epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t, OpticalIndexFile)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
     RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
-    if (LogPlotting):
+    if (LogPlotting==0):
         Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
         Efield_SI = np.power(10., Efield_SI_log)
-    else:
+    elif (LogPlotting==1):
         Efield_SI = np.linspace(Efield_SI_min, Efield_SI_max, num_fields)
+    else: 
+        Efield_SI = SelectedFieldsForPlotting
 
     SizeOfReplica = (Z_electrons+unocc_states)*( 2 * MPI_numbers[0] + 1 )
     eigen_idx = np.arange(0, SizeOfReplica ) #we only care about simple replicas at the moment
@@ -342,6 +344,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 if(StorePlot):
                     fig1.savefig(figurename + "-Suppl" + ".eps")
                     fig1.savefig(figurename + "-Suppl" + ".png")
+                    logger.info("Output was stored in EPS and PNG files.")
                 plt.close(fig1) #free the memory?
                 del fig1, ax1
                 # plt.legend()
@@ -396,8 +399,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # print Header+"Preparing (omega,Efield) values that should disable the tunneling in the sample..."
         # plt.figure()
 
-        print("=== Assessing tunneling stopping possibilities... ===")
-        Efield_AU_log = np.linspace(np.log10(Efield_AU_min), np.log10(Efield_AU_max), num_fields)
+        print("=== Assessing tunneling stopping possibilities (Rabi oscillation) ... ===")
+        Efield_AU_log = np.linspace(np.log10(Efield_AU_min), np.log10(Efield_AU_max), num_fields) #we need quasi-continous interval for RabiFrequencyMatrices
         Efield_AU = np.power(10., Efield_AU_log)
 
     if (PlotMatrixElements):
