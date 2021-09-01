@@ -95,7 +95,7 @@ except:
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-num_wavelengths = 10
+num_wavelengths = 200
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
@@ -318,6 +318,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     int(wavelength_SI * 1E9)) + " nm, k=" + str(kpoints) + r"$^3$")
                 figurename = "FloquetBandStructure-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
                     kpoints) + "MPI-" + str(round(MPI_number, 0))
+		
                 if (not LogPlotting):
                     figurename += "NoLog"
                 if (not PlotIntensity):
@@ -325,6 +326,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     ax1.set_xlabel("Field (V/m)")
                 else:
                     ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
+                if Enable_A2:
+                    figurename+= "-EnabledA2"
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
                 # plt.ylim((-8,8)) #SiO2
