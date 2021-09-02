@@ -96,12 +96,13 @@ except:
 num_time_steps = 300 #should be small enough to ensure convergence
 
 num_wavelengths = 10
-wavelength_SI_min = 483e-9
+wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
+SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1300e-9, 3200e-9]
 
 num_fields = 100  # number of electric field values for the plotting
-Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
-Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
+Efield_SI_min = 5E8 # IntensityToField(1E10 * 1E4)
+Efield_SI_max = 10E10 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
@@ -263,9 +264,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # for wavelength_SI in wavelength_SI_t:
         
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
-        for wavelength_idx in np.arange(0,len(wavelength_t)):
+        for wavelength_idx in SelectedWavelengths: #altered from original to get figures for desired wavelengths
             wavelength_SI = wavelength_t[wavelength_idx]
-            OpticalIndex = RefractiveIndex_t[wavelength_idx] #This is a continuum formulation from Palik data
+            wavelength_t[wavelength_idx] = SelectedWavelengths #one of many unsuccessful attempts to make it work
+            OpticalIndex = RefractiveIndex_t [wavelength_idx]    #This is a continuum formulation from Palik data
 
             ## Renormalize the intensity range using refractive index - TODO: re-enable using xarray
 #            if (UseRefractiveIndex):
@@ -398,6 +400,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 fig2.show()
             del fig2, ax2
         color_idx+=1
+        assert (Enable_A2 == True)
         
         
 
