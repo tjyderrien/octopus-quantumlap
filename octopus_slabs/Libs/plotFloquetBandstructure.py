@@ -95,11 +95,11 @@ except:
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-num_wavelengths = 200
+num_wavelengths = 10
 wavelength_SI_min = 483e-9
 wavelength_SI_max = 3200e-9
 
-num_fields = 10  # number of electric field values for the plotting
+num_fields = 100  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E10 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
@@ -115,7 +115,7 @@ UseRefractiveIndex = False  # True: limits the plots maximum as function of wave
 PlotIntensity = True  # True: plot with I. False: plot with E.
 SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 8.2; SizeY=6.
-LogPlotting = 2 #0: regular linear scale, 1: regular logscale, 2: explicit list of fields
+LogPlotting = 1 #0: regular linear scale, 1: regular logscale, 2: explicit list of fields
 verbose = 0  # Show info and debug messages.
 SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
