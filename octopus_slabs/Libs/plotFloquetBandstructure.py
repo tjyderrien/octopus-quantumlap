@@ -369,7 +369,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         xy = list(range(NumberOfElements))
         colorlist = [colors[x] for x in xy]
         """
-        #color_idx=0
+        color_idx=0
         for field in SelectedFieldsForPlotting:
             fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
             ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
@@ -390,12 +390,11 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             fig2.savefig(figurename_multiwavelengths + ".eps")
             fig2.savefig(figurename_multiwavelengths + ".png")
             ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
-            #fig2.legend(loc="best")
             fig2.tight_layout()
             if(ShowPlot):
                 fig2.show()
             del fig2, ax2
-        #color_idx+=1
+        color_idx+=1
         
         
 
