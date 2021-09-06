@@ -265,8 +265,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in SelectedWavelengths: #altered from original to get figures for desired wavelengths
-            wavelength_SI = wavelength_t[wavelength_idx]
-            wavelength_t[wavelength_idx] = SelectedWavelengths #one of many unsuccessful attempts to make it work
+            #wavelength_SI = wavelength_t[wavelength_idx] #original
+            #wavelength_t[wavelength_idx] = SelectedWavelengths #one of many unsuccessful attempts to make it work
+            wavelength_SI = wavelength_t [wavelength_idx]
             OpticalIndex = RefractiveIndex_t [wavelength_idx]    #This is a continuum formulation from Palik data
 
             ## Renormalize the intensity range using refractive index - TODO: re-enable using xarray
