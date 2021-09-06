@@ -32,11 +32,15 @@ from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 
 from numpy import fft
 from scipy.constants import hbar, m_e, epsilon_0, e, h, hbar
+from matplotlib import rc
 
 import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
 from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
 from   octopus_slabs.Libs.libAtomicUnits import *
+
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
+rc('text', usetex=False) #important for Barbora
 
 ## Materials properties
 

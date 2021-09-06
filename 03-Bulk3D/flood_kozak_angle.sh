@@ -29,7 +29,7 @@ MeshSizeX="0.23" # 0.20"
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of computer nodes
-NumNodes=1
+NumNodes=16
 
 # Sample
 SampleLayers=1
@@ -40,7 +40,7 @@ CrossPolarization=0 #1
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="0"
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="TB09" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 echo "** Info: defining the pulse shape"
@@ -49,7 +49,7 @@ echo "** Info: defining the pulse shape"
 # delay="0e-15" 
 delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
-Mission="HHG-angle" #this replaces the mission in submit.sbatch file. 
+Mission="HHG-conv" #this replaces the mission in submit.sbatch file. 
 
 # ============ SHIFT CURRENT LASER PARAMETERS =========
 #PulseShape="SinSquared"
@@ -65,16 +65,16 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 PulseShape="SinSquared"
 RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 
-lambda1="2237e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
+lambda1="2656e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
 lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
 
 ## Field amplitude
-Efield1="5E9" #"3E9 9E9" #Exp. 3GV/m (Kozak) 
+Efield1="3E9 9E9" #Exp. 3GV/m (Kozak) 
 Efield2="0E0" #"9e9"
 
 ## Pulse duration
-tau1="30e-15"
+tau1="13.945e-15"
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
