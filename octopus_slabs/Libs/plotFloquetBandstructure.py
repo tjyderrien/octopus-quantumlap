@@ -241,7 +241,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 
     # tunneling_stops=[]
 
-    epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI_t, OpticalIndexFile)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
+    epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(SelectedWavelengths, OpticalIndexFile)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
     RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
     if (LogPlotting==0):
         Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
@@ -264,7 +264,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         # for wavelength_SI in wavelength_SI_t:
         
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
-        for wavelength_idx in SelectedWavelengths: #altered from original to get figures for desired wavelengths
+        for wavelength_idx in np.arange(0,len(SelectedWavelengths)): #altered from original to get figures for desired wavelengths
             #wavelength_SI = wavelength_t[wavelength_idx] #original
             #wavelength_t[wavelength_idx] = SelectedWavelengths #one of many unsuccessful attempts to make it work
             wavelength_SI = wavelength_t [wavelength_idx]
