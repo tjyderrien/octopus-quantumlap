@@ -98,7 +98,7 @@ num_time_steps = 300 #should be small enough to ensure convergence
 num_wavelengths = 10
 wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
-SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1300e-9, 3200e-9]
+SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
 
 num_fields = 100  # number of electric field values for the plotting
 Efield_SI_min = 5E8 # IntensityToField(1E10 * 1E4)
