@@ -164,6 +164,7 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-2, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
+      'xmin_xmax': (2E10, 7E16),
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
       #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
 
@@ -335,6 +336,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     figurename+= "-EnabledA2"
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
+                ax1.set_xlim(Materials[material]['xmin_xmax'])
                 # plt.ylim((-8,8)) #SiO2
                 fig1.tight_layout()
                 if(StorePlot):
