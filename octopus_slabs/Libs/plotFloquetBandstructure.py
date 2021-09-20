@@ -44,7 +44,7 @@ PlotFloquetBandStructure = True  # Provide field dependent band structure at Gam
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = True #starts to be too consuming (800 MB per EPS file...)
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
-Enable_A2=False #take A2 term into Floquet hamiltonian
+Enable_A2=True #take A2 term into Floquet hamiltonian
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -198,9 +198,9 @@ logger.info(wavelength_SI_t)
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
-def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t, Enable_A2=True):  # {{{
+def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
-    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile
+    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, Enable_A2
 
     plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y'])))
 
@@ -332,7 +332,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     ax1.set_xlabel("Field (V/m)")
                 else:
                     ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
+                
                 if Enable_A2:
+                    logger.warning("A2 enabled: ")
                     figurename+= "-EnabledA2"
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
