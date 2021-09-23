@@ -42,12 +42,12 @@ logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True 
+ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...) 
-Enable_A2=True #take A2 term into Floquet hamiltonian
+Enable_A2=False #take A2 term into Floquet hamiltonian
 
 # Filenames = "ks_me_multipoles.*"
-Filenames = "ks_me_dipole.*" #name of dipolar matrix elements in octopus
+Filenames = "static/ks_me_dipole.*" #name of dipolar matrix elements in octopus
 bandstructure = "bandstructure"  #name of bandstructure file in octopus NOTE: file may be absent sometimes
 LocalFolder = "./"
 filename = Filenames.split('.')[0]
@@ -100,7 +100,7 @@ wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
 SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
 
-num_fields = 500  # number of electric field values for the plotting
+num_fields = 200  # number of electric field values for the plotting
 Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 5E11 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
@@ -118,7 +118,7 @@ SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 8.2; SizeY=6.
 LogPlotting = 1 #0: regular linear scale, 1: regular logscale
 verbose = 0  # Show info and debug messages.
-SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
+SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
 BesselRootsID_max = 10
 
@@ -147,7 +147,7 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'ymin_ymax': (-5, 15), 'CaptureDirectGap': True, 'KpointPath_len': 301,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
 
-SiO2 = {'MPI_numbers': [1, 2], 'kpoints_manual': 8,
+SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 8,
         'nb_atoms': 1, 'unocc_states': 6,
         'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
@@ -158,14 +158,18 @@ Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 'OpticalIndexFile': "Mo-Palik",
       'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
-      'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$']}
+      'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'], 
+      'Fermi_Energy': 12.28
+}
 
-Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
+Au = {'MPI_numbers': [2], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-2, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'xmin_xmax': (2E10, 7E16),
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], 
+      'Fermi_Energy': 8.58 #eV at 300K
+}
       #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
 
 Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all materials properties we need to automatize
@@ -337,8 +341,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     logger.warning("A2 enabled: ")
                     figurename+= "-EnabledA2"
                 ax1.set_ylabel(r"Energy levels (eV)")
-                ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
+                ax1.set_ylim(Materials[material]['ymin_ymax'])
                 ax1.set_xlim(Materials[material]['xmin_xmax'])
+                if(Materials[material]['Fermi_Energy']):
+                    ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle=':') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
                 # plt.ylim((-8,8)) #SiO2
                 fig1.tight_layout()
                 if(StorePlot):
@@ -503,7 +509,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 ## NOTE: Hypothesis that KpointPath.line_id = Kgrid.k_id. This can be wrong. Also check the K-point path in INPUT of octopus
 # The best way to check is to plot bandstructure kx,ky,kz in space and compare with k-point path
 # generated at https://tools.materialscloud.org/seekpath/compute/process_structure/
-def MultipleKpointsOneField(field):  # {{{
+# @param field:         electric field amplitude (SI unit)
+# @param wavelength_SI: laser wavelength (SI unit)
+def MultipleKpointsOneField(field, wavelength_SI):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
     CaptureDirectGap = False #We force it here since we need a number of k-point values for this function.
@@ -675,7 +683,7 @@ def MultipleKpointsOneField(field):  # {{{
         matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]],
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
-        wavelength_SI = wavelength_SI_t[0]
+        # wavelength_SI = SelectedWavelengths
         RefractiveIndex = OpticalIndex[wavelength_SI]
         if (UseRefractiveIndex):
             Efield_SI = field / np.sqrt(OpticalIndex[wavelength_SI])
@@ -726,8 +734,8 @@ if(__name__=="__main__"):  #runs only if file is called directly
         SingleKpointManyFields()
     else:
         # MultipleKpointsOneField(1E8)
-        MultipleKpointsOneField(1E9)
+        MultipleKpointsOneField(1E9, 1030e-9)
         # MultipleKpointsOneField(5E9)
-        MultipleKpointsOneField(1E10)
-        MultipleKpointsOneField(1E11)
+        MultipleKpointsOneField(1E10, 1030e-9)
+        MultipleKpointsOneField(1E11, 1030e-9)
 
