@@ -44,7 +44,7 @@ PlotFloquetBandStructure = True  # Provide field dependent band structure at Gam
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...) 
-Enable_A2=False #take A2 term into Floquet hamiltonian
+Enable_A2 = False #take A2 term into Floquet hamiltonian
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "static/ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -95,7 +95,7 @@ except:
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-num_wavelengths = 10
+num_wavelengths = 500
 wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
 SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
@@ -118,7 +118,7 @@ SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 8.2; SizeY=6.
 LogPlotting = 1 #0: regular linear scale, 1: regular logscale
 verbose = 0  # Show info and debug messages.
-SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
+SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
 BesselRootsID_max = 10
 
@@ -162,7 +162,7 @@ Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Fermi_Energy': 12.28
 }
 
-Au = {'MPI_numbers': [2], 'kpoints_manual': 16,
+Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-2, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
@@ -188,7 +188,7 @@ CaptureDirectGap = Materials[material]['CaptureDirectGap']
 
 MPI_numbers = Materials[material]['MPI_numbers']  # [1, 2, 3]
 kpoints_manual = Materials[material]['kpoints_manual']  # 16 #number of kpoints in the grid
-OpticalIndex = Materials[material]['OpticalIndex']
+# OpticalIndex = Materials[material]['OpticalIndex']
 KpointPath_len = Materials[material]['KpointPath_len']
 # print
 K_labels = Materials[material]['K_labels']
@@ -204,7 +204,8 @@ logger.info(wavelength_SI_t)
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
 def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
-    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, Enable_A2
+    global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, Enable_A2, \
+        SelectedWavelengths, SelectedFieldsForPlotting
 
     plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y'])))
 
@@ -259,9 +260,11 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     SizeOfReplica = (Z_electrons+unocc_states)*( 2 * MPI_numbers[0] + 1 )
     eigen_idx = np.arange(0, SizeOfReplica ) #we only care about simple replicas at the moment
     # Creating data array for easier visualization
-    replicas_data = xr.DataArray(np.zeros((len(Efield_SI), len(wavelength_t), len(eigen_idx))),
+    replicas_data = xr.DataArray(np.zeros((len(Efield_SI), len(SelectedWavelengths), len(eigen_idx))),
                                  dims=("E", "wavelength", "eigen_idx"),
-                                 coords={"E": Efield_SI, "wavelength": wavelength_t, "eigen_idx": eigen_idx})
+                                 coords={"E": Efield_SI, "wavelength": SelectedWavelengths, "eigen_idx": eigen_idx})
+    # TODO: replicas_data should be revised completely. Fig1: contains few wavelengths, many fields. Fig2: many
+    #  wavelengths, few fields. replicas_data should have different dimensions for each.
     logger.info("Prepared tensor for storing the results. ")
     if(not PlotFloquetBandStructure): 
         logger.warning("If you want to visualize Floquet band structures, check the value of PlotFloquetBandStructure!")
@@ -368,15 +371,25 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             # plt.show()
             ## Plotting eigenvalues of wavelength
         # End of wavelength loop
+        del replicas_data
         # Prepare the plot as function of wavelength for few intensities
         # ax2.set_xlabel("Pump wavelength (nm)")
         
 
         # ax2.set_xscale("log")
-
+        # We need to reinitialize the table for fig2.
+        replicas_data = xr.DataArray(np.zeros((len(SelectedFieldsForPlotting), len(wavelength_t), len(eigen_idx))),
+                                     dims=("E", "wavelength", "eigen_idx"),
+                                     coords={"E": SelectedFieldsForPlotting, "wavelength": wavelength_t,
+                                             "eigen_idx": eigen_idx})
         # replicas_data(Efield_SI, wavelength_t)
         # Select eigenvalues where field is above a certain value
         # breakpoint()
+
+        ## Preparing interpolation for optical data as function of wavelength
+        ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
+        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_t, OpticalIndexFile)
+        RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
 
         """# Rotation on colors
         cm = get_cmap('hsv')
@@ -385,13 +398,29 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
         xy = list(range(NumberOfElements))
         colorlist = [colors[x] for x in xy]
         """
+        
         color_idx=0
-        for field in SelectedFieldsForPlotting:
+        for field_idx in np.arange(0,len(SelectedFieldsForPlotting)):
+            field = SelectedFieldsForPlotting[field_idx]
+            for wavelength_idx in np.arange(0,len(wavelength_t)):
+                wavelength_SI = wavelength_t [wavelength_idx]
+                OpticalIndex = RefractiveIndex_t [wavelength_idx]
+
+                eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
+                                                                                     kpoints, unocc_states, MPI_number,
+                                                                                     field, wavelength_SI, num_time_steps,
+                                                                                     eigenvalues, matrixelements,
+                                                                                     Complex_valued_ME,
+                                                                                     field_polarization_dir,
+                                                                                     spin_occupation, verbose, Enable_A2)
+        
+                replicas_data[field_idx, wavelength_idx, :] = np.real(replicas)
+
+            ## One Fig2 per field in SelectedFields
             fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
             ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
-            FloquetKeldysh = replicas_data.sel(E=field, method="nearest")
+            FloquetKeldysh = replicas_data.sel(E=field, method="nearest") #not essential but good practice for future
             FloquetKeldysh_X = np.repeat(FloquetKeldysh.wavelength, SizeOfReplica)
-
             FloquetKeldysh_X = h*c/FloquetKeldysh_X / e #eV
 
             FloquetKeldysh_Y = np.reshape(au.Energy_Hartree_to_eV(FloquetKeldysh.values), (1,np.size(FloquetKeldysh_X)))
@@ -403,10 +432,11 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             ax2.set_title("Field "+str(round(field,1)*1E-9)+" V/nm")
             figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
             kpoints) + "MPI-" + str(round(MPI_numbers[0], 0))+"-Field"+str(round(field,0))
-            fig2.savefig(figurename_multiwavelengths + ".eps")
-            fig2.savefig(figurename_multiwavelengths + ".png")
             ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
             fig2.tight_layout()
+            if(StorePlot):
+                fig2.savefig(figurename_multiwavelengths + ".eps")
+                fig2.savefig(figurename_multiwavelengths + ".png")
             if(ShowPlot):
                 fig2.show()
             del fig2, ax2
@@ -513,7 +543,8 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 # @param wavelength_SI: laser wavelength (SI unit)
 def MultipleKpointsOneField(field, wavelength_SI):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
-    global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, KpointPath_len
+    global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, \
+        KpointPath_len, Enable_A2, OpticalIndexFile
     CaptureDirectGap = False #We force it here since we need a number of k-point values for this function.
 
     # Capture all the k-point files for one direction
@@ -684,9 +715,13 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         # wavelength_SI = SelectedWavelengths
-        RefractiveIndex = OpticalIndex[wavelength_SI]
+        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(SelectedWavelengths,
+                                                                        OpticalIndexFile)
+        ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
+        RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
+        RefractiveIndex = RefractiveIndex_t #OpticalIndex[wavelength_SI]
         if (UseRefractiveIndex):
-            Efield_SI = field / np.sqrt(OpticalIndex[wavelength_SI])
+            Efield_SI = field / np.real(np.sqrt(epsilon_Si0)) # np.sqrt(OpticalIndex[wavelength_SI])
         else:
             Efield_SI = field
         # for MPI_number in MPI_numbers:
@@ -733,9 +768,10 @@ if(__name__=="__main__"):  #runs only if file is called directly
     if (SingleKpoint == 1):
         SingleKpointManyFields()
     else:
-        # MultipleKpointsOneField(1E8)
-        MultipleKpointsOneField(1E9, 1030e-9)
-        # MultipleKpointsOneField(5E9)
-        MultipleKpointsOneField(1E10, 1030e-9)
-        MultipleKpointsOneField(1E11, 1030e-9)
+        for wavelength in [1030e-9]: #SelectedWavelengths:
+            # MultipleKpointsOneField(1E8)
+            MultipleKpointsOneField(1E9, wavelength)
+            # MultipleKpointsOneField(5E9)
+            MultipleKpointsOneField(1E10, wavelength)
+            MultipleKpointsOneField(1E11, wavelength)
 
