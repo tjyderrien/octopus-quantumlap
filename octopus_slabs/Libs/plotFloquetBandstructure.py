@@ -17,7 +17,16 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>
 
 ## @package plotFloquetBandstructure
-# Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal
+# Provides routines and prepare dressed band structure from ground state matrix elements of a solid crystal.
+# Warning: symmetry breaking in taken in effective manner, and not explictly in dipolar matrix elements.
+"""
+Explanation of the number of method employed by Octopus for indexing the k-grid files:
+- Numbering of the files is N_files = (kgrid) + (kpoint path)
+- 1,2,3 directions for dipolar matrix elements (x,y,z), added a suffix of the dipolar files ".x###".
+- Example: k-grid size=(16 x 16 x 16) = 4096 files for 3D k-band structure.
+- One k-point path is given at the end of the numbering. e.g. 1001 files remain for k-point path.
+"""
+
 #import pdb
 from matplotlib.cm   import get_cmap
 from cycler import cycler
@@ -37,14 +46,48 @@ from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
 from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
-logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+## PROGRAM BEHAVIOR
+SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
 
+field_polarization_dir = 0  # 0: x, 1: y, 2: z
+
+## CHOICE OF OUTPUTS
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...) 
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 Enable_A2 = False #take A2 term into Floquet hamiltonian
+
+## CHOOSING INPUTS
+
+num_wavelengths = 500
+wavelength_SI_min = 400e-9
+wavelength_SI_max = 3200e-9
+SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
+
+num_fields = 200  # number of electric field values for the plotting
+Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
+Efield_SI_max = 5E11 # IntensityToField(1E19 * 1E4)
+SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
+
+num_time_steps = 300 #should be small enough to ensure convergence
+
+UseRefractiveIndex = False  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
+PlotIntensity = True  # True: plot with I. False: plot with E.
+
+SizeOfDots = 0.5  # purely cosmetic!
+SizeX = 8.2; SizeY=6.
+
+LogPlotting = 1 #0: regular linear scale, 1: regular logscale
+verbose = 0  # Show info and debug messages.
+
+BesselRootsID_max = 10
+
+########### DONT TOUCH BELOW, thanks! #############
+logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+
+## Building list of files
 
 # Filenames = "ks_me_multipoles.*"
 Filenames = "static/ks_me_dipole.*" #name of dipolar matrix elements in octopus
@@ -52,21 +95,11 @@ bandstructure = "bandstructure"  #name of bandstructure file in octopus NOTE: fi
 LocalFolder = "./"
 filename = Filenames.split('.')[0]
 # print Filenames
-# 1. Capture the static/dipole files. 
+# 1. Capture the static/dipole files.
 listoffiles = libString.GetOrderedListOfFiles(Filenames)
 del Filenames
 # print listoffiles
 
-"""
-Explanation of the number of method employed by Octopus for indexing the k-grid files:
-- Numbering of the files is N_files = (kgrid) + (kpoint path)
-- 1,2,3 directions for dipolar matrix elements (x,y,z), added a suffix of the dipolar files ".x###". 
-- Example: k-grid size=(16 x 16 x 16) = 4096 files for 3D k-band structure. 
-- One k-point path is given at the end of the numbering. e.g. 1001 files remain for k-point path. 
-"""
-
-# logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-# logging.basicConfig(filename='plotFloquetBandstructure.log', level=logging.INFO)
 
 ## Building materials dictionnary
 dirname=os.path.realpath(".") #catch the present directory absolute path
@@ -77,52 +110,23 @@ logger.info("** Info: capturing the present material...")
 try:
     if "03-Bulk3D" in dirname:
         material = "Si"
-    elif "09-Au" in dirname: 
+    elif "09-Au" in dirname:
         material = "Au"
-    elif "06-Mo" in dirname: 
+    elif "06-Mo" in dirname:
         material = "Mo"
-    elif "14-SiO2" in dirname: 
+    elif "14-SiO2" in dirname:
         material = "SiO2"
     logger.info("** Info: detected the material "+material)
 except:
     logger.error(Header+"Which material are you trying to analyze?")
     exit()
-    
-# material = "Au"  # SiO2 | Si
 
-# exit()
-# wavelength_SI_t = [800e-9, 400e-9]  # , 400e-9] #484e-9, 343e-9] #10e-6
 
-num_time_steps = 300 #should be small enough to ensure convergence
-
-num_wavelengths = 500
-wavelength_SI_min = 400e-9
-wavelength_SI_max = 3200e-9
-SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
-
-num_fields = 200  # number of electric field values for the plotting
-Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
-Efield_SI_max = 5E11 # IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
+spin_occupation = 2  # 1: levels with same spin should split, 2: levels of different spins don't split.
+Complex_valued_ME = False #True for non-Hermitian eigenvalues?
 
 Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
-
-Complex_valued_ME = False #True for non-Hermitian eigenvalues?
-field_polarization_dir = 0  # 0: x, 1: y, 2: z
-spin_occupation = 2  # 1: levels with same spin should split, 2: levels of different spins don't split.
-
-UseRefractiveIndex = False  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
-PlotIntensity = True  # True: plot with I. False: plot with E.
-SizeOfDots = 0.5  # purely cosmetic!
-SizeX = 8.2; SizeY=6.
-LogPlotting = 1 #0: regular linear scale, 1: regular logscale
-verbose = 0  # Show info and debug messages.
-SingleKpoint = 1  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
-
-BesselRootsID_max = 10
-
-########### DONT TOUCH BELOW, thanks! #############
 
 OpticalIndex_Si = {
     # NOTE: these are experimental data for Si (from Palik). They should be from linear TDDFT response !
