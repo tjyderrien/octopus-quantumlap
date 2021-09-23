@@ -42,8 +42,8 @@ logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True #starts to be too consuming (800 MB per EPS file...)
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment.
+ShowPlot = True 
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...) 
 Enable_A2=True #take A2 term into Floquet hamiltonian
 
 # Filenames = "ks_me_multipoles.*"
@@ -100,7 +100,7 @@ wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
 SelectedWavelengths = [400e-9, 515e-9, 800e-9, 1030e-9, 3200e-9]
 
-num_fields = 100  # number of electric field values for the plotting
+num_fields = 500  # number of electric field values for the plotting
 Efield_SI_min = 1E9 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 5E11 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ). 
@@ -244,10 +244,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 
     epsilon_Si0       = libOpticalData.ImportPalikDatabase_epsilon_fromNK(SelectedWavelengths, OpticalIndexFile)  ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
     RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0)) #This is a continuum formulation from Palik data
-    if (LogPlotting==0):
+    if (LogPlotting==1):
         Efield_SI_log = np.linspace(np.log10(Efield_SI_min), np.log10(Efield_SI_max), num_fields)
         Efield_SI = np.power(10., Efield_SI_log)
-    elif (LogPlotting==1):
+    elif (LogPlotting==0):
         Efield_SI = np.linspace(Efield_SI_min, Efield_SI_max, num_fields)
     else: 
         Efield_SI = SelectedFieldsForPlotting
