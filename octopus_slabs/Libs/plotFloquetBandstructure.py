@@ -255,8 +255,6 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
     logger.info("Prepared tensor for storing the results. "+str(replicas_data))
     if (PlotFloquetBandStructure):
         # for wavelength_SI in wavelength_SI_t:
-        fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
-        ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in np.arange(0,len(wavelength_t)):
             wavelength_SI = wavelength_t[wavelength_idx]
@@ -325,10 +323,6 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])  # Si
                 # plt.ylim((-8,8)) #SiO2
-                fig1.tight_layout()
-                if(StorePlot):
-                    fig1.savefig(figurename + ".eps")
-                    fig1.savefig(figurename + ".png")
                 # Plotting dressed levels directly on the figure, from n=1 to MPI_number
                 for MPI in np.arange(1, MPI_number + 1):
                     ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
@@ -337,6 +331,7 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                     ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
                                 au.Energy_Hartree_to_eV(np.real(eigenvalues)) - MPI * h * c / wavelength_SI / e, c="blue",
                                 s=10, label="non-interacting replicates")
+                fig1.tight_layout()
                 if(StorePlot):
                     fig1.savefig(figurename + "-Suppl" + ".eps")
                     fig1.savefig(figurename + "-Suppl" + ".png")
@@ -346,6 +341,9 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
             # plt.show()
             ## Plotting eigenvalues of wavelength
         # End of wavelength loop
+        
+        fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
+        ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
         # Prepare the plot as function of wavelength for few intensities
         # ax2.set_xlabel("Pump wavelength (nm)")
         ax2.set_xlabel("Pump photon energy (eV)")
