@@ -76,7 +76,7 @@ SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with n
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
-UseRefractiveIndex = True  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
+UseRefractiveIndex = False  # True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
 PlotIntensity = True  # True: plot with I. False: plot with E.
 
 SizeOfDots = 0.5  # purely cosmetic!
@@ -154,9 +154,9 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), 
-      'ymin_ymax': (3, 8), 'CaptureDirectGap': True, 'KpointPath_len': 601,
+      'ymin_ymax': (-5, 11), 'CaptureDirectGap': True, 'KpointPath_len': 601,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], 
-      'Fermi_Energy': 3.9, 'kpoints_duplicates': 4
+      'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
 SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 8,
@@ -611,19 +611,19 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
 
     # Compute the number of 3D k-point files. Most clear info: the INP file. #TODO: how to account for shifted k-grid?
     try:
-        logger.warning("** Capturing number of k-points from INP file...")
-        kpoints3D_number = libString.CaptureKPointGridSizeFromINP("../inp")
+        logger.warning("** Capturing number of k-points from INFO file...")
+        kpoints3D_number = libString.CaptureKPointGridSizeFromInfoFile("info")
     except:
         try:
-            logger.warning("** Capturing number of k-points from INFO file...")
-            kpoints3D_number = libString.CaptureKPointGridSizeFromInfoFile("info")
+            logger.warning("** Capturing number of k-points from INP file...")
+            kpoints3D_number = (libString.CaptureKPointGridSizeFromINP("inp")) #number of kpoints in 1 direction
         except: #if file was not found
             logger.warning("** Warning: could not capture size of K-point grid in INP file. Most probably absent.")
             kpoints3D_number = kpoints_manual
             logger.warning("**          Employing manual k-point number as last resort: ")
     if(Materials[material]['kpoints_duplicates']):
         kpoints3D_number = kpoints3D_number * Materials[material]['kpoints_duplicates']
-    logger.info("** Finally used number of 3D kpoints: "+str(kpoints3D_number))
+    logger.info("** Finally used number of 3D kpoints: "+str(kpoints3D_number**3))
 
     # Capture the total number of k-points (available in info file)
     ## Captures the number of 3D k-points in the 2D-path
@@ -703,7 +703,7 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
 
     ## DOUBLE PARSING:
     MPI_number = MPI_numbers[0] #TODO: this is quick fix that forbids batching MPI figures
-
+    logger.warning("Number of replicates: "+str(MPI_number))
     ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
     ## - k_point_files[k_idx] belongs to KPointGrid (sync with info and ks_me_dipole*)
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
@@ -742,7 +742,7 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
                                                                 Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         # wavelength_SI = SelectedWavelengths
-        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(SelectedWavelengths,
+        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI,
                                                                         OpticalIndexFile)
         ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
         RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
@@ -752,14 +752,16 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
             Efield_SI = field / np.real(np.sqrt(epsilon_Si0)) # np.sqrt(OpticalIndex[wavelength_SI])
         else:
             Efield_SI = field
-        # for MPI_number in MPI_numbers:
 
+        logger.debug("Local number of replicates: " + str(MPI_number))
+        logger.debug("k_point_files_idx")
         eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
                                                                      k_point_files_idx[k_idx], unocc_states,
                                                                      MPI_number, Efield_SI, wavelength_SI,
                                                                      num_time_steps, eigenvalues, matrixelements,
                                                                      Complex_valued_ME, field_polarization_dir,
                                                                      spin_occupation, verbose, Enable_A2)
+        logger.debug("Eigenvalues: "+str(eigenvalues))
 
         if (PlotIntensity):
             unitx = 1E-4
@@ -802,8 +804,8 @@ if(__name__=="__main__"):  #runs only if file is called directly
     else:
         for wavelength in [1030e-9]: #SelectedWavelengths:
             #for field in [1E9, 1E10, 1E11]:
-            # for field in [2E8, 3E8, 4E8, 5E8]:
-            for field in [2E9, 3E9, 4E9, 5E9]:
+            for field in [1E8, 2E8, 3E8, 4E8, 5E8, 1E9]:
+            # for field in [2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength)
