@@ -47,7 +47,9 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 0  # Selector for direct execution. 0: plotting the whole band structure for a certain field. 1: plot one single kpoint for many fields and wavelengths.
+SingleKpoint = 1  # Selector for direct execution. 
+# 0: plotting the whole band structure for a certain field. 
+# 1: plot one single kpoint for many fields and wavelengths.
 
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 
@@ -148,12 +150,14 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4,
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
+      'xmin_xmax': (2E11, 7E16),
       'ymin_ymax': (-5, 15), 'CaptureDirectGap': True, 'KpointPath_len': 301,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$']}
 
 SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 8,
         'nb_atoms': 1, 'unocc_states': 6,
         'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
+        'xmin_xmax': (2E10, 7E16),
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
         'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$']}
 
@@ -161,6 +165,7 @@ SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 8,
 Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 3,
       'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 'OpticalIndexFile': "Mo-Palik",
+      'xmin_xmax': (2E10, 7E16),
       'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
       'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'], 
       'Fermi_Energy': 12.28
@@ -350,8 +355,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
                 ax1.set_ylabel(r"Energy levels (eV)")
                 ax1.set_ylim(Materials[material]['ymin_ymax'])
                 ax1.set_xlim(Materials[material]['xmin_xmax'])
-                if(Materials[material]['Fermi_Energy']):
+                try:
                     ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle=':') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
+                except KeyError:
+                    logger.error("Fermi level will not be plotted. If you are working with a dielectric, there is no drama.")
                 # plt.ylim((-8,8)) #SiO2
                 fig1.tight_layout()
                 if(StorePlot):
