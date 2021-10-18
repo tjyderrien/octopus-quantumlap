@@ -224,7 +224,7 @@ logger.info(wavelength_SI_t)
 
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
-def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
+def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, Enable_A2, \
         SelectedWavelengths, SelectedFieldsForPlotting, Materials, UseRefractiveIndex
@@ -576,10 +576,10 @@ def SingleKpointManyFields(k_point_index_of_interest=1, wavelength_t=wavelength_
 # generated at https://tools.materialscloud.org/seekpath/compute/process_structure/
 # @param field:         electric field amplitude (SI unit)
 # @param wavelength_SI: laser wavelength (SI unit)
-def MultipleKpointsOneField(field, wavelength_SI):  # {{{
+def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     Header = "[plotFloquetBandStructure: MultipleKpointsOneField()] "
     global filename, listoffiles, Complex_valued_ME, unocc_states, Z_electrons, verbose, bandstructure, kpoints_manual, \
-        KpointPath_len, Enable_A2, OpticalIndexFile, Materials, UseRefractiveIndex
+        KpointPath_len, OpticalIndexFile, Materials, UseRefractiveIndex
     CaptureDirectGap = False #We force it here since we need a number of k-point values for this function.
 
     # Capture all the k-point files for one direction
@@ -842,7 +842,7 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
 
 if(__name__=="__main__"):  #runs only if file is called directly
     if (SingleKpoint == 1):
-        SingleKpointManyFields()
+        SingleKpointManyFields(Enable_A2)
     else:
         for wavelength in [1030e-9]: #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
@@ -850,7 +850,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             for field in [1E9, 2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
-                MultipleKpointsOneField(field, wavelength)
+                MultipleKpointsOneField(field, wavelength, Enable_A2)
             #for field in [1E9, 1E10, 1E11]:
 
 ## TODO: try n=-1, 0. We should find the same.
