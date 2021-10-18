@@ -62,7 +62,7 @@ PlotFloquetBandStructure = True  # Provide field dependent band structure at Gam
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
-Enable_A2 = False #take A2 term into Floquet hamiltonian
+Enable_A2 = True #take A2 term into Floquet hamiltonian
 
 ## CHOOSING INPUTS
 
@@ -830,9 +830,6 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
         figurename += "-Field"
     if (UseRefractiveIndex):
         figurename += "-WithRefractiveIndex"
-    if Enable_A2:
-        logger.warning("A2 enabled: ")
-        figurename += "-EnabledA2"
     #plt.savefig(figurename + ".eps")
     if(StorePlot):
         plt.savefig(figurename + ".png")
