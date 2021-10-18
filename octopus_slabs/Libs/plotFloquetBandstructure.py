@@ -830,6 +830,9 @@ def MultipleKpointsOneField(field, wavelength_SI):  # {{{
         figurename += "-Field"
     if (UseRefractiveIndex):
         figurename += "-WithRefractiveIndex"
+    if Enable_A2:
+        logger.warning("A2 enabled: ")
+        figurename += "-EnabledA2"
     #plt.savefig(figurename + ".eps")
     if(StorePlot):
         plt.savefig(figurename + ".png")
