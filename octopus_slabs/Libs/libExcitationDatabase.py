@@ -23,11 +23,14 @@
 # import libDatabase
 # from importlib import import_module
 # libDatabase = import_module("")
+
+from   octopus_slabs.Libs.libLogging         import init_logger
 import numpy as np
 import spp_extended_theory.Libs.libDatabase as libDatabase
 from   octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ## Calls for the construction of excitation database and manages exceptions. 
 def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
@@ -37,24 +40,25 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
   fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.2.1\n#JobID\tRunDate\tkgrid\trealmesh\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude_AU\tProbeFieldDelay_s\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent_AU\tMaxJx\tMaxJy\tMaxJz\tEnergy_eV\tEigenvalues_eV\tHartree_Energy_eV\tExchangeEnergy_eV\tEnergy_afterpulse_eV\tEigenvalues_afterpulse_eV\tHartree_Energy_afterpulse_eV\tExchangeEnergy_afterpulse_eV\tPoyntingEnergyFinal_eV\tEext_peak_V_m\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
 
-  print((Header+"Attempting to load previous results...")) 
+  logger.info(Header+"Attempting to load previous results...")
 
-  ## TODO: We try to get rid of exception here. 
   try:
-    print((Header+"** Info: just loading existing database. "))
+    logger.info("** Info: just loading existing database. ")
     Database = np.loadtxt(DatabaseName, skiprows=1)
-    print(Database)
-    print((Header+"** Info: Previous database was found. Attempting to complete it."))
-    FromScratch=False
+    logger.info(Database)
+    logger.info("Previous database was found. Attempting to complete it.")
+    FromScratch=False #No need to rebuild database from scratch
 #    ListAllOutput(path, DatabaseName, FromScratch)
   except:
-    print((Header+"** Warning: Previous database could NOT be found. Rebuilding the database from scratch."))
-    FromScratch = True
+    logger.warning(Header+"Previous database could NOT be found. Rebuilding the database from scratch.")
+    FromScratch = True #We need to rebuild database from scracth
 
-  if(FromScratch): 
+  if(FromScratch): #rebuilds database from scratch
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
-    print((Header+"Save the table to a new file..."))
+    logger.info(Header+"Save the table to a new file...")
     libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
   else: 
-    ListAllOutput(path, DatabaseName, FromScratch)
+    logger.warning("Entered case with FromScratch=False. Newly found entries may not be saved. ")
+    # ListAllOutput(path, DatabaseName, FromScratch)
+    NewDatabase=Database
   return NewDatabase

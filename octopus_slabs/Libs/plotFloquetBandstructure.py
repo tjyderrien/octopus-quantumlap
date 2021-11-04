@@ -62,7 +62,11 @@ PlotFloquetBandStructure = True  # Provide field dependent band structure at Gam
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+<<<<<<< HEAD
 Enable_A2 = True #take A2 term into Floquet hamiltonian
+=======
+Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+>>>>>>> afa9c88cfe03b604dbd6c70011716c6aada4b137
 
 ## CHOOSING INPUTS
 
