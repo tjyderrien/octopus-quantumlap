@@ -66,10 +66,10 @@ module load HDF5/1.12.0-iimpi-2020a
 module load METIS/5.1.0-intel-2020a
 module load ParMETIS/4.0.3-intel-2020a
 
-module load CUDA/10.2.89
-export CUDA_FLAGS="--enable-cuda --enable-nvtx --with-cuda-prefix=$CUDA_HOME"
+# module load CUDA/10.2.89
+# export CUDA_FLAGS="--enable-cuda --enable-nvtx --with-cuda-prefix=$CUDA_HOME"
 
-# export CUDA_FLAGS=""
+export CUDA_FLAGS=""
 
 }
 
@@ -113,7 +113,7 @@ autoreconf -i
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/home/tjyderrien/octopus.gpu/"
+   --prefix="/home/tjyderrien/octopus.try/"
 
 #    --with-parmetis-prefix="$PARMETIS_HOME"
 #   --with-metis-prefix="$METIS_HOME" \
