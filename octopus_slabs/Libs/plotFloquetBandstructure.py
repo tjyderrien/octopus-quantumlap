@@ -190,11 +190,12 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'xmin_xmax': (2E10, 7E16),
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], 
+      'K_labels': [r'$\Gamma$', r'$X$'],
       'Fermi_Energy': 8.58, #eV at 300K
       'kpoints_duplicates': 1
 }
       #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
+      #'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'],
 
 Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all materials properties we need to automatize
 
@@ -474,7 +475,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
             fig2.tight_layout()
             if Enable_A2:
                     logger.warning("A2 enabled: ")
-                    figurename+= "-EnabledA2"
+                    figurename_multiwavelengths += "-EnabledA2"
             if(StorePlot):
                 fig2.savefig(figurename_multiwavelengths + ".eps")
                 fig2.savefig(figurename_multiwavelengths + ".png")
