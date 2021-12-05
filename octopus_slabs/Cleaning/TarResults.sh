@@ -38,6 +38,7 @@ backup_matrixelements() {
   echo "== Saving the matrix elements."
   filename=$DATE-MatrixElements.tar
   list_folders | grep 'static' >& backup_ME.txt
+  ls -1 inp >> backup_ME.txt || echo "Input file was not backuped."
   tar --exclude='*.obf' -cv -T backup_ME.txt -f $filename
 }
 
