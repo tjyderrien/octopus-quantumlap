@@ -113,7 +113,7 @@ autoreconf -i
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/home/tjyderrien/octopus.try/"
+   --prefix="/home/tjyderrien/octopus.me/"
 
 #    --with-parmetis-prefix="$PARMETIS_HOME"
 #   --with-metis-prefix="$METIS_HOME" \
