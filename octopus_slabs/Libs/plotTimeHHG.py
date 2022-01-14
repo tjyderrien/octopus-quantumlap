@@ -375,16 +375,33 @@ PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 
 print("Captured pulse duration [fs]: "+str(1E15*PulseDuration_SI))
 
-print("Current: "+str(timeCurrent.size)+", "+str(CurrentX.size))
-print("Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU))
-print("Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15))
+logger.info("Current: "+str(timeCurrent.size)+", "+str(CurrentX.size))
+logger.info("Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU))
+logger.info("Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15))
 
+logger.info("Extending the simulation length to increase precision of Fourier transform...")
+Elongation=3
+TimeStep_current_AU = np.diff(timeCurrent)[0] #atomic units
+logger.warning("Value of Current timestep (a.u.): "+str(TimeStep_current_AU))
+TimeStep_current_SI = Time_AU_to_SI(TimeStep_current_AU)
+timeCurrent_SI = Time_AU_to_SI(timeCurrent)
+logger.warning("Value of Current timestep (S.I.): "+str(TimeStep_current_SI))
+CurrentX_pad = np.pad(CurrentX, (0,Elongation*(len(timeCurrent))), "mean")
+CurrentY_pad = np.pad(CurrentY, (0,Elongation*(len(timeCurrent))), "mean")
+CurrentZ_pad = np.pad(CurrentZ, (0,Elongation*(len(timeCurrent))), "mean")
+timeCurrent_pad = np.linspace(TimeStep_current_SI, (Elongation+1)*(np.max(timeCurrent_SI)+TimeStep_current_SI), (Elongation+1)*len(timeCurrent_SI))
+#try:
+#  assert(len(timeCurrent_pad)==len(CurrentX_pad))
+#except AssertionError:
+logger.warning("Shapes: "+str(np.shape(timeCurrent_pad))+", "+str(np.shape(CurrentX_pad)))
+#  timeCurrent_pad = np.arange(TimeStep_current_SI, (Elongation + 1) * (np.max(timeCurrent_SI) + TimeStep_current_SI), TimeStep_current_SI)
+#  assert(len(timeCurrent_pad) == len(CurrentX_pad))
 print(Header+"** Info: cleaning the current for HHG computation.")
-CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
-CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 2*PulseDuration_SI)
-CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 2*PulseDuration_SI)
+CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
+CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, 2*PulseDuration_SI)
+CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, 2*PulseDuration_SI)
 
-assert(len(CurrentX_HHG) == len(CurrentX)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision. 
+assert(len(CurrentX_HHG) == len(CurrentX_pad)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision.
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -397,11 +414,31 @@ assert(len(CurrentX_HHG) == len(CurrentX)) #We check if current integrity is con
 
 SizeOfCurrentHHG = len(CurrentX_HHG)
 
-# DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.rfft(CurrentX_HHG)+fft.rfft(CurrentY_HHG)+fft.rfft(CurrentZ_HHG) #Larmor formula with approximation of d/dt J_i n_i
+# DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise numerically)
+
+# HHG_AU=fft.rfft(CurrentX_HHG)+fft.rfft(CurrentY_HHG)+fft.rfft(CurrentZ_HHG) #Larmor formula with approximation of d/dt J_i n_i
+
+
+
+#Using scipy FFT (components Y and Z, for the moments)
+
 HHG_AU_X = fft.rfft(CurrentX_HHG)
 HHG_AU_Y = fft.rfft(CurrentY_HHG)
 HHG_AU_Z = fft.rfft(CurrentZ_HHG)
+
+""" #This part does not work: FFTW instance fails and even erases Current_X signal. 
+import copy
+HHG_example = copy.copy(HHG_AU_X)
+CurrentX_HHG2 = copy.copy(CurrentX_HHG)
+#Using pyFFTW (component X for the mooment)
+import pyfftw
+HHG_AU_X2 = np.zeros(np.shape(HHG_example), dtype=type(HHG_example[0])) #creates new output object
+instance = pyfftw.FFTW(CurrentX_HHG2, HHG_AU_X2) 
+pyfftw.FFTW.execute(instance)
+"""
+
+## Computing total sum
+HHG_AU   = HHG_AU_X + HHG_AU_Y + HHG_AU_Z
 HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -594,7 +631,8 @@ plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-plot_current_damped, = ax12.plot(timeCurrent, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
+# plot_current_damped, = ax12.plot(timeCurrent_pad, np.sqrt(CurrentX_HHG**2+CurrentY_HHG**2+CurrentZ_HHG**2), 'b--', label=r'$|J(t)|$ (a.u.)')
+plot_current_damped, = ax12.plot(timeCurrent_pad, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
