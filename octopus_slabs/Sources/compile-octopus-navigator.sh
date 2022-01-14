@@ -20,6 +20,8 @@ ImportNavIntelLibs() {
 module load iccifort/2019.5.281
 module load iimpi/2019b
 
+source /apps/software/imkl/2019.5.281-iimpi-2019b/bin/compilervars.sh intel64 
+
 module load imkl/2019.5.281-iimpi-2019b
 export MKL_HOME="/apps/software/imkl/2019.5.281-iimpi-2019b/"
 
@@ -50,8 +52,8 @@ export CXXFLAGS=${CFLAGS}
 # Advised by Octopus website
 # export MKL="-L$MKL_HOME/lib/intel64  -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
 # See https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-link-line-advisor.html: warning: octopus addresses C-API using 32 bits integer, not 64. Then one should use LP not ILP (https://www.smcm.iqfr.csic.es/docs/intel/mkl/mkl_userguide/MKL_UG_linking_your_application/Support_for_ILP64_Programming.htm)
-export MKL=" -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64 -lpthread -lm -ldl"
-
+export MKL=" -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_lp64 -liomp5 -lpthread -lm -ldl"
+export FFTW_HOME=${MKLROOT}/include/fftw
 
 # Draco advised line
 # export LDFLAGS="-Xlinker -rpath=$MKL_HOME/lib/intel64:$GSL_HOME/lib:$NETCDF_HOME/lib:$ELPA_HOME/lib:$METIS_HOME/lib:$PARMETIS_HOME/lib"
@@ -62,7 +64,7 @@ export MKL=" -L${MKLROOT}/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmk
 # export LDFLAGS="-I$FFTW_HOME/include -L$MKL_HOME/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core  -lmkl_sequential -lmkl_blacs_intelmpi_lp64  -lpthread -lm -Xlinker -rpath=$MKL_HOME/lib/intel64:$GSL_HOME/lib:$NETCDF_HOME/lib:$FFTW_HOME/lib" 
 
 # Dec 1st, 2021 <derrien@fzu.cz> #Replacing by another compilation line
-export LDFLAGS="-I$FFTW_HOME/include $MKL -Xlinker -rpath=$MKL_HOME/lib/intel64:$GSL_HOME/lib:$METIS_HOME/lib:$FFTW_HOME/lib:$LIBRARY_PATH"
+export LDFLAGS="-I$FFTW_HOME $MKL -Xlinker -rpath=$MKLROOT/lib/intel64:$GSL_HOME/lib:$LIBRARY_PATH"
 
 make mostlyclean
 make clean
@@ -71,8 +73,8 @@ make distclean
 pushd .. && autoreconf -i --force && popd
 #NOTE: OpenMP was disabled, because not useful in our case.
 ../configure $CUDA_FLAGS \
-   FCFLAGS_FFTW="-I$MKL_HOME/include/fftw" \
    FCCPP="cpp -ffreestanding" \
+   FCFLAGS_FFTW="-I$MKLROOT/include/fftw" \
    --enable-mpi  --disable-gdlib --disable-openmp \
    --with-gsl-prefix=$GSL_HOME \
    --with-libxc-prefix=$LIBXC_HOME \
@@ -81,9 +83,9 @@ pushd .. && autoreconf -i --force && popd
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/veracruz/home/p/pr2c0043/octopus.mpiio/"
+   --prefix="/veracruz/home/p/pr2c0043/octopus.barbora/"
 
-
+#   FCFLAGS_FFTW="-I$MKL_HOME/include/fftw" \ 
 #    --with-parmetis-prefix="$PARMETIS_HOME"
 #   --with-metis-prefix="$METIS_HOME" \
 #   --with-netcdf-prefix=$NETCDF_HOME \ #attempting in manual because this loads $NETCDF_HOME/lib not $NETCDF_HOME/lib64
