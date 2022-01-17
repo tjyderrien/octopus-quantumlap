@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,7 +77,6 @@ xscale = 1E-4 #convert W/m2 to W/cm2.
 
 # Capture the data
 # For histocal reasons, two locations are possilbe.
-path1='*/*/*/output_iter/' #valid for the runs computed from a same k-grid folder. 
 path2='*/*/*/td.general/'
 path3='*/*/td.general/'
 
