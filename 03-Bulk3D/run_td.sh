@@ -5,9 +5,11 @@
 set -e
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
-source $QuantumLaPsources/octopus_slabs/machines.env
-echo "[Checking] Variable basePath: $basePath"
 
+echo "[Checking] Variable basePath: $basePath"
+echo ""
+echo "Python interpreter path:"
+which python
 source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
@@ -103,9 +105,9 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
+  python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseA.dat
-  $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
+  python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."

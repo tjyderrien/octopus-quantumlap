@@ -22,8 +22,8 @@ case "${ComputerName}" in
 	;;
 
 	*${PrometheusLogin}*)
-		export QuantumLaPruns=/net/scratch/projects/prace/pr2c0043
-		export QuantumLaPsources=$HOME/octopus_slabs
+		export QuantumLaPruns="/net/scratch/projects/prace/pr2c0043"
+		export QuantumLaPsources="$HOME/octopus_slabs"
 	;;
 
 	${SalomonLogin}*)
@@ -49,8 +49,14 @@ case "${ComputerName}" in
         ;;
 
         ${BarboraLogin} | ${BarboraRuns})
-                export QuantumLaPsources=/home/tjyderrien/octopus-slabs
-                export QuantumLaPruns=/scratch/project/open-20-5/octopus-slabs.data
+                export QuantumLaPsources="/home/tjyderrien/octopus-slabs"
+                export QuantumLaPruns="/scratch/project/open-20-5/octopus-slabs.data"
+        ;;
+
+        ${navigator_login} | ${navigator}* )
+                echo "[vars.sh: ] Definition QuantumLaP variables for Navigator."
+                export QuantumLaPsources="/veracruz/home/p/pr2c0043/octopus-slabs/"
+                export QuantumLaPruns="/tormenta/f/frecuencia/octopus-slabs.data/"
         ;;
         
 
