@@ -91,7 +91,7 @@ kpts | kpts | kpts | kpts | kpts | kpts | kpts | 0 | kpts | 0 | kpts
 
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
-KPointsUseSymmetries = no
+KPointsUseSymmetries = yes
 # %SymmetryBreakDir #laser direction, where we gonna break symmetry
 #  1 | 0 | 0
 # %
@@ -107,11 +107,11 @@ MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
-Output = dos + density + potential + geometry + matrix_elements
+Output = dos + density + potential + geometry #+ matrix_elements
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
 
-OutputMatrixElements=dipole
+# OutputMatrixElements=dipole
 
 DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
 DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei

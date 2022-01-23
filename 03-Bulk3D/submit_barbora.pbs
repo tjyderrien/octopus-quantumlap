@@ -36,9 +36,11 @@ LoadOctopusBarboraModulesFortran2021
 # JUST TO EXECUTE ONE RUN
 RunningTrunc=/home/tjyderrien/octopus.git/bin
 DebugTrunc=/home/tjyderrien/octopus.clean/bin
+MPIIOtrunc=/home/tjyderrien/octopus.try/bin
+DipoleTrunc=/home/tjyderrien/octopus.me/bin
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # sleep 5
 # sed -i.bak 's/FromScratch/#FromScratch/g' inp #Avoid to kill the data while restarting the job
 # ~                                                           
-mpirun $RunningTrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
+mpirun $MPIIOtrunc/octopus >& octopus-td.${PBS_JOBID}.log #If $NSLOTS fails, use PBS_NUM_PPN
