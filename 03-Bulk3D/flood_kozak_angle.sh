@@ -29,6 +29,7 @@ MeshSizeX="0.23" # 0.20"
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of computer nodes
+
 NumNodes=12
 
 # Sample
@@ -70,17 +71,25 @@ lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
 
 ## Field amplitude
-Efield1="3E9 9E9" #Exp. 3GV/m (Kozak) 
+Efield1="3E9" #9E9" #Exp. 3GV/m (Kozak) 
 Efield2="0E0" #"9e9"
 
 ## Pulse duration
-tau1="13.945e-15"
+#tau1="13.945e-15" #tau1=10 fs with LDA gap renormalized to exp. 3.4 eV gap at 0K. 
+tau1="33.203125e-15" #tau1=25 fs with LDA gap renormalized to exp. 3.4 eV at 0K. 
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
+
 # AngleIncidence_list="0 0.25" 
-AngleIncidence_list="0.05" # 0.10 0.15 0.20"
+
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+
+AngleIncidence_list="0 0.25" 
+# AngleIncidence_list="0.05 0.10 0.15 0.20"
+# AngleIncidence_list="0.12"
+# AngleIncidence_list="0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+
 # AngleIncidence_list="0.01 0.02 0.03 0.04 0.06 0.07 0.08 0.09 0.11 0.12 0.13 0.14 0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
 
 # Phase
