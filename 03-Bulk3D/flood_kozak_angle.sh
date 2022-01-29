@@ -29,7 +29,7 @@ MeshSizeX="0.23" # 0.20"
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of computer nodes
-NumNodes=16
+NumNodes=12
 
 # Sample
 SampleLayers=1
@@ -78,8 +78,8 @@ tau1="13.945e-15"
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
-AngleIncidence_list="0 0.25" 
-# AngleIncidence_list="0 0.05 0.10 0.15 0.20 0.25"
+# AngleIncidence_list="0 0.25" 
+AngleIncidence_list="0.05" # 0.10 0.15 0.20"
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 # AngleIncidence_list="0.01 0.02 0.03 0.04 0.06 0.07 0.08 0.09 0.11 0.12 0.13 0.14 0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
 
