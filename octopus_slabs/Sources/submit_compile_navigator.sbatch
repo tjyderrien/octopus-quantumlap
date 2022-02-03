@@ -32,7 +32,7 @@ module list
 
 # Run the program:
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
-../compile-octopus-navigator.sh
+../compile-octopus-navigator.sh >& octopus-install.$SLURM_JOB_ID.log 
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
 
