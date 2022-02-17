@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.
 ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
-Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 ## CHOOSING INPUTS
@@ -190,7 +190,8 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'xmin_xmax': (2E10, 7E16),
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'],
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #Kristyna simulation (= Bilbao and SeekPoint path)
+      # 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U$', r'$\Gamma$', 'U', 'W', 'L', 'K', 'X'], #Tibo simulation Gamma - X - W - U - Gamma - U - W - L - K(error) - X
       'Fermi_Energy': 8.58, #eV at 300K
       'kpoints_duplicates': 1
 }
@@ -856,7 +857,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
         for wavelength in [1030e-9]: #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
-            for field in [1E9, 2E9, 3E9, 4E9, 5E9]:
+            for field in [1E9]: #, 2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength, Enable_A2)
