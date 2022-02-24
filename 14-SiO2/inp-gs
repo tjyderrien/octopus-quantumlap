@@ -10,8 +10,8 @@ PeriodicDimensions = 3
 # Initial temperature
 # RandomVelocityTemp = 300e0
 
-aAngstrom = 4.91343*angstrom #interactomic distance, experimental value from Landolt-Bornstein
-cAngstrom = 5.40506*angstrom #idem 
+# aAngstrom = 4.91343*angstrom #interactomic distance, experimental value from Landolt-Bornstein
+# cAngstrom = 5.40506*angstrom #idem 
 
 ## DATA FROM AVOGADRO 
 a = 5.02778*angstrom #aAngstrom 
@@ -23,9 +23,9 @@ n = 1 #Z blocks: to be replaced by script
 
 # Optimization
 # PoissonFFTKernel = planar
-# ParKPoints = auto
+ParKPoints = auto
 # ParStates = auto
-ParDomains = yes #crashes if made per state only
+# ParDomains = yes #crashes if made per state only
 
 # Mesh parameters
 BoxShape = parallelepiped
@@ -52,15 +52,15 @@ BoxShape = parallelepiped
 # XYZCoordinates = "Si.xyz"
 
 %ReducedCoordinates
-"Si" | 0.52272 | 0.52272 |  0.50000
-"Si" | 0.47728 | 0.00000 |  0.16667
-"Si" | 0.00000 | 0.47728 |  0.83333
-"O"  | 0.58497 | 0.83926 |  0.37068
-"O"  | 0.16074 | 0.74571 |  0.03734
-"O"  | 0.25429 | 0.41503 |  0.70401
-"O"  | 0.83926 | 0.58497 |  0.62932
-"O"  | 0.74571 | 0.16074 |  0.96266
-"O"  | 0.41503 | 0.25429 |  0.29599
+"Si" | 0.522715 | 0.522715 |  0.5
+"Si" | 0.477285 | 0.       |  0.1666666667
+"Si" | 0.       | 0.477285 |  0.8333333333
+"O"  | 0.584969 | 0.839262 |  0.370677
+"O"  | 0.160738 | 0.745707 |  0.0373436667
+"O"  | 0.254293 | 0.415031 |  0.7040103333
+"O"  | 0.839262 | 0.584969 |  0.629323
+"O"  | 0.745707 | 0.160738 |  0.9626563333
+"O"  | 0.415031 | 0.254293 |  0.2959896667
 %
 
 
@@ -91,10 +91,12 @@ kpts | kpts | kpts | kpts | kpts | kpts | kpts | 0 | kpts | 0 | kpts
 
 ##### CONVERGENCE OPTIMIZATION
 ConvRelDens = 1e-9 #is the right value. Just playing for non-unicity of solutions.
-KPointsUseSymmetries = no
-# %SymmetryBreakDir #laser direction, where we gonna break symmetry
-#  1 | 0 | 0
-# %
+KPointsUseSymmetries = yes
+
+%SymmetryBreakDir #laser direction, where we gonna break symmetry
+ 1 | 0 | 0
+%
+
 
 ExtraStates = 6 #0 #16 is enough for band structure.
 
@@ -107,11 +109,11 @@ MaximumIter=200
 # Mixing = 0.05
 
 ### OUTPUTS
-Output = dos + density + potential + geometry + matrix_elements
+Output = dos + density + potential + geometry #+ matrix_elements
 OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
 
-OutputMatrixElements=dipole
+# OutputMatrixElements=dipole
 
 DOSEnergyMin = -30*eV #-0.3674932248085465 #-10 eV, like Zhigilei
 DOSEnergyMax = 30*eV #0.8452344170596571 #23 eV, like Zhigilei

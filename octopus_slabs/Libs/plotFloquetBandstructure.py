@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -190,7 +190,8 @@ Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
       'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'xmin_xmax': (2E10, 7E16),
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'],
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #Kristyna simulation (= Bilbao and SeekPoint path)
+      # 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U$', r'$\Gamma$', 'U', 'W', 'L', 'K', 'X'], #Tibo simulation Gamma - X - W - U - Gamma - U - W - L - K(error) - X
       'Fermi_Energy': 8.58, #eV at 300K
       'kpoints_duplicates': 1
 }
@@ -302,7 +303,6 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
         logger.warning("If you want to visualize Floquet band structures, check the value of PlotFloquetBandStructure!")
     if (PlotFloquetBandStructure):
         # for wavelength_SI in wavelength_SI_t:
-        
         # replica_t = np.zeros(( num_wavelengths, num_fields )) #tenseur second order
         for wavelength_idx in np.arange(0,len(SelectedWavelengths)): #altered from original to get figures for desired wavelengths
             #wavelength_SI = wavelength_t[wavelength_idx] #original
@@ -389,10 +389,6 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
 #                if(Materials[material]['Fermi_Energy']):
 #                    ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
                 # plt.ylim((-8,8)) #SiO2
-                fig1.tight_layout()
-                if(StorePlot):
-                    fig1.savefig(figurename + ".eps")
-                    fig1.savefig(figurename + ".png")
                 # Plotting dressed levels directly on the figure, from n=1 to MPI_number
                 for MPI in np.arange(1, MPI_number + 1):
                     ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
@@ -401,6 +397,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
                     ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
                                 au.Energy_Hartree_to_eV(np.real(eigenvalues)) - MPI * h * c / wavelength_SI / e, c="blue",
                                 s=10, label="non-interacting replicates")
+                fig1.tight_layout()
                 if(StorePlot):
                     fig1.savefig(figurename + "-Suppl" + ".eps")
                     fig1.savefig(figurename + "-Suppl" + ".png")
@@ -411,7 +408,13 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
             # plt.show()
             ## Plotting eigenvalues of wavelength
         # End of wavelength loop
+
         del replicas_data
+
+        
+        fig2, ax2 = plt.subplots() #this will contain the wavelength dependence
+        ax2.set_prop_cycle(cycler('color', ['c', 'm', 'y', 'k']))
+
         # Prepare the plot as function of wavelength for few intensities
         # ax2.set_xlabel("Pump wavelength (nm)")
         
@@ -854,7 +857,8 @@ if(__name__=="__main__"):  #runs only if file is called directly
         for wavelength in [2000e-9]: #1030e9 #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
-            for field in [0.05E9]: #[1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9, 8E9, 9E9]: #[1E9, 2E9, 3E9, 4E9, 5E9]
+
+            for field in [1E9]: #, 2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength, Enable_A2)

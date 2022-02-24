@@ -1,1 +1,0 @@
-../02-Slab2D/WhoAreTheRunningJobs.sh

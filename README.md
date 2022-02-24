@@ -15,7 +15,9 @@ or
 
 2. git checkout Modules
 
-3. conda env create -f environment.yaml if you want to install a separate conda environment for this code
+3. (On public HPC machines, lack of access rights can be solved using, e.g., conda create -n anaconda3 --clone="/apps/software/Anaconda/2020.11")
+
+3. conda env create -f environment.yaml
 
 4. conda activate octopus-slabs
 
