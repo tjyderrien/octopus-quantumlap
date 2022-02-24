@@ -60,10 +60,10 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = False
+ShowPlot = True
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
-Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 ## CHOOSING INPUTS
@@ -71,12 +71,12 @@ Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebo
 num_wavelengths = 500
 wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
-SelectedWavelengths = [400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
+SelectedWavelengths = [2000e-9] #[400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
 
 num_fields = 300  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E12 # IntensityToField(1E19 * 1E4)
-SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
+SelectedFieldsForPlotting= [0.001E9, 0.01E9, 0.05E9] #[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
 
 num_time_steps = 300 #should be small enough to ensure convergence
 
@@ -158,11 +158,11 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'nb_atoms': 1, 'unocc_states': 4, #sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
-      'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
-      'ymin_ymax': (-5, 11), #(-5, 15)
+      'xmin_xmax': (2E11, 7E16), # (1E9,2E15)
+      'ymin_ymax': (-5, 15), #(-5, 11)
       'CaptureDirectGap': True,
       'KpointPath_len': 601, #301
-      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], 
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #[r'$K$', r'$\Gamma$', r'$X$'], # [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], 
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -851,10 +851,10 @@ if(__name__=="__main__"):  #runs only if file is called directly
     if (SingleKpoint == 1):
         SingleKpointManyFields(Enable_A2)
     else:
-        for wavelength in [1030e-9]: #SelectedWavelengths:
+        for wavelength in [2000e-9]: #1030e9 #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
-            for field in [1E9, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.05E9]: #[1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9, 8E9, 9E9]: #[1E9, 2E9, 3E9, 4E9, 5E9]
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength, Enable_A2)
