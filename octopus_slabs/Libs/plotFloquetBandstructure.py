@@ -81,7 +81,7 @@ SelectedFieldsForPlotting= [0.001E9, 0.01E9, 0.05E9] #[0.5E9, 1E9, 5E9, 1E10] #s
 num_time_steps = 300 #should be small enough to ensure convergence
 
 # Warning: See Yabana PRB 2012 + Abraham-Minkowski momentum conservation
-UseRefractiveIndex = True  #True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
+UseRefractiveIndex = False  #True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
 PlotIntensity = True  # True: plot with I. False: plot with E.
 
 SizeOfDots = 0.5  # purely cosmetic!
@@ -376,6 +376,8 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
                     ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
                 if UseRefractiveIndex:
                     figurename+="-WithOpticalIndex"
+                else:
+                    figurename+="-WITHOUTOpticalIndex"
                 if Enable_A2:
                     logger.warning("A2 enabled: ")
                     figurename+= "-EnabledA2"
@@ -858,7 +860,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
-            for field in [1E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.1E9]: #, 2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength, Enable_A2)
