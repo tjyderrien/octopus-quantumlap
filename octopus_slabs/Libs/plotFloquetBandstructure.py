@@ -840,6 +840,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         figurename += "-Field"
     if (UseRefractiveIndex):
         figurename += "-WithRefractiveIndex"
+    else:
+        figurename+="-NoOpticalIndex"
     if Enable_A2:
         logger.warning("A2 enabled: ")
         figurename+= "-EnabledA2"
