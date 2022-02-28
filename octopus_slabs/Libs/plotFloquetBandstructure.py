@@ -60,8 +60,8 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = False
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = True
+StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
@@ -376,6 +376,8 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
                     ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
                 if UseRefractiveIndex:
                     figurename+="-WithOpticalIndex"
+                else:
+                    figurename+="-NoOpticalIndex"
                 if Enable_A2:
                     logger.warning("A2 enabled: ")
                     figurename+= "-EnabledA2"
@@ -840,6 +842,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         figurename += "-Field"
     if (UseRefractiveIndex):
         figurename += "-WithRefractiveIndex"
+    else:
+        figurename += "-NoRefractiveIndex"
     if Enable_A2:
         logger.warning("A2 enabled: ")
         figurename+= "-EnabledA2"
