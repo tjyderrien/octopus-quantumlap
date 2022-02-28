@@ -377,7 +377,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
                 if UseRefractiveIndex:
                     figurename+="-WithOpticalIndex"
                 else:
-                    figurename+="-WITHOUTOpticalIndex"
+                    figurename+="-NoOpticalIndex"
                 if Enable_A2:
                     logger.warning("A2 enabled: ")
                     figurename+= "-EnabledA2"
