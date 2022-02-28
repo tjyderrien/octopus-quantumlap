@@ -74,26 +74,11 @@ kpts | kpts | 0 | kpts | kpts | kpts | kpts
 0     | 0     | 0     #Gamma
 0.5   | 0     | 0.5   #X
 0.625 | 0.25  | 0.625 #U|
-0.375 | 0.375 | 0.375 #K
+0.375 | 0.375 | 0.75 #K
 0     | 0     | 0     #Gamma
 0.5   | 0.5   | 0.5   #L
 0.5   | 0.25  | 0.75  #W
 0.5   | 0     | 0.5   #X
-
-### OLD PROPOSITION: # Gamma | X | W | K | Gamma | L | U | W | L | K|U | X
-# kpts | kpts | kpts | kpts | kpts
- # 0 | 0 | 0 #Gamma
- # 0.5 | 0 | 0.5 #X
-# 0.5 | 0.25 | 0.75 #W
-# 0.5 | 0.5 | 0.5 #L
-#   0 | 0 | 0  # Gamma
-# 0.5 | 0 | 0.5  # X 
- #U ?
-# 0.5 | 0.25 | 0.75 #W
-# 0.375 | 0.375 | 0.75 #K
- # 0.5 | 0.5 | 0.5  #L
- #K|U ? 
-%
 
 # PseudopotentialSet = pseudodojo_lda
 # PseudopotentialSet = pseudodojo_pbe
