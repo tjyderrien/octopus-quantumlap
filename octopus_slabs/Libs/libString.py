@@ -304,14 +304,29 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
     kpointpath_kx   =block_t[:,1]
     kpointpath_ky   =block_t[:,2]
     kpointpath_kz   =block_t[:,3]
+    occupations     =block_t[:, 4]
 
+    """"
+    # WARNING!!! Hypothesis employed here is that k-point path starts with a Gamma point.
     test1 = (kpointpath_kx == 0)
     test2 = (kpointpath_ky == 0)
     test3 = (kpointpath_kz == 0)
     Mask = np.logical_and(np.logical_and(test1, test2), test3)
+    """
+
+    test4 = (occupations == 0) #this captures the first point of the k-point-path
+    Mask = test4
+    # not GammaPoint and occupations == 0 # we start the k-point-path (by something else than Gamma)
+    # GammaPoint and occupations == 0 # we are in the k-point-path, but maybe not at the beginning (several Gammas are present in the path)
+    # not GammaPoint and occupations == 1 # we are still inside 3D k-point-grid
+    # GammaPoint and occupations == 1 # we are still inside the 3D k-point-grid
     #Mask = np.logical_and(np.logical_and(np.logical_and(kpointpath_kx==0, kpointpath_ky==0), kpointpath_kz==0), kpointpath_index==0)
     # block = read_static_info_kpoints(filename)
+
     NumberOf3dKpoints=np.where(Mask)[0][1]
+
+
+
     return round(np.power(NumberOf3dKpoints,1/3))
 
 ## Capture eigenvalues for a given k-point from "info" file

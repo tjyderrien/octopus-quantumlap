@@ -318,6 +318,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
             print("** Debug: "+str(CEP1[JobID]*180./np.pi))
             print("** Debug: checking length of new mesh: "+str(np.shape(HHG_omega_new)))
             Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new))),[Y])
+            # HHG_samples_effective=len(HHG[:,0])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
@@ -327,18 +328,40 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         #print str(h*c/wavelengths1[JobID]/e)+" eV"
         del HHG
 
-    #### ======== COMMON PART 
+    #### ======== COMMON PART
+
+    NumberOfRuns=len(runid)
     # Converts Y to array of reals
     Y = np.asfarray(Y)
 
     # Returns log10 of Z, but clean.
-    Z_clipped=np.clip(Z, 0, np.max(np.max(Z))) #we remove zones lower than 2
+    logger.debug("Shape of Z: "+str(np.shape(Z)))
+    Z_clipped=np.clip(Z, 0, np.max(np.max(Z))) #we remove zones lower than 0
 
     Z_log=np.log10(Z_clipped)
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
-    Z_av = np.mean(Z_clipped)
-    print("Average value of the distribution: "+str(Z_av) )
+
+    logger.debug("Shape of X: "+str(np.shape(X)))
+    logger.debug("Shape of Y: "+str(np.shape(Y)))
+    logger.debug("Number of runs: "+str(NumberOfRuns))
+
+    Z_reshaped=np.reshape(Z_clipped, (NumberOfRuns, len(Z_clipped)//NumberOfRuns)) #integer division
+    logger.debug("Shape of Z_reshaped: "+str(np.shape(Z_reshaped)))
+    Z_av_CEP = np.mean(Z_reshaped, axis=0) #size matches with harmonics spectra. Then we well integrated on CEPs.
+    # Z_av = np.mean(Z_clipped) #ERROR: this returns a scalar. We need a vector that depends on photon frequency.
+    logger.debug("Shape of Z_clipped: " + str(np.shape(Z_clipped)))
+    logger.debug("Shape of Z_av_CEP: "+str(np.shape(Z_av_CEP)))
+    logger.info("CEP-average value of the HHG spectra: "+str(Z_av_CEP) )
+    # We need to re-extend the list to size of Z_clipped.
+    Z_av_CEP_r = np.repeat(Z_av_CEP, NumberOfRuns)
+    logger.debug("Shape of repeated Z_av_CEP: "+str(np.shape(Z_av_CEP_r)))
+    Z_av = np.reshape( Z_av_CEP_r, np.shape(Z_clipped))
+    logger.debug("Shape of repeated Z_av_CEP: " + str(np.shape(Z_av)))
     Z_fluctuation = Z_clipped - Z_av #recommended by M. Kozak
+    # DEBUG PURPOSE
+    # Z = Z_av
+
+    # THE GOOD ONE IS:
     Z = Z_fluctuation
 #    Z=Z_log #Z_clipped #plotting fluctuations
     # Z=Z_clipped
@@ -359,7 +382,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     PlotTriangles=True
     PlotGradient =False
     
-    xlimit     = [0.,h*c/200e-9/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    xlimit     = [2.,h*c/100e-9/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
     ylimit     = [-90.,90.] #deg
     numberoflevels=30
     grad_precisionX=10; grad_precisionY=10; #number of cells for interpolation for gradient computation
@@ -373,6 +396,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     print("** Preparing plot...")
+    #Signature by default: ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100, wavelength1=2656e-9
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap, grad_precisionX, grad_precisionY)
     return 0
 #}}}
@@ -556,5 +580,5 @@ def KozakOptica2022_batch_orientation(LogScale=False): #{{{
 ## HHG spectra computation as function of angle of incidence (Kozak, Derrien et al 2022).
 if(__name__=="__main__"):
     LogScale=True
-    KozakOptica2022_batch_orientation(LogScale=LogScale)
-    # KozakOptica2022_batch_CEP() #no logscale possible here (we look at fluctuations)
+    # KozakOptica2022_batch_orientation(LogScale=LogScale)
+    KozakOptica2022_batch_CEP() #no logscale possible here (we look at fluctuations)
