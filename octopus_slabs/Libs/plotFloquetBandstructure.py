@@ -63,7 +63,7 @@ PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.
 ShowPlot = True
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
-Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 ## CHOOSING INPUTS
@@ -862,7 +862,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
-            for field in [0.1E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 2E9, 4E9, 6E9, 8E9, 9E9]: #, 2E9, 3E9, 4E9, 5E9]:
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
                 MultipleKpointsOneField(field, wavelength, Enable_A2)
