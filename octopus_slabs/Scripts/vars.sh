@@ -70,3 +70,5 @@ case "${ComputerName}" in
 #        export QuantumLaPruns="~/Documents/octopus.data"
 esac
 
+source ${QuantumLaPsources}/Scripts/functions.sh
+

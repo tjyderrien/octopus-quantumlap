@@ -27,7 +27,7 @@ MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=4
+NumNodes=20
 
 # Sample
 SampleLayers=1
@@ -90,16 +90,13 @@ Efield_fast="5E8 1E9 2.5E9 5E9 7.5E9 1E10 2.5E10 5E10 7.5E10 9E10"
 # Efield_detailed="9.75E8 1E9 1.5E9 2E9"
 # Efield_detailed="1.1E9 1.2E9 1.3E9 1.4E9 6.5E9 7E9 8E9 9E9 9.5E9"
 Efield_detailed="2E8 2.5E8 3E8 3.5E8 4E8 4.5E8 5.5E8 6E8 6.5E8 7E8 8E8 8.5E8 9E8 9.5E8 2.5E9 3.5E9 4.5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9 9.5E9" # is fluence: 0.1 J/cm2, tau:10 fs. #TODO with scripted intensity
-Efield_superdetailed="2.1E9 2.2E9 2.3E9 2.4E9 2.6E9 2.7E9 2.8E9 2.9E9 3.1E9 3.2E9 3.3E9 3.4E9" 
+Efield_superdetailed="2.2E8 2.3E8 2.4E8 2.6E8 2.7E8 2.8E8 2.9E8" # 3.1E8 3.2E8 3.3E8 3.4E8" 
 Efield_saturation="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 
-
-
-Efield1_1E8="1E8 2E8 3E8 4E8 5E8 6E8 7E8 8E8 9E8"
+Efield1_1E8="1E8 2E8 3E8 4E8 6E8 7E8 8E8 9E8"
 Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
 
-Efield1=${Efield1_1E8}
-
+Efield1=${Efield_superdetailed}
 
 # Efield1="9.95E8 1E9 1.05E9"
 # Efield1="5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9"
@@ -129,19 +126,26 @@ Efield1=${Efield1_1E8}
 
 ## PRL (intensity) figure
 # Checking mid-IR band gap at 5-10 um
-tau1="30E-15" # 20e-15 30E-15 10E-15"
-tau2="30E-15"
+
+# tau1="3.43571E-15"    #1 optical cycle at 1030 nm
+# tau1="6.87142036E-15" #2 optical cycles at 1030 nm
+# tau1="10.3071305416229E-15" #3 optical cycles at 1030 nm
+
+tau1="10E-15" # 20e-15 30E-15 10E-15"
+tau2="10E-15"
 # tau1="10.674E-15" #(1 optical cycle at 3200 nm)
 # tau1="10.674E-15" #PRL Hamburg
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
 # tau1="13.689E-15" #10 fs at 2000 um (Kozak)
 # tau2="6.84E-15"
 # tau2="10.674E-15"
+
+
 Efield2="0E0"
 
 lambda1="1030E-9"; lambda2="1030E-9"
-lambda1="1367.968e-9" #1030 nm normalized to Egap=3.4 eV
-lambda2="1367.968e-9"
+# lambda1="1367.968e-9" #1030 nm normalized to Egap=3.4 eV
+# lambda2="1367.968e-9"
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9 2600e-9" # 3200e-9"
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
