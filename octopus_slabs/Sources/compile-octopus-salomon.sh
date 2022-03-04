@@ -44,7 +44,7 @@ export MKL_HOME=/apps/all/imkl/2020.0.166-iimpi-2020a #May 21st, 8:12am <derrien
 module load libxc/4.3.4-intel-2020a
 export LIBXC_HOME=/apps/all/libxc/4.3.4-intel-2020a
 module load GSL/2.5-intel-2020a
-export GLS_HOME=/apps/all/GSL/2.5-intel-2020a
+export GSL_HOME=/apps/all/GSL/2.5-intel-2020a
 module load FFTW/3.3.8-intel-2020a
 export FFTW_HOME=/apps/all/FFTW/3.3.8-intel-2020a
 module load HDF5/1.10.6-intel-2020a

@@ -200,6 +200,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     FromScratch = True
     Database = np.empty((0,47))
 
+  # PlottingTable= []
   PlottingTable = np.empty((0,47)) ##NOTE: how to define tau_pulse for 2 colors?
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
@@ -1003,7 +1004,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     if(FromScratch): #We construct a new database from scratch
       try:
-        PlottingTable = np.vstack(( PlottingTable, StackToAdd )) 
+        PlottingTable = np.vstack(( PlottingTable, StackToAdd )) #TODO: use append function instead. This would allow for string instead of numpy array.
+        # PlottingTable.append(StackToAdd) #This might help to avoid constraining the type
         logger.info(Header+"** Info: these data were added to the stack.")
       except:
         Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
@@ -1016,6 +1018,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
           continue
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+        # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
@@ -1033,7 +1036,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     #}}}
   FreshData   = PlottingTable  
-  NewDatabase = np.vstack(( Database, PlottingTable ))  
+  NewDatabase = np.vstack(( Database, PlottingTable )) #Numpy style
+  # NewDatabase.append(PlottingTable) #list style
   return FreshData, NewDatabase
 #}}} #end of function
 
@@ -1043,6 +1047,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 # TODO: this function should be replaced by Pandas usage.
 def ExtractData(PlottingTable): #{{{
   runid                        = PlottingTable[:,0]
+  # path                         = PlottingTable[:,1]
   RunDate                      = PlottingTable[:,1]
   kpointgrid                   = PlottingTable[:,2]
   realmeshgrid                 = PlottingTable[:,3]
@@ -1474,7 +1479,10 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False,
+                      PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10,
+                      xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100,
+                      wavelength1=2656e-9): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -1567,10 +1575,11 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       plt.ylim((ylimit[0], ylimit[1]))
 
       # Adding vertical bars for the gap energy
-      for n in [1,2,3,4,5,6]:
-        plt.axvline(x=Egap/e/n, linestyle=":")
-        plt.axhline(y=1E6*h*c/(Egap/e/n), linestyle=':') 
-        plt.axvline(x=n*Egap/e, linestyle=":")
+      for n in [1,3,5,7,9,11,13,15,17]:
+        # plt.axvline(x=Egap/e/n, linestyle=":", color="purple") #resonances of band gap energy
+        plt.axvline(x=h*c/(wavelength1)/e*n, linestyle=':', color="red") #laser source replicates
+      for n in [1]:
+        plt.axvline(x=n*Egap/e, linestyle=":", color="blue") #replicates of band gap energy
         # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevant
 
       # plt.savefig(filename+'.eps')
