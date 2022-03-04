@@ -374,7 +374,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
                 ax1.set_title(r"$n=$" + str(round(MPI_number, 0)) + r", $\lambda=$" + str(
                     int(wavelength_SI * 1E9)) + " nm, k=" + str(kpoints) + r"$^3$")
                 figurename = "FloquetStarkShift-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
-                    kpoints) + "MPI-" + str(round(MPI_number, 0))
+                    kpoints) +"-kpoint-"+str(k_point_index_of_interest)+ "MPI-" + str(round(MPI_number, 0))
                 if (not LogPlotting):
                     figurename += "NoLog"
                 if (not PlotIntensity):
