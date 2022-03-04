@@ -50,7 +50,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 0  # Selector for direct execution. 
+SingleKpoint = 1  # Selector for direct execution. 
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
@@ -60,8 +60,8 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = False
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = True
+StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
 Enable_Zoom = True
@@ -160,7 +160,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 4, #sometimes 8
+      'nb_atoms': 1, 'unocc_states': 8, #sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
@@ -877,7 +877,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.001E9, 1E9, 2E9, 4E9, 6E9, 8E9, 9E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.05E9]: #, 2E9, 3E9, 4E9, 5E9]:
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
