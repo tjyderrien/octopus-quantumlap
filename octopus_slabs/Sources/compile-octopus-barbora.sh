@@ -56,15 +56,16 @@ module load iccifort/2020.4.304
 module load iimpi/2020b
 module load imkl/2020.4.304-iimpi-2020b
 export MKL_HOME=/apps/all/imkl/2020.4.304-iimpi-2020b
-module load libxc/4.3.4-intel-2020a #sends iccifort back to 2020.1.217 and iimpi.2020a
+module load libxc/4.3.4-intel-2020a #sends iccifort back to 2020.1.217 and iimpi.2020a #WARNING: no longer valid since March 2022. 
 module load GSL/2.6-iccifort-2020.1.217
 export GLS_HOME=/apps/all/GSL/2.6-iccifort-2020.1.217
-module load FFTW/3.3.8-intel-2020a
-export FFTW_HOME=/apps/all/FFTW/3.3.8-intel-2020a
-module load HDF5/1.12.0-iimpi-2020a
+module load FFTW/3.3.8-intel-2020b
+export FFTW_HOME=/apps/all/FFTW/3.3.8-intel-2020b
+module load HDF5/1.10-7-iimpi-2020b
 
-module load METIS/5.1.0-intel-2020a
-module load ParMETIS/4.0.3-intel-2020a
+# module load METIS/5.1.0-intel-2020a
+module load SuiteSparse/5.8.1-intel-2020b-METIS-5.1.0 #since March 2022
+# module load ParMETIS/4.0.3-intel-2020a
 
 # module load CUDA/10.2.89
 # export CUDA_FLAGS="--enable-cuda --enable-nvtx --with-cuda-prefix=$CUDA_HOME"
