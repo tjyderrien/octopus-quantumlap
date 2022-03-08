@@ -27,7 +27,7 @@ MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=20
+NumNodes=8
 
 # Sample
 SampleLayers=1
@@ -94,9 +94,9 @@ Efield_superdetailed="2.2E8 2.3E8 2.4E8 2.6E8 2.7E8 2.8E8 2.9E8" # 3.1E8 3.2E8 3
 Efield_saturation="1E10 2E10 3E10 4E10 5E10 6E10 7E10 8E10 9E10"
 
 Efield1_1E8="1E8 2E8 3E8 4E8 6E8 7E8 8E8 9E8"
-Efield1_1E9="1E9 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
+Efield1_1E9="1E9" # 2E9 3E9 4E9 5E9 6E9 7E9 8E9 9E9"
 
-Efield1=${Efield_superdetailed}
+Efield1=${Efield1_1E9}
 
 # Efield1="9.95E8 1E9 1.05E9"
 # Efield1="5E9 5.5E9 6E9 6.5E9 7E9 7.5E9 8E9 8.5E9 9E9"
@@ -128,10 +128,10 @@ Efield1=${Efield_superdetailed}
 # Checking mid-IR band gap at 5-10 um
 
 # tau1="3.43571E-15"    #1 optical cycle at 1030 nm
-# tau1="6.87142036E-15" #2 optical cycles at 1030 nm
+tau1="6.87142036E-15" #2 optical cycles at 1030 nm
 # tau1="10.3071305416229E-15" #3 optical cycles at 1030 nm
 
-tau1="10E-15" # 20e-15 30E-15 10E-15"
+# tau1="10E-15" # 20e-15 30E-15 10E-15"
 tau2="10E-15"
 # tau1="10.674E-15" #(1 optical cycle at 3200 nm)
 # tau1="10.674E-15" #PRL Hamburg
