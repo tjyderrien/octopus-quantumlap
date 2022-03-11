@@ -57,7 +57,7 @@ SingleKpoint = 0  # Selector for direct execution.
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 
 ## CHOICE OF OUTPUTS
-PlotMatrixElements = True
+PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
@@ -246,7 +246,7 @@ wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_waveleng
 # wavelength_SI_t = wavelength_SI_t[::-1] #to keep it in increasing order
 
 logger.info(wavelength_SI_t)
-
+#NOTE: in the function of SignleKpoint wavelength_t was replaced by SelectedWavelengths
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
 def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
@@ -888,7 +888,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.05E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
