@@ -50,7 +50,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 1  # Selector for direct execution. 
+SingleKpoint = 0  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
@@ -160,14 +160,18 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 8, #sometimes 8
+      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
       'CaptureDirectGap': True,
-      'KpointPath_len': 2001, #301
+      'KpointPath_len': 301, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
+      'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
       'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+      'K_positions_zoom': [0, 0.3937, 1], #K-Gamma-X
+#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
+#      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -226,10 +230,13 @@ KpointPath_len = Materials[material]['KpointPath_len']
 if(Enable_Zoom):
     try:
         K_labels = Materials[material]['K_labels_zoom']
+        K_labels_positions = Materials[material]['K_positions_zoom']
     except:
         K_labels = Materials[material]['K_labels']
+        K_labels_positions = Materials[material]['K_positions']
 else:
     K_labels = Materials[material]['K_labels']
+    K_labels_positions = Materials[material]['K_positions']
 
 # photon_energy_SI_t=np.linspace(h*c/wavelength_SI_max/e,h*c/wavelength_SI_min/e, num_wavelengths) #eV
 wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_wavelengths)
@@ -840,11 +847,11 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         #breakpoint()
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
-    ax1.set_xticks(np.linspace(0., 1., len(K_labels)))
-    ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
+    ax1.set_xticks(K_labels_positions)
+    ax2.set_xticks(K_labels_positions)
     ax1.set_xticklabels(K_labels, fontsize='15')
     ax2.set_xticklabels(K_labels, fontsize='15')
-    # plt.tight_layout()
+    plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 3)) + "VperNm"
     if (not LogPlotting):
