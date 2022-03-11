@@ -264,7 +264,7 @@ TDOutput = energy + laser + total_current + n_excited_el + gauge_field #multipol
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
-RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
+RestartWrite = 1 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
 OutputInterval = 5
 RestartWriteInterval = 500
 TDOutputComputeInterval = 5
