@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 
 import glob
 import os
+
+from scipy.special import erf
 
 from spp_extended_theory.Keldysh import libKeldysh
 
@@ -50,7 +52,7 @@ Header="[plotHHGspectra] "
 logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ShowFinalPlot              = 1
-HHG_samples                = 6534 #6534: good!! 600: insufficient!!
+HHG_samples                = 10000 #6534 #6534: good!! 600: insufficient!!
 
 path = "*/td.general/"
 DatabaseFile="Database.csv"
@@ -160,7 +162,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
         try:
             HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-            print("** ERROR: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.") 
+            logger.error("** ERROR: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -294,8 +296,8 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         try:
             HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-#            print("** Error: Loading of HHG-Spectrum.csv failed.") 
-            print("** Error: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
+#           logger.error("** Error: Loading of HHG-Spectrum.csv failed.")
+            logger.error("** Error: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -334,18 +336,17 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     # Converts Y to array of reals
     Y = np.asfarray(Y)
 
-    # Returns log10 of Z, but clean.
     logger.debug("Shape of Z: "+str(np.shape(Z)))
     Z_clipped=np.clip(Z, 0, np.max(np.max(Z))) #we remove zones lower than 0
 
-    Z_log=np.log10(Z_clipped)
+
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
 
     logger.debug("Shape of X: "+str(np.shape(X)))
     logger.debug("Shape of Y: "+str(np.shape(Y)))
     logger.debug("Number of runs: "+str(NumberOfRuns))
 
-    Z_reshaped=np.reshape(Z_clipped, (NumberOfRuns, len(Z_clipped)//NumberOfRuns)) #integer division
+    Z_reshaped=np.reshape(Z_clipped, (NumberOfRuns, len(Z_clipped)//(NumberOfRuns))) #integer division
     logger.debug("Shape of Z_reshaped: "+str(np.shape(Z_reshaped)))
     Z_av_CEP = np.mean(Z_reshaped, axis=0) #size matches with harmonics spectra. Then we well integrated on CEPs.
     # Z_av = np.mean(Z_clipped) #ERROR: this returns a scalar. We need a vector that depends on photon frequency.
@@ -358,12 +359,19 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     Z_av = np.reshape( Z_av_CEP_r, np.shape(Z_clipped))
     logger.debug("Shape of repeated Z_av_CEP: " + str(np.shape(Z_av)))
     Z_fluctuation = Z_clipped - Z_av #recommended by M. Kozak
+
     # DEBUG PURPOSE
     # Z = Z_av
 
     # THE GOOD ONE IS:
-    Z = Z_fluctuation
-#    Z=Z_log #Z_clipped #plotting fluctuations
+    # Z = Z_fluctuation
+
+    # ANOTHER VISUALIZATION COULD BE
+    Z = Z #with the negative zones if there are any
+    # Z = erf(Z_fluctuation/np.max(np.fabs(Z_fluctuation)))
+    # Z = erf(Z_fluctuation/np.mean(np.fabs(Z_fluctuation))) #/np.max(np.fabs(Z_fluctuation)))
+    # Z = np.fabs(Z_fluctuation) / Z_fluctuation #singularity in zero
+    # Z = np.log10(Z) #Z_clipped #plotting fluctuations
     # Z=Z_clipped
     # From here, we have all the files we need. 
 
@@ -382,13 +390,15 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     PlotTriangles=True
     PlotGradient =False
     
-    xlimit     = [2.,h*c/100e-9/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    Egap=2.56*e
+    # xlimit     = [0.75*Egap/e,3*Egap/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    xlimit = [0. * Egap / e,
+              10 * Egap / e]  # eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
     ylimit     = [-90.,90.] #deg
     numberoflevels=30
     grad_precisionX=10; grad_precisionY=10; #number of cells for interpolation for gradient computation
-    Egap=2.56*e
-    
-    filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))
+
+    filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))+"Vm-"+str(libPlotting.PulseTypeID_rev[PulseType[0]])
     
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
@@ -447,7 +457,8 @@ def PlotHHGsinglePulseWithOrientation(wavelength=2.65625e-6, Efield=3E9, tau=1.3
             logger.debug(runid_folder)
 
             try:
-                HHG = np.loadtxt(runid_folder + "/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
+                # HHG = np.loadtxt(runid_folder + "/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
+                HHG = np.loadtxt(runid_folder + "/td.general/total_current", dtype='str', skiprows=4)
             except:
                 #            print("** Error: Loading of HHG-Spectrum.csv failed.")
                 logger.error("Loading of " + runid_folder + "/td.general/HHG-Spectrum.csv failed.")
@@ -566,9 +577,12 @@ def plotHHG_batch_CEP(LogScale=False): #{{{
 ## HHG spectra computations as function of CEP for Kozak et al 2022.
 # plotHHG_batch_Efield() #Initially related to Derrien et al., https://arxiv.org/abs/2104.08971
 def KozakOptica2022_batch_CEP(): #{{{
-    for Efield in [3E9, 1.05E10]:
+    for Efield in [1.4E9]:
         PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
-                                  PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
+                                  PulseType=libPlotting.PulseTypeID['SinFourth'], RiseCycles=0, InducedFields=0) #HHG spectra
+    # for Efield in [3E9, 9E9]:
+    #    PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
+    #                              PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
     #    PlotHHGsinglePulsewithCEP(2656e-9, Efield, 13.945E-15, 0, 1, 0, 0)
 #}}}
 
