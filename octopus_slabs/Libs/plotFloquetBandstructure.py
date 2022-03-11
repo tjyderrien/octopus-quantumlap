@@ -50,22 +50,22 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 1  # Selector for direct execution. 
+SingleKpoint = 0  # Selector for direct execution. 
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 
 ## CHOICE OF OUTPUTS
-PlotMatrixElements = True
+PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True
-StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = False
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
 Enable_Zoom = True
-Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
@@ -237,13 +237,13 @@ wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_waveleng
 # wavelength_SI_t = wavelength_SI_t[::-1] #to keep it in increasing order
 
 logger.info(wavelength_SI_t)
-
+#NOTE: in the function of SignleKpoint wavelength_t was replaced by SelectedWavelengths
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
-def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
+def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, SelectedWavelengths=SelectedWavelengths):  #wavelength_t=wavelength_SI_t # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, \
-        SelectedWavelengths, SelectedFieldsForPlotting, Materials, UseRefractiveIndex
+        SelectedFieldsForPlotting, Materials, UseRefractiveIndex #SelectedWavelengths, 
 
     plt.rc('axes', prop_cycle=(cycler('color', ['r', 'g', 'b', 'y'])))
 
@@ -432,9 +432,9 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
 
         # ax2.set_xscale("log")
         # We need to reinitialize the table for fig2.
-        replicas_data = xr.DataArray(np.zeros((len(SelectedFieldsForPlotting), len(wavelength_t), len(eigen_idx))),
+        replicas_data = xr.DataArray(np.zeros((len(SelectedFieldsForPlotting), len(SelectedWavelengths), len(eigen_idx))),
                                      dims=("E", "wavelength", "eigen_idx"),
-                                     coords={"E": SelectedFieldsForPlotting, "wavelength": wavelength_t,
+                                     coords={"E": SelectedFieldsForPlotting, "wavelength": SelectedWavelengths,
                                              "eigen_idx": eigen_idx})
         # replicas_data(Efield_SI, wavelength_t)
         # Select eigenvalues where field is above a certain value
@@ -442,7 +442,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
 
         ## Preparing interpolation for optical data as function of wavelength
         ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
-        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_t, OpticalIndexFile)
+        epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(SelectedWavelengths, OpticalIndexFile)
         RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
 
         """# Rotation on colors
@@ -456,8 +456,8 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
         color_idx=0
         for field_idx in np.arange(0,len(SelectedFieldsForPlotting)):
             field = SelectedFieldsForPlotting[field_idx]
-            for wavelength_idx in np.arange(0,len(wavelength_t)):
-                wavelength_SI = wavelength_t [wavelength_idx]
+            for wavelength_idx in np.arange(0,len(SelectedWavelengths)):
+                wavelength_SI = SelectedWavelengths [wavelength_idx]
                 OpticalIndex = RefractiveIndex_t [wavelength_idx]
 
                 eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
@@ -844,7 +844,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax2.set_xticks(np.linspace(0., 1., len(K_labels)))
     ax1.set_xticklabels(K_labels, fontsize='15')
     ax2.set_xticklabels(K_labels, fontsize='15')
-    # plt.tight_layout()
+    plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 3)) + "VperNm"
     if (not LogPlotting):
@@ -879,7 +879,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.05E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
