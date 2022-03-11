@@ -50,19 +50,18 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 0  # Selector for direct execution. 
-
+SingleKpoint = 0  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 
 ## CHOICE OF OUTPUTS
-PlotMatrixElements = True
+PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True
-StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = False
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
 Enable_Zoom = True
@@ -77,175 +76,175 @@ wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
 SelectedWavelengths = [2000e-9] #[400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
 
-	num_fields = 300  # number of electric field values for the plotting
-	Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
+num_fields = 300  # number of electric field values for the plotting
+Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E12 # IntensityToField(1E19 * 1E4)
-	SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
+SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
 
-	num_time_steps = 300 #should be small enough to ensure convergence
+num_time_steps = 300 #should be small enough to ensure convergence
 
 # Warning: See Yabana PRB 2012 + Abraham-Minkowski momentum conservation
 UseRefractiveIndex = False  #True: limits the plots maximum as function of wavelength (makes field wavelength-dependent)
-	PlotIntensity = True  # True: plot with I. False: plot with E.
+PlotIntensity = True  # True: plot with I. False: plot with E.
 
-	SizeOfDots = 0.5  # purely cosmetic!
-	SizeX = 8.2; SizeY=6.
+SizeOfDots = 0.5  # purely cosmetic!
+SizeX = 8.2; SizeY=6.
 
-	LogPlotting = 1 #0: regular linear scale, 1: regular logscale (only for SingleKpoint()).
-	verbose = 0  # Show info and debug messages.
+LogPlotting = 1 #0: regular linear scale, 1: regular logscale (only for SingleKpoint()).
+verbose = 0  # Show info and debug messages.
 
-	BesselRootsID_max = 10
+BesselRootsID_max = 10
 
 ########### DONT TOUCH BELOW, thanks! #############
-	logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 ## Building list of files
 
 # Filenames = "ks_me_multipoles.*"
-	Filenames = "static/ks_me_dipole.*" #name of dipolar matrix elements in octopus
-	bandstructure = "bandstructure"  #name of bandstructure file in octopus NOTE: file may be absent sometimes
-	LocalFolder = "./"
-	filename = Filenames.split('.')[0]
+Filenames = "static/ks_me_dipole.*" #name of dipolar matrix elements in octopus
+bandstructure = "bandstructure"  #name of bandstructure file in octopus NOTE: file may be absent sometimes
+LocalFolder = "./"
+filename = Filenames.split('.')[0]
 # print Filenames
 # 1. Capture the static/dipole files.
 listoffiles = libString.GetOrderedListOfFiles(Filenames)
-	logger.debug("List of files: "+Filenames)
-	del Filenames
+logger.debug("List of files: "+Filenames)
+del Filenames
 # print listoffiles
 
 
 ## Building materials dictionnary
-	dirname=os.path.realpath(".") #catch the present directory absolute path
+dirname=os.path.realpath(".") #catch the present directory absolute path
 
-	logger.info(("** Info: directory name: "+str(dirname)))
+logger.info(("** Info: directory name: "+str(dirname)))
 
-	logger.info("** Info: capturing the present material...")
-	try:
-	if "03-Bulk3D" in dirname:
-	material = "Si"
-	elif "03-Si" in dirname: 
-	material = "Si"
-	elif "09-Au" in dirname:
-	material = "Au"
-	elif "06-Mo" in dirname:
-	material = "Mo"
-	elif "14-SiO2" in dirname:
-	material = "SiO2"
-	logger.info("** Info: detected the material "+material)
-	except:
-	logger.error(Header+"Which material are you trying to analyze?")
-exit()
+logger.info("** Info: capturing the present material...")
+try:
+    if "03-Bulk3D" in dirname:
+        material = "Si"
+    elif "03-Si" in dirname: 
+        material = "Si"
+    elif "09-Au" in dirname:
+        material = "Au"
+    elif "06-Mo" in dirname:
+        material = "Mo"
+    elif "14-SiO2" in dirname:
+        material = "SiO2"
+    logger.info("** Info: detected the material "+material)
+except:
+    logger.error(Header+"Which material are you trying to analyze?")
+    exit()
 
 
-	spin_occupation = 2  # 1: levels with same spin should split, 2: levels of different spins don't split.
-	Complex_valued_ME = False #True for non-Hermitian eigenvalues?
+spin_occupation = 2  # 1: levels with same spin should split, 2: levels of different spins don't split.
+Complex_valued_ME = False #True for non-Hermitian eigenvalues?
 
-	Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
+Efield_AU_min = au.Field_SI_to_AU(Efield_SI_min)
 Efield_AU_max = au.Field_SI_to_AU(Efield_SI_max)
 
-	OpticalIndex_Si = {
-		# NOTE: these are experimental data for Si (from Palik). They should be from linear TDDFT response !
-		343e-9: 5.2749, 400e-9: 5.5674, 483e-9: 4.4028, 484e-9: 4.3964,
-		800e-9: 3.6924167231905, 1600e-9: 3.4826,
-		2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999, 10E-6: 3.4181}
+OpticalIndex_Si = {
+    # NOTE: these are experimental data for Si (from Palik). They should be from linear TDDFT response !
+    343e-9: 5.2749, 400e-9: 5.5674, 483e-9: 4.4028, 484e-9: 4.3964,
+    800e-9: 3.6924167231905, 1600e-9: 3.4826,
+    2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999, 10E-6: 3.4181}
 
-		OpticalIndex_SiO2 = {
-			# NOTE: these are experimental data for SiO2 (from refractiveindex.info). They should be from linear TDDFT response !
-			343e-9: 1.5669, 400e-9: 1.5577, 483e-9: 1.5499, 484e-9: 1.5498,
-			800e-9: 1.5383, 1600e-9: 1.5270,
-			2200e-9: 1.5175, 2600e-9: 1.5094, 3200e-9: 1.4996}
+OpticalIndex_SiO2 = {
+    # NOTE: these are experimental data for SiO2 (from refractiveindex.info). They should be from linear TDDFT response !
+    343e-9: 1.5669, 400e-9: 1.5577, 483e-9: 1.5499, 484e-9: 1.5498,
+    800e-9: 1.5383, 1600e-9: 1.5270,
+    2200e-9: 1.5175, 2600e-9: 1.5094, 3200e-9: 1.4996}
 
-			OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.6371, 400e-9: 0.42388}
+OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.6371, 400e-9: 0.42388}
 
-			OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
+OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
-			Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-				'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
-					'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
-				'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
-					'ymin_ymax': (-5, 11), #(-5, 15)
-					'CaptureDirectGap': True,
-				'KpointPath_len': 301, #computed automatically
-					'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
-					'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
-					'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-					'K_positions_zoom': [0, 0.3937, 1], #K-Gamma-X
+Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
+      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
+      'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
+      'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
+      'ymin_ymax': (-5, 11), #(-5, 15)
+      'CaptureDirectGap': True,
+      'KpointPath_len': 301, #computed automatically
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
+      'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
+      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+      'K_positions_zoom': [0, 0.3937, 1], #K-Gamma-X
 #      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
 #      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
-					'Fermi_Energy': 4, 'kpoints_duplicates': 1
-			}
+      'Fermi_Energy': 4, 'kpoints_duplicates': 1
+}
 
 SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 16, #sometimes 8
-	'nb_atoms': 1, 'unocc_states': 6,
-	'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
-	'xmin_xmax': (2E10, 7E16), #(5E9, 1E15)
-		'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
-	'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$'],
-	'Fermi_Energy': 0.0, 'kpoints_duplicates': 1}
+        'nb_atoms': 1, 'unocc_states': 6,
+        'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
+        'xmin_xmax': (2E10, 7E16), #(5E9, 1E15)
+        'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
+        'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$'],
+        'Fermi_Energy': 0.0, 'kpoints_duplicates': 1}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
-	Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
-		'nb_atoms': 1, 'unocc_states': 3,
-		'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 'OpticalIndexFile': "Mo-Palik",
-		'xmin_xmax': (2E10, 7E16),
-		'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
-		'xmin_xmax': (1E12, 2E18),
-		'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'], 
-		'Fermi_Energy': 12.28, 'kpoints_duplicates': 1
-	}
+Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
+      'nb_atoms': 1, 'unocc_states': 3,
+      'Z_electrons': 8, 'OpticalIndex': OpticalIndex_Mo, 'OpticalIndexFile': "Mo-Palik",
+      'xmin_xmax': (2E10, 7E16),
+      'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
+      'xmin_xmax': (1E12, 2E18),
+      'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'], 
+      'Fermi_Energy': 12.28, 'kpoints_duplicates': 1
+}
 
 Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
-	'nb_atoms': 1, 'unocc_states': 3,
-	'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
-	'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
-	'xmin_xmax': (2E10, 7E16),
-	'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #Kristyna simulation (= Bilbao and SeekPoint path)
-		# 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U$', r'$\Gamma$', 'U', 'W', 'L', 'K', 'X'], #Tibo simulation Gamma - X - W - U - Gamma - U - W - L - K(error) - X
-		'Fermi_Energy': 8.58, #eV at 300K
-		'kpoints_duplicates': 1
+      'nb_atoms': 1, 'unocc_states': 3,
+      'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
+      'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
+      'xmin_xmax': (2E10, 7E16),
+      'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #Kristyna simulation (= Bilbao and SeekPoint path)
+      # 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U$', r'$\Gamma$', 'U', 'W', 'L', 'K', 'X'], #Tibo simulation Gamma - X - W - U - Gamma - U - W - L - K(error) - X
+      'Fermi_Energy': 8.58, #eV at 300K
+      'kpoints_duplicates': 1
 }
-#'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
-#'K_labels': [r'$\Gamma$', r'$X$']
-
+      #'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U|K$', r'$\Gamma$', r'$L$', r'$U$', r'$W$', r'$L$', r'$K|U$', r'$X$']
+      #'K_labels': [r'$\Gamma$', r'$X$']
+      
 
 Materials = {'Si': Si, 'SiO2': SiO2, 'Mo': Mo, 'Au': Au}  # this contains all materials properties we need to automatize
 
 # 2. Just shortening the filenames here
 nb_atoms = Materials[material]['nb_atoms']  # 1 #number of atoms #we actually treat a bulk, so it's one.
 Z_electrons = Materials[material][
-	'Z_electrons']  # SiO2: 24 electrons. #Si: 4 #number of modeled valence electrons in the simulation box
+    'Z_electrons']  # SiO2: 24 electrons. #Si: 4 #number of modeled valence electrons in the simulation box
 # (3p)² x 2 for Si (biatomic) lattice.
 # SiO2 ? matrix is 30 e- states, 6 unocc.
-	unocc_states = Materials[material][
-		'unocc_states']  # 4 #SiO2: 6. #Si: 4. This is defined in the inp. If not, then it's zero.
-		OpticalIndexFile = Materials[material]['OpticalIndexFile'] #routes to continous optical data from Palik
+unocc_states = Materials[material][
+    'unocc_states']  # 4 #SiO2: 6. #Si: 4. This is defined in the inp. If not, then it's zero.
+OpticalIndexFile = Materials[material]['OpticalIndexFile'] #routes to continous optical data from Palik
 
-		CaptureDirectGap = Materials[material]['CaptureDirectGap']
+CaptureDirectGap = Materials[material]['CaptureDirectGap']
 
-		MPI_numbers = Materials[material]['MPI_numbers']  # [1, 2, 3]
-		kpoints_manual = Materials[material]['kpoints_manual']  # 16 #number of kpoints in the grid
+MPI_numbers = Materials[material]['MPI_numbers']  # [1, 2, 3]
+kpoints_manual = Materials[material]['kpoints_manual']  # 16 #number of kpoints in the grid
 # OpticalIndex = Materials[material]['OpticalIndex']
-		KpointPath_len = Materials[material]['KpointPath_len']
+KpointPath_len = Materials[material]['KpointPath_len']
 # print
-		if(Enable_Zoom):
-			try:
-			K_labels = Materials[material]['K_labels_zoom']
-			K_labels_positions = Materials[material]['K_positions_zoom']
-			except:
-			K_labels = Materials[material]['K_labels']
-			K_labels_positions = Materials[material]['K_positions']
-			else:
-			K_labels = Materials[material]['K_labels']
-			K_labels_positions = Materials[material]['K_positions']
+if(Enable_Zoom):
+    try:
+        K_labels = Materials[material]['K_labels_zoom']
+        K_labels_positions = Materials[material]['K_positions_zoom']
+    except:
+        K_labels = Materials[material]['K_labels']
+        K_labels_positions = Materials[material]['K_positions']
+else:
+    K_labels = Materials[material]['K_labels']
+    K_labels_positions = Materials[material]['K_positions']
 
 # photon_energy_SI_t=np.linspace(h*c/wavelength_SI_max/e,h*c/wavelength_SI_min/e, num_wavelengths) #eV
-			wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_wavelengths)
+wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_wavelengths)
 # wavelength_SI_t = h*c / e / photon_energy_SI_t #meters
 # wavelength_SI_t = wavelength_SI_t[::-1] #to keep it in increasing order
 
 logger.info(wavelength_SI_t)
-
+#NOTE: in the function of SignleKpoint wavelength_t was replaced by SelectedWavelengths
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
 def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
@@ -331,84 +330,82 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
 
 
             ## Renormalize the intensity range using refractive index - TODO: re-enable using xarray
-
 #            if (UseRefractiveIndex):
 #                Efield_SI_max = Efield_SI_max / np.sqrt(OpticalIndex) #field becomes wavelength dependent?
 
-																							     ## Plot the splitted energy levels at Gamma.
-																							     for MPI_number in MPI_numbers:
-																								     fig1, ax1 = plt.subplots()
-																									     # for field in Efield_SI:
-																									     for field_idx in np.arange(0,len(Efield_SI)):
-																										     field = Efield_SI[field_idx]
-																										     eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
-																												     kpoints, unocc_states, MPI_number,
-																												     field, wavelength_SI, num_time_steps,
-																												     eigenvalues, matrixelements,
-																												     Complex_valued_ME,
-																												     field_polarization_dir,
-																												     spin_occupation, verbose, Enable_A2)
-																												   # Plotting using external intensity, whence internal intensity acts on the sample
-																												   if (not UseRefractiveIndex): #disable optical index
-																																 OpticalIndex = OpticalIndex/OpticalIndex
-																																			     if (PlotIntensity):
-																																				     unitx = 1E-4
-																																				     field = 0.5 * c * epsilon_0 * field ** 2 * OpticalIndex**-0.25 #lhs field is an external
-																																				     # intensity here. Rhs field is an internal field.
-																																			     else:
-																																				     unitx = 1E0
-																																					     field = field * OpticalIndex**-0.5 #lhs field is external field. Rhs field is internal.
-																																					     ax1.scatter(np.ones(np.size(replicas)) * field * unitx, au.Energy_Hartree_to_eV(np.real(replicas)),
-																																							     c="red", s=SizeOfDots,
-																																							     label="Floquet replicates")  # these are the interesting lines for the final plot
-																																					     # ax2.scatter(np.ones(np.size(replicas)) * wavelength_SI * 1E9, au.Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates")
+            ## Plot the splitted energy levels at Gamma.
+            for MPI_number in MPI_numbers:
+                fig1, ax1 = plt.subplots()
+                # for field in Efield_SI:
+                for field_idx in np.arange(0,len(Efield_SI)):
+                    field = Efield_SI[field_idx]
+                    eigenvalues, replicas, dipoles = ComputeFloquetBandStructure(filename, nb_atoms, Z_electrons,
+                                                                                 kpoints, unocc_states, MPI_number,
+                                                                                 field, wavelength_SI, num_time_steps,
+                                                                                 eigenvalues, matrixelements,
+                                                                                 Complex_valued_ME,
+                                                                                 field_polarization_dir,
+                                                                                 spin_occupation, verbose, Enable_A2)
+                    # Plotting using external intensity, whence internal intensity acts on the sample
+                    if (not UseRefractiveIndex): #disable optical index
+                        OpticalIndex = OpticalIndex/OpticalIndex
+                    if (PlotIntensity):
+                        unitx = 1E-4
+                        field = 0.5 * c * epsilon_0 * field ** 2 * OpticalIndex**-0.25 #lhs field is an external
+                        # intensity here. Rhs field is an internal field.
+                    else:
+                        unitx = 1E0
+                        field = field * OpticalIndex**-0.5 #lhs field is external field. Rhs field is internal.
+                    ax1.scatter(np.ones(np.size(replicas)) * field * unitx, au.Energy_Hartree_to_eV(np.real(replicas)),
+                                c="red", s=SizeOfDots,
+                                label="Floquet replicates")  # these are the interesting lines for the final plot
+                    # ax2.scatter(np.ones(np.size(replicas)) * wavelength_SI * 1E9, au.Energy_Hartree_to_eV(np.real(replicas)), c="red", s=SizeOfDots, label="Floquet replicates")
 
-																																					     # if(MPI_number==1):
-																																					     replicas_data[field_idx, wavelength_idx, :] = np.real(replicas) #array of lists, we might need XARRAY
-																																					     # breakpoint()
-																																					     # TODO: Prepare the table [wavelength, n, E, Rabi Freq such as BesselJ(n,RabiFreqs_SI/omegaLaser)=0. #BruteForce method. 
-																																					     # TODO: Do we need the function BesselJZeros(n,x)? To search omegaLaser that induce a stop in tunneling! 
-																																					     # tunneling_stops.append(np.sqrt(dipoles * field_AU / BesselJZeros(n,k)))
+                    # if(MPI_number==1):
+                    replicas_data[field_idx, wavelength_idx, :] = np.real(replicas) #array of lists, we might need XARRAY
+                        # breakpoint()
+                    # TODO: Prepare the table [wavelength, n, E, Rabi Freq such as BesselJ(n,RabiFreqs_SI/omegaLaser)=0. #BruteForce method. 
+                    # TODO: Do we need the function BesselJZeros(n,x)? To search omegaLaser that induce a stop in tunneling! 
+                    # tunneling_stops.append(np.sqrt(dipoles * field_AU / BesselJZeros(n,k)))
 
-																																					     ## Plotting eigenvalues ( intensity )
-																																					     if (PlotIntensity):
-																																						     Intensity_min = 0.5 * c * epsilon_0 * Efield_SI[0] ** 2 * OpticalIndex
-																																					     else:
-																																					      Intensity_min = Efield_SI[0] * np.sqrt(OpticalIndex)
+                ## Plotting eigenvalues ( intensity )
+                if (PlotIntensity):
+                    Intensity_min = 0.5 * c * epsilon_0 * Efield_SI[0] ** 2 * OpticalIndex
+                else:
+                    Intensity_min = Efield_SI[0] * np.sqrt(OpticalIndex)
 
-																																					      # Plotting eigenvalues at rest
-																																					      ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
-																																							      au.Energy_Hartree_to_eV(np.real(eigenvalues)), c="black", s=10, label="GS eigenvalues")
+                # Plotting eigenvalues at rest
+                ax1.scatter(np.ones(np.size(eigenvalues)) * Intensity_min * unitx,
+                            au.Energy_Hartree_to_eV(np.real(eigenvalues)), c="black", s=10, label="GS eigenvalues")
 
-																																						      if (LogPlotting):
-																																							      ax1.set_xscale('log')
+                if (LogPlotting):
+                    ax1.set_xscale('log')
 
-																																							      ax1.set_title(r"$n=$" + str(round(MPI_number, 0)) + r", $\lambda=$" + str(
-																																										      int(wavelength_SI * 1E9)) + " nm, k=" + str(kpoints) + r"$^3$")
-																																								      figurename = "FloquetStarkShift-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
-																																										      kpoints) + "-kpoint-" + str(k_point_index_of_interest) + "MPI-" + str(round(MPI_number, 0))
-																																								      if (not LogPlotting):
-																																									      figurename += "NoLog"
-																																									      if (not PlotIntensity):
-																																										      figurename += "-Field"
-																																										      ax1.set_xlabel("Field (V/m)")
-																																									      else:
-																																									       ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
-																																									       if UseRefractiveIndex:
-																																										       figurename+="-WithOpticalIndex"
-																																											       if Enable_A2:
-																																												       logger.warning("A2 enabled: ")
-																																													       figurename+= "-EnabledA2"
-																																													       ax1.set_ylabel(r"Energy levels (eV)")
-																																													       ax1.set_ylim(Materials[material]['ymin_ymax'])
-																																													       ax1.set_xlim(Materials[material]['xmin_xmax'])
-																																													       try:
-																																													       ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
-																																													       except KeyError:
-																																													       logger.error("Fermi level will not be plotted. If you are working with a dielectric, there is no drama.")
+                ax1.set_title(r"$n=$" + str(round(MPI_number, 0)) + r", $\lambda=$" + str(
+                    int(wavelength_SI * 1E9)) + " nm, k=" + str(kpoints) + r"$^3$")
+                figurename = "FloquetStarkShift-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
+                    kpoints) + "-kpoint-" + str(k_point_index_of_interest) + "MPI-" + str(round(MPI_number, 0))
+                if (not LogPlotting):
+                    figurename += "NoLog"
+                if (not PlotIntensity):
+                    figurename += "-Field"
+                    ax1.set_xlabel("Field (V/m)")
+                else:
+                    ax1.set_xlabel(r"Laser intensity (W/cm$^{2}$)")
+                if UseRefractiveIndex:
+                    figurename+="-WithOpticalIndex"
+                if Enable_A2:
+                    logger.warning("A2 enabled: ")
+                    figurename+= "-EnabledA2"
+                ax1.set_ylabel(r"Energy levels (eV)")
+                ax1.set_ylim(Materials[material]['ymin_ymax'])
+                ax1.set_xlim(Materials[material]['xmin_xmax'])
+                try:
+                    ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
+                except KeyError:
+                    logger.error("Fermi level will not be plotted. If you are working with a dielectric, there is no drama.")
 #                if(Materials[material]['Fermi_Energy']):
 #                    ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #adds Fermi energy (should be limited to metals: we plot only if the entry exists in dictionnary)
-
                 # plt.ylim((-8,8)) #SiO2
                 # Plotting dressed levels directly on the figure, from n=1 to MPI_number
                 for MPI in np.arange(1, MPI_number + 1):
@@ -521,7 +518,6 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
         # plt.figure()
 
         print("=== Assessing tunneling stopping possibilities (Rabi oscillation) ... ===")
-
         Efield_AU_log = np.linspace(np.log10(Efield_AU_min), np.log10(Efield_AU_max), num_fields) #we need quasi-continous interval for RabiFrequencyMatrices
         Efield_AU = np.power(10., Efield_AU_log)
 
@@ -855,7 +851,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax2.set_xticks(K_labels_positions)
     ax1.set_xticklabels(K_labels, fontsize='15')
     ax2.set_xticklabels(K_labels, fontsize='15')
-    # plt.tight_layout()
+    plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 3)) + "VperNm"
     if (not LogPlotting):
@@ -890,7 +886,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.05E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
