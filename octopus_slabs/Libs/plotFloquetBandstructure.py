@@ -60,8 +60,8 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True
-StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = False
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
 Enable_Zoom = True
@@ -160,7 +160,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
+      'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
@@ -169,7 +169,7 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
       'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-      'K_positions_zoom': [0, 0.3937, 1], #K-Gamma-X
+      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
 #      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
 #      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
@@ -181,6 +181,7 @@ SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 16, #sometimes 8
         'xmin_xmax': (2E10, 7E16), #(5E9, 1E15)
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
         'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$'],
+        'K_positions': [0, 0.1277, 0.201425, 0.348877, 0.4496, 0.5773, 0.6510, 0.7985, 0.8991, 1],
         'Fermi_Energy': 0.0, 'kpoints_duplicates': 1}
 
 # In metals, we are interested in plotting band structure on the full path of high symmetry k-points
@@ -190,7 +191,8 @@ Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'xmin_xmax': (2E10, 7E16),
       'ymin_ymax': (-30, 30), 'CaptureDirectGap': False, 'KpointPath_len': 601,
       'xmin_xmax': (1E12, 2E18),
-      'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'], 
+      'K_labels': [r'$\Gamma$', r'$H$', r'$N$', r'$\Gamma$', r'$P$', r'$H|P$', r'$N$'],
+      'K_positions': [0, 0.206041, 0.35173, 0.4974, 0.675, 0.8543, 1], #these re just plotting positions
       'Fermi_Energy': 12.28, 'kpoints_duplicates': 1
 }
 
