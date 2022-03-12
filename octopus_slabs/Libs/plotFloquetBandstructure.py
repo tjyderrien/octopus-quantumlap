@@ -65,7 +65,7 @@ StorePlot = True #we generate so many figures with this... Let's avoid this at t
 
 
 Enable_Zoom = True
-Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
@@ -160,7 +160,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
+      'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
