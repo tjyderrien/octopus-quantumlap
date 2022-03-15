@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2021 T. J.-Y. Derrien
+# Copyright (C) 2013-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import spp_extended_theory.Libs.libDatabase as libDatabase
 from   octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
-logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 ## Calls for the construction of excitation database and manages exceptions. 
 def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):

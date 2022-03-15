@@ -27,7 +27,7 @@ MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=20
+NumNodes=8
 
 # Sample
 SampleLayers=1
@@ -128,10 +128,10 @@ Efield1=${Efield1_1E10}
 # Checking mid-IR band gap at 5-10 um
 
 # tau1="3.43571E-15"    #1 optical cycle at 1030 nm
-# tau1="6.87142036E-15" #2 optical cycles at 1030 nm
+tau1="6.87142036E-15" #2 optical cycles at 1030 nm
 # tau1="10.3071305416229E-15" #3 optical cycles at 1030 nm
 
-tau1="10E-15" # 20e-15 30E-15 10E-15"
+# tau1="10E-15" # 20e-15 30E-15 10E-15"
 tau2="10E-15"
 # tau1="10.674E-15" #(1 optical cycle at 3200 nm)
 # tau1="10.674E-15" #PRL Hamburg

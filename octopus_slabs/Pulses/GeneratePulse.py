@@ -1,7 +1,7 @@
 #!python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2021 T. J.-Y. Derrien
+# Copyright (C) 2013-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -157,10 +157,10 @@ if __name__ == "__main__": #{{{
   ComputingT_min = 7./5.*(tauRise+tau+tauRise+PulseDelay) #this will avoid runs to terminate too early
   if(ComputingT_min > ComputingT):
     print(Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min))
-    print(Header+"** TODO: replace the total value of computing time in inp as well.")
-    exit()
-  #    print Header+"** Warning: the value was rewritten to avoid computing for nothing."
-  #    ComputingT = ComputingT_min
+#    print(Header+"** TODO: replace the total value of computing time in inp as well.")
+#    exit()
+    print(Header+"** Warning: the value was rewritten to avoid computing for nothing.")
+    ComputingT = ComputingT_min
 
 
   #print Header+"Pulse duration: "+str(tau)
