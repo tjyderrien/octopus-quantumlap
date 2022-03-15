@@ -36,12 +36,15 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ -e laser ]; then
+	if [ ! -e laser.tmp ]; then
+            if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+            fi
         fi
-	if [ -e laser ]; then
+	if [ ! -e Laser.eps ]; then
+           if [ -e laser ]; then
 		echo "** Plotting laser..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -51,8 +54,10 @@ do
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
                 gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 fi
+            fi
 	fi
 	if [ -e energy ]; then
+           if [ ! -e Energy.eps ]; then
 		echo "** Plotting energy..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -60,8 +65,10 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeEnergy.gnu"
                 fi
+            fi
 	fi
 	if [ -e total_current ]; then
+           if [ ! -e Current.eps ]; then
 		echo "** Plotting current..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -69,8 +76,10 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeCurrent.gnu"
                 fi
+           fi
 	fi
         if [ -e n_ex ]; then
+           if [ ! -e ExcitedElectrons.eps ]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -78,6 +87,7 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensity.gnu"
                 fi
+            fi
 	fi
 
         if [ -e dielectric_function ]; then
@@ -205,9 +215,9 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-plotExcitation  #Prepare all plots for n_ex analysis.
+# plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
