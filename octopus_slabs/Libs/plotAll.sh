@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# set -e 
+RecomputeItAll="yes" #if != "", we recompute all. If =="", we just look for new files. 
 
+# set -e 
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
@@ -36,28 +37,30 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ ! -e laser.tmp ]; then
+	if [ ! -e laser.tmp ] || [[ -n $RecomputeItAll ]] ; then
             if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
             fi
         fi
-	if [ ! -e Laser.eps ]; then
-           if [ -e laser ]; then
-		echo "** Plotting laser..."
+	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then
+           if [ -e laser.tmp ]; then
+		
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
 		screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
                 screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 else
+                echo "** Plotting laser.tmp..."
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
+                echo "** Plotting polarization orientation..."
                 gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 fi
             fi
 	fi
 	if [ -e energy ]; then
-           if [ ! -e Energy.eps ]; then
+           if [ ! -e Energy.eps ] || [[ -n $RecomputeitAll ]]; then
 		echo "** Plotting energy..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -68,7 +71,7 @@ do
             fi
 	fi
 	if [ -e total_current ]; then
-           if [ ! -e Current.eps ]; then
+           if [ ! -e Current.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "** Plotting current..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -79,7 +82,7 @@ do
            fi
 	fi
         if [ -e n_ex ]; then
-           if [ ! -e ExcitedElectrons.eps ]; then
+           if [ ! -e ExcitedElectrons.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
