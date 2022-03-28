@@ -878,6 +878,11 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 # }}}
 
 if(__name__=="__main__"):  #runs only if file is called directly
+
+    logger.info("Capturing the k-point path coordinate for plotting...")
+    KpointPath_plot = libString.CapturePlottingCoordinateOfKpointsPathPositions(bandstructure)
+    logger.info(KpointPath_plot)
+
     if (SingleKpoint == 1):
         for k_point_index_of_interest in np.arange(1, 10):
             SingleKpointManyFields(Enable_A2, k_point_index_of_interest=k_point_index_of_interest)
