@@ -29,7 +29,7 @@ MeshSizeX="0.23" # 0.20"
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of computer nodes
-NumNodes=8
+NumNodes=16
 
 # Sample
 SampleLayers=1
@@ -49,7 +49,7 @@ echo "** Info: defining the pulse shape"
 # delay="0e-15" 
 delay="0.5e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
-Mission="CEPHHG" #this replaces the mission in submit.sbatch file. 
+Mission="CEPHHGFig3" #this replaces the mission in submit.sbatch file. 
 
 # ============ SHIFT CURRENT LASER PARAMETERS =========
 #PulseShape="SinSquared"
@@ -62,7 +62,7 @@ Mission="CEPHHG" #this replaces the mission in submit.sbatch file.
 GaugeVectorFieldAmplitude="0.0" #0: no probe pulse. >0: probe pulse strength in Hartree. 
 GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 
-PulseShape="SinSquared"
+PulseShape="SinFourth"
 RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 
 lambda1="2656e-9" #normalized to LDA bandgap, experiment will be at 2 um
@@ -70,11 +70,12 @@ lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
 
 ## Field amplitude
-Efield1="3E9 1.05E10" #MERDJI
+Efield1="1.4E9" # 1.05E10" #MERDJI
 Efield2="0E0" #"9e9"
 
 ## Pulse duration
-tau1="13.945e-15" #we keep number of cycles constant compared to experiments, along with BG renormalization
+# tau1="13.945e-15" #10 fs LDA 2000 nm, we keep number of cycles constant compared to experiments, along with BG renormalization
+tau1="1.9921875e-14" #15 fs LDA 2000 nm.
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
@@ -86,7 +87,7 @@ AngleIncidence_list="0 0.25"
 # Phase
 CEP2="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
 # CEP1="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
-CEP1="-0.5 -0.45 -0.4 -0.35 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45"
+CEP1="-0.5 -0.45 -0.4 -0.35 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5"
 
 echo "** Info: laser parameters have been defined. Running. "
 
