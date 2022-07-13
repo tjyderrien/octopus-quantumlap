@@ -6,7 +6,7 @@ channels:
 dependencies:
 # use specific Python version to avoid possible incompatibilities
   - python=3.6
-  - numpy=1.19.4
+  - numpy #=1.19.4
   - scipy
   - matplotlib
   - globus-cli
@@ -16,16 +16,16 @@ dependencies:
     #  - spp_extended_theory
 # for interactive work
   - ipython
-  - jupyter>=1.0.0
+  - jupyter #>=1.0.0
 # workaround for https://github.com/ipython/ipython/issues/12745
-  - jedi=0.17.0
-  - parso=0.7.1
+  - jedi #=0.17.0
+  - parso #=0.7.1
 # linting and testing
 # better to pin the versions so that we do not get "surprises"
 # and sometimes update the packages so we are up to date
-  - flake8=3.8.4
-  - pep8-naming=0.11.1
-  - pytest=6.2.0
+  - flake8 # =3.8.4
+  - pep8-naming #=0.11.1
+  - pytest #=6.2.0
 # black for automatic code formatting
   - black
   - flake8-black=0.2.1
