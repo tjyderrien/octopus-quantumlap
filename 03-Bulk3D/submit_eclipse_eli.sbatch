@@ -1,5 +1,5 @@
 #!/bin/bash  
-#SBATCH --account=tderrien-acc1
+#SBATCH --account=derrien-acc1
 #SBATCH --partition=queue12h
 #SBATCH -N NumNodes # number of nodes 
 #SBATCH --clusters=eclipse
@@ -19,10 +19,10 @@ LoadOctopusEclipseModulesGNU
 # module load OpenMPI/1.8.4-GCC-4.8.4
 # mpirun -npernode 2  ./stream_mpi_test
 
-octopus_mpiio=""
-octopus_latest_gnu="/gpfs/home/tderrien/octopus.gnu.latest/binoctopus" 
+octopus_mpiio="/gpfs/home/tderrien/octopus.gnu.mpiio/bin/octopus"
+octopus_latest_gnu="/gpfs/home/tderrien/octopus.gnu.latest/bin/octopus" 
 
-mpirun ${octopus_latest_gnu} &> octopus-td.${SLURM_JOB_ID}.log
+mpirun ${octopus_mpiio} &> octopus-td.${SLURM_JOB_ID}.log
 sleep 5
 
 echo "Done"
