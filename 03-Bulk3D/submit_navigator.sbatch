@@ -38,7 +38,7 @@ octopus_latest="/veracruz/home/p/pr2c0043/octopus.intel/bin/octopus"
 octopus_mpiio="/veracruz/home/p/pr2c0043/octopus.mpiio/bin/octopus"
 octopus_barbora="/veracruz/home/p/pr2c0043/octopus.barbora/bin/octopus"
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log #AVOID THIS. mpirun works very well. 
-mpirun ${octopus_barbora} &> octopus-td.${SLURM_JOB_ID}.log
+srun ${octopus_barbora} &> octopus-td.${SLURM_JOB_ID}.log #priorities: srun, then mpirun
 
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
