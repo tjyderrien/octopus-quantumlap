@@ -1,0 +1,68 @@
+easyblock = 'ConfigureMake'
+
+name = 'Octopus'
+version = 'parallel_restart'
+versionsuffix = '-mpi'
+
+homepage = 'http://www.tddft.org/programs/octopus/wiki/index.php/Main_Page'
+description = """Octopus is a scientific program aimed at the ab initio virtual experimentation
+on a hopefully ever-increasing range of system types. Electrons are described quantum-mechanically
+within density-functional theory (DFT), in its time-dependent form (TDDFT) when doing simulations
+in time. Nuclei are described classically as point particles.
+Electron-nucleus interaction is described within the pseudopotential approximation."""
+
+toolchain = {'name': 'intel', 'version': '2020b'}
+import os
+if os.environ.get("CLUSTERNAME") in ["KAROLINA"]:
+   toolchainopts = {'usempi': True, 'opt': True, 'optarch': 'march=core-avx2'}
+else:
+   toolchainopts = {'usempi': True, 'opt': True}
+
+if os.environ.get("CLUSTERNAME") in ["KAROLINA"]:
+   prebuildopts = "echo %(builddir)s && while read i; do echo $i; sed 's|-xHost|-march=core-avx2|g' -i $i; done < <(grep xHost %(builddir)s -R | cut -d ':' -f 1 | sort -u) && "
+
+# TJY Derrien: modified for using Git repository
+# sources = [SOURCELOWER_TAR_GZ]
+# source_urls = ['http://octopus-code.org/down.php?file=%(version)s/']
+sources = [{'filename': 'Octopus-parallel-restart.tar.gz'}]
+#    'git_config': {
+#        'url': 'https://gitlab.com/octopus-code/octopus.git',
+#        'repo_name': 'octopus',
+#        'tag': 'parallel_restart',
+#        'clone_into': 'parallel_restart',
+#    },
+#}]
+
+
+builddependencies = [
+    ('Bison', '3.7.1'),
+    ('Perl', '5.32.0'),
+]
+
+dependencies = [
+    ('libxc', '4.3.4'),
+    ('netCDF', '4.7.4'),
+    ('netCDF-Fortran', '4.5.3'),
+    ('FFTW', '3.3.8'),
+#    ('PFFT', '1.0.8-alpha'),
+#    ('ETSF_IO', '1.0.4'),
+    ('GSL', '2.6'),
+]
+
+configopts = 'FC="mpiifort" FCFLAGS="-O2 -march=core-avx2" --disable-openmp --enable-mpi --enable-newuoa --disable-python --disable-gdlib '
+configopts += '--with-libxc-prefix=$EBROOTLIBXC --with-gsl-prefix=$EBROOTGSL '
+configopts += '--with-blas="-L$BLAS_LIB_DIR $LIBBLAS" '
+configopts += '--with-blacs="$MKLROOT/lib/intel64/libmkl_blacs_intelmpi_lp64.a" '
+configopts += '--with-scalapack="$MKLROOT/lib/intel64/libmkl_scalapack_lp64.a" '
+configopts += '--with-netcdf-prefix=$EBROOTNETCDFMINFORTRAN '
+#configopts += '--with-etsf-io-prefix=$EBROOTETSF_IO '
+#configopts += '--with-pfft-prefix=$EBROOTPFFT --with-mpifftw-prefix=$EBROOTFFTW '
+
+#runtest = 'MPIEXEC=`which mpirun` check'
+
+#sanity_check_paths = {
+#    'files': ["bin/octopus_mpi"],
+#    'dirs': []
+#}
+
+moduleclass = 'chem'
