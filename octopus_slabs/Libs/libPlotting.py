@@ -1313,7 +1313,8 @@ def GetTotalGaugeField(obj): #{{{
 # @param CurrentX: signal to be processed
 # @param wavelength_SI: fundamental wavelength of the signal
 # @param FinalDampingInstant: instant (SI) where to apply the damping
-def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
+# @param exponent: power applied to the sin decay function (J(t) x sin^power(...))
+def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant, exponent=2): #{{{
 
     omega = 2.*np.pi*c/wavelength_SI
     DampingTime = 2.*np.pi/omega #tau_rise
@@ -1325,7 +1326,7 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
     logger.info(Header+"** Info: omega = "+str(round(omega)))
 
     # CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
-    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**2 * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
+    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**exponent * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
     damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
     CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
     return CurrentX_HHG
