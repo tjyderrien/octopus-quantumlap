@@ -2,7 +2,6 @@
 # Input: $1: SampleLayers, $2: SampleXY
 # Purpose: TD-evolution. 
 
-set -e
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
