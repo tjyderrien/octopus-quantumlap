@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e 
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
@@ -69,7 +68,7 @@ RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 # lambda1="2237e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
 # lambda1="2656e-9" #normalized (2000 nm, TB09) 
 # lambda1="8.388157894736841e-07" #normalized 750 nm, TB09, Kozak
-lamda1="895e-9" #Levy, normalized to TB09 gap, 800 nm. 
+lambda1="895e-9" #Levy, normalized to TB09 gap, 800 nm. 
 
 lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
@@ -147,7 +146,7 @@ do
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time!
-#             echo "Submitting..." 
+             echo "Submitting..." 
              $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence}
 #           done
           done
