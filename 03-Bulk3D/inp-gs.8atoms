@@ -1,0 +1,290 @@
+# T.J-Y. Derrien, N. Tancogne-Dejean, H. Appel, A. Rubio
+# QuantumLaP project
+# <derrien@fzu.cz>
+
+CalculationMode = gs
+ExperimentalFeatures = yes
+# FromScratch = yes
+# Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
+# UnitsXYZFiles = Angstrom
+# Debug = trace
+
+ParStates = no
+ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
+ParKpoints = auto
+
+# ParKpoints = auto
+# ParStates  = auto
+
+PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
+
+m = 1 #X blocks: to be replaced by script
+n = 1 #Z blocks: to be replaced by script 
+
+%RestartOptions
+  restart_gs | "../../restart/"
+  restart_proj | "../../restart/"
+%
+
+aAngstrom = 5.431 #Angstrom (experimental value)
+AngstromPerBohr = 0.52917721067 #AngstromPerBohr
+a = aAngstrom / AngstromPerBohr #Bohr
+
+BoxShape = parallelepiped
+%Spacing
+        0.4346370088553005 | 0.4346370088553005 | 0.4346370088553005 #to be replaced by script
+%
+
+# %Lsize #useful if using external file
+#  0.5*m*a | 0.5*m*a | 0.5*m*a #TotalZsize
+# %
+
+%LatticeParameters
+  a | a | a
+%
+
+%LatticeVectors
+ 1.  | 0.  | 0. 
+ 0.  | 1.  | 0.  
+ 0.  | 0.  | 1. 
+%
+
+# %ReducedCoordinates
+# "Si" |   0.0    | 0.0     | 0.0
+# "Si" |   1/4    | 1/4     | 1/4
+#%
+
+%ReducedCoordinates
+"Si"  |   0.250000  |  0.750000 |   0.250000
+"Si"  |   0.000000  |  0.000000 |   0.500000
+"Si"  |   0.250000  |  0.250000 |   0.750000
+"Si"  |   0.000000  |  0.500000 |   0.000000
+"Si"  |   0.750000  |  0.750000 |   0.750000
+"Si"  |   0.500000  |  0.000000 |   0.000000
+"Si"  |   0.750000  |  0.250000 |   0.250000
+"Si"  |   0.500000  |  0.500000 |   0.500000
+%
+
+%KPointsGrid
+  16 | 16   | 16
+#  0.5 | 0.5 | 0.5 
+#  0.5 | 0.0 | 0.0
+#  0.0 | 0.5 | 0.0
+#  0.0 | 0.0 | 0.5
+%
+
+# Using external file
+# XYZCoordinates = "Si.xyz" #input is in Bohr now
+
+ConvRelDens = 1e-9 #1e-9
+KPointsUseSymmetries = no
+ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
+# smearing = 0.0002
+# SmearingFunction=fermi_dirac
+
+# == THis is for ground state
+MaximumIter=1000
+# Mixing = 0.05 #looks important to reach convergence on large systems
+
+################
+# LASER PULSES #
+################
+
+# TODO: transfer the interface to the Python code, directly, so that we can plot figures in atomic units. 
+# For now, interface Hartree <-> SI is managed here.
+
+# Some manual commands
+# RelaxationTimeSI = 100e-15 #[s]
+
+# Some constants
+cSI = 299792458e0
+eVperHartree = 27.21138505e0 #Wikipedia [Hartree]
+BohrRadius = 5.2917721067e-11 #m, Wikipedia [Bohr radius]
+HartreePerBohr = eVperHartree / BohrRadius
+hSI = 6.626070040e-34
+heVs = 4.135667662e-15
+ecSI = 1.6021766208e-19
+hbarSI = 1.054571800e-34
+TimeAUtoSI = hbarSI / eVperHartree / ecSI
+lightvelocity = 137.035999139 #light velocity = 1e0/fine structure constant [https://en.wikipedia.org/wiki/Fine-structure_constant]
+
+# To be replaced by script
+## Pulse wavelengths ##
+lambdaA = 2656e-9 #SI: s-1, to be replaced by script
+lambdaB = 400e-9 #SI: s-1, to be replaced by script
+## Field amplitude
+EfieldAsi = 1.4E9 #V/m, to be replaced by script
+EfieldBsi = 0E0 #V/m, to be replaced by script
+## Pulse duration 
+tauAsi = 33.203125e-15 #This is FWHM of the Gaussian pulse
+tauBsi = 30e-15 #This is FWHM of the Gaussian pulse
+## Double pulse delay
+pulseDelaySI = 0e-15
+## Envelope phase CEP
+CEPA = pi*0.0
+CEPB = pi*-0.45 
+# shifting by pi/2.
+CEPA = CEPA + pi/2.
+CEPB = CEPB + pi/2.
+## Computational time
+ComputingTimeValueSI = 1.0982555915816267e-13
+
+# Conversion to a.u.
+## Pulse wavelengths ##
+# omegaAsi = 2.*pi*cSI / lambdaA
+# omegaBsi = 2.*pi*cSI / lambdaB
+# omegaA = omegaAsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree 
+# omegaB = omegaBsi * hbarSI / eVperHartree / ecSI #Hartree = s-1 / eVperHartree
+omegaA = heVs * cSI / lambdaA / eVperHartree
+omegaB = heVs * cSI / lambdaB / eVperHartree
+## Field amplitude
+EfieldA = EfieldAsi / HartreePerBohr
+EfieldB = EfieldBsi / HartreePerBohr
+## Pulse duration 
+tauA = tauAsi / TimeAUtoSI
+tauB = tauBsi / TimeAUtoSI
+# t0 = max(tauA, tauB) #useless to use tauB there
+t0 = 1.1*tauA #(we must not start the run on the pulse start!)
+t0Gauss = 2.*t0
+GaussianRatio = 2.*sqrt(2. * ln(2.))
+sigmaTauA = tauA / GaussianRatio
+sigmaTauB = tauB / GaussianRatio
+
+## Double pulse delay
+pulseDelay = pulseDelaySI / TimeAUtoSI
+t1 = t0 + pulseDelay
+t1Gauss = t0Gauss + pulseDelay
+## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
+# RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
+
+## Vector field amplitude
+
+# /!\ Assumption is made on the temporal integration of Efield
+amplitudeA = EfieldA * lightvelocity / omegaA
+amplitudeB = EfieldB * lightvelocity / omegaB
+
+## Simulation time management
+ComputingTime = ComputingTimeValueSI / TimeAUtoSI
+#4.*sigmaTau1 + pulseDelay + RelaxationTime #time of computation
+
+# Predicting which simulation axis will be broken during excitation. 
+theta_inc = pi*0 #angle of incidence of the laser
+ell = 0. #ellipticity
+%SymmetryBreakDir
+  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+%
+
+
+#TODO: script the change of polarization
+th1 = pi*0 #scripted (units are same as for CEP, we multiply by pi only here to simplify)
+th2 = 0.+th1      #Scripted
+px1 = cos(th1)
+py1 = sin(th1)
+px2 = cos(th2)
+py2 = sin(th2)
+
+# Duration of the rise is linked with laser wavelength
+tauRise = 2.*pi/omegaA #no longer true when input is from a file
+# Tp = tau1
+# Thp = Tp/2
+# Tc = 50/au2fs
+# Td = Thp+Tc
+Aa = amplitudeA
+# Enable the induced field
+GaugeFieldPropagate = no # | yes
+
+# USE ONLY WITH OPTICAL PROPERTIES
+# Linear response probing
+# %GaugeVectorField #useful for probing
+#   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script
+# %
+
+# Delay for the probing
+# GaugeFieldDelaySI = GaugeFieldDelayValue
+# GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI
+
+# Building up pulses
+%TDExternalFields
+#   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
+#   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
+    vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA-SinFourth" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
+    vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB-SinFourth" | "phaseB"
+%
+
+tR = tauRise
+
+%TDFunctions
+  "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
+  "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
+  "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
+  "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
+  "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
+  "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
+    "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+# "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
+# "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
+# "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"
+# "FieldColorB-STH" | tdf_from_expr | "amplitudeB * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
+  "FieldColorA-STH" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-STH" | tdf_from_file | "PulseB.dat"
+  "FieldColorA-StH" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-StH" | tdf_from_file | "PulseB.dat"
+  "FieldColorA-StH4" | tdf_from_file | "PulseA.dat"
+  "FieldColorB-StH4" | tdf_from_file | "PulseB.dat"
+%
+
+TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDPropagationTime = ComputingTime
+TDPropagator = etrs #it was aetrs
+TDExponentialMethod = lanczos
+TDExpOrder = 16
+
+###########
+#CurrentDensity = 1 #Default is 2. 1: Takes into account exchange correlation
+
+############
+# PES
+############
+# dLz = a/sqrt(2)/2
+# Lmin = 11*dLz + 20
+# LL = n*a/sqrt(2)/2
+
+# PhotoElectronSpectrum = pes_mask
+# %PESMaskSize
+# Lmin | LL | "abs(z)"
+# %
+# PESMaskMode = mask_mode
+# PESMaskPlaneWaveProjection = nfft_map
+# EM = omega + 5./27.211 # the maximum energy we want in the spectrum = 5eV above
+# omega
+# PESMask2PEnlargeFactor = pi/Spacing/sqrt(2*EM)
+
+
+
+# Output = el_pressure + matrix_elements + pol_density #this will generate HUGE data
+Output = density + dos + potential + geometry + elf + el_pressure #GENERATES HUGE AMOUNT OF FILES.
+
+# TDOutput = energy + laser + total_current + n_excited_el + gauge_field #multipoles
+
+#OutputFormat = cube #VisIt
+# Output = geometry
+OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+
+RestartWrite = 1 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
+OutputInterval = 5
+RestartWriteInterval = 500
+TDOutputComputeInterval = 5
+
+# Absorbing boundary
+# AbsorbingBoundaries = mask
+# %ABShape
+#  TotalZsize - BoundaryThickness  | TotalZsize #absorbing between zmax and zmax-BoundaryThickness. 
+# %
+
+PropagationSpectrumDampMode = exponential #useful for propagation_spectrum utility
+XCFunctional = lda_x + lda_c_pz_mod
