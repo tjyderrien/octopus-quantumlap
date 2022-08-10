@@ -1,9 +1,9 @@
 #!/bin/bash  
 #SBATCH --account=derrien-acc1
-#SBATCH --partition=queue12h
+#SBATCH --partition=queue48h
 #SBATCH -N NumNodes # number of nodes 
 #SBATCH --clusters=eclipse
-#SBATCH -t 0-2:00 # time (D-HH:MM) 
+#SBATCH -t 0-48:00 # time (D-HH:MM) 
 #SBATCH -o octopus.out.%N.%j # STDOUT 
 #SBATCH -e octopus.err.%N.%j # STDERR 
 #SBATCH --mail-type=END,FAIL # notifications for job done & fail 
