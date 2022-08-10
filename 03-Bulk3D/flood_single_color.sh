@@ -27,7 +27,7 @@ MeshSizeX="0.23" #0.23" #In general: 0.23 was used."
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=8
+NumNodes=20
 
 # Sample
 SampleLayers=1
@@ -39,7 +39,7 @@ InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there.
 UseLinearResponse="0"
 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="LDA" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
+Functional="TB09" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
@@ -128,8 +128,8 @@ Efield1=${Efield1_1E10}
 # Checking mid-IR band gap at 5-10 um
 
 # tau1="3.43571E-15"    #1 optical cycle at 1030 nm
-tau1="6.87142036E-15" #2 optical cycles at 1030 nm
-# tau1="10.3071305416229E-15" #3 optical cycles at 1030 nm
+# tau1="6.87142036E-15" #2 optical cycles at 1030 nm
+tau1="10.3071305416229E-15" #3 optical cycles at 1030 nm
 
 # tau1="10E-15" # 20e-15 30E-15 10E-15"
 tau2="10E-15"
