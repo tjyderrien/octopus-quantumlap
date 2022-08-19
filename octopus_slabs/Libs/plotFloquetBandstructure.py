@@ -714,18 +714,21 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     # We can also prepare a figure of the k-point position in 3D. Then we'll be able to check if it corresponds to
     # Fermi sphere from books.
 
-    fig1 = plt.figure()
-    ax1 = plt.subplot(211)
+    fig0 = plt.figure()
+    ax1 = plt.subplot(111)
     ax1.set_title("Band structure")
     ax1.set_ylabel("Energy (eV)")
 
-    ax2 = plt.subplot(212)
+    fig1 = plt.figure()
+    ax2 = plt.subplot(111)
     ax2.set_title("Non-equilibrium band structure")
     ax2.set_ylabel("Energy (eV)")
     ax2.set_xlabel("k-point path")
 
     fig2 = plt.figure()
     ax3 = plt.subplot(111)
+    ax3.set_ylabel("DOS (arb. u.)")
+    ax3.set_xlabel("Energy (eV)")
 
     # ax2.set_xlabel("k-point id")
 
@@ -894,6 +897,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         figurename += "-Zoomed"
     #plt.savefig(figurename + ".eps")
     if(StorePlot):
+        fig0.savefig(figurename + "groundstate.png")
         fig1.savefig(figurename + ".png")
         fig2.savefig(figurename + '-DOS.png', bbox_inches='tight')
         ExportToTxt([hist[0], hist[1]], figurename + "-DOS.csv")
