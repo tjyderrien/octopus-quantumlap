@@ -60,11 +60,10 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = False
-StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+ShowPlot = True
+StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
-
-Enable_Zoom = True
+Enable_Zoom = False
 Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
@@ -76,7 +75,7 @@ wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
 SelectedWavelengths = [2000e-9] #[400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
 
-num_fields = 300  # number of electric field values for the plotting
+num_fields = 200  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
 Efield_SI_max = 1E12 # IntensityToField(1E19 * 1E4)
 SelectedFieldsForPlotting=[0.5E9, 1E9, 5E9, 1E10] #selectors dont overlap with num_fields (both are used, though! You'll see :) ).
@@ -160,7 +159,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
+      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
@@ -725,6 +724,9 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax2.set_ylabel("Energy (eV)")
     ax2.set_xlabel("k-point path")
 
+    plt.figure()
+    ax3 = plt.subplot(111)
+
     # ax2.set_xlabel("k-point id")
 
     ## NOTE: if we assume that laser light only REMOVES some high-symmetry points from the ones of the space group, 
@@ -843,6 +845,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         ax2.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
                     s=0.1*SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
 
+        ax3.hist(replicas)
+
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
         ax2.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -880,8 +884,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 if(__name__=="__main__"):  #runs only if file is called directly
 
     logger.info("Capturing the k-point path coordinate for plotting...")
-    KpointPath_plot = libString.CapturePlottingCoordinateOfKpointsPathPositions(bandstructure)
-    logger.info(KpointPath_plot)
+    # KpointPath_plot = libString.CapturePlottingCoordinateOfKpointsPathPositions(bandstructure)
+    # logger.info(KpointPath_plot)
 
     if (SingleKpoint == 1):
         for k_point_index_of_interest in np.arange(1, 10):
@@ -893,7 +897,8 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            # for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [.5E9]:  # , 2E9, 3E9, 4E9, 5E9]:
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
