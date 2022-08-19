@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
@@ -27,13 +27,13 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 
-NumNodes=16
+NumNodes=4
 Mission="Si_GS_angle"
 
 SampleLayers="1"
 SampleXY="1"
 
-kPoints="40" # 16"
+kPoints="24" # 16"
 # kPoints="24" # 16"
 
 InitialTemperature="0e0"
@@ -41,9 +41,9 @@ TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particl
 Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
-AngleIncidence_list="0 0.25" # "0 0.25"
+# AngleIncidence_list="0 0.25" # "0 0.25"
 
-# AngleIncidence_list="0.10 0.15 0.20 0.25" #0.05
+AngleIncidence_list="0.05 0.10 0.15 0.20 0.25"  #0.05
 
 
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
