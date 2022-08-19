@@ -48,7 +48,7 @@ from spp_extended_theory.Libs import libImportOpticalData as libOpticalData
 
 #logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 #logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()]) #filename='plotFinalQuantities.log', 
-logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -371,7 +371,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     else:
         FileName_opt=""
 
-    x_min  = {407.58E-9: (1E9, 1E15), 483e-9: (1E9, 1E15), 800e-9: (1E9, 1E15),  1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
+    x_min  = {407.58E-9: (1E9, 1E15), 483e-9: (1E9, 1E15), 800e-9: (1E9, 1E15), 1030e-9: (1E9, 1E15), 1600e-9: (1E10, 1E15), 3200e-9: (1E10, 1E15)}
 
     print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
     #Filter: double pulses, same wavelengths, same polarization
@@ -1462,8 +1462,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     else:
         EffectiveMassList=[meff_Waroquiers_LDA]
     #wPI_min={800e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #desired
-    wPI_min={407.58e-9: 1E35, 483e-9: 1E35, 800e-9: 1E36,  1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
-    wPI_max={407.58e-9: 1E45, 483e-9: 1E45, 800e-9: 1E45,  1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
+    wPI_min={407.58e-9: 1E35, 483e-9: 1E35, 800e-9: 1E36, 1030e-9: 1E36, 1600e-9: 1E35, 2200e-9: 1E30, 2600e-9: 1E30, 3200e-9: 1E34} #tweaked for log
+    wPI_max={407.58e-9: 1E45, 483e-9: 1E45, 800e-9: 1E45, 1030e-9: 1E45, 1600e-9: 1E45, 2200e-9: 1E45, 2600e-9: 1E45, 3200e-9: 1E45}
 
 
     for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]:
@@ -4540,7 +4540,7 @@ def plot_Zhukov_SingleColor_SiO2(): #{{{
 #}}}                                            
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
-def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
+def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
     #Egap_SI = 1.5*e #Manually adjusted gap. 
@@ -4555,7 +4555,8 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
     ## These are experimental data from Palik. More correct would be to use linear response computed from TDDFT. 
     OpticalIndex={ #
         483e-9: 4.4028, 484e-9: 4.3964,
-        800e-9: 3.6924167231905, 1600e-9: 3.4826, 
+        800e-9: 3.6924167231905, 1030e-9: 3.61279196759238,
+                 1600e-9: 3.4826,
         2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}
     
     ## NOTE: DUMMY OpticalIndex account
@@ -4646,7 +4647,8 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, 3200e-9, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect) #contains MoveIon, yes? 
     
     #for wavelength in [3200E-9, 2600e-9, 2200e-9, 1600e-9, 800e-9]: 
-    for wavelength in [3200e-9, 1600e-9, 800e-9, 483e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]: 
+    # for wavelength in [3200e-9, 1600e-9, 800e-9, 483e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+    for wavelength in [1030e-9]:  # , 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
       #try:
       plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, "LDA")
       #except:
@@ -4657,7 +4659,8 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
     RatioExternal     = {'Si': 1.}    #Useful only for induced fields cases
     ## Plotting absorbed energy also
     for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
-        for wavelength in [3200e-9, 1600e-9, 800e-9]: 
+        # for wavelength in [3200e-9, 1600e-9, 1030e-9, 800e-9]:
+        for wavelength in [1030E-9]:
         #0: Gaussian; 1: SinSquared
             try: 
                 plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[wavelength], RatioExternal[material], MoveIon)
