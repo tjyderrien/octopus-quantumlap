@@ -50,7 +50,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 
 ## PROGRAM BEHAVIOR
-SingleKpoint = 0  # Selector for direct execution.
+SingleKpoint = 1  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
@@ -64,8 +64,8 @@ ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
-Enable_Zoom = True
-Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_Zoom = False
+Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
@@ -159,8 +159,8 @@ OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.
 OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
-Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
+Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
+      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
@@ -168,10 +168,10 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'KpointPath_len': 301, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
-      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
-#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
-#      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
+#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+#      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
+      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
+      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -197,12 +197,13 @@ Mo = {'MPI_numbers': [1], 'kpoints_manual': 16,
 }
 
 Au = {'MPI_numbers': [1], 'kpoints_manual': 16,
-      'nb_atoms': 1, 'unocc_states': 3,
-      'Z_electrons': 14 - 3, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik",
+      'nb_atoms': 1, 'unocc_states': 4, #8
+      'Z_electrons': 13 - 4, 'OpticalIndex': OpticalIndex_Au, 'OpticalIndexFile': "Au-Palik", #18-8
       'ymin_ymax': (-5, 35), 'CaptureDirectGap': False, 'KpointPath_len': 1001,
       'xmin_xmax': (2E10, 7E16),
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #Kristyna simulation (= Bilbao and SeekPoint path)
       # 'K_labels': [r'$\Gamma$', r'$X$', r'$W$', r'$U$', r'$\Gamma$', 'U', 'W', 'L', 'K', 'X'], #Tibo simulation Gamma - X - W - U - Gamma - U - W - L - K(error) - X
+      'K_positions': [0, 0.2229, 0.3014, 0.5380, 0.7310, 0.8885, 1],
       'Fermi_Energy': 8.58, #eV at 300K
       'kpoints_duplicates': 1
 }
@@ -883,12 +884,12 @@ if(__name__=="__main__"):  #runs only if file is called directly
             SingleKpointManyFields(Enable_A2, k_point_index_of_interest=k_point_index_of_interest)
 	  
     else:
-        for wavelength in [2000e-9]: #SelectedWavelengths:
+        for wavelength in [1030e-9]: #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
 
-            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 0.01E9, 0.5E9, 1E9, 3E9]: #, 2E9, 3E9, 4E9, 5E9]: , 3E9, 
 
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
