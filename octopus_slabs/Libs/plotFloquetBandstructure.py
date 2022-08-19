@@ -48,7 +48,7 @@ from   octopus_slabs.Libs.libLogging import init_logger
 from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
 from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
-
+from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 ## PROGRAM BEHAVIOR
 SingleKpoint = 0  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
@@ -61,7 +61,7 @@ PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = True
-StorePlot = False #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
+StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 Enable_Zoom = False
 Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
@@ -697,7 +697,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     #WARNING: KpointPath_list must remain integer, otherwise code will always output the same eigenvalues
     KpointPath_list = np.arange(kpoints3D_number ** 3 + 1,
                                 kpoints_total_number) #NOTE: this assumes no other path is added at the end!
-                                #kpoints3D_number ** 3 + KpointPath_len) #TODO: KpointPath_len should be fetched automatically!!
+    #kpoints3D_number ** 3 + KpointPath_len) #TODO: KpointPath_len should be fetched automatically!!
     # NOTE: this may wrongly assume a matching between Kgrid.k_id and KpointPath.line_id. I checked position of repeated Gamma points in the path. Dipolar elements were stricly equal at these positions. 
     # breakpoint()
     logger.info("KPointPath_list: " + str(len(KpointPath_list)))
@@ -705,8 +705,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ## Obtain a list of all dipolar data for a single direction for a list of k-points
     logger.info("Info: Capturing the dipolar transition at given k-points.")
     k_point_files, k_point_files_idx = libString.ExtractFileForGivenKpoints(filename, kpoints3D_number, listoffiles,
-                                                                        KpointPath_list, CaptureDirectGap, verbose,
-                                                                        field_polarization_dir)
+                                                                            KpointPath_list, CaptureDirectGap, verbose,
+                                                                            field_polarization_dir)
 
     # k_point_files contains a table of names for all k-point files in a single direction.
     # k_point_files_idx contains a table of indices matching with the k_points_files. Only selection in X direction was made.
@@ -714,17 +714,17 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     # We can also prepare a figure of the k-point position in 3D. Then we'll be able to check if it corresponds to
     # Fermi sphere from books.
 
-    plt.figure()
+    fig1 = plt.figure()
     ax1 = plt.subplot(211)
     ax1.set_title("Band structure")
     ax1.set_ylabel("Energy (eV)")
-    
+
     ax2 = plt.subplot(212)
     ax2.set_title("Non-equilibrium band structure")
     ax2.set_ylabel("Energy (eV)")
     ax2.set_xlabel("k-point path")
 
-    plt.figure()
+    fig2 = plt.figure()
     ax3 = plt.subplot(111)
 
     # ax2.set_xlabel("k-point id")
@@ -773,6 +773,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ## DOUBLE PARSING:
     MPI_number = MPI_numbers[0] #TODO: this is quick fix that forbids batching MPI figures
     logger.warning("Number of replicates: "+str(MPI_number))
+    DOS = []
+
     ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
     ## - k_point_files[k_idx] belongs to KPointGrid (sync with info and ks_me_dipole*)
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
@@ -809,7 +811,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         if(verbose==1):
             logger.info(("** Info: fetching matrix elements."))
         matrixelements, matrix_side = libString.ReadDipolarMatrixElements(Z_electrons, unocc_states, [k_point_files[k_idx]],
-                                                                Complex_valued_ME)
+                                                                          Complex_valued_ME)
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         # wavelength_SI = SelectedWavelengths
         epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI,
@@ -845,12 +847,28 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         ax2.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
                     s=0.1*SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
 
-        ax3.hist(replicas)
+        logger.debug(np.shape(replicas))
+        # hist = ax3.hist(replicas, bins=10)
+        # hist = np.histogram(replicas, bins=10, range=[-0.2, 0.2])
+        DOS.append(replicas) #DOS
+        # my_bins = hist[1]
+        logger.debug("Shape of DOS: " + str(np.shape(DOS)))
+        # logger.debug("Value of DOS: " + str(DOS))
+        # logger.debug("Shape of histogram: "+str( np.shape(hist[0])))
+        # logger.debug("Value of histogram: " + str(hist[0]))
+        # logger.debug("Shape of bins: " + str(np.shape(hist[1])))
+        # logger.debug("Value of bins: " + str(hist[1]))
+
+    DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
+    DOS = au.Energy_Hartree_to_eV(DOS) #eV
+
+    hist = ax3.hist(DOS, bins=200) #it works!
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
         ax2.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
         #breakpoint()
+
     ax1.set_ylim(Materials[material]['ymin_ymax'])
     ax2.set_ylim(Materials[material]['ymin_ymax'])
     ax1.set_xticks(K_labels_positions)
@@ -876,7 +894,9 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         figurename += "-Zoomed"
     #plt.savefig(figurename + ".eps")
     if(StorePlot):
-        plt.savefig(figurename + ".png")
+        fig1.savefig(figurename + ".png")
+        fig2.savefig(figurename + '-DOS.png', bbox_inches='tight')
+        ExportToTxt([hist[0], hist[1]], figurename + "-DOS.csv")
     if(ShowPlot):
         plt.show()
 # }}}
