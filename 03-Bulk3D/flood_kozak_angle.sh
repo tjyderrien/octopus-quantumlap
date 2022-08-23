@@ -68,7 +68,6 @@ RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 # lambda1="2237e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
 # lambda1="2656e-9" #normalized (2000 nm, TB09) 
 lambda1="8.388157894736841e-07" #normalized 750 nm, TB09
-
 lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
 
@@ -89,7 +88,7 @@ tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
 
-AngleIncidence_list="0 0.25" 
+AngleIncidence_list="0" 
 
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 
@@ -101,7 +100,7 @@ AngleIncidence_list="0 0.25"
 # AngleIncidence_list="0.01 0.02 0.03 0.04 0.06 0.07 0.08 0.09 0.11 0.12 0.13 0.14 0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
 
 # Phase
-CEP1="-0.45" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
+CEP1="0.225" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
 # CEP1="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
 CEP2="0.0"
 
