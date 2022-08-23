@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
