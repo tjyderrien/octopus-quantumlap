@@ -226,7 +226,7 @@ def CapturePlottingCoordinateOfKpointsPathPositions(filename="bandstructure"):
     epsilon = 7E-1
     import numpy as np
     import matplotlib.pyplot as plt
-    bands = np.loadtxt(path, dtype="float32", skiprows=1)
+    bands = np.loadtxt(filename, dtype="float32", skiprows=1)
     kindex = bands[:, 0]
     kx = bands[:, 1]
     ky = bands[:, 2]

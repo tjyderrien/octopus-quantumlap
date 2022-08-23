@@ -29,7 +29,7 @@ MeshSizeX="0.23" # 0.20"
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of computer nodes
-NumNodes=16
+NumNodes=4
 
 # Sample
 SampleLayers=1
@@ -65,7 +65,8 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 PulseShape="SinFourth"
 RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 
-lambda1="2656e-9" #normalized to LDA bandgap, experiment will be at 2 um
+# lambda1="2656e-9" #normalized to LDA bandgap, experiment will be at 2 um
+lambda1="8.388157894736841e-07" #normalized 750 nm, TB09
 lambda2="400e-9" #detuned 2.18: 1422e-9
 # lambda2="1030e-9 1050e-9 1070e-9 1090e-9 1110e-9 1130e-9 1150e-9 1170e-9 1190e-9 1210e-9 1230e-9 1250e-9 1270e-9 1290e-9 1310e-9 1330e-9 1350e-9 1370e-9 1390e-9 1410e-9 1430e-9 1450e-9 1470e-9 1490e-9 1510e-9 1530e-9" #MERDJI #seq 1030 20 1550 | awk '{ print $1."e-9" }' | tr "\n" " "
 
@@ -75,11 +76,12 @@ Efield2="0E0" #"9e9"
 
 ## Pulse duration
 # tau1="13.945e-15" #10 fs LDA 2000 nm, we keep number of cycles constant compared to experiments, along with BG renormalization
-tau1="1.9921875e-14" #15 fs LDA 2000 nm.
+tau1="6.710526315789472e-15" #normalized tau1=6 fs TB09
+# tau1="1.9921875e-14" #15 fs LDA 2000 nm.
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
-AngleIncidence_list="0 0.25" 
+AngleIncidence_list="0" #0.25
 # AngleIncidence_list="0 0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 # AngleIncidence_list="0.01 0.02 0.03 0.04 0.06 0.07 0.08 0.09 0.11 0.12 0.13 0.14 0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
