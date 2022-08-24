@@ -865,7 +865,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
     DOS = au.Energy_Hartree_to_eV(DOS) #eV
 
-    hist = ax3.hist(DOS, bins=1000, range=[-20, 20]) #it works through numpy
+    hist = ax3.hist(DOS, bins=100, range=[-20, 20]) #it works through numpy
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -880,7 +880,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax2.set_xticklabels(K_labels, fontsize='15')
     plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
-        kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(1E-9 * round(field, 3)) + "VperNm"
+        kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(round(1E-9 * field, 3)) + "VperNm"
     if (not LogPlotting):
         figurename += "NoLog"
     if (not PlotIntensity):
