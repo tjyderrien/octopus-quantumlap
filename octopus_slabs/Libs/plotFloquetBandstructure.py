@@ -906,6 +906,27 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         plt.show()
 # }}}
 
+# Fetches various files (CSV) into folder from which function is call, and plots various DOS as function of field
+def plotDOSforVariousFields(figurename):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+    filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
+    filename_right = "VperNm-NoOpticalIndex-DOS"
+    plt.figure()
+    for field in fields:
+        filename = filename_left + str(field) + filename_right
+        print(filename)
+        # import energies
+        energies = np.loadtxt(filename + "-Energies.csv")
+        # import the number of states
+        states = np.loadtxt(filename + "-States.csv")
+        plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
+    plt.legend(loc="best")
+    plt.savefig(figurename."eps")
+    plt.savefig(figurename."png")
+    plt.show()
+
 if(__name__=="__main__"):  #runs only if file is called directly
 
     logger.info("Capturing the k-point path coordinate for plotting...")
