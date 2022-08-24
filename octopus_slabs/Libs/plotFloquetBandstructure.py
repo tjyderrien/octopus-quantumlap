@@ -65,7 +65,7 @@ StorePlot = True #we generate so many figures with this... Let's avoid this at t
 
 
 Enable_Zoom = False
-Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
@@ -927,9 +927,9 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
-            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9]: 
+            #for field in [0.001E9, 0.01E9, 0.05E9] #, 0.1E9, 1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9]: 
 
-            # for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
