@@ -50,7 +50,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 ## PROGRAM BEHAVIOR
-SingleKpoint = 1  # Selector for direct execution.
+SingleKpoint = 0  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
@@ -60,15 +60,12 @@ field_polarization_dir = 0  # 0: x, 1: y, 2: z
 PlotMatrixElements = False
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
-ShowPlot = True
+ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 7be7a7eb026ba57daa56f156d4a3af3449c4fc72
 Enable_Zoom = False
-Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
+Enable_A2 = True #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
@@ -162,12 +159,12 @@ OpticalIndex_Mo = {3200e-9: 1.6626, 1600e-9: 1.5686, 1030e-9: 2.4201, 800e-9: 3.
 OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 1.4684, 343e-9: 1.4809}
 
 # In band gap materials, we are interested in plotting evolution of energy levels at Gamma point as function of laser field.
-<<<<<<< HEAD
-Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
-=======
+
+#Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
+
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
->>>>>>> 7be7a7eb026ba57daa56f156d4a3af3449c4fc72
-      'nb_atoms': 1, 'unocc_states': 4, #still manual, sometimes 4, sometimes 8
+
+      'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
@@ -929,14 +926,9 @@ if(__name__=="__main__"):  #runs only if file is called directly
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 
+            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9]: 
 
-<<<<<<< HEAD
-            for field in [0.001E9, 0.01E9, 0.5E9, 1E9, 3E9]: #, 2E9, 3E9, 4E9, 5E9]: , 3E9, 
-=======
             # for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
-            for field in [.5E9]:  # , 2E9, 3E9, 4E9, 5E9]:
->>>>>>> 7be7a7eb026ba57daa56f156d4a3af3449c4fc72
-
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
