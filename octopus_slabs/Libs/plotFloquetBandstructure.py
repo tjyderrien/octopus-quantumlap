@@ -865,7 +865,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
     DOS = au.Energy_Hartree_to_eV(DOS) #eV
 
-    hist = ax3.hist(DOS, bins=200) #it works!
+    hist = ax3.hist(DOS, bins=1000, range=[-20, 20]) #it works through numpy
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -900,7 +900,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         fig0.savefig(figurename + "groundstate.png")
         fig1.savefig(figurename + ".png")
         fig2.savefig(figurename + '-DOS.png', bbox_inches='tight')
-        ExportToTxt([hist[0], hist[1]], figurename + "-DOS.csv")
+        ExportToTxt(np.transpose(hist[1]), figurename + "-DOS-Energies.csv")
+        ExportToTxt(np.transpose(hist[0]), figurename + "-DOS-States.csv")   #dimension is shape(hist[1]-1)
     if(ShowPlot):
         plt.show()
 # }}}
