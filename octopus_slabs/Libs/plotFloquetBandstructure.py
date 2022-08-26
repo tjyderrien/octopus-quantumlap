@@ -916,7 +916,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 def plotDOSforVariousFields(figurename):
     import numpy as np
     import matplotlib.pyplot as plt
-    fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]
+    fields = [0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 1, 2, 3, 4, 5, 7]
     filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
     filename_right = "VperNm-NoOpticalIndex-DOS"
     plt.figure()
@@ -929,8 +929,8 @@ def plotDOSforVariousFields(figurename):
         states = np.loadtxt(filename + "-States.csv")
         plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
     plt.legend(loc="best")
-    plt.savefig(figurename."eps")
-    plt.savefig(figurename."png")
+    plt.savefig(figurename + ".eps")
+    plt.savefig(figurename + ".png")
     plt.show()
 
 if(__name__=="__main__"):  #runs only if file is called directly
@@ -950,7 +950,7 @@ if(__name__=="__main__"):  #runs only if file is called directly
 
             #for field in [0.001E9, 0.01E9, 0.05E9] #, 0.1E9, 1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9]: 
 
-            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9]: #, 2E9, 3E9, 4E9, 5E9]:
+            for field in [0.001E9, 0.01E9, 0.05E9, 0.1E9, 0.2E9, 0.3E9, 0.4E9, 0.5E9, 0.7E9, 1E9, 2E9, 3E9, 4E9, 5E9, 7E9]:
 
             #for field in [2E10, 3E10, 4E10, 5E10]:
             #for field in [2E10, 3E10, 4E10]:
