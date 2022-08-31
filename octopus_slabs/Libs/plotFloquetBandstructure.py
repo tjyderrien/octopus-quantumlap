@@ -163,7 +163,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 #Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
 
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-
+      'Egap_d_eV': 2.56, 'Egap_i_eV': 0.51,
       'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
