@@ -871,7 +871,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
     DOS = au.Energy_Hartree_to_eV(DOS) #eV
 
-    hist = ax3.hist(DOS, bins=1000, range=[-20, 20]) #it works through numpy
+    hist = ax3.hist(DOS, bins=5000, range=[-20, 20]) #it works through numpy
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -913,14 +913,14 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 # }}}
 
 # Fetches various files (CSV) into folder from which function is call, and plots various DOS as function of field
-def plotDOSforVariousFields(figurename, FermiEnergy=0.):
+def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_range=[0, 10], fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"], Egap_eV=2.56):
     import numpy as np
     import matplotlib.pyplot as plt
-
+    from scipy.constants import c, hbar, pi, e
     # fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]
 
     global Materials,material
-    fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"]
+    
 
     filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
     filename_right = "VperNm-NoOpticalIndex-DOS"
@@ -935,9 +935,11 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0.):
         plt.semilogy(energies[:len(energies) - 1], states, label=str(field) + "V/nm", nonpositive="clip")
         #plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
     plt.axvline(x=FermiEnergy, color='k', linestyle='--', linewidth=0.5)
-    
+    plt.axvline(x=FermiEnergy+hbar*2*pi*c/wavelength/e, color='r', linestyle='--', linewidth=0.5)
+    plt.axvline(x=FermiEnergy+Egap_eV, color='b', linestyle='--', linewidth=0.5)
     plt.legend(loc="best", ncol=3)
-    plt.xlim([0, 10])
+    plt.xlim(x_range)
+
     plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
     plt.show()
