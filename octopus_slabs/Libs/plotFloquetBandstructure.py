@@ -250,7 +250,7 @@ wavelength_SI_t = np.linspace(wavelength_SI_min, wavelength_SI_max, num_waveleng
 # wavelength_SI_t = h*c / e / photon_energy_SI_t #meters
 # wavelength_SI_t = wavelength_SI_t[::-1] #to keep it in increasing order
 
-logger.info(wavelength_SI_t)
+logger.debug(wavelength_SI_t)
 #NOTE: in the function of SignleKpoint wavelength_t was replaced by SelectedWavelengths
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
@@ -916,7 +916,12 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 def plotDOSforVariousFields(figurename, FermiEnergy=0.):
     import numpy as np
     import matplotlib.pyplot as plt
-    fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]
+
+    # fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]
+
+    global Materials,material
+    fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"]
+
     filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
     filename_right = "VperNm-NoOpticalIndex-DOS"
     plt.figure(figsize=(10,6))
@@ -928,8 +933,10 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0.):
         # import the number of states
         states = np.loadtxt(filename + "-States.csv")
         plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
-    plt.axvline(x=FermiEnergy)
+    plt.axvline(x=FermiEnergy, color='k', linestyle='--', linewidth=0.5)
+    plt.semilogy(energies[:len(energies) - 1] -Materials[material]["Fermi_Energy"], states, label=str(field) + "V/nm", nonpositive="clip")
     plt.legend(loc="best")
+    #plt.xlim([-10, 10])
     plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
     plt.show()
