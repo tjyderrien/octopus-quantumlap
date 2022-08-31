@@ -163,7 +163,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 #Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
 
 Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
-
+      'Egap_d_eV': 2.56, 'Egap_i_eV': 0.51,
       'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
@@ -783,7 +783,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     MPI_number = MPI_numbers[0] #TODO: this is quick fix that forbids batching MPI figures
     logger.warning("Number of replicates: "+str(MPI_number))
     DOS = []
-
+    replica_plot_stack=[]
+    energy_plot_stack=[]
     ## - k_idx belongs to the manifold of KPathPoints (sync with bandstructure)
     ## - k_point_files[k_idx] belongs to KPointGrid (sync with info and ks_me_dipole*)
     for k_idx in np.arange(0, len(k_point_files)):  # fake index for parsing the KPointPath
@@ -853,10 +854,14 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         else:
             unitx = 1E0
             Efield_SI = Efield_SI * np.sqrt(RefractiveIndex)
-        ax2.scatter(np.ones(np.size(replicas)) * bands[k_idx, 0], au.Energy_Hartree_to_eV(np.real(replicas)), c="red",
+        replica_plot=np.ones(np.size(replicas)) * bands[k_idx, 0]
+        energy_plot=au.Energy_Hartree_to_eV(np.real(replicas))
+        ax2.scatter(replica_plot, energy_plot, c="red",
                     s=0.1*SizeOfDots, label="Floquet replicates")  # these are the interesting lines for the final plot
 
         logger.debug(np.shape(replicas))
+        energy_plot_stack.append(energy_plot)
+        replica_plot_stack.append(replica_plot)
         # hist = ax3.hist(replicas, bins=10)
         # hist = np.histogram(replicas, bins=10, range=[-0.2, 0.2])
         DOS.append(replicas) #DOS
@@ -871,7 +876,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
     DOS = au.Energy_Hartree_to_eV(DOS) #eV
 
-    hist = ax3.hist(DOS, bins=5000, range=[-20, 20]) #it works through numpy
+    hist = ax3.hist(DOS, bins=2500, range=[-20, 20]) #it works through numpy
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -887,6 +892,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     plt.tight_layout()
     figurename = "FloquetBandStructureComplete-" + str(round(wavelength_SI * 1E9, 0)) + "nm-k" + str(
         kpoints3D_number) + "MPI-" + str(round(MPI_number, 0)) + "-Field" + str(round(1E-9 * field, 3)) + "VperNm"
+    ExportToTxt(np.transpose(energy_plot_stack), figurename + "-BandStructure-Energies.csv")
+    ExportToTxt(np.transpose(replica_plot_stack), figurename + "-BandStructure-States.csv")
     if (not LogPlotting):
         figurename += "NoLog"
     if (not PlotIntensity):
@@ -913,7 +920,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 # }}}
 
 # Fetches various files (CSV) into folder from which function is call, and plots various DOS as function of field
-def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_range=[0, 10], fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"], Egap_eV=2.56):
+def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_range=[0, 10], y_range=[-5, 30], fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"]):
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.constants import c, hbar, pi, e
@@ -921,7 +928,6 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
 
     global Materials,material
     
-
     filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
     filename_right = "VperNm-NoOpticalIndex-DOS"
     plt.figure(figsize=(10,6))
@@ -932,17 +938,26 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
         energies = np.loadtxt(filename + "-Energies.csv")
         # import the number of states
         states = np.loadtxt(filename + "-States.csv")
-        plt.semilogy(energies[:len(energies) - 1], states, label=str(field) + "V/nm", nonpositive="clip")
+        plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm") #, nonpositive="clip")
         #plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
     plt.axvline(x=FermiEnergy, color='k', linestyle='--', linewidth=0.5)
+
     plt.axvline(x=FermiEnergy+hbar*2*pi*c/wavelength/e, color='r', linestyle='--', linewidth=0.5)
-    plt.axvline(x=FermiEnergy+Egap_eV, color='b', linestyle='--', linewidth=0.5)
+    #plt.axvline(x=FermiEnergy+Egap_eV, color='b', linestyle='--', linewidth=0.5)
     plt.legend(loc="best", ncol=3)
     plt.xlim(x_range)
+    plt.ylim(y_range)
+
+    plt.axvline(x=FermiEnergy + Materials[material]["Egap_d_eV"], color='g', linestyle='-', linewidth=0.5)
+    plt.axvline(x=FermiEnergy + Materials[material]["Egap_i_eV"], color='g', linestyle='--', linewidth=0.5)
+    
+    plt.legend(loc="best")
+    #plt.xlim([-10, 10])
 
     plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
     plt.show()
+    #TODO: ground state DOS is needed
 
 if(__name__=="__main__"):  #runs only if file is called directly
 
