@@ -913,10 +913,10 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 # }}}
 
 # Fetches various files (CSV) into folder from which function is call, and plots various DOS as function of field
-def plotDOSforVariousFields(figurename, FermiEnergy=0.):
+def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9):
     import numpy as np
     import matplotlib.pyplot as plt
-
+    from scipy.constants import c, hbar, pi
     # fields = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0]
 
     global Materials,material
@@ -934,6 +934,7 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0.):
         states = np.loadtxt(filename + "-States.csv")
         plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
     plt.axvline(x=FermiEnergy, color='k', linestyle='--', linewidth=0.5)
+    plt.axvline(x=FermiEnergy+hbar*2*pi*c/wavelength, color='b', linestyle='--', linewidth=0.5)
     plt.semilogy(energies[:len(energies) - 1] -Materials[material]["Fermi_Energy"], states, label=str(field) + "V/nm", nonpositive="clip")
     plt.legend(loc="best")
     #plt.xlim([-10, 10])
