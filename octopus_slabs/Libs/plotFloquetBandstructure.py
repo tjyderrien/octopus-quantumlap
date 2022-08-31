@@ -871,7 +871,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     DOS = np.ndarray.flatten(np.array(DOS)) #Hartree
     DOS = au.Energy_Hartree_to_eV(DOS) #eV
 
-    hist = ax3.hist(DOS, bins=100, range=[-20, 20]) #it works through numpy
+    hist = ax3.hist(DOS, bins=1000, range=[-20, 20]) #it works through numpy
 
     if (Materials[material]['Fermi_Energy']):
         ax1.axhline(y=Materials[material]['Fermi_Energy'], color='#b3b3b3', linestyle='-') #, s=SizeOfDots)
@@ -932,11 +932,12 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0.):
         energies = np.loadtxt(filename + "-Energies.csv")
         # import the number of states
         states = np.loadtxt(filename + "-States.csv")
-        plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
+        plt.semilogy(energies[:len(energies) - 1], states, label=str(field) + "V/nm", nonpositive="clip")
+        #plt.plot(energies[:len(energies) - 1], states, label=str(field) + "V/nm")
     plt.axvline(x=FermiEnergy, color='k', linestyle='--', linewidth=0.5)
-    plt.semilogy(energies[:len(energies) - 1] -Materials[material]["Fermi_Energy"], states, label=str(field) + "V/nm", nonpositive="clip")
-    plt.legend(loc="best")
-    #plt.xlim([-10, 10])
+    
+    plt.legend(loc="best", ncol=3)
+    plt.xlim([0, 10])
     plt.savefig(figurename + ".eps")
     plt.savefig(figurename + ".png")
     plt.show()
