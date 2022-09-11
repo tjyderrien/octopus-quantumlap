@@ -13,7 +13,7 @@ source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=40 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -88,7 +88,7 @@ DefineParameters () {
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
 #  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
 #  ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
-  ComputingTime=$( python_calc " float ( ( 8./5. * ( 4*${lambda1}/299792458.0 +  ${tau1}) ) ) " )
+  ComputingTime=$( python_calc " float ( ( 10./5. * ( 4*${lambda1}/299792458.0 +  ${tau1}) ) ) " ) #TODO: good for StH, but not for SinSquared or SinFourth
 #   tauRiseA=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
 #   tauRiseB=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda2} ) ) "  )
   if [ ${PulseShape} == "StH4" ]; then
