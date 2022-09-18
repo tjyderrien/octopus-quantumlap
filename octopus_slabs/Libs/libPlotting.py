@@ -515,11 +515,17 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # Catch the peak field #We could also take the one of input file..
     time                = np.asfarray(laser[:,1]) #column 2
     A1x                 = np.asfarray(laser[:,2]) #column number 3
+    A1y                 = np.asfarray(laser[:,3])  # column number 3
+    A1z                 = np.asfarray(laser[:,4])
     A2x                 = np.asfarray(laser[:,5]) #column number 6
-    timestepTable       = np.gradient(time) #size N-1
+    A2y                 = np.asfarray(laser[:, 6])  # column number 6
+    A2z                 = np.asfarray(laser[:, 7])  # column number 6
+    timestepTable       = np.gradient(time) #size N
     TimeStep            = timestepTable[0] #they are all equal, just select the first
-    Efield              = - (np.gradient(A1x)/np.gradient(time)) #correct value is *1/c 
-    Efield2             = - (np.gradient(A2x)/np.gradient(time))
+    A1field_norm = np.sqrt(A1x**2+A1y**2+A1z**2)
+    A2field_norm = np.sqrt(A2x ** 2 + A2y ** 2 + A2z ** 2) #necessary when field is along more complicated axes
+    Efield              = - (np.gradient(A1field_norm)/np.gradient(time)) #correct value is *1/c
+    Efield2             = - (np.gradient(A2field_norm)/np.gradient(time))
     Efield_AU           = Efield/au.c_AU #fixing dimension #TODO: clean me that...
     Efield2_AU          = Efield2/au.c_AU
     Efield_amplitude_SI = np.max(abs(au.Field_AU_to_SI(Efield_AU)))
@@ -644,8 +650,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
     # TotalCurrent_SI_norm  = np.sqrt( np.power(TotalCurrent_X_SI,2)+np.power(TotalCurrent_Y_SI,2)+np.power(TotalCurrent_Z_SI,2) ) #computes norm of the current
  
-    # Computing External field reconstructed using the current. Work in atomic units. 
-    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+    # Computing External field reconstructed using the current. Work in atomic units.
+    logger.debug("len(time, Efield_AU, ElectronEnergy) = "+str(len(time))+", "+str(len(A1x))+", "+str(len(ElectronEnergy)))
+    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## TODO: this is a nasty bugfix.
+    # why size of Energy can be LONGER than the field!
 
     # Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
 
@@ -987,7 +995,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 #    try:
 #    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
     
-    Efield_SI_final = au.Field_AU_to_SI(Efield_AU[minLength])
+    Efield_SI_final = au.Field_AU_to_SI(Efield_AU[minLength]) ## TODO: this seems to disqualify runs that are actually valid.
  #   except: 
   #      print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
    #     Efield_SI_final = au.Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
@@ -1326,7 +1334,9 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant, expon
     logger.info(Header+"** Info: omega = "+str(round(omega)))
 
     # CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
-    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**exponent * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
+    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**exponent \
+              * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) \
+              * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval.
     damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
     CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
     return CurrentX_HHG
