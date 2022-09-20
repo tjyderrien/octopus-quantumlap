@@ -947,7 +947,8 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
     plt.legend(loc="best", ncol=3)
     plt.xlim(x_range)
     plt.ylim(y_range)
-
+    plt.xlabel("Energy (eV)")
+    plt.ylabel("Density of states (a.u.)")
     plt.axvline(x=FermiEnergy + Materials[material]["Egap_d_eV"], color='g', linestyle='-', linewidth=0.5)
     plt.axvline(x=FermiEnergy + Materials[material]["Egap_i_eV"], color='g', linestyle='--', linewidth=0.5)
     

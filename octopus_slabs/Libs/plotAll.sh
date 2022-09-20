@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RecomputeItAll="yes" #if != "", we recompute all. If =="", we just look for new files. 
+RecomputeItAll="true" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
 # module load git
@@ -41,7 +41,8 @@ do
             if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
-		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
+# 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
             fi
         fi
 	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then

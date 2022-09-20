@@ -5,7 +5,7 @@ channels:
   - defaults
 dependencies:
 # use specific Python version to avoid possible incompatibilities
-  - python=3.6
+  - python=3.7
   - numpy #=1.19.4
   - scipy
   - matplotlib
@@ -17,6 +17,7 @@ dependencies:
 # for interactive work
   - ipython
   - jupyter #>=1.0.0
+  - nbdev #good for merging jupyter notebooks for git
 # workaround for https://github.com/ipython/ipython/issues/12745
   - jedi #=0.17.0
   - parso #=0.7.1
