@@ -90,9 +90,9 @@ tau2="30e-15"
 
 # AngleIncidence_list="0 0.25" 
 
-# AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+AngleIncidence_list="0.02 0.04 0.06 0.08 0.12" #0.14 0.16 0.18 0.22 0.24"
 
-AngleIncidence_list="0 0.05 0.10 0.15 0.20 0.25"
+# AngleIncidence_list="0 0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.12"
 # AngleIncidence_list="0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 
