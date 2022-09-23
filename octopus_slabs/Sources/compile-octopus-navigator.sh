@@ -83,7 +83,7 @@ pushd .. && autoreconf -i --force && popd
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/veracruz/home/p/pr2c0043/octopus.barbora/"
+   --prefix="/veracruz/home/p/pr2c0055/octopus.mpiio/"
 
 #   FCFLAGS_FFTW="-I$MKL_HOME/include/fftw" \ 
 #    --with-parmetis-prefix="$PARMETIS_HOME"

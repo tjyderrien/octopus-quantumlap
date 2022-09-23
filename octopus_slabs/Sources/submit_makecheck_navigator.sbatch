@@ -15,7 +15,7 @@
 # S BATCH --mem=122000
 # Email management
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=derrien@fzu.cz
+#SBATCH --mail-user=kristyna.gazdova@hilase.cz
 #
 # Wall clock limit:
 #SBATCH --time=2:00:00

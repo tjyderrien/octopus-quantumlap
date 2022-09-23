@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
@@ -28,13 +28,13 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 # SampleLayers="6 8 10 12 14 16 18 20"
 
 
-NumNodes=2
+NumNodes=8
 Mission="Si_GS_angle"
 
 SampleLayers="1"
 SampleXY="1"
 
-kPoints="40" # 16"
+kPoints="16" # 16"
 # kPoints="24" # 16"
 
 InitialTemperature="0e0"
