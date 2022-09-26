@@ -2,7 +2,11 @@
 # Input: $1: SampleLayers, $2: SampleXY
 # Purpose: GS calculation
 
+
+#set -e
+
 # set -e
+
 
 # ENABLE DRY RUN ? 
 DryRun=0
