@@ -14,7 +14,7 @@
 # S BATCH --mem=95000
 # Email management
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=derrien@fzu.cz
+#SBATCH --mail-user=kristyna.gazdova@hilase.cz
 #
 # Wall clock limit:
 #SBATCH --time=2:00:00
@@ -32,7 +32,7 @@ module list
 
 # Run the program:
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
-../compile-octopus-navigator.sh >& octopus-install.$SLURM_JOB_ID.log 
+./compile-octopus-navigator.sh >& octopus-install.$SLURM_JOB_ID.log 
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
 
