@@ -200,6 +200,9 @@ if("FieldColorA-Gaussian" in PulseType_value):
 elif ("FieldColorA-SinSquared" in PulseType_value):
   print(Header+"** Info: Squared Sinus pulse detected...")
   PulseType="SinSquared"
+elif ("FieldColorA-SinFourth" in PulseType_value):
+  print(Header+"** Info: Fourth power Sinus pulse detected...")
+  PulseType="SinFourth"
 elif ("FieldColorA-STH" in PulseType_value):
   print(Header+"** Info: Soft Top Hat pulse detected...")
   PulseType="STH"
@@ -238,7 +241,7 @@ CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 ##==== Building the laser pulses for Keldysh ======
 ##(they cannot be the ones of octopus, as we need
 ## the complex space to build the bicolor envelope)
-if(PulseType == "SinSquared"): 
+if(PulseType == "SinSquared" or PulseType=="SinFourth"):
   t0   =  PulseDuration_SI #initial time is actually 0 in octopus. 
   tmin = -PulseDuration_SI+t0 #zero...
   if(PlottingMode=="doublepulse"):
@@ -263,7 +266,7 @@ instants=np.arange(tmin,tmax,dtPrecision)
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 auto reading from octopus input file
 
 print(Header+"Defining Pulses for Keldysh analysis...")
-if(PulseType == "SinSquared"): 
+if(PulseType == "SinSquared" or PulseType=="SinFourth"): ##TODO: introduce SinFourth when it will be needed
   FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
   FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
   FieldEnvelopeAB, FieldComplexAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, CEP1, CEP2, t0, DoublePulseDelay_SI) 
@@ -284,7 +287,7 @@ else:
   print(Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized.")
   exit()
   
-if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
+if(PulseType == "gaussian" or PulseType=="SinSquared" or PulseType=="SinFourth"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print(Header+"Computing Keldysh for Pulse 1: ")
@@ -397,9 +400,10 @@ logger.warning("Shapes: "+str(np.shape(timeCurrent_pad))+", "+str(np.shape(Curre
 #  timeCurrent_pad = np.arange(TimeStep_current_SI, (Elongation + 1) * (np.max(timeCurrent_SI) + TimeStep_current_SI), TimeStep_current_SI)
 #  assert(len(timeCurrent_pad) == len(CurrentX_pad))
 print(Header+"** Info: cleaning the current for HHG computation.")
-CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
-CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, 2*PulseDuration_SI)
-CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, 2*PulseDuration_SI)
+DecoherenceTime=1.25
+CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4) #NOTE: Choice of instant for applying damping is MAJOR in improving spectra. This 1.5 is fully arbitrary and a criterion should be decided. 
+CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
+CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
 
 assert(len(CurrentX_HHG) == len(CurrentX_pad)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision.
 
@@ -438,7 +442,7 @@ pyfftw.FFTW.execute(instance)
 """
 
 ## Computing total sum
-HHG_AU   = HHG_AU_X + HHG_AU_Y + HHG_AU_Z
+HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z) / np.sqrt(2.) #only for 110
 HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)

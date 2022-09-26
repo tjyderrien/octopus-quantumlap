@@ -7,7 +7,8 @@
 # Job Name:
 #SBATCH -J Mission
 # Queue (Partition): #general, mpsd (3 days), express, or short
-#SBATCH --partition=prace
+#SBATCH --partition=cpu1
+#SBATCH -A frecuencia
 # Number of nodes and MPI tasks per node:
 #SBATCH --nodes=NumNodes
 #SBATCH --ntasks-per-node=24

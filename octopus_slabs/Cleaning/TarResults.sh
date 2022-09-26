@@ -30,7 +30,7 @@ backup_SinFourth() {
   echo "== Saving the SinFourth pulses."
   filename=$DATE-SinFourth-Pulses.tar
   list_folders | grep 'SinFourth' -i >& backup_SinFourth.txt
-  tar --exclude='*.obf' -cv -T backup_SinFourth.txt -f $filename
+  tar --exclude='*.obf' --exclude='occs' --exclude="restart" -cv -T backup_SinFourth.txt -f $filename
 }
 
 backup_matrixelements() {

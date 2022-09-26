@@ -54,14 +54,14 @@ export YAML_HOME=/apps/software/libyaml/0.2.2-GCCcore-8.3.0/
 
 # Run the program:
 octopus_latest="/veracruz/home/p/pr2c0043/octopus.intel/bin/octopus"
-octopus_mpiio="/veracruz/home/p/pr2c0043/octopus.mpiio/bin/octopus"
+octopus_mpiio="/veracruz/home/p/pr2c0043/octopus.mpiio.July/bin/octopus"
 octopus_barbora="/veracruz/home/p/pr2c0043/octopus.barbora/bin/octopus"
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 #which mpirun
 
 ldd $octopus_barbora
 
-export OCT_TEST_NJOBS=4
+export OCT_TEST_NJOBS=8
 make check #mpirun ${octopus_barbora} &> octopus-td.${SLURM_JOB_ID}.log
 
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
