@@ -34,19 +34,15 @@ LoadOctopusNavigatorModulesFortran2021
 # https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/Memory-registration-cache-feature-in-DAPL-gt-random-failure-in/td-p/1135455
 
 # Run the program:
-<<<<<<< HEAD
-
-octopus_mpiio="/veracruz/home/p/pr2c0055/octopus.mpiio/bin/octopus"
+octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio/bin/octopus"
 
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log #AVOID THIS. mpirun works very well. 
-mpirun ${octopus_mpiio} &> octopus-td.${SLURM_JOB_ID}.log
-=======
-octopus_latest="/veracruz/home/p/pr2c0043/octopus.intel/bin/octopus"
-octopus_mpiio="/veracruz/home/p/pr2c0043/octopus.mpiio.July/bin/octopus"
-octopus_barbora="/veracruz/home/p/pr2c0043/octopus.barbora/bin/octopus"
+
+octopus_latest="/veracruz/home/p/${LOGNAME}/octopus.intel/bin/octopus"
+# octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio.July/bin/octopus"
+octopus_barbora="/veracruz/home/p/${LOGNAME}/octopus.barbora/bin/octopus"
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log #AVOID THIS. mpirun works very well. 
 mpirun ${octopus_mpiio} &> octopus-td.${SLURM_JOB_ID}.log #priorities: srun, then mpirun
->>>>>>> 8fcfd0390f71956f578139853f268c808ca81f44
 
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 sleep 5
