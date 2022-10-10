@@ -4,7 +4,7 @@
 #PBS -m ae -M derrien@fzu.cz
 #PBS -e Morille.err
 #PBS -o Morille.log
-# P B S  -A OPEN-20-5
+#PBS -A OPEN-26-39
 #PBS -l select=NumNodes:ncpus=128:mpiprocs=48:ompthreads=1
 #PBS -l walltime=2:00:00
 
