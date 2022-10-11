@@ -16,7 +16,8 @@ source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 source $QuantumLaPsources/octopus_slabs/machines.env
-echo "[Checking] Variable basePath: $basePath"
+echo "[Checking] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Checking] Variable QuantumLaPruns: $QuantumLaPruns"
 
 # Renaming inputs
 SampleLayers=$1
@@ -62,7 +63,7 @@ ProcessArguments () { # Conversion factors
       FunctionalPath=""
       ;;
     *)
-      echo "This functional was not planned. Modify run_td.sh."
+      echo "This functional was not planned. Modify run_gs|td.sh."
       exit 1
       ;;
   esac
