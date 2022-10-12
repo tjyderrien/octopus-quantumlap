@@ -198,7 +198,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
   except: 
     logger.warning((Header+"** Warning: the existing database is empty. We will generate new DB. "))
     FromScratch = True
-    Database = np.empty((0,47))
+    Database = np.empty((0,48))
 
   # PlottingTable= []
   PlottingTable = np.empty((0,48)) ##NOTE: how to define tau_pulse for 2 colors?
