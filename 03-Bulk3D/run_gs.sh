@@ -16,7 +16,8 @@ source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 source $QuantumLaPsources/octopus_slabs/machines.env
-echo "[Checking] Variable basePath: $basePath"
+echo "[Checking] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Checking] Variable QuantumLaPruns: $QuantumLaPruns"
 
 # Renaming inputs
 SampleLayers=$1
@@ -29,7 +30,8 @@ TheoryLevel=$7
 Functional=$8
 Mission=$9
 NumNodes=${10}
-AngleIncidence=${11}
+SmearingTe=${11}
+AngleIncidence=${12}
 
 
 python_calc () {
@@ -62,7 +64,7 @@ ProcessArguments () { # Conversion factors
       FunctionalPath=""
       ;;
     *)
-      echo "This functional was not planned. Modify run_td.sh."
+      echo "This functional was not planned. Modify run_gs|td.sh."
       exit 1
       ;;
   esac
@@ -71,9 +73,9 @@ ProcessArguments () { # Conversion factors
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
 
-#  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+#  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
 
-  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
@@ -144,6 +146,8 @@ BuildSample () {
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
   sed -i.bak s/theta1_inp/${AngleIncidence}/g inp
+  sed -i.bak s/SmearingTe/${SmearingTe}/g inp
+
 
   if [ ${TheoryLevel} == "independent_particles" ]; then 
         echo "Theory level: independent particles was added to the input file."
