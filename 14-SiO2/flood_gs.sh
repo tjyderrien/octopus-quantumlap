@@ -1,9 +1,12 @@
 #!/bin/bash
 
-set -e
+# set -e
 
 source $QuantumLaPsources/octopus_slabs/machines.env
+echo "Checking computer name..."
 CheckComputerName
+echo "Loading necessary libraries for octopus..."
+LoadEnvLibraries
 
 echo "Massive job submitter for QuantumLaP."
 echo "WARNING: 1 job ~ 19,200 core-hours per job."
@@ -19,7 +22,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.12" #0.15 0.18 0.21 0.23 angstroms #0.23 angstroms, octopus-recommended value
+MeshSizeX_SI="0.15 0.18" #0.12 0.21 0.23 angstroms #0.23 angstroms, octopus-recommended value
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
@@ -29,11 +32,24 @@ NumNodes=4
 Mission="SiO2-dipole"
 SampleLayers="1"
 SampleXY="1"
-kPoints="4" # 16" # 12 16 20 24"
+kPoints="4 8 12 16" # 12 16 20 24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #PBE: gap=6.03 eV. #LDA does not contain 'O' specy!! Use PBE.". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
+
+# AngleIncidence_list="0 0.25" # "0 0.25"
+
+AngleIncidence_list="0" #"0.05 0.10 0.15 0.20 0.25"  #0.05
+
+
+# AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+# AngleIncidence_list="0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24"
+
+echo "Starting submission..."
+
+for iAngleIncidence in ${AngleIncidence_list}
+do
 for ikPoints in ${kPoints}
 do
  for iSampleLayers in ${SampleLayers}
@@ -52,10 +68,11 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $QuantumLaPsources/14-SiO2/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes}
+      $QuantumLaPsources/14-SiO2/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iAngleIncidence}
  #    done
     done
  #   done
   done
  done
+done
 done

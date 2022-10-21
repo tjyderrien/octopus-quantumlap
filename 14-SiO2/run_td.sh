@@ -5,9 +5,11 @@
 set -e
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
-source $QuantumLaPsources/octopus_slabs/machines.env
-echo "[Checking] Variable basePath: $basePath"
 
+echo "[Checking] Variable basePath: $basePath"
+echo ""
+echo "Python interpreter path:"
+which python
 source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
@@ -38,6 +40,11 @@ FreezeXC=${20}
 RiseCycle=${21}
 Mission=${22}
 NumNodes=${23}
+GaugeVectorFieldAmplitude=${24}
+GaugeFieldDelayValue=${25}
+UseLinearResponse=${26}
+IncidenceAngle=${27}
+TimeStep=${28}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -98,18 +105,20 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower} 
+  python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseA.dat
-  $QuantumLaPsources/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
+  python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseB.dat
   
   echo "[Run_TD] Pulses generated."
-  
+ 
+  IncidenceAngleText="-theta"
+ 
   if [ ${CrossPolarization} == 1 ]; then
      CrossPolarizationText="-CrossPola"
-     CrossPolaAngle="0.5*pi"
+     CrossPolaAngle="0.5*pi+th1" #adding initial angle in case
   else
-     CrossPolaAngle="0."
+     CrossPolaAngle="0.+th1"
   fi
 
   if [ $InducedField == 1 ]; then
@@ -118,6 +127,15 @@ DefineParameters () {
   else
      GaugeFieldValue="no"
      GaugeFieldText=""
+  fi
+
+# PROBE INPUT
+#  if [ ${GaugeVectorFieldAmplitude} == 0 ]; then #BUG: RISKY
+
+  if [ ${UseLinearResponse} == 0 ]; then
+    GaugeVectorFieldText=""
+  else
+    GaugeVectorFieldText="-Probe${GaugeVectorFieldAmplitude}-ProbeDelay${GaugeFieldDelayValue}"
   fi
 
   MoveIonsChain=""
@@ -154,8 +172,8 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${QuantumLaPruns}/14-SiO2/SiO2-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}-${PulseShape}${RiseCycle}${FreezeXCchain}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export groundStatePath=${QuantumLaPruns}/14-SiO2/SiO2-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-dt${TimeStepAU}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -207,6 +225,20 @@ ReplaceInputFile () {
   sed -i.bak s/FieldShapeB/FieldColorB-${PulseShape}/g inp
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
+  sed -i.bak s/theta1_inp/${IncidenceAngle}/g inp
+  sed -i.bak s/TimeStepExternal/${TimeStepAU}/g inp
+
+  if [ ${UseLinearResponse} == 1 ]; then
+echo "# Linear response probing" >> inp
+echo "%GaugeVectorField #useful for probing" >> inp
+echo "   GaugeVectorFieldAmplitude | 0 | 0  #to be replaced by Script" >> inp
+echo "%" >> inp
+echo "GaugeFieldDelaySI = GaugeFieldDelayValue" >> inp
+echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
+    sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp #THIS GENERATES HUGE BUG if used for usual TD propagation
+    sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
+
+  fi
 
   if [ ${MoveIons} == 1 ]; then
 	echo "MoveIons? Addind the function in Input file..."
@@ -240,6 +272,11 @@ ReplaceInputFile () {
     echo "XCFunctional = GGA_X_PBE + GGA_C_PBE" >> inp
     echo "PseudopotentialSet = pseudodojo_pbe" >> inp
   fi
+  echo "[Checking] AbsPath: $AbsPath"
+  echo "[Info] Building the geometry input..."; echo ""
+  $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
+  echo "[Info] Conversion to octopus format" 
+  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
 
   # cd - >& /dev/null
 
@@ -283,6 +320,8 @@ SubmitTheJob () {
   cp $QuantumLaPsources/14-SiO2/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript}
   sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
+  sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
@@ -305,7 +344,7 @@ print_usage
 # For each calculation to perform
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
-
-# ReplaceInputFile 
+# BuildSample #also performed in directory
+# ReplaceInputFile
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 
