@@ -43,6 +43,7 @@ GaugeVectorFieldAmplitude=${24}
 GaugeFieldDelayValue=${25}
 UseLinearResponse=${26}
 IncidenceAngle=${27}
+TimeStep=${28}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -84,9 +85,10 @@ DefineParameters () {
 #  delay=$( cat 'Pulse.dat' | grep 'Delay' | awk '{ print $5 }' )
   
   sigmaTau=$( awk 'END { printf("%1.15lg\n", 2e0*sqrt(2e0*log(2e0)) )}' /dev/null )
-#  TimeAUtoSI=$( python_calc " 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0 " )
+  TimeAUtoSI=$( python_calc " 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0 " )
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
-#  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
+   TimeStepAU=${TimeStep} #indicated in script flood_td*.sh
+   TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
 #  ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
   ComputingTime=$( python_calc " float ( ( 10./5. * ( 4*${lambda1}/299792458.0 +  ${tau1}) ) ) " ) #TODO: good for StH, but not for SinSquared or SinFourth
 #   tauRiseA=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
@@ -169,7 +171,7 @@ DefineParameters () {
 
   echo "Generating the folder name..."
   export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
-  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+  export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-dt${TimeStepAU}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -222,6 +224,8 @@ ReplaceInputFile () {
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
   sed -i.bak s/theta1_inp/${IncidenceAngle}/g inp
+  sed -i.bak s/TimeStepExternal/${TimeStepAU}/g inp
+
   if [ ${UseLinearResponse} == 1 ]; then
 echo "# Linear response probing" >> inp
 echo "%GaugeVectorField #useful for probing" >> inp
@@ -326,6 +330,8 @@ SubmitTheJob () {
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript}
   sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
+  sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 
   # Start the run
   if [ ${DryRun} == 0 ]; then
