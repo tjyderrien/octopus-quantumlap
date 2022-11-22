@@ -1,9 +1,10 @@
 #!/bin/bash
 
-set -e
+# set -e
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "Massive job submitter for QuantumLaP."
 echo "WARNING: 1 job ~ 19,200 core-hours per job."
@@ -19,17 +20,17 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.12" #0.15 0.18 0.21 0.23 angstroms #0.23 angstroms, octopus-recommended value
+MeshSizeX_SI="0.12" #0.15 0.18 0.21 0.23 angstroms #0.23 angstroms, octopus-recommended value. Converged using energy: 0.12.
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 NumNodes=4
-Mission="SiO2-dipole"
+Mission="SiO2-GS-conv"
 SampleLayers="1"
 SampleXY="1"
-kPoints="4" # 16" # 12 16 20 24"
+kPoints="4 8" # 16" # 20 24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #PBE: gap=6.03 eV. #LDA does not contain 'O' specy!! Use PBE.". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
