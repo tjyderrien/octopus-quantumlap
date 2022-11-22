@@ -3,31 +3,22 @@ set -e
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
+LoadEnvLibraries
 
 echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
 
-echo "Description: Massive job submitter for QuantumLaP."
-echo "WARNING:     1 job ~ 19,200 core-hours per job."
-echo " ** HANDLE WITH CARE. ** "
-echo ""
-echo "Usage: ./flood.sh"
-echo "** This file uses run_td.sh."
-echo "** DRY-RUN: run_td.sh contains a dry-run for safety."
 
-echo "Note: In this file, you can define all laser pulses of the run you may like to submit."
-
-## ========= COMMON PARTS =============
 # Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
-MeshSizeX="0.10 0.12 0.14" #0.15 0.18 0.21 0.23" # 0.23" # 0.20" 0.15: very long...
+MeshSizeX="0.12" #0.14" #0.15 0.18 0.21 0.23" # 0.23" # 0.20" 0.15: very long...
 # MeshSizeZ=$MeshSizeX
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=8
+NumNodes=16
 
 # Sample
 SampleLayers=1
@@ -37,7 +28,7 @@ CrossPolarization=0 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
-Functional="PBE" #LDA: no O in pseudodojo! PBE: careful with timestep.
+Functional="TB09" #LDA: no O in pseudodojo! PBE: careful with timestep.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
 
 ### MISSION #####
@@ -45,7 +36,7 @@ FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp.
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="SiO2-PBE-TD"
+Mission="SiO2-TB09-TD"
 
 
 # Phase
@@ -82,15 +73,16 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="5E10 1E11 5E11"
 # Efield1="5E8" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
-Efield1="1E11"
+
+Efield1="1E10"
 # Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11"
 Efield2="0E0"
 
 
 # Pulse duration
-tau1="20E-15" # 20e-15 30E-15 10E-15"
+tau1="10E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="20E-15"
+tau2="10E-15"
 
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"

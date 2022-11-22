@@ -133,11 +133,12 @@ BuildSample () {
 }
 
 SubmitTheJob () {
-  echo "== Copying the file in the submission folder... =="
-  echo "Source: ${QuantumLaPsources}."
-  echo "Target: ${localPath}."
+  echo "== Copying the submission file in the submission folder... =="
+  echo "Source: ${QuantumLaPsources}"
+  echo "Target: ${localPath}"
+  echo "Submission script: ${SubmitScript}"
 
-  cp -u inp ${localPath}/
+  cp inp ${localPath}/
   cp ${QuantumLaPsources}/14-SiO2/${SubmitScript} ${localPath}/
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 

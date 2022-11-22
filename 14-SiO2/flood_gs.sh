@@ -30,7 +30,7 @@ NumNodes=4
 Mission="SiO2-GS-conv"
 SampleLayers="1"
 SampleXY="1"
-kPoints="4 8" # 16" # 20 24"
+kPoints="8" # 16" # 20 24"
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #PBE: gap=6.03 eV. #LDA does not contain 'O' specy!! Use PBE.". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
