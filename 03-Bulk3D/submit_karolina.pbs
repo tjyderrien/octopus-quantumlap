@@ -1,12 +1,12 @@
 #!/bin/bash
-#PBS -q qfree
+#PBS -q qprod
 #PBS -N Mission
 #PBS -m ae -M derrien@fzu.cz
 #PBS -e Morille.err
 #PBS -o Morille.log
 #PBS -A OPEN-26-39
 #PBS -l select=NumNodes:ncpus=128:mpiprocs=128:ompthreads=1
-#PBS -l walltime=2:00:00
+#PBS -l walltime=48:00:00
 
 cd $PBS_O_WORKDIR
 
@@ -34,7 +34,7 @@ LoadOctopusKarolinaIntel
 # RunningTrunc=/scratch/tjyderri/octopus-svn-15067/src/main
 
 # JUST TO EXECUTE ONE RUN
-MPIIOtrunc=/home/${LOGNAME}/.local/easybuild/build/Octopus/parallel_restart/intel-2020b-mpi/src
+MPIIOtrunc=/home/${LOGNAME}/.local/easybuild/software/Octopus/parallel_restart-intel-2020b-mpi/bin/
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # srun /u/tjyderri/octopus.git/bin/octopus &> octopus-td.$SLURM_JOB_ID.log
 # sleep 5
