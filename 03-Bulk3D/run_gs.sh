@@ -75,7 +75,9 @@ ProcessArguments () { # Conversion factors
 
 #  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
 
-  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
+  # export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}" #WithSmearing
+
+  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}" #No Smearing
 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
@@ -162,6 +164,7 @@ SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
   echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
 
   cp -u inp ${localPath}/ #just update if file was not found, or is older.
   # cp ${QuantumLaPsources}/03-Bulk3D/Si.xyz ${localPath}/ #no longer needed, as it is included in input file
@@ -169,7 +172,8 @@ SubmitTheJob () {
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
 ## TODO: this region is machine dependent
-  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript} 
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
+  sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 ## 
 
   if [ ${DryRun} == 0 ]; then
