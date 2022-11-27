@@ -84,7 +84,7 @@ do
       # Prepare the ground state
       # Propagate the pulse in time!
       echo "** SUBMITTING JOB with: SampleLayers=${iSampleLayers} SampleXY=${iSampleXY}" 
-      $QuantumLaPsources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${iSmearingTe} ${ExtraStates} ${iAngleIncidence}
+      $QuantumLaPsources/03-Bulk3D/run_gs.sh ${iSampleLayers} ${iSampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${ikPoints} ${InitialTemperature} ${TheoryLevel} ${Functional} ${Mission} ${NumNodes} ${EnableSmearing} ${iSmearingTe} ${ExtraStates} ${iAngleIncidence}
  #    done
     done
    done

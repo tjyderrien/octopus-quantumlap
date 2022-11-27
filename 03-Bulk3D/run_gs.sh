@@ -165,7 +165,7 @@ BuildSample () {
   fi
 
   if [ ${EnableSmearing} == 1  ]; then
-     echo "Smearing = $SmearingTe * eV" >> inp
+     echo "Smearing = ${SmearingTe} * eV" >> inp
      echo "SmearingFunction = fermi_dirac" >> inp
      echo "ExtraStates = ${ExtraStates}" >> inp
   fi

@@ -31,7 +31,7 @@ UseLinearResponse="0"
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="TB09" #LDA defines 'lda_x + lda_c_pz_mod'. TB09 defines "mgga_x_tb09 + lda_c_pw". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
-
+TimeStep=0.25
 echo "** Info: defining the pulse shape"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
@@ -82,7 +82,9 @@ tau2="2.7960526315789472e-14" #tau=25 fs with TB09 band gap renormalized to 3.4 
 
 AngleIncidence_list="0" #0.25" # 0" 
 # SmearingTe="2 5 10 20" #1 (done)
-SmearingTe="" #1.09 3.06" #"0.025 0.05 0.1 0.5" WE NEED TO FIND A WAY TO DISABLE THIS
+EnableSmearing=0
+ExtraStates=0
+SmearingTe="0" #1.09 3.06" #"0.025 0.05 0.1 0.5" WE NEED TO FIND A WAY TO DISABLE THIS
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 
 # AngleIncidence_list="0" # 0.25" 
@@ -98,6 +100,9 @@ CEP1="0.25"
 # CEP1="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
 CEP2="0.0"
 
+if [ ${EnableSmearing} == 0 ]; then
+  SmearingTe="0"
+fi
 
 echo "** Info: laser parameters have been defined. Running. "
 for iSmearingTe in ${SmearingTe};
@@ -144,7 +149,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${iSmearingTe}
+             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${EnableSmearing} ${iSmearingTe} ${ExtraStates} ${TimeStep}
 #           done
           done
           done

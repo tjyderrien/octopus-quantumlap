@@ -26,6 +26,7 @@ SampleXY=1
 InitialTemperature="0e0"
 CrossPolarization=0 #1
 
+TimeStep=0.25
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="0"
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
@@ -81,6 +82,7 @@ AngleIncidence_list="0" #0.25" # 0"
 # SmearingTe="2 5 10 20" #1 (done)
 EnableSmearing=0
 SmearingTe="1.09 3.06" #"0.025 0.05 0.1 0.5"
+ExtraStates=0
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 
 # AngleIncidence_list="0" # 0.25" 
@@ -145,7 +147,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
 #             echo "Submitting..." 
-             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${EnableSmearing} ${iSmearingTe} ${TimeStep}
+             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${EnableSmearing} ${iSmearingTe} ${ExtraStates} ${TimeStep}
 #           done
           done
           done
