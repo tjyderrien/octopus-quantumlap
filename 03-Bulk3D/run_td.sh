@@ -355,6 +355,6 @@ print_usage
 DefineParameters
 ReplaceInputFile #this is performed in the common directory!
 # BuildSample #also performed in directory
-ReplaceInputFile 
+#ReplaceInputFile
 SubmitTheJob #then the file are move in the directory where calculation will be performed. 
 
