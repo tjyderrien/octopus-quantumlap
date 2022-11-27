@@ -155,7 +155,7 @@ KPointsUseSymmetries = yes
 #  1 | 0 | 0
 # %
 
-ExtraStates = 0 #0 #16 is enough for band structure.
+ExtraStates = 4 #0 #16 is enough for band structure.
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
