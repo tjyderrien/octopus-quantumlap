@@ -4,7 +4,7 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-# FromScratch = yes
+FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
 # UnitsXYZFiles = Angstrom
 # Debug = trace
@@ -67,8 +67,8 @@ BoxShape = parallelepiped
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
-ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
-# smearing = 0.0002
+# ExtraStates = 8 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
+# Smearing = SmearingTe * eV
 # SmearingFunction=fermi_dirac
 
 # == THis is for ground state

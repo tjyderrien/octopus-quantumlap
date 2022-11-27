@@ -137,12 +137,16 @@ BuildSample () {
 }
 
 SubmitTheJob () {
+
   echo "== Copying the file in the submission folder... =="
   echo "Source: ${QuantumLaPruns}."
+  echo "Source: ${QuantumLaPsources}"
   echo "Target: ${localPath}."
+  echo "Submission script: ${SubmitScript}"
 
   cp -u inp ${localPath}/ #just update if file was not found, or is older.
   # cp ${QuantumLaPsources}/03-Bulk3D/Si.xyz ${localPath}/ #no longer needed, as it is included in input file
+
   cp ${QuantumLaPsources}/14-SiO2/${SubmitScript} ${localPath}/
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 

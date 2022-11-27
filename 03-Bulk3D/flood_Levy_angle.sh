@@ -65,6 +65,8 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 PulseShape="SinSquared"
 RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 TimeStep="0.25" #atomic unit is usually fine
+EnableSmearing=0
+SmearingTe="0"
 
 # lambda1="2237e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
 # lambda1="2656e-9" #normalized (2000 nm, TB09) 
@@ -108,6 +110,12 @@ CEP1="0.0"
 
 echo "** Info: laser parameters have been defined. Running. "
 
+if  [ ${EnableSmearing} == 0 ]; then
+  SmearingTe="0"
+fi
+
+for iSmearingTe in ${SmearingTe}; 
+do
 for iAngleIncidence in ${AngleIncidence_list};
 do
 for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
@@ -150,7 +158,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
              echo "Submitting..." 
-             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${TimeStep}
+             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${EnableSmearing} ${SmearingTe} ${TimeStep}
 #           done
           done
 #          done
@@ -169,4 +177,4 @@ done
 done
 done
 done
-
+done
