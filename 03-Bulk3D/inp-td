@@ -67,9 +67,9 @@ BoxShape = parallelepiped
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
-ExtraStates = 8 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
-Smearing = SmearingTe * eV
-SmearingFunction=fermi_dirac
+# ExtraStates = 8 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
+# Smearing = SmearingTe * eV
+# SmearingFunction=fermi_dirac
 
 # == THis is for ground state
 # MaximumIter=1000

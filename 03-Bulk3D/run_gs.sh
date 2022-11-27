@@ -30,8 +30,10 @@ TheoryLevel=$7
 Functional=$8
 Mission=$9
 NumNodes=${10}
-SmearingTe=${11}
-AngleIncidence=${12}
+EnableSmearing=${11}
+SmearingTe=${12}
+ExtraStates=${13}
+AngleIncidence=${14}
 
 
 python_calc () {
@@ -75,9 +77,13 @@ ProcessArguments () { # Conversion factors
 
 #  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
 
-  # export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}" #WithSmearing
+if [ ${EnableSmearing} == 1 ];
+  then
+    export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}" #WithSmearing
 
-  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}" #No Smearing
+  else 
+    export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}" #No Smearing
+fi
 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
@@ -148,7 +154,7 @@ BuildSample () {
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
   sed -i.bak s/theta1_inp/${AngleIncidence}/g inp
-  sed -i.bak s/SmearingTe/${SmearingTe}/g inp
+#  sed -i.bak s/SmearingTe/${SmearingTe}/g inp #Now managed through EnableSmearing first
 
 
   if [ ${TheoryLevel} == "independent_particles" ]; then 
@@ -157,6 +163,13 @@ BuildSample () {
         echo "TheoryLevel = independent_particles" >> inp
 #        echo "TDFreezeHxc=yes" >> inp #THIS LEAD TO NEVER CONVERGE THE GS. 
   fi
+
+  if [ ${EnableSmearing} == 1  ]; then
+     echo "Smearing = $SmearingTe * eV" >> inp
+     echo "SmearingFunction = fermi_dirac" >> inp
+     echo "ExtraStates = ${ExtraStates}" >> inp
+  fi
+   
 
 }
 
