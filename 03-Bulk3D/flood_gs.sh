@@ -39,13 +39,15 @@ SampleXY="1"
 kPoints="40" # 16"
 # kPoints="24" # 16"
 
-InitialTemperature="0" #Ineffective
-SmearingTe="0.025 1 2 5 10 20" #0.025 eV
+InitialTemperature="0e0" #Warning: use notation 0e0! Ineffective, but important for the path. 
+# SmearingTe="1 2 5 10 20" #0.025 eV
+SmearingTe="1.09 3.06" #0.025 0.05 0.1 0.5 #Indirect gap TB09: 1.04 eV. Direct gap is 3.06 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="TB09" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
-AngleIncidence_list="0" # 0.25" #"0.05 0.10 0.15 0.20 0.25"
+AngleIncidence_list="0 0.25" #"0.05 0.10 0.15 0.20 0.25"
+# AngleIncidence_list="0.05 0.10 0.15 0.20"
 
 # AngleIncidence_list="0.14 0.16 0.18 0.22 0.24" #"0.05 0.10 0.15 0.20 0.25"  #0.05
 
