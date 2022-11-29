@@ -77,8 +77,8 @@ ell = 0. #ellipticity
 
 ExtraStates = 0
 
-Smearing = SmearingTe*eV #eV
-SmearingFunction=fermi_dirac
+# Smearing = SmearingTe*eV #eV
+# SmearingFunction=fermi_dirac
 
 # LCAOstart = lcao_simple #self-consistent starter
 
