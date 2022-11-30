@@ -1,44 +1,31 @@
 #!gnuplot
-
 reset
-set terminal x11
-set output
+path="static/total-dos.dat"
 
-set xrange [-10:25]
+set terminal postscript eps enhanced color font "Helvetica, 24"
+set output 'DOS-EffectOfTe.eps'
 
-Material="Au" #Mo|Au
-#PathToFiles="/home/tjyderrien/octopus_slabs/06-Mo/"
-PathToFiles="/home/tjyderrien/octopus_slabs/09-Au/"
+eV=27.21138602
+FermiLevel=system("tail -n1 Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/static/total-dos-efermi.dat | awk '{ print $1 }' | tr '\' ' '")
+kb=1.38E-23; ec=1.6e-19
+print "Fermi Level [eV] = "
+print FermiLevel*eV
 
-H_to_eV=27.21138602 #1 Hartree -> eV
+set xlabel 'Electron energy (eV)'
+set ylabel 'DOS (arb. u.)'
+set y2label 'Distribution'
+set ytics nomirror
+set y2tics nomirror
 
-Zhigilei=PathToFiles."DOS_".Material.".dat"
-localDos="static/total-dos.dat"
-Dorchies=PathToFiles."Dorchies2015-Fig1-Mo.csv"
-Nechaev=PathToFiles."Nechaev-Fig1-Mo.csv"
+FermiDirac(x,y,Te)=1./(1.+exp((x-y)/(kb*Te/ec)))
 
-## Finding latest LOG file automatically
+p "Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/".path u ($1*eV):2 w l t '0.05 eV' ls 1 lc 1 axis x1y1, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,0.05)) w l t '0.05 eV' ls 1 lc 1 axis x1y2, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te1.09eV-TB09/".path u ($1*eV):2 w l t '1.09 eV' ls 2 lc 2 axis x1y1, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te1.09eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,1.09)) w l t '1.09 eV' ls 2 lc 2 axis x1y2
 
-localEFfile=system("ls -tr *octopus*.log -1 | tail -n1")
-print "Latest LOG file: ".localEFfile
-localEF=system("grep 'Fermi' ".localEFfile." | tail -n1 | awk '{ print $4 }'") #0.452100 #Ha with LDA. 
-print "Fermi energy: ".localEF." H"
+# "Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te3.06eV-TB09/".path u ($1*eV):2 w l t '3.06 eV' lt 3 lc 3 axis x1y1, \
+# FermiDirac($1*eV,FermiLevel1,3.06) w l lt 3 lc 3 axis x1y2
 
-set xlabel 'Energy (eV)'
 
-set key top left 
 
-# set ytics  nomirror
-# set y2tics nomirror
-coeff=1./2.5/4./1.5
-
-unset log y
-
-p Zhigilei  u 1:2 w l t 'Lin and Zighilei (2007)' lc 1 lw 3, \
-  localDos  u (($1-localEF)*H_to_eV):($2*coeff) w l t 'This work' axis x1y1 lt 3 lc 2 lw 3, \
-  Nechaev u ($1):2 w l t 'Nechaev (2007)' axis x1y1 lc 4 lw 3
-
-set output 'DOS.eps'
-set terminal postscript eps enhanced color font 'Helvetica, 22'
-
-replot
