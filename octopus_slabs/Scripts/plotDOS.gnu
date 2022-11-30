@@ -20,12 +20,11 @@ set y2tics nomirror
 FermiDirac(x,y,Te)=1./(1.+exp((x-y)/(kb*Te/ec)))
 
 p "Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/".path u ($1*eV):2 w l t '0.05 eV' ls 1 lc 1 axis x1y1, \
-"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,0.05)) w l t '0.05 eV' ls 1 lc 1 axis x1y2, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te0.05eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,0.05)) w l notitle ls 1 lc 1 axis x1y2, \
 "Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te1.09eV-TB09/".path u ($1*eV):2 w l t '1.09 eV' ls 2 lc 2 axis x1y1, \
-"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te1.09eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,1.09)) w l t '1.09 eV' ls 2 lc 2 axis x1y2
-
-# "Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te3.06eV-TB09/".path u ($1*eV):2 w l t '3.06 eV' lt 3 lc 3 axis x1y1, \
-# FermiDirac($1*eV,FermiLevel1,3.06) w l lt 3 lc 3 axis x1y2
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te1.09eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,1.09)) w l notitle ls 2 lc 2 axis x1y2, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te3.06eV-TB09/".path u ($1*eV):2 w l t '3.06 eV' ls 3 lc 3 axis x1y1, \
+"Si-1x1x1-k-24x24x1-Angle0-Mesh0.4346370088553005-Mesh0.4346370088553005-T0e0-Te3.06eV-TB09/".path u ($1*eV):(FermiDirac($1*eV,FermiLevel*eV,3.06)) w l notitle ls 3 lc 3 axis x1y2
 
 
 
