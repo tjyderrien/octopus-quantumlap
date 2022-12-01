@@ -353,7 +353,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     # EnableStarkEffect =False #Stark effect on tunneling? Disabled in original Keldysh, Gruzdev and Kaiser theories. Now that we know Stark is included in Keldysh, it does not make sense to enable it for tunneling limit case (Stark ionization potential is time-average of the dynamically triggered electron motion).
     PlotSaturation    =False
     ShowPulseDurations=True #True #: show the pulse duration in caption. False: hides it (for saving visual space)
-    WithOpticalIndex  =True #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
+    WithOpticalIndex  =False  #True for solids. False for atomic Keldysh. #NOTE: this curious feature may originate from the usage of atomic units in the effective mass approximation (just an hypothesis).
     SidePanels        =True #True: [a] | [b]. False: a above b. 
     ShowSigmaRates    = 2 #Cosmetics: 0: remove all fittings, 1: show n=..., 2: show sigma values
     EnableInsetMagnification=False #this is defined as function of wavelength below
@@ -429,6 +429,16 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         #EnableInsetMagnification=False
+    if (pulseWavelength == 1030e-9):  # NOTE: enable if you wish to remove 20 fs results for 1600 nm.
+        # PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        try:
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15,
+                                                                         IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 21e-15,
+                                                                         IndexTable['pulses1'])
+        except:
+            logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
+            os._exit(1)
     if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
         #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
         try:
@@ -475,9 +485,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     ax1 = plt.subplot(plotA)
 
     plot1 = []
-    Symbols={10e-15: '+', 10.674e-15: '+', 20e-15: 'o', 30e-15: '^'}
-    Colors={10e-15: 'g', 10.674e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
-    LineWidth={10e-15: '10.', 10.674e-15: '10.', 20e-15: '0.1', 30e-15: '2.'}
+    Symbols={10e-15: '+',      1.03071305416229e-14: '+', 10.674e-15: '+', 20e-15: 'o', 30e-15: '^'}
+    Colors={10e-15: 'g',       1.03071305416229e-14: 'g', 10.674e-15: 'g', 20e-15: 'r', 30e-15: 'b'}
+    LineWidth={10e-15: '10.',  1.03071305416229e-14: '10.', 10.674e-15: '10.', 20e-15: '0.1', 30e-15: '2.'}
 
     linestyle_tuple = {
         'solid':                (0, ()),
@@ -970,7 +980,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     ThreePhotonIntensityRegime_min=3.39E15; ThreePhotonIntensityRegime_max  = 5.29E15
                     TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
                     OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
-                if(pulse_value==20e-15):
+                elif(pulse_value==20e-15):
                     SevenPhotonIntensityRegime_min  = 0e0;  SevenPhotonIntensityRegime_max  = 0E0
                     SixPhotonIntensityRegime_min  = 0e0;    SixPhotonIntensityRegime_max  = 0E0
                     FivePhotonIntensityRegime_min = 0e0;    FivePhotonIntensityRegime_max  = 0E0
@@ -986,7 +996,58 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     ThreePhotonIntensityRegime_min  = 0e0;  ThreePhotonIntensityRegime_max  = 0e0
                     TwoPhotonIntensityRegime_min = 1.4E15;  TwoPhotonIntensityRegime_max = 3.2E16
                     OnePhotonIntensityRegime_min = 3.2E16;  OnePhotonIntensityRegime_max = 1.6E17
-
+            elif (pulseWavelength == 1030e-9):
+                if (pulse_value == 30e-15):
+                    SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max = 0E0
+                    SixPhotonIntensityRegime_min = 0e0; SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 0e0; FivePhotonIntensityRegime_max = 0E0
+                    FourPhotonIntensityRegime_min = 0e0; FourPhotonIntensityRegime_max = 0e0  # W/m2
+                    ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0  # W/m2
+                    TwoPhotonIntensityRegime_min = np.power(10e0,13.12293944); TwoPhotonIntensityRegime_max = np.power(10e0,16.02420264) #2
+                    OnePhotonIntensityRegime_min = np.power(10e0,16.02420264); OnePhotonIntensityRegime_max = np.power(10e0,17.33862237) #1
+                    # TwoPhotonIntensityRegime_min = np.power(10e0, 16.02420264); TwoPhotonIntensityRegime_max = np.power(10e0, 17.33862237) #1
+                    # OnePhotonIntensityRegime_min = np.power(10e0,17.33862237); OnePhotonIntensityRegime_max = np.power(10e0,19.031422446) #0
+                elif (pulse_value == 20e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;
+                    SevenPhotonIntensityRegime_max = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;
+                    SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;
+                    FivePhotonIntensityRegime_max = 0E0
+                    FourPhotonIntensityRegime_min = 0e0; FourPhotonIntensityRegime_max = 0e0  # W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;
+                    ThreePhotonIntensityRegime_max = 0e0  # W/m2
+                    TwoPhotonIntensityRegime_min = np.power(10e0, 13.12293944);
+                    TwoPhotonIntensityRegime_max = np.power(10e0, 16.02420264)  # 2
+                    OnePhotonIntensityRegime_min = np.power(10e0, 16.02420264);
+                    OnePhotonIntensityRegime_max = np.power(10e0, 17.33862237)  # 1
+                    # TwoPhotonIntensityRegime_min = np.power(10e0, 16.02420264); TwoPhotonIntensityRegime_max = np.power(10e0, 17.33862237) #1
+                elif(pulse_value==10e-15):
+                    SevenPhotonIntensityRegime_min = 0e0;
+                    SevenPhotonIntensityRegime_max = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;
+                    SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;
+                    FivePhotonIntensityRegime_max = 0E0
+                    FourPhotonIntensityRegime_min = 0e0; FourPhotonIntensityRegime_max = 0e0  # W/m2
+                    ThreePhotonIntensityRegime_min = 0e0;
+                    ThreePhotonIntensityRegime_max = 0e0  # W/m2
+                    TwoPhotonIntensityRegime_min = np.power(10e0, 13.12293944);
+                    TwoPhotonIntensityRegime_max = np.power(10e0, 16.02420264)  # 2
+                    OnePhotonIntensityRegime_min = np.power(10e0, 16.02420264);
+                    OnePhotonIntensityRegime_max = np.power(10e0, 17.33862237)  # 1
+                else:
+                    logger.warning("Branching to default case in LDA, 1030 nm")
+                    SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max = 0E0
+                    SixPhotonIntensityRegime_min = 0e0;   SixPhotonIntensityRegime_max = 0E0
+                    FivePhotonIntensityRegime_min = 0e0;  FivePhotonIntensityRegime_max = 0E0
+                    FourPhotonIntensityRegime_min = 0e0;  FourPhotonIntensityRegime_max = 0e0  # W/m2
+                    ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0  # W/m2
+                    TwoPhotonIntensityRegime_min = np.power(10e0, 15.12293944);     TwoPhotonIntensityRegime_max = np.power(10e0, 16.59865948)  # 2
+                    OnePhotonIntensityRegime_min = 0e0; OnePhotonIntensityRegime_max = 0e0;  # 1
+                    # TwoPhotonIntensityRegime_min = np.power(10e0, 15.1229);     TwoPhotonIntensityRegime_max = np.power(10e0, 15.80504902)  # 2
+                    # OnePhotonIntensityRegime_min = np.power(10e0, 15.80504902); OnePhotonIntensityRegime_max = np.power(10e0, 16.86325262)  # 1
+                    # TwoPhotonIntensityRegime_min = np.power(10e0, 16.02420264); TwoPhotonIntensityRegime_max = np.power(10e0, 17.33862237) #1
                 #TwoPhotonIntensityRegime_min = 3.4E15
                 #TwoPhotonIntensityRegime_max = 4.7E16 #W/m2
 
@@ -1165,7 +1226,15 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                     ThreePhotonIntensityRegime_min= 2.87E15; ThreePhotonIntensityRegime_max= 8.3E15 #W/m2
                     TwoPhotonIntensityRegime_min = 8.2E15;  TwoPhotonIntensityRegime_max = 3.4E16 #W/m2
                     OnePhotonIntensityRegime_min = 3.41E16;  OnePhotonIntensityRegime_max = 1.0E13*1E4 #7.3E16 #W/m2
-
+            elif (pulseWavelength==1030E-9):
+                logger.warning("Branching to 1030 nm case in TB09")
+                SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max = 0E0
+                SixPhotonIntensityRegime_min = 0e0;   SixPhotonIntensityRegime_max = 0E0
+                FivePhotonIntensityRegime_min = 0e0;  FivePhotonIntensityRegime_max = 0E0
+                FourPhotonIntensityRegime_min = 0e0;  FourPhotonIntensityRegime_max = 0e0  # W/m2
+                ThreePhotonIntensityRegime_min = 0e0; ThreePhotonIntensityRegime_max = 0e0  # W/m2
+                TwoPhotonIntensityRegime_min = np.power(10e0, 15.12293944);     TwoPhotonIntensityRegime_max = np.power(10e0, 16.59865948)  # 2
+                OnePhotonIntensityRegime_min = 0e0; OnePhotonIntensityRegime_max = 0e0;  # 1
                 #ListOfInterestingGammas = [0.10, 1.0, 10.]
             else:
                 SevenPhotonIntensityRegime_min = 0e0; SevenPhotonIntensityRegime_max  = 0E0
@@ -1384,6 +1453,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         EffectiveMassList=[meff_Waroquiers_LDA] #[0.05]
         #EffectiveMassList=[meff_Waroquiers_LDA, 1.] #, meff_Waroquiers_LDA]
         #EnableInsetMagnification=False
+    elif (pulseWavelength == 1030e-9):
+        EffectiveMassList = [meff_Waroquiers_LDA]
     elif(pulseWavelength==1600e-9):
         EffectiveMassList=[meff_Waroquiers_LDA]
         #EnableInsetMagnification=False
@@ -4673,7 +4744,7 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
 def plot_Zhukov_SingleColor_TB09(): #{{{                                            
     OpticalIndex={ #
         407.58e-9: 5.3705, 483e-9: 4.4028, 484e-9: 4.3964,
-        800e-9: 3.6924167231905, 1600e-9: 3.4826, 
+        800e-9: 3.6924167231905, 1030e-9: 3.61279196759238, 1600e-9: 3.4826,
         2200e-9: 3.4548, 2600e-9: 3.4457, 3200e-9: 3.43438589865999}                                            
     MoveIon=0
     Egap_SI = 3.04*e
@@ -4713,11 +4784,12 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
 
 #    for wavelength in [1600e-9]: #, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
 
-    for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
-      try:
+    # for wavelength in [3200e-9, 1600e-9, 800e-9, 407.58e-9]: #, 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+    for wavelength in [1030e-9]:  # , 1600e-9, 3200E-9]: #, 1600e-9, 800e-9]:
+      # try:
         plotEffectOfIntensity_PulseDuration(PlottingTable_filtered,  wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon, Functional="TB09")
-      except:
-        logger.warning(Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm.")
+      # except:
+      #  logger.warning(Header+"** Warning: no data could be found, or bug took place for "+str(wavelength*1E9)+" nm.")
     
     #plotEffectOfIntensity_PulseDuration(PlottingTable_filtered, wavelength, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, Egap_SI, Egap_SI_indirect, OpticalIndex[wavelength], MoveIon)
     
@@ -4940,15 +5012,14 @@ if(__name__=="__main__"):
         # plot_Zhukov_SingleColor_TB09()
         ## NOTE: this is fine for local usage
     #    exit()
-        if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
-            # since database construction now contains functionals. Better solution would be to detect the
-            # available functional, to map the gap and effective masses to a database.
-            # Is NOMAD capable to do that? And ASE?
-            logger.info("Detected TB09 computations for Si...")
-            plot_Zhukov_SingleColor_TB09()
-        else:
-            logger.info("Running LDA single-color Keldysh analyses...")
-            plot_Zhukov_SingleColor_LDA()
+        # if "TB09" in dirname: #WARNING: TODO: This criterion is no longer applicable,
+        # since database construction now contains functionals. Better solution would be to detect the
+        # available functional, to map the gap and effective masses to a database.
+        # Is NOMAD capable to do that? And ASE?
+        logger.info("Running LDA single-color Keldysh analyses...")
+        plot_Zhukov_SingleColor_LDA()
+        logger.info("Detected TB09 computations for Si...")
+        plot_Zhukov_SingleColor_TB09()
 
     elif "09-Au" in dirname: 
         logger.info((Header+"** Info: detected computations for Au..."))
