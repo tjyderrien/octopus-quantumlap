@@ -77,9 +77,9 @@ ell = 0. #ellipticity
   cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 %
 
-ExtraStates = 0
+# ExtraStates = 8 
 
-# smearing = 0.0002
+# Smearing = SmearingTe*eV #eV
 # SmearingFunction=fermi_dirac
 
 # LCAOstart = lcao_simple #self-consistent starter

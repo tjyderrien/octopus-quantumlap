@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q qprod
 #PBS -N Mission
-#PBS -m ae -M derrien@fzu.cz
+#PBS -m ae -M USER_EMAIL
 #PBS -e Morille.err
 #PBS -o Morille.log
 #PBS -A OPEN-20-5

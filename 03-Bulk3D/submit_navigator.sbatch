@@ -17,7 +17,7 @@
 # S BATCH --mem=122000
 # Email management
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=kristyna.gazdova@hilase.cz
+#SBATCH --mail-user=USER_EMAIL
 #
 # Wall clock limit:
 #SBATCH --time=48:00:00
@@ -34,12 +34,12 @@ LoadOctopusNavigatorModulesFortran2021
 # https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/Memory-registration-cache-feature-in-DAPL-gt-random-failure-in/td-p/1135455
 
 # Run the program:
-octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio/bin/octopus"
+# octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio/bin/octopus"
 
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log #AVOID THIS. mpirun works very well. 
 
 octopus_latest="/veracruz/home/p/${LOGNAME}/octopus.intel/bin/octopus"
-# octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio.July/bin/octopus"
+octopus_mpiio="/veracruz/home/p/${LOGNAME}/octopus.mpiio.July/bin/octopus"
 octopus_barbora="/veracruz/home/p/${LOGNAME}/octopus.barbora/bin/octopus"
 # srun $OCT_HOME/bin/octopus &> octopus-td.$SLURM_JOB_ID.log #AVOID THIS. mpirun works very well. 
 mpirun ${octopus_mpiio} &> octopus-td.${SLURM_JOB_ID}.log #priorities: srun, then mpirun

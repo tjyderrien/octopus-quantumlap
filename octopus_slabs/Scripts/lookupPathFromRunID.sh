@@ -3,15 +3,15 @@
 echo "From run ID, identify the path."
 echo "Usage: source <script>"
 echo "Declares functions to be used in the following sequence: "
-echo "1. FetchPathFromID ( filename )"
+echo "1. FetchPathFromID ( filename , depth(integer))"
 echo "2. PlotEachRun ( dirnames.tmp  ) "
 echo "3. Eventually disableProblematicRuns.sh <file>"
 
 # Returns folder name from runID
 FetchPathFromID() {
-for line in $( cat $1 )
+for line in $1
 do
-  PathOfTheRun=$( dirname $( export depth=4; find . -mindepth $depth -maxdepth $depth | grep $line | tail -n1 ) )
+  PathOfTheRun=$( dirname $( depth=$2; find . -mindepth $depth -maxdepth $depth | grep $line | tail -n1 ) )
   echo $PathOfTheRun
 done > dirnames.tmp && echo "List was generated in dirnames.tmp."
 }

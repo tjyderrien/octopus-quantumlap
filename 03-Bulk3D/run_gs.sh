@@ -16,7 +16,8 @@ source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 LoadEnvLibraries
 source $QuantumLaPsources/octopus_slabs/machines.env
-echo "[Checking] Variable basePath: $basePath"
+echo "[Checking] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Checking] Variable QuantumLaPruns: $QuantumLaPruns"
 
 # Renaming inputs
 SampleLayers=$1
@@ -29,7 +30,10 @@ TheoryLevel=$7
 Functional=$8
 Mission=$9
 NumNodes=${10}
-AngleIncidence=${11}
+EnableSmearing=${11}
+SmearingTe=${12}
+ExtraStates=${13}
+AngleIncidence=${14}
 
 
 python_calc () {
@@ -62,7 +66,7 @@ ProcessArguments () { # Conversion factors
       FunctionalPath=""
       ;;
     *)
-      echo "This functional was not planned. Modify run_td.sh."
+      echo "This functional was not planned. Modify run_gs|td.sh."
       exit 1
       ;;
   esac
@@ -71,9 +75,15 @@ ProcessArguments () { # Conversion factors
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
 
-#  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+#  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}"
 
-  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+if [ ${EnableSmearing} == 1 ];
+  then
+    export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}" #WithSmearing
+
+  else 
+    export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}" #No Smearing
+fi
 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
@@ -144,6 +154,8 @@ BuildSample () {
   sed -i.bak s/MeshSizeZ_AU/$MeshSizeZ_AU/g inp
   sed -i.bak s/kPointsValue/${kPoints}/g inp
   sed -i.bak s/theta1_inp/${AngleIncidence}/g inp
+#  sed -i.bak s/SmearingTe/${SmearingTe}/g inp #Now managed through EnableSmearing first
+
 
   if [ ${TheoryLevel} == "independent_particles" ]; then 
         echo "Theory level: independent particles was added to the input file."
@@ -152,12 +164,20 @@ BuildSample () {
 #        echo "TDFreezeHxc=yes" >> inp #THIS LEAD TO NEVER CONVERGE THE GS. 
   fi
 
+  if [ ${EnableSmearing} == 1  ]; then
+     echo "Smearing = ${SmearingTe} * eV" >> inp
+     echo "SmearingFunction = fermi_dirac" >> inp
+     echo "ExtraStates = ${ExtraStates}" >> inp
+  fi
+   
+
 }
 
 SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
   echo "Source: ${QuantumLaPruns}."
   echo "Target: ${localPath}."
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
 
   cp -u inp ${localPath}/ #just update if file was not found, or is older.
   # cp ${QuantumLaPsources}/03-Bulk3D/Si.xyz ${localPath}/ #no longer needed, as it is included in input file
@@ -165,7 +185,8 @@ SubmitTheJob () {
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
 ## TODO: this region is machine dependent
-  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript} 
+  sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
+  sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 ## 
 
   if [ ${DryRun} == 0 ]; then
