@@ -26,7 +26,7 @@ SampleXY=1
 InitialTemperature="0e0"
 CrossPolarization=0 #1
 
-TimeStep=0.25
+TimeStep="0.25"
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there. 
 UseLinearResponse="0"
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
