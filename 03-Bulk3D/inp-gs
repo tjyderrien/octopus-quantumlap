@@ -88,6 +88,13 @@ MaximumIter=200
 ### OUTPUTS
 Output = dos + density + potential + geometry + el_pressure # + matrix_elements + pol_density
 
+DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 25*eV
+
+DOSEnergyPoints = 10000
+DOSGamma = 0.02*eV #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
+
+
 ### GS matrix elements (useful for Floquet)
 # OutputMatrixElements=dipole # ks_multipoles # + momentum
 # OutputMEMultipoles = 0
