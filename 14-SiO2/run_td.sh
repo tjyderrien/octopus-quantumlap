@@ -6,11 +6,13 @@ set -e
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
 
-echo "[Checking] Variable basePath: $basePath"
+
+echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo ""
 echo "Python interpreter path:"
 which python
 source $QuantumLaPsources/Scripts/functions.sh
+
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!

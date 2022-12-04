@@ -51,9 +51,14 @@ git clone git@bitbucket.org:tjyderrien/spp_extended_theory.git.
 WARNING2: if you meet necessity of employing symbolic linking, write to developer! Solution for this is now understood.
 
 # Versioning information
-Versioning strategy is as follows. 
+Currently, versioning strategy is as follows. 
 1. Each new format/structure of database is a major change, and therefore defines a new version v0.1, v0.2, etc.
 2. New feature or retro-active modification of the code is a minor change, and defines a sub-version v0.1.2, etc.
+
+In future, a big change must be implemented as follows: 
+1. Database versioning by number of columns will disappear thanks to change to Pandas. 
+2. Separate versioning of post-treatment (with transfer and contribution to postopus) and of massive submission (which will stay octopus-slabs itself, still based on Bash). 
+
 
 # Databases
 

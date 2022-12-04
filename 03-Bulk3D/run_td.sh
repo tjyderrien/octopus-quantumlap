@@ -43,7 +43,10 @@ GaugeVectorFieldAmplitude=${24}
 GaugeFieldDelayValue=${25}
 UseLinearResponse=${26}
 IncidenceAngle=${27}
-TimeStep=${28}
+EnableSmearing=${28}
+SmearingTe=${29}
+ExtraStates=${30}
+TimeStep=${31}
 
 ProcessArguments () { # Conversion factors for sample
   Bohr2Angstrom=0.52917721067 #AngstromPerBohr
@@ -106,6 +109,7 @@ DefineParameters () {
 # NOTE: The envelope is saved into a 2-columns file that will be used by octopus tdf_from_file. 
 # NOTE: Units are in atomic units. 
 # NOTE: run_td.sh puts the result in a file named PulseA|PulseB.dat in the execution folder. 
+  which python
   python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau1} ${RiseCycle} ${Efield1} ${lambda1} ${CEP1} 0. ${ComputingTime} ${SinPower}
   mv Pulses.dat PulseA.dat
   python $QuantumLaPsources/octopus_slabs/Pulses/GeneratePulse.py ${tau2} ${RiseCycle} ${Efield2} ${lambda2} ${CEP2} ${delay} ${ComputingTime} ${SinPower}
@@ -170,8 +174,19 @@ DefineParameters () {
   esac
 
   echo "Generating the folder name..."
-  export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}
+
+if [ ${EnableSmearing} == 1 ]
+  then
+    export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
+
+  else
+    export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath} #NoSmearing
+fi
+
+  # export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+
   export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-dt${TimeStepAU}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
+
   if [ ! -d ${localPath} ]; then
 	mkdir -p ${localPath}
   fi
@@ -224,7 +239,9 @@ ReplaceInputFile () {
   sed -i.bak s/ReplaceMeGaugeField/${GaugeFieldValue}/g inp
   sed -i.bak s/ReplaceMeTheta/${CrossPolaAngle}/g inp
   sed -i.bak s/theta1_inp/${IncidenceAngle}/g inp
+#  sed -i.bak s/SmearingTe/${SmearingTe}/g inp #It is managed through EnableSmearing variable
   sed -i.bak s/TimeStepExternal/${TimeStepAU}/g inp
+
 
   if [ ${UseLinearResponse} == 1 ]; then
 echo "# Linear response probing" >> inp
@@ -235,7 +252,6 @@ echo "GaugeFieldDelaySI = GaugeFieldDelayValue" >> inp
 echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
     sed -i.bak s/GaugeVectorFieldAmplitude/${GaugeVectorFieldAmplitude}/g inp #THIS GENERATES HUGE BUG if used for usual TD propagation
     sed -i.bak s/GaugeFieldDelayValue/${GaugeFieldDelayValue}/g inp
-
   fi
 
   if [ ${MoveIons} == 1 ]; then
@@ -263,6 +279,12 @@ echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
 
   if [ ${Functional} == "LDA" ]; then
     echo "XCFunctional = lda_x + lda_c_pz_mod" >> inp 
+  fi
+
+  if [ ${EnableSmearing} == "1" ]; then
+    echo "Smearing = $SmearingTe * eV" >> inp
+    echo "SmearingFunction = fermi_dirac" >> inp
+    echo "ExtraStates = ${ExtraStates}" >> inp
   fi
   # cd - >& /dev/null
 

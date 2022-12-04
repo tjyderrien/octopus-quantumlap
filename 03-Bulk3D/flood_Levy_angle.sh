@@ -65,6 +65,9 @@ GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
 PulseShape="SinSquared"
 RiseCycle="2" # SYMBOLIC, it is for STH pulses, not SinSquared
 TimeStep="0.25" #atomic unit is usually fine
+EnableSmearing=0
+SmearingTe="0"
+ExtraStates=0
 
 # lambda1="2237e-9" #not normalized (LDA for 2 um: 2656 nm. TB09 for 2 um: 2237 nm 
 # lambda1="2656e-9" #normalized (2000 nm, TB09) 
@@ -76,7 +79,7 @@ lambda2="400e-9" #detuned 2.18: 1422e-9
 
 ## Field amplitude
 #Efield1="1.73E9" # this is field/n # 6.07E9 this is experimental field. 
-Efield1="2E9 3E9 4E9 5E9" 
+Efield1="3E9 4E9 5E9"  #2E9
 Efield2="0E0" #"9e9"
 
 ## Pulse duration
@@ -96,7 +99,7 @@ tau2="30e-15"
 # AngleIncidence_list="0.14 0.16 0.18 0.22 0.24"  #"0.02 0.04 0.06 0.08 0.12" #0.14 0.16 0.18 0.22 0.24"
 
 # Angles to explore for finding transition field: 0, 22.5 deg, 45 deg, 67.5 deg, 90 deg. In the list below, pi is implicit. 
-AngleIncidence_list="0 0.125 0.25 0.375 0.5"
+AngleIncidence_list="0" #"0.125 0.25 0.375 0.50"
 # AngleIncidence_list="0.35 0.40 0.45 0.50"
 # AngleIncidence_list="0.12"
 # AngleIncidence_list="0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
@@ -110,6 +113,13 @@ CEP1="0.0"
 
 echo "** Info: laser parameters have been defined. Running. "
 
+if  [ ${EnableSmearing} == 0 ]; then
+  SmearingTe="0"
+  ExtraStates=0
+fi
+
+for iSmearingTe in ${SmearingTe}; 
+do
 for iAngleIncidence in ${AngleIncidence_list};
 do
 for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
@@ -152,7 +162,7 @@ do
 	    # Prepare the ground state
             # Propagate the pulse in time!
              echo "Submitting..." 
-             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${TimeStep}
+             $OctopusSlabsSources/03-Bulk3D/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} ${UseLinearResponse} ${iAngleIncidence} ${EnableSmearing} ${SmearingTe} ${ExtraStates} ${TimeStep}
 #           done
           done
 #          done
@@ -171,4 +181,4 @@ done
 done
 done
 done
-
+done
