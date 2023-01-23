@@ -41,8 +41,8 @@ do
             if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
-		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
-# 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+#		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
+ 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
             fi
         fi
 	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then
@@ -55,11 +55,16 @@ do
                 else
                 echo "** Plotting laser.tmp..."
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
+
                 echo "** Plotting polarization orientation..."
                 gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
                 fi
             fi
 	fi
+        if [ ! -e Field.eps ]; then
+                echo "** Plotting electric field from vector potential..."
+                ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensityField.py        
+        fi
 	if [ -e energy ]; then
            if [ ! -e Energy.eps ] || [[ -n $RecomputeitAll ]]; then
 		echo "** Plotting energy..."

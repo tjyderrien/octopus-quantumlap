@@ -38,6 +38,8 @@ BoxShape = parallelepiped
   m*a | m*a | m*a
 %
 
+# https://lampx.tugraz.at/~hadley/ss1/bzones/fcc.php. 
+# Lattice vectors a1 a2 are inverted here, compared to link. 
 %LatticeVectors
   0.0 | 0.5 | 0.5
   0.5 | 0.0 | 0.5

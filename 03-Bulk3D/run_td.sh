@@ -13,7 +13,7 @@ source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0 #cost: 3x runtime(MoveIons=no), and ForceZeroForce is not enabled!
-kPoints=40 # 8: convergence of density is fine, 24: convergence of currents is fine
+kPoints=24 # 8: convergence of density is fine, 24: convergence of currents is fine
 
 # Renaming inputs to replace into the INP file.
 SampleLayers=$1
@@ -180,7 +180,7 @@ if [ ${EnableSmearing} == 1 ]
     export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-Te${SmearingTe}eV${TheoryLevelPath}${FunctionalPath}
 
   else
-    export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}-${TheoryLevelPath}${FunctionalPath} #NoSmearing
+    export groundStatePath=${OctopusSlabsRuns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${IncidenceAngle}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath} #NoSmearing
 fi
 
   # export localPath=${groundStatePath}/"lambda"${lambda1}-"tau"${tau1}-"field"${Efield1}-"CEP"${CEP1}${IncidenceAngleText}${IncidenceAngle}-${PulseShape}-SinPower${SinPower}-${RiseCycle}${FreezeXCchain}${GaugeVectorFieldText}/"lambda"${lambda2}-"tau"${tau2}-"field"${Efield2}-"CEP"${CEP2}-"delay"${delay}-${PulseShape}${CrossPolarizationText}${GaugeFieldText}${MoveIonsChain}
@@ -352,7 +352,9 @@ SubmitTheJob () {
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript}
   sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
-  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
+  cd $QuantumLaPsources; 
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }' )
+  cd - > /dev/null
   sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 
   # Start the run

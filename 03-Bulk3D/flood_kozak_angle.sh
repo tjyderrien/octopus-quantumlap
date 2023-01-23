@@ -69,10 +69,10 @@ Efield2="0E0" #"9e9"
 ## Pulse duration
 # tau1="13.945e-15" #tau1=10 fs with LDA gap renormalized to exp. 3.4 eV gap at 0K. 
 # tau1="11.1842e-15" #tau1=10 fs with TB09 gap renormalized to exp. 3.4 eV at 0K.
-tau1="2.7960526315789472e-14" #tau=25 fs with TB09 band gap renormalized to 3.4 eV at 0K.
+# tau1="2.7960526315789472e-14" #tau=25 fs with TB09 band gap renormalized to 3.4 eV at 0K.
 
 # tau1="6.710526315789472e-15" #tau=6 fs, 750 nm, normalized to TB09
-# tau1="33.203125e-15" #tau1=25 fs with LDA gap renormalized to exp. 3.4 eV at 0K. 
+tau1="33.203125e-15" #tau1=25 fs with LDA gap renormalized to exp. 3.4 eV at 0K. 
 # tau1="66.40625e-15" #33.203125e-15" #tau1=25 fs with LDA gap renormalized to exp. 3.4 eV at 0K. 
 tau2="30e-15"
 
