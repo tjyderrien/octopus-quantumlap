@@ -227,7 +227,7 @@ tR = tauRise
   "FieldColorB-StH4" | tdf_from_file | "PulseB.dat"
 %
 
-TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = TimeStepExternal #0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
 TDPropagator = etrs #it was aetrs
 TDExponentialMethod = lanczos

@@ -82,7 +82,8 @@ Efield2="0E0" #"9e9"
 # tau1="13.945e-15" #10 fs LDA 2000 nm, we keep number of cycles constant compared to experiments, along with BG renormalization
 # tau1="6.710526315789472e-15" #normalized tau1=6 fs TB09
 # tau1="1.9921875e-14" #15 fs LDA 2000 nm.
-tau1="2.7960526315789472e-14" #tau=25 fs with TB09 band gap renormalized to 3.4 eV at 0K.
+# tau1="2.7960526315789472e-14" #tau=25 fs with TB09 band gap renormalized to 3.4 eV at 0K.
+tau1="33.203125e-15" #30 fs TB09 2000 nm
 tau2="30e-15"
 
 ## Angle of incidence [for computer cost reasons, we submit 1 ground state per angle, with symmetries. Doing 1 sample for N angles is too costly since symmetries are disabled.]
@@ -91,12 +92,14 @@ AngleIncidence_list="0" # 0.25"
 # AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
 # AngleIncidence_list="0.01 0.02 0.03 0.04 0.06 0.07 0.08 0.09 0.11 0.12 0.13 0.14 0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
 
-SmearingTe="1"
+SmearingTe="0"
 
 # Phase
 CEP2="0.0" #"-0.5 -0.25 0.0 0.25 0.5" #0.5 0.333333333 0.25 0.16666667 -0.5 -0.333333333 -0.25 -0.16666667" #will be multiplied by pi in script file
 # CEP1="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
-CEP1="-0.5 -0.45 -0.4 -0.35 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5"
+# CEP1="-0.5 -0.45 -0.4 -0.35 -0.3 -0.25 -0.2 -0.15 -0.1 -0.05 0 0.05 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5"
+CEP1="0.16 0.17 0.18 0.19 0.21 0.22 0.23 0.24"
+
 
 echo "** Info: laser parameters have been defined. Running. "
 for iSmearingTe in ${SmearingTe}

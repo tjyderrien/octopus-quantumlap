@@ -19,7 +19,10 @@ unset xtics
 # 1 2  3  4  5     6     7     ... 8 9 
 # ? kx ky kz band1 band2 band3 ....
 
-Fermi_Ha=system("grep 'Fermi' -i $( ls -htr1 ../*.log | tail -n1 ) | tail -n1 | awk '{ print $4 }'")
+# Fermi_Ha=system("grep 'Fermi' -i $( ls -htr1 ../*.log | tail -n1 ) | tail -n1 | awk '{ print $4 }'")
+path=system("pwd")
+print path
+Fermi_Ha=system("cat total-dos-efermi.dat  | tail -n1 | awk '{ print $1 }' | tr '\n' ' ' ")
 # Fermi_Ha=0e0
 print Fermi_Ha." Ha"
 FermiLevel=Fermi_Ha*HartreeToEv
