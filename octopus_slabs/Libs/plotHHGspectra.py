@@ -537,14 +537,14 @@ def PlotHHGsinglePulseWithOrientation(wavelength=2.65625e-6, Efield=3E9, tau=1.3
         numberoflevels = 30
         grad_precisionX = 10;
         grad_precisionY = 10;  # number of cells for interpolation for gradient computation
-        Egap = 2.56 * e
+        Egap = 3.04 * e
 
         filename = "HHGspectrumWithOrientation-wavelength" + str(int(wavelength * 1E9)) + "nm-Efield" + str(int(Efield))
         if(LogScale): 
                 filename += "LogScale"
 
         ## EXPORT to external file.
-        logger.info("** Info: Exporting to file " + filename + ".csv")
+        logger.info("** Info: Exporting spectrum to file " + filename + ".csv")
         libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename + ".csv")
 
         # plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
@@ -823,7 +823,7 @@ def KozakBicolor2023_batch_CEP(): #{{{
 #                                 MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
 #                                 RiseCycles=0, InducedFields=0) #HHG spectra
 
-    PlotHHGBicolorPulsewithCEP(wavelength1=2237e-9, Efield1=1.4E9, tau1=33.55e-15, CEP1=(0.21)*np.pi, #-0.375 0.21
+    PlotHHGBicolorPulsewithCEP(wavelength1=2237e-9, Efield1=1.4E9, tau1=33.55e-15, CEP1=(-0.375)*np.pi, #-0.375 0.21
                                    wavelength2=745.61e-9, Efield2=7E7,   tau2=33.55e-15,
                                    MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
                                    RiseCycles=0, InducedFields=0) #HHG spectra
@@ -835,7 +835,7 @@ def KozakOptica2022_batch_orientation(LogScale=False): #{{{
 
 ## HHG spectra computation as function of angle of incidence (Kozak, Derrien et al 2022).
 if(__name__=="__main__"):
-    LogScale=True
+    LogScale=False
     # KozakOptica2022_batch_orientation(LogScale=LogScale)
     # KozakOptica2022_batch_CEP() #no logscale possible here (we look at fluctuations)
     KozakBicolor2023_batch_CEP()
