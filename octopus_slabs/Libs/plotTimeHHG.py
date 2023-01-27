@@ -779,8 +779,14 @@ plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xlim([0,10]) #eV
 # plt.xticks(np.arange(1,30, step=2))
 
+## Exporting harmonics
 filename = "HHG-Spectrum"
 SampleArray=list(zip(*[Xaxis, Yaxis]))
+ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
+
+## Exporting current
+filename = "current-HHG-damped"
+SampleArray=list(zip(*[timeCurrent_pad, CurrentX_HHG, CurrentY_HHG, CurrentZ_HHG]))
 ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
 # ax4.set_xscale("log", nonposx='clip')
