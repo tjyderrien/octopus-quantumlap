@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RecomputeItAll="true" #if != "", we recompute all. If =="", we just look for new files. 
+RecomputeItAll="" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
 # module load git
@@ -221,7 +221,7 @@ plotBasicOutput #cleans up laser files also.
 echo "Plotting Excitation results..."
 # plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-# plotHHG         #Generate the CSV files with HHG spectra. 
+plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
