@@ -1285,6 +1285,66 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
         return PlottingSinglePulses
 #}}}
 
+#Selects single-color pulses, with same field amplitude from a database
+# @param Database: the array with all the data,
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterBicolorPulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration1, CEP1,
+                                                wavelength2, Efield2, pulseDuration2,
+                                                 PulseType=5, RiseTime=2, MoveIon=0, InducedFields=0): #{{{
+        PlottingBiColorPulses = Database  #get the full database
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield2 * 0.99,
+                                                                     IndexTable['Efield2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield2 * 1.01,
+                                                                   IndexTable['Efield2'])
+        logger.debug("Size after filtering Efield1,2" + str(np.shape(PlottingBiColorPulses)))
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength1, IndexTable['wavelengths1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength2, IndexTable['wavelengths2'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2" + str(np.shape(PlottingBiColorPulses)))
+        if(CEP1 >= 0.):
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                     IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                   IndexTable['CEP1'])
+        else:
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                          IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                        IndexTable['CEP1'])
+        # PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, CEP1,
+        #                                                   IndexTable['CEP1'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2 and CEP1"+str(np.shape(PlottingBiColorPulses)))
+        logger.debug("Values of CEP1: "+str(CEP1))
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. #TODO: management of cross polarization is PROBLEMATIC. See libPlotting.py:213 CrossPolarization_Angle issue.
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, InducedFields, IndexTable['FieldInduced'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, MoveIon, IndexTable['MoveIon'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, pulseDuration1, IndexTable['pulses1']) #keeps only pulses of selected duration in argument # NOT EFFICIENT
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration1*1.1, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration1*0.9, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration2 * 1.1,
+                                                                   IndexTable['pulses2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration2 * 0.9,
+                                                                     IndexTable['pulses2'])
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingBiColorPulses)
+        return PlottingBiColorPulses
+#}}}
+
+
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0
 # SinSquared is working and physical. 
