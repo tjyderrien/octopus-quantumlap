@@ -210,9 +210,9 @@ tR = tauRise
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
-TDPropagator = aetrs #it was aetrs
+TDPropagator = etrs #it was aetrs
 TDExponentialMethod = lanczos #Warning: etrs+lanczos warns on non-convegence.
-TDExpOrder = 16
+TDExpOrder = 32
 
 ###########
 #CurrentDensity = 1 #Default is 2. 1: Takes into account exchange correlation
@@ -240,7 +240,7 @@ TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
-RestartWrite = 0
+RestartWrite = 1
 OutputInterval = 10
 RestartWriteInterval = 500
 TDOutputComputeInterval = 10
