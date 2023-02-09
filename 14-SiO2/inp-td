@@ -210,7 +210,7 @@ tR = tauRise
 
 TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
-TDPropagator = etrs #it was aetrs
+# TDPropagator = etrs #This is automatically addded by run_td.sh. Dont touch. 
 TDExponentialMethod = lanczos #Warning: etrs+lanczos warns on non-convegence.
 TDExpOrder = 32
 
