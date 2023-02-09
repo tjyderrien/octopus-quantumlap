@@ -109,7 +109,8 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 #  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
-
+  ListOfProblematicRunsID=[]
+  ListOfDisabledRunsID=[]
   def GetMachineName(file):
       machinename_t = libString.LookUpStringInFile(file, "swim")
       logger.debug((Header + "** Debug: " + str(machinename_t)))
@@ -213,6 +214,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
     if(os.path.isfile(FolderName+"../DISABLED")):
         logger.warning((Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. "))
+        # ListOfDisabledRunsID.append([int(runid)])
         continue
 
     # Import the quantities from the subfolders
@@ -220,6 +222,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
       logger.warning((Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder: "+str(FolderName)))
+      # ListOfProblematicRunsID.append([int(runid)])
       continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters in the input file name
@@ -233,6 +236,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       int(runid)
     except:
       logger.warning((Header+"** Warning: JOB ID could not be captured. Jumping to next computation."))
+      ListOfProblematicRunsID.append([int(runid)])
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
@@ -612,6 +616,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         del Exchange_interp, Exchange_nonzero
     except: 
         logger.warning((Header+"** Warning: could not interpolate energy output."))
+        ListOfProblematicRunsID.append([int(runid)])
     
     # Normalizing the database energies
     
@@ -848,6 +853,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
             logger.warning((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
+            ListOfProblematicRunsID.append([int(runid)])
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
@@ -925,6 +931,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
+        ListOfProblematicRunsID.append([int(runid)])
     
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
@@ -1003,6 +1010,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         logger.warning((Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB."))
+        ListOfProblematicRunsID.append([int(runid)])
         continue
     
     if(FromScratch): #We construct a new database from scratch
@@ -1023,6 +1031,9 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
+
+    logger.warning("List of problematic runs IDs is: "+str(ListOfProblematicRunsID))
+    logger.warning("List of disabled    runs IDs is: " + str(ListOfDisabledRunsID))
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
