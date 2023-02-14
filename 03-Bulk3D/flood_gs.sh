@@ -28,7 +28,9 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 
-NumNodes=4
+
+# NumNodes=4
+NumNodes=1
 
 Mission="Si_GS_angle"
 
