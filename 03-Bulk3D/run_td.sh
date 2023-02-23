@@ -352,7 +352,9 @@ SubmitTheJob () {
   cp $QuantumLaPsources/03-Bulk3D/$SubmitScript ${localPath}/ && echo "Successfully copied SLURM script to destination."
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript}
   sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript}
-  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
+  cd $QuantumLaPsources; 
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }' )
+  cd - > /dev/null
   sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 
   # Start the run

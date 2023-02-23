@@ -5,14 +5,14 @@
 #PBS -e octopus-td.err
 #PBS -o octopus-td.log
 # # P B S -A OPEN-20-5
-# P B S -l select=NumNodes:ncpus=36:mpiprocs=36:ompthreads=1
-#PBS -l nodes=1:ppn=1
+# P B S -l select=NumNodes:ncpus=32:mpiprocs=32:ompthreads=1
+#PBS -l nodes=1:ppn=32
 #PBS -l walltime=2:00:00
 
 cd $PBS_O_WORKDIR
 
 source ${QuantumLaPsources}/octopus_slabs/modules.env
-LoadOctopusBarboraModulesFortran2021
+# LoadOctopusBarboraModulesFortran2021
 # LD_LIBRARY_PATH=/scratch/tjyderriien/nfft/3.2.4/lib:$LD_LIBRARY_PATH
 
 # module load octopus/5.0.0

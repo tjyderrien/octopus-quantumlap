@@ -736,6 +736,11 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax3.set_ylabel("DOS (arb. u.)")
     ax3.set_xlabel("Energy (eV)")
 
+    fig3 = plt.figure() #this will look at dipolar matrix elements.
+    ax4 = plt.subplot(111)
+    ex4.set_xlabel("k-point path")
+    ax4.set_ylabel(r"$(d_{i,j})_x$")
+
     # ax2.set_xlabel("k-point id")
 
     ## NOTE: if we assume that laser light only REMOVES some high-symmetry points from the ones of the space group, 
@@ -825,7 +830,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         # wavelength_SI = SelectedWavelengths
         epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI,
-                                                                        OpticalIndexFile)
+                                                                        OpticalIndexFile) #TODO: replace by Kubo-Greenwood?
         ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
         RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
         RefractiveIndex = RefractiveIndex_t #OpticalIndex[wavelength_SI]
