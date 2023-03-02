@@ -79,7 +79,7 @@ lambda2="400e-9" #detuned 2.18: 1422e-9
 
 ## Field amplitude
 #Efield1="1.73E9" # this is field/n # 6.07E9 this is experimental field. 
-Efield1="2E9" #3E9 4E9 5E9"  #2E9
+Efield1="1.6E9 2E9 3E9 4E9 5E9"
 Efield2="0E0" #"9e9"
 
 ## Pulse duration
@@ -99,7 +99,8 @@ tau2="30e-15"
 # AngleIncidence_list="0.14 0.16 0.18 0.22 0.24"  #"0.02 0.04 0.06 0.08 0.12" #0.14 0.16 0.18 0.22 0.24"
 
 # Angles to explore for finding transition field: 0, 22.5 deg, 45 deg, 67.5 deg, 90 deg. In the list below, pi is implicit. 
-AngleIncidence_list="0 0.125 0.25 0.375 0.50"
+# AngleIncidence_list="0 0.125 0.25 0.375 0.50"
+AngleIncidence_list="0.60 0.70 0.75 0.80 0.90 1.00"
 # AngleIncidence_list="0.35 0.40 0.45 0.50"
 # AngleIncidence_list="0.12"
 # AngleIncidence_list="0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
