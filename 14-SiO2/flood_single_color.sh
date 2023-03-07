@@ -9,7 +9,7 @@ echo "[Check] Variable QuantumLaPsources: $QuantumLaPsources"
 echo "[Check] Variable OctopusSlabsSources: $OctopusSlabsSources"
 
 
-# Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder. 
+# Numerics: advise, dont change this! It must be equal to the corresponding ground state. TODO: grasp it automatically in groud state folder.
 #VacuumSize="12." #Optimized for 2D-period MoveIons=No in GS.
 # VacuumSize="24." #Hopefully sufficient for TD runs
 #VacuumSize="18." #TODO: Optimize for 3D-period MoveIons=Yes.
@@ -30,7 +30,7 @@ InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there.
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC 
 Functional="TB09" #LDA: no O in pseudodojo! PBE: careful with timestep.
 FreezeXC=0 #0 or 1. If 1: TDFreezeHXC = yes is added to the inp. 
-
+UseLinearResponse="0"
 ### MISSION #####
 # Mission="Drude"
 
@@ -49,8 +49,8 @@ CEP2="0.0" #0.0 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
 delay="0.1e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse duration.
 
 ## ========== ZHUKOV LASER PARAMETERS ============
-PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly. 
-
+PulseShape="StH" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly.
+TimeStep="0.25" #atomic unit is usually fine
 RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
 # lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
@@ -121,15 +121,20 @@ lambda2="400e-9"
 # tau1="30e-15"
 # tau2="30e-15"
 
+GaugeVectorFieldAmplitude="0.0" #0: no probe pulse. >0: probe pulse strength in Hartree.
+GaugeFieldDelayValue="0e-15" #delay of probe pulse (in number of cycles?)
+
+AngleIncidence_list="0" #"0.125 0.25 0.375 0.50"
+
 for iTheoryLevel in ${TheoryLevel};
 do
-for iCrossPola in ${CrossPolarization}; 
+for iCrossPola in ${CrossPolarization};
 do
 for iLambda1 in ${lambda1};
 do
  for iLambda2 in ${lambda2};
  do
-  for iEfield1 in ${Efield1}; 
+  for iEfield1 in ${Efield1};
   do
    for iEfield2 in ${Efield2};
    do
@@ -147,17 +152,34 @@ do
 #          do
           for iMeshSizeX in ${MeshSizeX}
           do
-		iMeshSizeZ=$iMeshSizeX
+		       iMeshSizeZ=$iMeshSizeX
            for iRiseCycle in ${RiseCycle}
            do
+             for iGaugeVectorFieldAmplitude in ${GaugeVectorFieldAmplitude};
+             do
+               for iGaugeFieldDelayValue in ${GaugeFieldDelayValue};
+do
+  for iAngleIncidence in ${AngleIncidence_list};
+do
 #           for iMeshSizeZ in ${MeshSizeZ}
 #           do 
             # Create the working folder
             ## run_td.sh usually does that. 
 	    # Prepare the ground state
             # Propagate the pulse in time!
-#             echo "Submitting..." 
-            ${QuantumLaPsources}/14-SiO2/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} ${iRiseCycle} ${Mission} ${NumNodes}
+#             echo "Submitting..."
+# SampleLayers=$1 SampleXY=$2 MeshSizeXInput_SI=$3 MeshSizeZInput_SI=$4 lambda1=$5
+# lambda2=$6 Efield1=$7 Efield2=$8 tau1=$9 tau2=${10}
+# CEP1=${11} CEP2=${12} delay=${13} InitialTemperature=${14} PulseShape=${15}
+# InducedField=${16} CrossPolarization=${17} TheoryLevel=${18} Functional=${19} FreezeXC=${20}
+# RiseCycle=${21} Mission=${22} NumNodes=${23} GaugeVectorFieldAmplitude=${24} GaugeFieldDelayValue=${25}
+# UseLinearResponse=${26} IncidenceAngle=${27} TimeStep=${28}
+            ${QuantumLaPsources}/14-SiO2/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} \
+            ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} \
+            ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} \
+            ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} \
+            ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} \
+            ${UseLinearResponse} ${iAngleIncidence} ${TimeStep}
 #           done
           done
 #          done
@@ -169,6 +191,9 @@ do
    done
   done
  done
+done
+done
+done
 done
 done
 done

@@ -88,9 +88,10 @@ DefineParameters () {
 #  delay=$( cat 'Pulse.dat' | grep 'Delay' | awk '{ print $5 }' )
   
   sigmaTau=$( awk 'END { printf("%1.15lg\n", 2e0*sqrt(2e0*log(2e0)) )}' /dev/null )
-#  TimeAUtoSI=$( python_calc " 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0 " )
+# TimeAUtoSI=$( python_calc " 1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0 " )
 #  TimeStepAU=$( grep 'TDTimeStep' inp-td | awk '{ print $3 }'  )
-#  TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " ) 
+   TimeStepAU=${TimeStep} #indicated in script flood_td*.sh
+# TimeStepSI=$( python_calc " ${TimeStepAU} * ${TimeAUtoSI} " )
   ComputingTime=$( python_calc " float( (8.*${tau1}/${sigmaTau} + ${delay} + ${RelaxationTime}) ) " )
 #   tauRiseA=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda1} ) ) "  )
 #   tauRiseB=$( python_calc " float( ${RiseCycle} / (2.* 3.141592653 * 2.99792458e8 / ${lambda2} ) ) "  )
