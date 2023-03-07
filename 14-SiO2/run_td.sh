@@ -276,10 +276,10 @@ echo "GaugeFieldDelay  = GaugeFieldDelaySI / TimeAUtoSI" >> inp
     echo "PseudopotentialSet = pseudodojo_pbe" >> inp
   fi
   echo "[Checking] AbsPath: $AbsPath"
-  echo "[Info] Building the geometry input..."; echo ""
-  $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
-  echo "[Info] Conversion to octopus format" 
-  $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
+#   echo "[Info] Building the geometry input..."; echo ""
+#   $OctopusSlabsSources/Samples/SiBulk/build-Si-bulk8.sh >& geometry.in #build the geometry.in file.
+#   echo "[Info] Conversion to octopus format" 
+#   $OctopusSlabsSources/Samples/fhi2octopus.sh geometry.in >& Si.xyz #Convert to octopus format. 
 
   # cd - >& /dev/null
 
