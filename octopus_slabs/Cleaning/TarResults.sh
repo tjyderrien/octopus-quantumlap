@@ -7,7 +7,7 @@ backup_StH_fixed() {
  echo "== Saving the StH pulses, not the STH." 
  filename=$DATE-StH-WellControlled-Pulses.tar
  list_folders | grep 'StH' >& backup_StH_list.txt
- tar --exclude='*.obf' --exclude='core.draco*' -cv -T backup_StH_list.txt -f $filename 
+ tar --exclude='*.obf' --exclude='occs' --exclude="restart" --exclude='core.draco*' -cv -T backup_StH_list.txt -f $filename 
 }
 
 backup_video() {

@@ -35,9 +35,15 @@ case "${ComputerName}" in
 		export QuantumLaPruns=/scratch/work/project/open-20-5/octopus-slabs.data
 	;;
 
-        ${BIATRI}*)
+        ${BIATRI})
 		export QuantumLaPsources="/home/thibault.derrien/Documents/octopus-slabs"
 		export QuantumLaPruns="/home/thibault.derrien/Documents/octopus.data"
+	;;
+
+${biatri2})
+	export QuantumLaPsources="/home/tderrien/Documents/octopus-slabs"
+	export QuantumLaPruns="/home/tderrien/Documents/octopus.data"
+	echo "[octopus-slabs] Prepared QuantumLaP variables for BIATRI2."
 	;;
 
 	${kastanienallee})
