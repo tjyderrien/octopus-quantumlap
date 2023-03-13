@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RecomputeItAll="" #if != "", we recompute all. If =="", we just look for new files. 
+RecomputeItAll="1" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
 # module load git
@@ -51,13 +51,13 @@ do
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
 		screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 else
                 echo "** Plotting laser.tmp..."
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
 
                 echo "** Plotting polarization orientation..."
-                gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 fi
             fi
 	fi
@@ -226,7 +226,7 @@ plotBasicOutput #cleans up laser files also.
 echo "Plotting Excitation results..."
 # plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
