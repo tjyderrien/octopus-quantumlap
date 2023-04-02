@@ -357,6 +357,7 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
 # @param NumberOfEigenValues: limits the capture of number of eigenvalues.
 # @param filename: "info" file.
 def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
+    import re
     Header="[libString: GetEigenValue(): ]"
     pattern= "#k ="
     if(verbose==1): 
@@ -366,11 +367,22 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
     with open( filename, "r" ) as source:
         for heading_and_lines in group_by_heading( source, pattern ):
             heading = heading_and_lines[0]
-            lines = heading_and_lines[1:] #NOTE: assumes header is one line. 
-            if(pattern+str(kpoints_index)) in heading: #TODO: error! Here we must have exact match, not inclusion!
-                #print heading
+            lines = heading_and_lines[1:] #NOTE: assumes header is one line.
+            # if(pattern+str(kpoints_index)) in heading.split(",")[0]: #TODO: is this failsafe?
+            # for result in re.finditer(pattern,heading): #for each "#k ="
+            #     if(result.span()[0]==0): #if we found this chain at the beginning
+            # search for 1 "#k =" followed by an exact stringed number and finishes with a "," with possible spaces
+            # prog=re.compile("#(\s)*k\s=(\s)*"+str(kpoints_index)+"(\s)*,")
+            prog=re.compile("#(\s)*k(\s)*=(\s)*" + str(kpoints_index) + "(\s)*,") #still captures at least 4 digits (?!)
+            result = prog.match(heading)
+            try:
+                if(result[0].split("=")[1].split(",")[0] == str(kpoints_index)): #this means we found the right spot for any numhber of digits
+                # if(str(kpoints_index) == str(heading.split(",")[0].split("=")[1])): #TODO: still limited to 4 digits
+                    print(kpoints_index)
                 #print lines
-                break #we stop iteration when pattern is found
+                    break #we stop iteration when pattern is found #complexity here is O(N^2)
+            except:
+                pass
     if(verbose==1): 
         print(Header+str(heading))
         print(Header+str(lines[0:NumberOfEigenValues]))
