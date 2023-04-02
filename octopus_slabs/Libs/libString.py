@@ -367,7 +367,7 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
         for heading_and_lines in group_by_heading( source, pattern ):
             heading = heading_and_lines[0]
             lines = heading_and_lines[1:] #NOTE: assumes header is one line. 
-            if(str(kpoints_index)) in heading:
+            if(pattern+str(kpoints_index)) in heading: #TODO: error! Here we must have exact match, not inclusion!
                 #print heading
                 #print lines
                 break #we stop iteration when pattern is found
