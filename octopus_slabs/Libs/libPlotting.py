@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -109,7 +109,8 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 #  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
-
+  ListOfProblematicRunsID=[]
+  ListOfDisabledRunsID=[]
   def GetMachineName(file):
       machinename_t = libString.LookUpStringInFile(file, "swim")
       logger.debug((Header + "** Debug: " + str(machinename_t)))
@@ -198,9 +199,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
   except: 
     logger.warning((Header+"** Warning: the existing database is empty. We will generate new DB. "))
     FromScratch = True
-    Database = np.empty((0,47))
+    Database = np.empty((0,48))
 
-  PlottingTable = np.empty((0,47)) ##NOTE: how to define tau_pulse for 2 colors?
+  # PlottingTable= []
+  PlottingTable = np.empty((0,48)) ##NOTE: how to define tau_pulse for 2 colors?
   #PlottingTable = np.empty((0,15)) #missing TheoryLevel
   # List all output_iter files
   logger.info((Header+"Fetching all subfolders...\n"))
@@ -212,6 +214,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
     if(os.path.isfile(FolderName+"../DISABLED")):
         logger.warning((Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. "))
+        # ListOfDisabledRunsID.append([int(runid)])
         continue
 
     # Import the quantities from the subfolders
@@ -219,6 +222,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
       logger.warning((Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder: "+str(FolderName)))
+      # ListOfProblematicRunsID.append([int(runid)])
       continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters in the input file name
@@ -232,6 +236,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       int(runid)
     except:
       logger.warning((Header+"** Warning: JOB ID could not be captured. Jumping to next computation."))
+      ListOfProblematicRunsID.append(int(runid))
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
@@ -246,6 +251,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     wavelength_SI        = GetParameterValueFromInputFile(filename, "lambdaA = ")
     PulseDuration_SI     = GetParameterValueFromInputFile(filename, "tauAsi = ")
     DoublePulseDelay_SI  = GetParameterValueFromInputFile(filename, "pulseDelaySI = ")
+    # TimeStep             = GetParameterValueFromInputFile(filename, "TDTimeStep") # Useless, they are reconstructed later
 
     FieldInduced_inp     = libString.LookUpStringInFile(filename, "GaugeFieldPropagate = ")
     GaugeVectorField_inp2= libString.LookUpStringInFile(filename, "GaugeVectorField")
@@ -514,11 +520,17 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # Catch the peak field #We could also take the one of input file..
     time                = np.asfarray(laser[:,1]) #column 2
     A1x                 = np.asfarray(laser[:,2]) #column number 3
+    A1y                 = np.asfarray(laser[:,3])  # column number 3
+    A1z                 = np.asfarray(laser[:,4])
     A2x                 = np.asfarray(laser[:,5]) #column number 6
-    timestepTable       = np.gradient(time) #size N-1
-    TimeStep            = timestepTable[0] #they are all equal, just select the first
-    Efield              = - (np.gradient(A1x)/np.gradient(time)) #correct value is *1/c 
-    Efield2             = - (np.gradient(A2x)/np.gradient(time))
+    A2y                 = np.asfarray(laser[:, 6])  # column number 6
+    A2z                 = np.asfarray(laser[:, 7])  # column number 6
+    timestepTable       = np.gradient(time) #size N
+    TimeStep            = timestepTable[0] #they are all equal, just select the first - reconstructed
+    A1field_norm = np.sqrt(A1x**2+A1y**2+A1z**2)
+    A2field_norm = np.sqrt(A2x ** 2 + A2y ** 2 + A2z ** 2) #necessary when field is along more complicated axes
+    Efield              = - (np.gradient(A1field_norm)/np.gradient(time)) #correct value is *1/c
+    Efield2             = - (np.gradient(A2field_norm)/np.gradient(time))
     Efield_AU           = Efield/au.c_AU #fixing dimension #TODO: clean me that...
     Efield2_AU          = Efield2/au.c_AU
     Efield_amplitude_SI = np.max(abs(au.Field_AU_to_SI(Efield_AU)))
@@ -604,6 +616,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         del Exchange_interp, Exchange_nonzero
     except: 
         logger.warning((Header+"** Warning: could not interpolate energy output."))
+        ListOfProblematicRunsID.append(int(runid))
     
     # Normalizing the database energies
     
@@ -643,8 +656,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
     # TotalCurrent_SI_norm  = np.sqrt( np.power(TotalCurrent_X_SI,2)+np.power(TotalCurrent_Y_SI,2)+np.power(TotalCurrent_Z_SI,2) ) #computes norm of the current
  
-    # Computing External field reconstructed using the current. Work in atomic units. 
-    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## BUGFIX: this is a nasty bugfix. It is highly unclear why dimension of Energy can be LONGER than the field! 
+    # Computing External field reconstructed using the current. Work in atomic units.
+    logger.debug("len(time, Efield_AU, ElectronEnergy) = "+str(len(time))+", "+str(len(A1x))+", "+str(len(ElectronEnergy)))
+    minLength=np.min([len(ElectronEnergy)-2, len(Efield_AU)-2]) ## TODO: this is a nasty bugfix.
+    # why size of Energy can be LONGER than the field!
 
     # Efield_AU_shrinked=Efield_AU[:len(ElectronEnergy)-1] #will be used later
 
@@ -743,8 +758,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # 2. t > tau_1+tau_2+delay, where tau_1,2 depend on the pulse shape. SinSquare: tau_1,2->2*tau_1,2. STH: tau_1 -> tau_1+2*2*pi/omega_1 (idem for tau_2). 
     # 1. E_tot^laser ~ 0 along with dE_tot^laser/dt~0. This also selects time before the laser pulse, and the intermediate region if two pulses are used. 
     # 3. At least a slow variation of n_e and energy: dn_e/dt~0 and dE_t/dt~0. 
-    if(True):
-#    try: 
+#    if(True):
+    try: 
         logger.info(Header+"** Info: trying condition for capturing ElectronDensity n_exc and ElectronEnergy right after the pulse: ")
         tolerance_field_nemesh=1E-3; tolerance_Efield = tolerance_field_nemesh #1E-3 #atomic units
         tolerance_Efield_relative=1E-7 #tolerance for selecting the end of bicolor pulses. Some of them have non varying density anymore, particularly during the last laser oscillations. 
@@ -838,6 +853,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
             logger.warning((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
+            ListOfProblematicRunsID.append([int(runid)])
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
@@ -853,7 +869,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
         ## CHECKING MASK INTEGRITY ... ie if manifolds contain at least 1 element (1 value of interest). 
         logger.debug((np.any(MaskNe)))
-        if(not np.any(MaskNe)):
+        if(not np.any(MaskNe)): #stops if any element is False
             logger.error((Header+"** ERROR: pulse may not be finished. Check n_ex!"))
             raise IndexError
         if(not np.any(Mask_energy)):
@@ -906,8 +922,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         #ElectronDensityRightAfterPulse = 0e0
 
         #timeToFilterFrom = 0e0
-    else: 
-    #except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
+    # else: 
+    except IndexError: #ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured. Maybe pulse was not finished?"))
         ElectronEnergy_SI_afterpulse   = 0e0
         HartreeEnergy_SI_afterpulse    = 0e0
@@ -915,7 +931,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-    """
+        ListOfProblematicRunsID.append([int(runid)])
+    
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
         ElectronEnergy_SI_afterpulse   = 0e0
@@ -925,7 +942,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
 #        exit()
-    """
+    
     logger.info(Header+"Afterpulse electron energy   increase (eV)     = "+str(ElectronEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse Hartree  energy   increase (eV)     = "+str(HartreeEnergy_SI_afterpulse))
     logger.info(Header+"Afterpulse exchange energy   increase (eV)     = "+str(ExchangeEnergy_SI_afterpulse))
@@ -956,22 +973,16 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     #print float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(FinalEnergy_SI_final)
     #print float(density_proj_SI_final/PulseDuration_SI), PulseType, RiseTime, float(timeNe[len(timeNe)-1])
       
-    StackToAdd = [ float(runid), float(RunDate), kpointgrid, realmeshgrid, float(wavelength_SI), float(PulseDuration_SI),
-              float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI), float(wavelength2_SI),
-              float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), 
-              float(DoublePulseDelay_SI), float(CrossPolarization_angle), float(TheoryLevel), 
-              float(FieldInduced_enabled), 
-              float(GaugeFieldAmplitude), 
-              float(GaugeFieldDelay), 
-              float(Functional),  float(FreezeHXC), float(MoveIon), 
-              float(density_proj_SI_max), float(density_proj_SI_final), float(density_irreversibility_ratio), 
-              float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), 
-              float(TotalCurrent_AU_Ymax), float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final), 
-              float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), 
-              float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check), float(Eext_SI_max), float(ElectronDensityRightAfterPulse), 
-              float(density_proj_SI_final/PulseDuration_SI), float(ElectronDensityRightAfterPulse/PulseDuration_SI),
-              PulseType, RiseTime, float(timeNe[len(timeNe)-1]), 
-              float(timeToFilterFrom) ]
+    StackToAdd = [ float(runid), float(RunDate), kpointgrid, realmeshgrid, float(TimeStep),
+                   float(wavelength_SI), float(PulseDuration_SI), float(Efield1_SI_input), float(polarization_angle), float(CEP1_SI),
+                   float(wavelength2_SI), float(PulseDuration2_SI), float(Efield2_SI_input), float(CEP2_SI), float(DoublePulseDelay_SI),
+                   float(CrossPolarization_angle), float(TheoryLevel), float(FieldInduced_enabled), float(GaugeFieldAmplitude), float(GaugeFieldDelay),
+                   float(Functional),  float(FreezeHXC), float(MoveIon), float(density_proj_SI_max), float(density_proj_SI_final),
+                   float(density_irreversibility_ratio), float(TotalCurrent_SI_final), float(TotalCurrent_AU_max), float(TotalCurrent_AU_Xmax), float(TotalCurrent_AU_Ymax),
+                   float(TotalCurrent_AU_Zmax), float(ElectronEnergy_SI_final), float(EigenvaluesEnergy_SI_final), float(HartreeEnergy_SI_final), float(ExchangeEnergy_SI_final),
+                   float(ElectronEnergy_SI_afterpulse), float(EigenvaluesEnergy_SI_afterpulse), float(HartreeEnergy_SI_afterpulse), float(ExchangeEnergy_SI_afterpulse), float(EnergyPoynting_SI_sum_final_check),
+                   float(Eext_SI_max), float(ElectronDensityRightAfterPulse), float(density_proj_SI_final/PulseDuration_SI), float(ElectronDensityRightAfterPulse/PulseDuration_SI), PulseType,
+                   RiseTime, float(timeNe[len(timeNe)-1]), float(timeToFilterFrom) ]
 
     
     logger.info(Header+"Stack contains:")
@@ -986,7 +997,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 #    try:
 #    print(Header+"Debug: Length of ElectronEnergy: "+str(len(ElectronEnergy)))
     
-    Efield_SI_final = au.Field_AU_to_SI(Efield_AU[minLength])
+    Efield_SI_final = au.Field_AU_to_SI(Efield_AU[minLength]) ## TODO: this seems to disqualify runs that are actually valid.
  #   except: 
   #      print(Header+"Debug: Length of density_proj_SI: "+str(len(density_proj_SI)))
    #     Efield_SI_final = au.Field_AU_to_SI(Efield_AU[len(density_proj_SI)-2])
@@ -999,11 +1010,13 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         logger.warning((Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB."))
+        ListOfProblematicRunsID.append([int(runid)])
         continue
     
     if(FromScratch): #We construct a new database from scratch
       try:
-        PlottingTable = np.vstack(( PlottingTable, StackToAdd )) 
+        PlottingTable = np.vstack(( PlottingTable, StackToAdd )) #TODO: use append function instead. This would allow for string instead of numpy array.
+        # PlottingTable.append(StackToAdd) #This might help to avoid constraining the type
         logger.info(Header+"** Info: these data were added to the stack.")
       except:
         Header+"** Error: Failed to stack the database when looping on folders. Sizeof(PlottingTable)="+str(np.shape(PlottingTable))+". Sizeof(StackToAdd)="+str(np.shape(StackToAdd))
@@ -1016,7 +1029,11 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
           continue
       else: 
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
+        # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
+
+    logger.warning("List of problematic runs IDs is: "+str(ListOfProblematicRunsID))
+    logger.warning("List of disabled    runs IDs is: " + str(ListOfDisabledRunsID))
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
@@ -1033,7 +1050,8 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     #}}}
   FreshData   = PlottingTable  
-  NewDatabase = np.vstack(( Database, PlottingTable ))  
+  NewDatabase = np.vstack(( Database, PlottingTable )) #Numpy style
+  # NewDatabase.append(PlottingTable) #list style
   return FreshData, NewDatabase
 #}}} #end of function
 
@@ -1043,54 +1061,56 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 # TODO: this function should be replaced by Pandas usage.
 def ExtractData(PlottingTable): #{{{
   runid                        = PlottingTable[:,0]
+  # path                         = PlottingTable[:,1]
   RunDate                      = PlottingTable[:,1]
   kpointgrid                   = PlottingTable[:,2]
   realmeshgrid                 = PlottingTable[:,3]
-  wavelengths1                 = PlottingTable[:,4]
-  pulses1                      = PlottingTable[:,5]
-  Efield1                      = PlottingTable[:,6]
-  polarization_angle           = PlottingTable[:,7]
-  CEP1                         = PlottingTable[:,8]
-  wavelengths2                 = PlottingTable[:,9]
-  pulses2                      = PlottingTable[:,10]
-  Efield2                      = PlottingTable[:,11]
-  CEP2                         = PlottingTable[:,12]
-  Delay                        = PlottingTable[:,13]
-  CrossPolarization            = PlottingTable[:,14]
-  TheoryLevel                  = PlottingTable[:,15]
-  FieldInduced                 = PlottingTable[:,16]
-  GaugeFieldAmplitude          = PlottingTable[:,17]
-  GaugeFieldDelay              = PlottingTable[:,18]
-  Functional                   = PlottingTable[:,19]
-  FreezeHXC                    = PlottingTable[:,20]
-  MoveIon                      = PlottingTable[:,21]
-  Ne_max                       = PlottingTable[:,22]
-  Ne_final                     = PlottingTable[:,23]
-  irreversibility              = PlottingTable[:,24]
-  TotalCurrent_final           = PlottingTable[:,25]
-  TotalCurrent_max             = PlottingTable[:,26]
-  TotalCurrent_AU_Xmax         = PlottingTable[:,27]
-  TotalCurrent_AU_Ymax         = PlottingTable[:,28]
-  TotalCurrent_AU_Zmax         = PlottingTable[:,29]
-  ElectronEnergy_max           = PlottingTable[:,30]
-  EigenvaluesEnergy_max        = PlottingTable[:,31]
-  HartreeEnergy_max            = PlottingTable[:,32]
-  ExchangeEnergy_max           = PlottingTable[:,33]
-  ElectronEnergy_afterpulse    = PlottingTable[:,34]
-  EigenvaluesEnergy_afterpulse = PlottingTable[:,35]
-  HartreeEnergy_afterpulse     = PlottingTable[:,36]
-  ExchangeEnergy_afterpulse    = PlottingTable[:,37]
-  EnergyPoynting_SI_sum_final  = PlottingTable[:,38]
-  Eext_SI_max                  = PlottingTable[:,39]
-  Ne_afterpulse                = PlottingTable[:,40]
-  Wpi                          = PlottingTable[:,41]
-  Wpi_afterpulse               = PlottingTable[:,42]
-  PulseType                    = PlottingTable[:,43]
-  RiseTime                     = PlottingTable[:,44]
-  FinalTime                    = PlottingTable[:,45]
-  timeToFilterFrom             = PlottingTable[:,46]
+  TimeStep                     = PlottingTable[:,4]
+  wavelengths1                 = PlottingTable[:,5]
+  pulses1                      = PlottingTable[:,6]
+  Efield1                      = PlottingTable[:,7]
+  polarization_angle           = PlottingTable[:,8]
+  CEP1                         = PlottingTable[:,9]
+  wavelengths2                 = PlottingTable[:,10]
+  pulses2                      = PlottingTable[:,11]
+  Efield2                      = PlottingTable[:,12]
+  CEP2                         = PlottingTable[:,13]
+  Delay                        = PlottingTable[:,14]
+  CrossPolarization            = PlottingTable[:,15]
+  TheoryLevel                  = PlottingTable[:,16]
+  FieldInduced                 = PlottingTable[:,17]
+  GaugeFieldAmplitude          = PlottingTable[:,18]
+  GaugeFieldDelay              = PlottingTable[:,19]
+  Functional                   = PlottingTable[:,20]
+  FreezeHXC                    = PlottingTable[:,21]
+  MoveIon                      = PlottingTable[:,22]
+  Ne_max                       = PlottingTable[:,23]
+  Ne_final                     = PlottingTable[:,24]
+  irreversibility              = PlottingTable[:,25]
+  TotalCurrent_final           = PlottingTable[:,26]
+  TotalCurrent_max             = PlottingTable[:,27]
+  TotalCurrent_AU_Xmax         = PlottingTable[:,28]
+  TotalCurrent_AU_Ymax         = PlottingTable[:,29]
+  TotalCurrent_AU_Zmax         = PlottingTable[:,30]
+  ElectronEnergy_max           = PlottingTable[:,31]
+  EigenvaluesEnergy_max        = PlottingTable[:,32]
+  HartreeEnergy_max            = PlottingTable[:,33]
+  ExchangeEnergy_max           = PlottingTable[:,34]
+  ElectronEnergy_afterpulse    = PlottingTable[:,35]
+  EigenvaluesEnergy_afterpulse = PlottingTable[:,36]
+  HartreeEnergy_afterpulse     = PlottingTable[:,37]
+  ExchangeEnergy_afterpulse    = PlottingTable[:,38]
+  EnergyPoynting_SI_sum_final  = PlottingTable[:,39]
+  Eext_SI_max                  = PlottingTable[:,40]
+  Ne_afterpulse                = PlottingTable[:,41]
+  Wpi                          = PlottingTable[:,42]
+  Wpi_afterpulse               = PlottingTable[:,43]
+  PulseType                    = PlottingTable[:,44]
+  RiseTime                     = PlottingTable[:,45]
+  FinalTime                    = PlottingTable[:,46]
+  timeToFilterFrom             = PlottingTable[:,47]
 
-  return runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, \
+  return runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, \
       CEP1, wavelengths2, pulses2, Efield2, CEP2, \
       Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude,\
       GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, \
@@ -1105,55 +1125,56 @@ IndexTable = {'runid':                        0,
               'rundate':                      1,
               'kpointgrid':                   2,
               'realmeshgrid':                 3,
-              'wavelengths1':                 4,
-              'pulses1':                      5,
-              'Efield1':                      6,
-              'polarization_angle':           7,
-              'CEP1':                         8,
-              'wavelengths2':                 9,
-              'pulses2':                      10,
-              'Efield2':                      11,
-              'CEP2':                         12,
-              'Delay':                        13,
-              'CrossPolarization':            14,
-              'TheoryLevel':                  15,
-              'FieldInduced':                 16,
-              'GaugeFieldAmplitude':          17,
-              'GaugeFieldDelay':              18,
-              'Functional':                   19,
-              'FreezeHXC':                    20,
-              'MoveIon':                      21,
-              'Ne_max':                       22,
-              'Ne_final':                     23,
-              'irreversibility':              24,
-              'Current_final':                25,
-              'Current_max':                  26,
-              'CurrentX_max':                 27,
-              'CurrentY_max':                 28,
-              'CurrentZ_max':                 29,
-              'ElectronEnergy_final':         30,
-              'EigenvaluesEnergy_max':        31,
-              'HartreeEnergy_max':            32,
-              'ExchangeEnergy_max':           33,
-              'ElectronEnergy_afterpulse':    34,
-              'EigenvaluesEnergy_afterpulse': 35,
-              'HartreeEnergy_afterpulse':     36,
-              'ExchangeEnergy_afterpulse':    37,
-              'EnergyPoynting_final':         38,
-              'Eext_SI':                      39,
-              'Ne_afterpulse':                40,
-              'Wpi':                          41,
-              'Wpi_afterpulse':               42,
-              'PulseType':                    43,
-              'RiseTime':                     44,
-              'FinalTime':                    45,
-              'FilterTime':                   46
+              'timestep':                     4,
+              'wavelengths1':                 5,
+              'pulses1':                      6,
+              'Efield1':                      7,
+              'polarization_angle':           8,
+              'CEP1':                         9,
+              'wavelengths2':                 10,
+              'pulses2':                      11,
+              'Efield2':                      12,
+              'CEP2':                         13,
+              'Delay':                        14,
+              'CrossPolarization':            15,
+              'TheoryLevel':                  16,
+              'FieldInduced':                 17,
+              'GaugeFieldAmplitude':          18,
+              'GaugeFieldDelay':              19,
+              'Functional':                   20,
+              'FreezeHXC':                    21,
+              'MoveIon':                      22,
+              'Ne_max':                       23,
+              'Ne_final':                     24,
+              'irreversibility':              25,
+              'Current_final':                26,
+              'Current_max':                  27,
+              'CurrentX_max':                 28,
+              'CurrentY_max':                 29,
+              'CurrentZ_max':                 30,
+              'ElectronEnergy_final':         31,
+              'EigenvaluesEnergy_max':        32,
+              'HartreeEnergy_max':            33,
+              'ExchangeEnergy_max':           34,
+              'ElectronEnergy_afterpulse':    35,
+              'EigenvaluesEnergy_afterpulse': 36,
+              'HartreeEnergy_afterpulse':     37,
+              'ExchangeEnergy_afterpulse':    38,
+              'EnergyPoynting_final':         39,
+              'Eext_SI':                      40,
+              'Ne_afterpulse':                41,
+              'Wpi':                          42,
+              'Wpi_afterpulse':               43,
+              'PulseType':                    44,
+              'RiseTime':                     45,
+              'FinalTime':                    46,
+              'FilterTime':                   47
               }
 
 ## Counts the number of available laser parameters in a set of octopus results
 # @param Database: array of octopus results. It can be filtered before using FilterDatabase functions. See libDatabase.py. 
 def CountTheNumberOfLaserParameters(Database):#{{{
-  runid, RunDate, kpointgrid, realmeshgrid, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, \
+  runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, \
   Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, \
   MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, \
   TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, \
@@ -1275,6 +1296,66 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
         return PlottingSinglePulses
 #}}}
 
+#Selects single-color pulses, with same field amplitude from a database
+# @param Database: the array with all the data,
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterBicolorPulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration1, CEP1,
+                                                wavelength2, Efield2, pulseDuration2,
+                                                 PulseType=5, RiseTime=2, MoveIon=0, InducedFields=0): #{{{
+        PlottingBiColorPulses = Database  #get the full database
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield2 * 0.99,
+                                                                     IndexTable['Efield2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield2 * 1.01,
+                                                                   IndexTable['Efield2'])
+        logger.debug("Size after filtering Efield1,2" + str(np.shape(PlottingBiColorPulses)))
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength1, IndexTable['wavelengths1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength2, IndexTable['wavelengths2'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2" + str(np.shape(PlottingBiColorPulses)))
+        if(CEP1 >= 0.):
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                     IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                   IndexTable['CEP1'])
+        else:
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                          IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                        IndexTable['CEP1'])
+        # PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, CEP1,
+        #                                                   IndexTable['CEP1'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2 and CEP1"+str(np.shape(PlottingBiColorPulses)))
+        logger.debug("Values of CEP1: "+str(CEP1))
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. #TODO: management of cross polarization is PROBLEMATIC. See libPlotting.py:213 CrossPolarization_Angle issue.
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, InducedFields, IndexTable['FieldInduced'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, MoveIon, IndexTable['MoveIon'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, pulseDuration1, IndexTable['pulses1']) #keeps only pulses of selected duration in argument # NOT EFFICIENT
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration1*1.1, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration1*0.9, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration2 * 1.1,
+                                                                   IndexTable['pulses2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration2 * 0.9,
+                                                                     IndexTable['pulses2'])
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingBiColorPulses)
+        return PlottingBiColorPulses
+#}}}
+
+
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0
 # SinSquared is working and physical. 
@@ -1308,7 +1389,8 @@ def GetTotalGaugeField(obj): #{{{
 # @param CurrentX: signal to be processed
 # @param wavelength_SI: fundamental wavelength of the signal
 # @param FinalDampingInstant: instant (SI) where to apply the damping
-def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
+# @param exponent: power applied to the sin decay function (J(t) x sin^power(...))
+def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant, exponent=2): #{{{
 
     omega = 2.*np.pi*c/wavelength_SI
     DampingTime = 2.*np.pi/omega #tau_rise
@@ -1320,7 +1402,9 @@ def SignalDampR(timeCurrent, CurrentX, wavelength_SI, FinalDampingInstant): #{{{
     logger.info(Header+"** Info: omega = "+str(round(omega)))
 
     # CurrentX_HHG = CurrentX * np.power(np.sin(0.5 * np.pi * ( timeCurrent - InitiateDampingInstant - DampingTime ) / DampingTime ), 2.) * heaviside(timeCurrent - InitiateDampingInstant, 0.5) * (1.-heaviside(timeCurrent - InitiateDampingInstant - DampingTime , 5.))
-    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**2 * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval. 
+    damperB = np.sin(np.pi/2. * (timeCurrent_SI-FinalDampingInstant)/DampingTime)**exponent \
+              * (np.heaviside(timeCurrent_SI-FinalDampingInstant+DampingTime,0.5)) \
+              * (1.-np.heaviside(timeCurrent_SI-FinalDampingInstant,0.5)) #useful for the [t2, FinalDampingInstant] interval.
     damperA = 1.- np.heaviside(timeCurrent_SI-(FinalDampingInstant-DampingTime),0.5)
     CurrentX_HHG = np.multiply(CurrentX, (damperA + damperB))
     return CurrentX_HHG
@@ -1474,7 +1558,10 @@ def plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=Tr
 # @param Z: f(X, Y)
 # @param QuantityTitle: string with title (LaTeX accepted)
 # @param filename:      string with filename (EPS and PNG will be generated)
-def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100): #{{{
+def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False,
+                      PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10,
+                      xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100,
+                      wavelength1=2656e-9): #{{{
 #    cmap='Blues'
 #    cmap='RdBu_r'
 #    afmhot_r, hot, hot_r, bone_r, 
@@ -1567,10 +1654,11 @@ def plot2dHeatMap_HHG(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlo
       plt.ylim((ylimit[0], ylimit[1]))
 
       # Adding vertical bars for the gap energy
-      for n in [1,2,3,4,5,6]:
-        plt.axvline(x=Egap/e/n, linestyle=":")
-        plt.axhline(y=1E6*h*c/(Egap/e/n), linestyle=':') 
-        plt.axvline(x=n*Egap/e, linestyle=":")
+      for n in [1,3,5,7,9,11,13,15,17]:
+        # plt.axvline(x=Egap/e/n, linestyle=":", color="purple") #resonances of band gap energy
+        plt.axvline(x=h*c/(wavelength1)/e*n, linestyle=':', color="red") #laser source replicates
+      for n in [1]:
+        plt.axvline(x=n*Egap/e, linestyle=":", color="blue") #replicates of band gap energy
         # plt.axhline(y=1E6*h*c/(Egap*n), linestyle=':') #not relevant
 
       # plt.savefig(filename+'.eps')

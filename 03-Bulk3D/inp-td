@@ -67,8 +67,8 @@ BoxShape = parallelepiped
 
 ConvRelDens = 1e-9 #1e-9
 KPointsUseSymmetries = yes
-ExtraStates = 0 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
-# smearing = 0.0002
+# ExtraStates = 8 #0: if observable (Ne, Je), more if not-observable (ok pour n_ex)
+# Smearing = SmearingTe * eV
 # SmearingFunction=fermi_dirac
 
 # == THis is for ground state
@@ -227,7 +227,7 @@ tR = tauRise
   "FieldColorB-StH4" | tdf_from_file | "PulseB.dat"
 %
 
-TDTimeStep = 0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = TimeStepExternal #0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
 TDPropagationTime = ComputingTime
 TDPropagator = etrs #it was aetrs
 TDExponentialMethod = lanczos
@@ -264,7 +264,7 @@ TDOutput = energy + laser + total_current + n_excited_el + gauge_field #multipol
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
-RestartWrite = 0 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
+RestartWrite = 1 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
 OutputInterval = 5
 RestartWriteInterval = 500
 TDOutputComputeInterval = 5
