@@ -19,7 +19,7 @@ def save_pickle(data, output_path):
     @param output_path Path of the file to be saved (output binary). It is recommended to include a .pkl extension.
     @return Does not return anything. But a binary file is writen instead.
     """
-    picklefile = open(file_name,"wb")
+    picklefile = open(output_path,"wb")
     pickle.dump(data, picklefile)
     picklefile.close()
 
@@ -92,7 +92,7 @@ def extract_length_dipole_elements(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z
             length_dipole_elements[kdx,udx,...] = np.loadtxt(k_path, skiprows=3)
     return k_indices, length_dipole_elements
 
-def store_length_dipole_elements(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", lendipel_pkl_fname="length_dipole_elements.pkl", u_to_idx={"_x":0, "_y":1, "_z":2})):
+def store_length_dipole_elements(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", lendipel_pkl_fname="length_dipole_elements.pkl", u_to_idx={"_x":0, "_y":1, "_z":2}):
     """! Extracts data from the k-points output files located in 'path_to_k_files' and store it as two separate pickled (binary) files, each containing a NumPy array: (1) with the extracted k-points indices and (2) with the dipole matrix elements (in length gauge).
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution (".").
