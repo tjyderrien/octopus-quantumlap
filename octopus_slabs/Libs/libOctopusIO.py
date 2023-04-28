@@ -35,9 +35,10 @@ def load_k_paths(path_to_kfiles, return_uncat=False, u_to_idx={"_x":0, "_y":1, "
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param return_uncat If the uncategorized paths should be returned or not. Default value is False.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
-    @return k_indices Array with the indices of the k-points that were successfully loaded in all spatial directions.
-    @return k_paths A matrix containing, for each one of the spatial directions, the paths to the k-points files, sorted according to the k_index array.
-    @return uncat_paths (return_uncat=True) List of paths to files in the same folder ('path_to_kfiles') that do not correspond to k-points output files or simply could not be categorized.
+    @return Tuple with 3 elements:
+    -# NumPy array with the indices of the k-points that were successfully loaded in all spatial directions.
+    -# NumPy array containing, for each one of the spatial directions, the paths to the k-points files, sorted according to the k_index array.
+    -# (return_uncat=True) List of paths to files in the same folder ('path_to_kfiles') that do not correspond to k-points output files or simply could not be categorized.
     """
     k_paths = [[] for idx in range(len(u_to_idx.keys()))]
     k_indices = copy.deepcopy(k_paths)
@@ -76,8 +77,9 @@ def extract_length_dipole_elements(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z
     """! Loads the dipole matrix elements (in length gauge) from the k-points output files located in 'path_to_k_files' into a NumPy array.
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
-    @return k_indices Array with the indices of the k-points that were successfully loaded in all spatial directions.
-    @return length_dipole_elements NumPy array with the loaded dipole matrix elements (in length gauge); it has shape (n_kpoints, n_dims, n_states, n_states), where n_kpoints is the number of available/recognized k-points, n_dims is the number of spatial dimensions in 'u_to_idx' and n_states is the number of 1-electron states available in the output.
+    @return Tuple with 2 elements:
+	-# NumPy array with the indices of the k-points that were successfully loaded in all spatial directions.
+	-# NumPy array with the loaded dipole matrix elements (in length gauge); it has shape (n_kpoints, n_dims, n_states, n_states), where n_kpoints is the number of available/recognized k-points, n_dims is the number of spatial dimensions in 'u_to_idx' and n_states is the number of 1-electron states available in the output.
     """
     k_indices, k_paths = load_k_paths(path_to_kfiles, u_to_idx=u_to_idx)
     n_dims, n_kpoints = k_paths.shape
@@ -107,7 +109,7 @@ def load_kpoints_data(kdata_fnames={}, output_path=".", kdata_default_fnames={"k
     @param kdata_fnames Dictionary (key:value pairs) where values are the paths to the pickled files to be loaded; the loaded object will be stored into the output dictionary with the same corresponding key. Default value is an empty dictionary; if some entries are provided, then those will overwrite matching entries in 'kdata_default_fnames'.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution. (".").
     @param kdata_default_fnames Dictionary with default names of encrypted files to load as values; regarding keys, it works the same way as 'kdata_fnames', but the latter has priority; default entries will be loaded if available, if not overwritten by matching entries in 'kdata_fnames'. Default value is {"k_indices":"k_indices.pkl", "length_dipole_elements":"length_dipole_elements.pkl"}.
-    @return output_kdata Output dictionary storing the loaded objects (using the keys from 'kdata_fnames' and/or 'kdata_default_fnames' (read their descriptions to learn more).
+    @return Output dictionary storing the loaded objects (using the keys from 'kdata_fnames' and/or 'kdata_default_fnames' (read their descriptions to learn more).
     """
     output_kdata = {}
     kdata_default_fnames.update(kdata_fnames) ; kdata_fnames = kdata_default_fnames
