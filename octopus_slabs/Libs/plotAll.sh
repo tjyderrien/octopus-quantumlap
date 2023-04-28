@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RecomputeItAll="1" #if != "", we recompute all. If =="", we just look for new files. 
+RecomputeItAll="recompute" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
 # module load git
