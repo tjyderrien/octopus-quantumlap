@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""@package docstring
-Module with functions to parse Octopus output files and load them into NumPy arrays and/or dictionaries.
-Parsing of input files has not yet been implemented.
-
-Module written by Andrés I. Bertoni (andresibertoni@gmail.com).
-"""
+## @package octopus_slabs.Libs.libOctopusIO
+# Module with several functions to automatically parse Octopus output files from k-point calculations and load the extracted data into NumPy arrays and Python build-in data types. The parsing of input files is not yet implemented. It includes extensive Doxygen-compatible documentation.
+# @author Module written by Andrés I. Bertoni (andresibertoni@gmail.com).
 
 import os
 import copy
@@ -124,10 +121,10 @@ def extract_bandstructure(bandstructure_path):
     """! Extracts useful data (e.g., python data structure or NumPy array) from the output file named 'bandstructure' by default by Octopus; this file contains information related to the 1D k-points path specified in the input file.
     @param Path to the bandstructure output file to be parsed and from which data will be extracted.
     @return Dictionary with the extracted data:
-        'k_path' (1: NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-)
-        'n_kpoints' (2: number of k-points along the 1D path)
-        'k_coords' (3: reduced coordinates of the k-points along the 1D path)
-        'state_energies' (4: energies/eigenvalues of the 1-electron states for each of the k-points along the 1D path)
+        - 'k_path' : NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-.
+        - 'n_kpoints' : number of k-points along the 1D path.
+        - 'k_coords' : reduced coordinates of the k-points along the 1D path.
+        - 'state_energies' : energies/eigenvalues of the 1-electron states for each of the k-points along the 1D path.
     """
     extracted_band = {}
     data = np.loadtxt(bandstructure_path)
@@ -143,19 +140,19 @@ def extract_info(info_path, bandstructure_path=None):
     @param info_path Path to the info output file to be parsed and from which data will be extracted.
     @param Path to the output file named 'bandstructure' by default by Octopus; this argument is optional, but if provided, it will change the structure of the output dictionary in order to include a higher level of detail, by differentiating between 3D k-points (key '3D'), the 1D k-points path specified in the input file (key '1D') and the more general information (key 'global'). Default value is None.
     @return Dictionary with the extracted data (regardless of 'bandstructure_path'):
-        (Provided in '1D' and '3D' if 'bandstructure_path' is specified:)
-        'n_kpoints' (1: number of loaded k-points)
-        'k_weights' (2: weight associated with each k-points; apparently set to 0 for the 1D path)
-        'k_coords' (3: reduced coordinates of the k-points)
-        'occupations' (4: electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin)
-        'state_energies' (5: energies/eigenvalues of the 1-electron states, for each k-point)
-        (Provided in 'global' if 'bandstructure_path' is specified:)
-        'n_states' (6: number of 1-electron states)
-        'n_ions' (7: number of ions/atoms per unit cell)
-        'elements' (8: list of atomic elements for the atoms in the unit cell)
-        'ion_forces' (9: forces exerted on each ion in the ground state solution)
-        Provided in '1D' only if 'bandstructure_path' is specified:
-        'k_path' (10: NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-)
+        - (Provided in '1D' and '3D' if 'bandstructure_path' is specified:)
+        	- 'n_kpoints' : number of loaded k-points.
+        	- 'k_weights' : weight associated with each k-points; apparently set to 0 for the 1D path.
+        	- 'k_coords' : reduced coordinates of the k-points.
+        	- 'occupations' : electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin.
+        	- 'state_energies' : energies/eigenvalues of the 1-electron states, for each k-point.
+        - (Provided in 'global' if 'bandstructure_path' is specified:)
+        	- 'n_states' : number of 1-electron states.
+        	- 'n_ions' : number of ions/atoms per unit cell.
+        	- 'elements' : list of atomic elements for the atoms in the unit cell.
+        	- 'ion_forces' : forces exerted on each ion in the ground state solution.
+        - Provided in '1D' only if 'bandstructure_path' is specified:
+        	- 'k_path' : NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-.
     """
     extracted_info = {}
     with open(info_path, "r") as infofile: infolines = infofile.readlines()
