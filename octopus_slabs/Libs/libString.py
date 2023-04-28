@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2021 T. J.-Y. Derrien
+# Copyright (C) 2013-2023 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -222,6 +222,29 @@ def CaptureKPointGridSizeFromINP(filename):
     del kpointgrid_inp, kpointgrid_inp2, kpointgrid_inp3, kpointgrid_inp4
     return kpointgrid
 
+## Capture the k-point coordinate (between 0 and 1) for plotting
+def CapturePlottingCoordinateOfKpointsPathPositions(filename="bandstructure"):
+    epsilon = 7E-1
+    import numpy as np
+    import matplotlib.pyplot as plt
+    bands = np.loadtxt(filename, dtype="float32", skiprows=1)
+    kindex = bands[:, 0]
+    kx = bands[:, 1]
+    ky = bands[:, 2]
+    kz = bands[:, 3]
+    slope_x = np.gradient(kx) / np.gradient(kindex)
+    slope_y = np.gradient(ky) / np.gradient(kindex)
+    slope_z = np.gradient(kz) / np.gradient(kindex)
+    discont_x = np.fabs(np.gradient(slope_x) / np.gradient(kindex))
+    discont_y = np.fabs(np.gradient(slope_y) / np.gradient(kindex))
+    discont_z = np.fabs(np.gradient(slope_z) / np.gradient(kindex))
+    condition = np.logical_or(np.fabs(discont_x) > epsilon, np.fabs(discont_y) > epsilon)
+    condition2 = np.logical_or(condition, np.fabs(discont_z) > epsilon)
+    test2 = kindex[(condition2)]
+    kindex_dis = np.reshape(test2, [int(len(test2) / 3), 3])
+    result = np.mean(kindex_dis, axis=1)
+    return(result)
+
 ## Get the k-grid size from the second line containing Gamma point
 # @param filename: path/filename of the bandstructure file
 # Assumes that KPointPath starts with Gamma point
@@ -305,14 +328,29 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
     kpointpath_kx   =block_t[:,1]
     kpointpath_ky   =block_t[:,2]
     kpointpath_kz   =block_t[:,3]
+    occupations     =block_t[:, 4]
 
+    """"
+    # WARNING!!! Hypothesis employed here is that k-point path starts with a Gamma point.
     test1 = (kpointpath_kx == 0)
     test2 = (kpointpath_ky == 0)
     test3 = (kpointpath_kz == 0)
     Mask = np.logical_and(np.logical_and(test1, test2), test3)
+    """
+
+    test4 = (occupations == 0) #this captures the first point of the k-point-path
+    Mask = test4
+    # not GammaPoint and occupations == 0 # we start the k-point-path (by something else than Gamma)
+    # GammaPoint and occupations == 0 # we are in the k-point-path, but maybe not at the beginning (several Gammas are present in the path)
+    # not GammaPoint and occupations == 1 # we are still inside 3D k-point-grid
+    # GammaPoint and occupations == 1 # we are still inside the 3D k-point-grid
     #Mask = np.logical_and(np.logical_and(np.logical_and(kpointpath_kx==0, kpointpath_ky==0), kpointpath_kz==0), kpointpath_index==0)
     # block = read_static_info_kpoints(filename)
+
     NumberOf3dKpoints=np.where(Mask)[0][1]
+
+
+
     return round(np.power(NumberOf3dKpoints,1/3))
 
 ## Capture eigenvalues for a given k-point from "info" file
@@ -320,6 +358,7 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
 # @param NumberOfEigenValues: limits the capture of number of eigenvalues.
 # @param filename: "info" file.
 def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
+    import re
     Header="[libString: GetEigenValue(): ]"
     pattern= "#k ="
     if(verbose==1): 
@@ -329,11 +368,22 @@ def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1
     with open( filename, "r" ) as source:
         for heading_and_lines in group_by_heading( source, pattern ):
             heading = heading_and_lines[0]
-            lines = heading_and_lines[1:] #NOTE: assumes header is one line. 
-            if(str(kpoints_index)) in heading:
-                #print heading
+            lines = heading_and_lines[1:] #NOTE: assumes header is one line.
+            # if(pattern+str(kpoints_index)) in heading.split(",")[0]: #TODO: is this failsafe?
+            # for result in re.finditer(pattern,heading): #for each "#k ="
+            #     if(result.span()[0]==0): #if we found this chain at the beginning
+            # search for 1 "#k =" followed by an exact stringed number and finishes with a "," with possible spaces
+            # prog=re.compile("#(\s)*k\s=(\s)*"+str(kpoints_index)+"(\s)*,")
+            prog=re.compile("#(\s)*k(\s)*=(\s)*" + str(kpoints_index) + "(\s)*,") #still captures at least 4 digits (?!)
+            result = prog.match(heading)
+            try:
+                if(result[0].split("=")[1].split(",")[0] == str(kpoints_index)): #this means we found the right spot for any numhber of digits
+                # if(str(kpoints_index) == str(heading.split(",")[0].split("=")[1])): #TODO: still limited to 4 digits
+                    print(kpoints_index)
                 #print lines
-                break #we stop iteration when pattern is found
+                    break #we stop iteration when pattern is found #complexity here is O(N^2)
+            except:
+                pass
     if(verbose==1): 
         print(Header+str(heading))
         print(Header+str(lines[0:NumberOfEigenValues]))

@@ -1,5 +1,5 @@
 #!/bin/bash
-source $QuantumLaPsources/02-Slab2D/functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
 set -e
 
 echo ""

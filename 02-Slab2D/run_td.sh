@@ -4,7 +4,7 @@
 
 # set -e
 source machines.env
-source functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
 # ENABLE DRY RUN ? 
 DryRun=0
 MoveIons=0

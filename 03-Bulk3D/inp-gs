@@ -38,6 +38,8 @@ BoxShape = parallelepiped
   m*a | m*a | m*a
 %
 
+# https://lampx.tugraz.at/~hadley/ss1/bzones/fcc.php. 
+# Lattice vectors a1 a2 are inverted here, compared to link. 
 %LatticeVectors
   0.0 | 0.5 | 0.5
   0.5 | 0.0 | 0.5
@@ -75,9 +77,9 @@ ell = 0. #ellipticity
   cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 %
 
-ExtraStates = 0
+# ExtraStates = 8 
 
-# smearing = 0.0002
+# Smearing = SmearingTe*eV #eV
 # SmearingFunction=fermi_dirac
 
 # LCAOstart = lcao_simple #self-consistent starter
@@ -87,6 +89,13 @@ MaximumIter=200
 
 ### OUTPUTS
 Output = dos + density + potential + geometry + el_pressure # + matrix_elements + pol_density
+
+DOSEnergyMin = -10*eV #-0.3674932248085465 #-10 eV, like Zhigilei
+DOSEnergyMax = 25*eV
+
+DOSEnergyPoints = 10000
+DOSGamma = 0.02*eV #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
+
 
 ### GS matrix elements (useful for Floquet)
 # OutputMatrixElements=dipole # ks_multipoles # + momentum

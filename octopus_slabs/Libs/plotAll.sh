@@ -1,13 +1,13 @@
 #!/bin/bash
 
+RecomputeItAll="recompute" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
-
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
 echo " **** SH loads modules ****"
-source ${QuantumLaPsources}/machines.env
+source ${QuantumLaPsources}/octopus_slabs/machines.env
 
 # module purge
 # module load git
@@ -16,12 +16,11 @@ source ${QuantumLaPsources}/machines.env
 CheckComputerName #this loads the machine dependent libraries from machines.env.
 LoadEnvLibraries
 
-
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
 
 echo "** Info: UseScreen? [${UseScreen}]"
 
-source $QuantumLaPsources/02-Slab2D/functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
 # module load plgrid/tools/gnuplot/5.2.4 #temporary fix
 module list
 # set -e
@@ -38,57 +37,75 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ -e laser ]; then
+	if [ ! -e laser.tmp ] || [[ -n $RecomputeItAll ]] ; then
+            if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
-		${QuantumLaPsources}/fixOutputFile.sh laser
+#		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
+ 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+            fi
         fi
-	if [ -e laser ]; then
-		echo "** Plotting laser..."
+	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then
+           if [ -e laser.tmp ]; then
+		
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
-		screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+		screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 else
-                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeLaser.gnu"
-                gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                echo "** Plotting laser.tmp..."
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
+
+                echo "** Plotting polarization orientation..."
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 fi
+            fi
 	fi
+        if [ ! -e Field.eps ]; then
+                echo "** Plotting electric field from vector potential..."
+                ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensityField.py        
+        fi
 	if [ -e energy ]; then
+           if [ ! -e Energy.eps ] || [[ -n $RecomputeitAll ]]; then
 		echo "** Plotting energy..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
-                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeEnergy.gnu"
                 else
-                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeEnergy.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeEnergy.gnu"
                 fi
+            fi
 	fi
 	if [ -e total_current ]; then
+           if [ ! -e Current.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "** Plotting current..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
-                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeCurrent.gnu"
                 else
-                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeCurrent.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeCurrent.gnu"
                 fi
+           fi
 	fi
         if [ -e n_ex ]; then
+           if [ ! -e ExcitedElectrons.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
-                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensity.gnu"
                 else
-                gnuplot "${QuantumLaPsources}/02-Slab2D/plotTimeDensity.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensity.gnu"
                 fi
+            fi
 	fi
 
         if [ -e dielectric_function ]; then
                 echo "Plotting dielectric permittivity..."
                 if [[ $UseScreen ]]; then
                 echo "*** Warning: screen is employed."
-                screen -d -m gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivity.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotDielectricPermittivity.gnu"
                 else
-                gnuplot "${QuantumLaPsources}/02-Slab2D/plotDielectricPermittivity.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotDielectricPermittivity.gnu"
                 fi
         fi
 	echo ""
@@ -116,9 +133,9 @@ do
         if [ -e energy ]; then
           echo "** Plotting the TD-combined n_exc, E(t) and J(t) results... $(pwd)" 
           if [[ $UseScreen ]]; then
-            screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+            screen -d -m ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
-            ${QuantumLaPsources}/02-Slab2D/plotTimeKeldysh.py auto 0 0 # >& plotTimeKeldysh.log
+            ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 # >& plotTimeKeldysh.log
           fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	  echo ""
@@ -149,9 +166,9 @@ do
         if [ -e total_current ]; then
           echo "** Plotting the TD-HHG results... $(pwd)" 
           if [[ $UseScreen ]]; then
-            screen -d -m ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+            screen -d -m ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeHHG.py auto 0 0
           else
-            ${QuantumLaPsources}/02-Slab2D/plotTimeHHG.py auto 0 0
+            ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeHHG.py auto 0 0
           fi
         fi
 
@@ -179,9 +196,9 @@ do
           if [ -e gauge_field ]; then
             echo "** Plotting the Linear Response results... $(pwd)" 
             if [[ $UseScreen ]]; then
-              screen -d -m ${QuantumLaPsources}/02-Slab2D/plotLinearResponse.py
+              screen -d -m ${QuantumLaPsources}/octopus_slabs/Libs/plotLinearResponse.py
             else
-              ${QuantumLaPsources}/02-Slab2D/plotLinearResponse.py
+              ${QuantumLaPsources}/octopus_slabs/Libs/plotLinearResponse.py
             fi
           fi
         fi
@@ -207,9 +224,9 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-plotExcitation  #Prepare all plots for n_ex analysis.
+# plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
@@ -219,8 +236,8 @@ echo " Have fun with Database.csv and plotHHGspectra.py after this."
 #  prevFolder=$( pwd )
 #  cd $folder
 
-echo "** Plotting nice figure for post-processed density for $(pwd)..."
-${QuantumLaPsources}/02-Slab2D/plotFinalQuantities.py
+# echo "** Plotting nice figure for post-processed density for $(pwd)..."
+# ${QuantumLaPsources}/octopus_slabs/Libs/plotFinalQuantities.py
 
 #   cd $prevFolder > /dev/null
 # done 

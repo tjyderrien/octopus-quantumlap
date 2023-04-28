@@ -7,7 +7,7 @@ NumberLines=$1
 
 DebugMode=0
 
-source ${OctopusSlabsSources}/02-Slab2D/functions.sh
+source $QuantumLaPsources/Scripts/functions.sh
 source ${OctopusSlabsSources}/02-Slab2D/machines.env
 CheckComputerName
 

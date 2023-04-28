@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2023 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,16 +17,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ## @package plotHHGspectra
-# Collects the generated time-dependent octopus simulations spectra HHG.dat from all subfolders (can last minutes)
+# Collects the generated time-dependent octopus simulations spectra HHG.csv from all subfolders (can last minutes)
 # Then prepares a picture using the collected data for each identified field amplitude
 
 import glob
 import os
 
-from spp_extended_theory.Keldysh.libKeldysh import *
-from scipy.interpolate import interp1d
+from scipy.special import erf
 
-from Libs import libPlotting
+from spp_extended_theory.Keldysh import libKeldysh
+
+from spp_extended_theory.Libs import libDatabase
+# from spp_extended_theory.Keldysh.libKeldysh import *
+
+from scipy.interpolate import interp1d
+from scipy.constants import e, h, hbar, c
+from octopus_slabs.Libs import libPlotting
+
+from matplotlib import rc
+import matplotlib as mp
+import numpy as np
+
+import pandas as pd
+
+from   octopus_slabs.Libs.libLogging         import init_logger
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 ## for Palatino and other serif fonts use:
@@ -35,9 +49,10 @@ rc('text', usetex=False) #True: Does not work on Draco. Just put False, then, an
 mp.rcParams['legend.numpoints'] = 1
 
 Header="[plotHHGspectra] "
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ShowFinalPlot              = 1
-HHG_samples                = 600 #*2, *3, *4
+HHG_samples                = 10000 #6534 #6534: good!! 600: insufficient!!
 
 path = "*/td.general/"
 DatabaseFile="Database.csv"
@@ -69,7 +84,7 @@ def ParseAllFolders(): #{{{
 	
 	        # List all the files HHG-spectrums.csv in subfolders
 	        # try: 
-	        HHG=loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+	        HHG=np.loadtxt(FolderName+"../td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
 	        # except:
 	        #  print "** Error: Loading of HHG-Spectrum.csv failed." 
 	        # Size of the spectrum? 
@@ -101,10 +116,10 @@ def ParseAllFolders(): #{{{
 #}}}
     
 
-Database = np.loadtxt(DatabaseFile, skiprows=0)
+Database = np.loadtxt(DatabaseFile, skiprows=3)
 ## ======== METHOD 2: construct the sub-database of interest
 
-def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, PulseType=3, RiseCycles=2): #{{{
+def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, PulseType=3, RiseCycles=2, LogScale=False): #{{{
     
     # Declaring variables
     X=[]; Y=[]; Z=[]
@@ -128,6 +143,7 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     # Extracting the data from filtered database
     try: 
         runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
+        runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom
     except:
         print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
         exit()
@@ -145,9 +161,9 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
         print(runid_folder)
         try:
-            HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+            HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-            print("** Error: Loading of HHG-Spectrum.csv failed.") 
+            logger.error("** ERROR: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -179,10 +195,12 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
 
     # Returns log10 of Z, but clean.
     Z_clipped=np.clip(Z, 1, np.max(Z))
-    Z_log=np.log10(Z_clipped)
+    if(LogScale): 
+        Z_log=np.log10(Z_clipped)
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
-    Z=Z_log #Z_clipped
-    # Z=Z_clipped
+        Z=Z_log #Z_clipped
+    else:
+        Z=Z_clipped
 
     xlabel=r"$\hbar \omega_{HHG}$ (eV)"
     ylabel=r"Wavelength $\lambda$ ($\mu$m)"
@@ -205,19 +223,23 @@ def PlotHHGsinglePulsewithWavelength(Efield, tau=20E-15, CEP=0, MoveIon=0, Pulse
     Egap=2.56*e
 #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     filename="HHGspectrum-"+str(int(Efield))+"-HHGamples"+str(HHG_samples)
+    if(LogScale):
+        filename+="LogScale"
 
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     print("** Preparing plot...")
     libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
     return 0
 #}}}
 
-## Prepares color plot HHG(omega_HHG, CEP) 
-def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2, InducedFields=0): #{{{
-    
+## Prepares color plot HHG(omega_HHG, CEP) from database
+# LogScale does not make sense here (we look at fluctuations)
+def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon=0, PulseType=3, RiseCycles=2,
+                              InducedFields=0): #{{{
+    global Database 
     # Declaring variables
     X=[]; Y=[]; Z=[]
    
@@ -227,23 +249,38 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
     #CEP    =0
     #MoveIon=0
     #PulseType=3; RiseCycles=2
-    Filtered1= libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, RiseCycles, InducedFields)
+    # CHECKING SIZE OF DATABASE
+    libPlotting.CountTheNumberOfLaserParameters(Database)
+
+    logger.info("Filtering...")
+    Filtered1= libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength, Efield, tau, PulseType, 0, RiseCycles, InducedFields)
     Filtered1=np.asfarray(Filtered1) #lets use only numbers there.
+
+    # CHECKING size of returned table
+    print("INFO: size of returned table: "+str(np.size(Filtered1)))
+    
     # SORTING
     # One must sort here the DB as function of the sequence we would like to plot.
     # Sorted1=np.sort(Filtered1, axis=0)
-    Sorted2=Filtered1[np.lexsort((Filtered1[:, libPlotting.IndexTable['Efield1']], Filtered1[:,
-                                                                                   libPlotting.IndexTable['CEP1']]))]
+    Sorted2=Filtered1[np.lexsort((Filtered1[:, libPlotting.IndexTable['Efield1']], Filtered1[:,libPlotting.IndexTable['CEP1']]))]
     # NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. For now: manually disabling duplicated entries in DB. 
     # One could use np.unique() function, but we may loose the JobID then? 
     # Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
 
     # Extracting the data from filtered database
-    try: 
-        runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, Energy_max, Wpi, PulseType, RiseTime, FinalTime  = libPlotting.ExtractData(Sorted2)
-    except:
-        print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
-        exit()
+    # try: 
+
+    runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, \
+    pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, \
+    Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, \
+    TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, \
+    HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, \
+    HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse,  EnergyPoynting_SI_sum_final, Eext_SI_max, \
+    Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(Sorted2)
+
+    # except:
+    #    print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
+    #    exit()
 
     # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
     # if(DuplicatedEntries): #we keep only the longest runs
@@ -259,9 +296,10 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         runid_folder=os.path.split(os.path.abspath(ListFound[0]))[0] #assumes only 1 finding per loop
         print(runid_folder)
         try:
-            HHG=loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=1)
+            HHG=np.loadtxt(runid_folder+"/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
         except:
-            print("** Error: Loading of HHG-Spectrum.csv failed.") 
+#           logger.error("** Error: Loading of HHG-Spectrum.csv failed.")
+            logger.error("** Error: Loading of "+runid_folder+"/td.general/HHG-Spectrum.csv failed.")
             continue #just jump this run. Keep plotting the rest. 
         # Size of the spectrum? 
         HHG=np.asfarray(HHG)
@@ -270,7 +308,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         if(len(HHG[:,0])!=HHG_samples): #NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
             print("** Info: interpolating...")
 #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
-            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero'
+            HHG_func=interp1d(HHG[:,0], HHG[:,1], kind='nearest') #kind='linear', 'nearest', 'zero' #WARNING: this part seems to destroy integrity of the plot
 
             HHG_omega_new=np.linspace(np.min(HHG[:,0]), np.max(HHG[:,0]), HHG_samples)
 
@@ -284,6 +322,7 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
             print("** Debug: "+str(CEP1[JobID]*180./np.pi))
             print("** Debug: checking length of new mesh: "+str(np.shape(HHG_omega_new)))
             Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new))),[Y])
+            # HHG_samples_effective=len(HHG[:,0])
         else: #dont interpolate
             X=np.append(HHG[:,0],X)
             Z=np.append(HHG[:,1],Z)
@@ -293,15 +332,48 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
         #print str(h*c/wavelengths1[JobID]/e)+" eV"
         del HHG
 
-    #### ======== COMMON PART 
+    #### ======== COMMON PART
+
+    NumberOfRuns=len(runid)
     # Converts Y to array of reals
     Y = np.asfarray(Y)
 
-    # Returns log10 of Z, but clean.
-    Z_clipped=np.clip(Z, 2, np.max(Z))
-    Z_log=np.log10(Z_clipped)
+    logger.debug("Shape of Z: "+str(np.shape(Z)))
+    Z_clipped=np.clip(Z, 0, np.max(np.max(Z))) #we remove zones lower than 0
+
+
     # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
-    Z=Z_log #Z_clipped
+
+    logger.debug("Shape of X: "+str(np.shape(X)))
+    logger.debug("Shape of Y: "+str(np.shape(Y)))
+    logger.debug("Number of runs: "+str(NumberOfRuns))
+
+    Z_reshaped=np.reshape(Z_clipped, (NumberOfRuns, len(Z_clipped)//(NumberOfRuns))) #integer division
+    logger.debug("Shape of Z_reshaped: "+str(np.shape(Z_reshaped)))
+    Z_av_CEP = np.mean(Z_reshaped, axis=0) #size matches with harmonics spectra. Then we well integrated on CEPs.
+    # Z_av = np.mean(Z_clipped) #ERROR: this returns a scalar. We need a vector that depends on photon frequency.
+    logger.debug("Shape of Z_clipped: " + str(np.shape(Z_clipped)))
+    logger.debug("Shape of Z_av_CEP: "+str(np.shape(Z_av_CEP)))
+    logger.info("CEP-average value of the HHG spectra: "+str(Z_av_CEP) )
+    # We need to re-extend the list to size of Z_clipped.
+    Z_av_CEP_r = np.repeat(Z_av_CEP, NumberOfRuns)
+    logger.debug("Shape of repeated Z_av_CEP: "+str(np.shape(Z_av_CEP_r)))
+    Z_av = np.reshape( Z_av_CEP_r, np.shape(Z_clipped))
+    logger.debug("Shape of repeated Z_av_CEP: " + str(np.shape(Z_av)))
+    Z_fluctuation = Z_clipped - Z_av #recommended by M. Kozak
+
+    # DEBUG PURPOSE
+    # Z = Z_av
+
+    # THE GOOD ONE IS:
+    # Z = Z_fluctuation
+
+    # ANOTHER VISUALIZATION COULD BE
+    Z = np.power(Z,0.1) #with the negative zones if there are any
+    # Z = erf(Z/np.max(np.fabs(Z)))
+    # Z = erf(Z_fluctuation/np.mean(np.fabs(Z_fluctuation))) #/np.max(np.fabs(Z_fluctuation)))
+    # Z = np.fabs(Z_fluctuation) / Z_fluctuation #singularity in zero
+    # Z = np.log10(Z) #Z_clipped #plotting fluctuations
     # Z=Z_clipped
     # From here, we have all the files we need. 
 
@@ -313,47 +385,457 @@ def PlotHHGsinglePulsewithCEP(wavelength=800e-9, Efield=1E9, tau=20E-15, MoveIon
 #    cmap='Blues'
 #    cmap='RdBu_r'
     # afmhot_r, hot, hot_r, bone_r, 
-    colormap='bone_r'
+#    colormap='bone_r'
+    colormap="RdBu_r"
 
-    ShowFinalPlot=False
-    PlotTriangles=False
+    ShowFinalPlot=True
+    PlotTriangles=True
     PlotGradient =False
     
-    xlimit     = [0,50] #eV
-    ylimit     = [-90,90] #deg
-    numberoflevels=30
     Egap=2.56*e
-    
-    filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))
+    # xlimit     = [0.75*Egap/e,3*Egap/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    xlimit = [0. * Egap / e,
+              3 * Egap / e]  # eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    ylimit     = [-90.,90.] #deg
+    numberoflevels=30
+    grad_precisionX=10; grad_precisionY=10; #number of cells for interpolation for gradient computation
+
+    filename="HHGspectrumWithCEP-wavelength"+str(int(wavelength*1E9))+"nm-Efield"+str(int(Efield))+"Vm-tau"+str(round(tau*1E15,1))+"-"+str(libPlotting.PulseTypeID_rev[PulseType[0]])
     
     ## EXPORT to external file.
     print("** Info: Exporting to file "+filename+".csv")
-    ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
+    libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename+".csv")
 
     #plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
     print("** Preparing plot...")
-    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap)
+    #Signature by default: ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100, wavelength1=2656e-9
+    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel, colormap, numberoflevels, xlimit, ylimit, Egap, grad_precisionX, grad_precisionY)
     return 0
 #}}}
 
-def plotHHG_batch_Efield():
+## Selects usable data to plot HHG spectrum as function of orientation
+# This routine uses pandas.
+def PlotHHGsinglePulseWithOrientation(wavelength=2.65625e-6, Efield=3E9, tau=1.394500e-14, MoveIon=0,
+                                      PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=2,
+                                  InducedFields=0, LogScale=False):  # {{{
+        # global Database
+        #1. Find the most recent database CSV file
+        # 2. Read it using pandas
+        data=pd.read_csv("SiComplete-2022-01-16-BiatriSrv-v2.2.1-WithToleranceOnField-WithAll.csv", "\t", header=2)
+        data.describe(include="all")
+        data = data.rename(columns={"##JobID": "JobID"}) #solving hashtag problems
+        data = data=data.convert_dtypes() #automatically adapts the data types for each field
+        # 3. Select corresponding data
+        data = data[data.Functional == libPlotting.IndexFunctional["LDA"]]  # 0: LDA, #3: TB09, #2: GGA, #1: MGGA
+        data = data[data.kgrid == 40]
+        data = data[data.InducedFields == 0]
+        data = data.sort_values(["lambda1", "tau1", "Efield1", "Efield2", "PolarizationAngle", "kgrid", "realmesh"],
+                                ascending=True)
+        datatmp = data
+        datatmp = datatmp[np.fabs(datatmp.lambda1 - wavelength) < 1e-9]  # Kozak 2000 nm
+        datatmp = datatmp[datatmp.Efield2 == 0]
+        datatmp = datatmp[datatmp.Efield1 == Efield]
+        datatmp = datatmp[datatmp.CEP1 == 0]
+        datatmp = datatmp[datatmp.MoveIon == MoveIon]
+        datatmp = datatmp[np.fabs(datatmp.tau1 - tau)<1E-15]
+        datatmp = datatmp[datatmp.STH == PulseType]
+        datatmp = datatmp[datatmp.FrozenHxc == 0]
+        logger.info("Number of runs available for HHG: "+str(datatmp))
+
+        # 4. From that point, fetch ID of the run
+        PolarizationAngle = datatmp.PolarizationAngle
+        # logger.debug("len(RunID): "+str(len(runid)))
+
+        # 5. Fetching the data in each subfolder's run
+        X = []; Y = []; Z = []
+        for JobID_id in datatmp.JobID: #{{{
+            logger.debug("JobID: "+str(JobID_id))
+            # logger.debug("runid: " + str(runid))
+            FileLookUp = "octopus-td." + str(JobID_id) + "*.log"
+            ListFound = glob.glob("*/*/*/" + FileLookUp)
+            logger.debug(FileLookUp)
+            runid_folder = os.path.split(os.path.abspath(ListFound[0]))[0]  # assumes only 1 finding per loop
+            logger.debug(ListFound)
+            logger.debug(runid_folder)
+
+            try:
+                # HHG = np.loadtxt(runid_folder + "/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
+                HHG = np.loadtxt(runid_folder + "/td.general/total_current", dtype='str', skiprows=4)
+            except:
+                #            print("** Error: Loading of HHG-Spectrum.csv failed.")
+                logger.error("Loading of " + runid_folder + "/td.general/HHG-Spectrum.csv failed.")
+                continue  # just jump this run. Keep plotting the rest.
+            # Size of the spectrum?
+            HHG = np.asfarray(HHG)
+            logger.debug("Size of HHG file: " + str(len(HHG)))
+            logger.debug("HHG_samples: "+str(HHG_samples))
+            if (len(HHG[:,0]) != HHG_samples):  # NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
+                logger.info("** Info: interpolating...")
+                #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
+                HHG_func = interp1d(HHG[:, 0], HHG[:, 1],
+                                    kind='nearest')  # kind='linear', 'nearest', 'zero' #WARNING: this part seems to destroy integrity of the plot
+
+                HHG_omega_new = np.linspace(np.min(HHG[:, 0]), np.max(HHG[:, 0]), HHG_samples)
+
+                Z_interp = HHG_func(HHG_omega_new)
+                X = np.append(HHG_omega_new, X)  # HHG frequencies for 1 run
+                if(LogScale):
+                        Z = np.append(np.log10(Z_interp+1.), Z)  # HHG amplitudes  for 1 run
+                else:
+                        Z = np.append(Z_interp, Z)
+                # Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically.
+                # Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+
+                localentry = datatmp[datatmp.JobID == JobID_id]
+                PolarizationAngle = np.array(localentry.PolarizationAngle)[0]
+                logger.debug(PolarizationAngle * 180. / np.pi)
+                logger.debug("Checking length of new mesh: " + str(np.shape(HHG_omega_new)))
+                Y = np.append(np.multiply(PolarizationAngle * 180. / np.pi, np.ones(len(HHG_omega_new))), [Y])
+            else:  # dont interpolate
+                X = np.append(HHG[:, 0], X)
+                Z = np.append(HHG[:, 1], Z)
+                # Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
+                Y = np.append(np.multiply(PolarizationAngle * 180. / np.pi, np.ones(len(HHG[:, 0]))), [Y])
+            logger.info(str(int(180. / np.pi * PolarizationAngle)) + " deg.")
+            # print str(h*c/wavelengths1[JobID_id]/e)+" eV"
+            del HHG
+        #}}}
+
+        #### ======== COMMON PART
+        # Converts Y to array of reals
+        Y = np.asfarray(Y)
+
+        # Returns log10 of Z, but clean.
+        # Z_clipped = Z #np.clip(Z, 0, np.max(np.max(Z)))  # we remove zones lower than 2
+        #    Z_log=np.log10(Z_clipped)
+        # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
+        # Z_av = np.mean(Z_clipped)
+        # print("Average value of the distribution: " + str(Z_av))
+        # Z_fluctuation = Z_clipped - Z_av  # recommended by M. Kozak
+        # Z = Z_fluctuation
+        #    Z=Z_log #Z_clipped #plotting fluctuations
+        # Z=Z_clipped
+        # From here, we have all the files we need.
+
+        xlabel = r'$\hbar \omega_{HHG}$ (eV)'
+        # ylabel=r"Wavelength $\lambda$ (nm)"
+        # ylabel=r"Photon energy $\hbar \omega$ (eV)"
+        ylabel = r'Sample orientation (deg)'
+        title = r'$HHG(\omega_{probe}$, orientation$_{pump})$'
+        #    cmap='Blues'
+        #    cmap='RdBu_r'
+        # afmhot_r, hot, hot_r, bone_r,
+        #    colormap='bone_r'
+        colormap = "RdBu_r"
+
+        ShowFinalPlot = True
+        PlotTriangles = True
+        PlotGradient = False
+
+        xlimit = [0., h * c / 200e-9 / e]  # eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+        ylimit = [0., 45.]  # deg
+        numberoflevels = 30
+        grad_precisionX = 10;
+        grad_precisionY = 10;  # number of cells for interpolation for gradient computation
+        Egap = 3.04 * e
+
+        filename = "HHGspectrumWithOrientation-wavelength" + str(int(wavelength * 1E9)) + "nm-Efield" + str(int(Efield))
+        if(LogScale): 
+                filename += "LogScale"
+
+        ## EXPORT to external file.
+        logger.info("** Info: Exporting spectrum to file " + filename + ".csv")
+        libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename + ".csv")
+
+        # plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
+        logger.info("** Preparing plot...")
+        libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel,
+                                      ylabel, colormap, numberoflevels, xlimit, ylimit, Egap, grad_precisionX,
+                                      grad_precisionY)
+        return 0
+#}}}
+
+## Prepares color plot HHG(omega_HHG, CEP) from database
+# LogScale does not make sense here (we look at fluctuations)
+def PlotHHGBicolorPulsewithCEP(wavelength1=800e-9, Efield1=1E9, tau1=20E-15, CEP1=0.21*np.pi,
+                               wavelength2=400e-9, Efield2=1E9, tau2=20E-15,
+                               MoveIon=0, PulseType=libPlotting.PulseTypeID["SinFourth"], RiseCycles=2,
+                              InducedFields=0):  # {{{
+    global Database
+    # Declaring variables
+    X = [];
+    Y = [];
+    Z = []
+
+    # FilterSinglePulseDatabaseWithParameters_wavelengths(Database, Efield1, pulseDuration, CEP, PulseType=5, RiseTime=2)
+    # Efield =7.5E8 #V/m
+    # tau    =20e-15
+    # CEP    =0
+    # MoveIon=0
+    # PulseType=5; RiseCycles=2
+    # CHECKING SIZE OF DATABASE
+    libPlotting.CountTheNumberOfLaserParameters(Database)
+
+    logger.info("Size before filtering: "+str(np.shape(Database)))
+    Filtered1 = libPlotting.FilterBicolorPulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, tau1, CEP1,
+                                                                         wavelength2, Efield2, tau2,
+                                                                         PulseType, RiseCycles, 0, InducedFields)
+    # Filtered1 = libPlotting.FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, tau1, PulseType, 0,
+    #                                                                     RiseCycles, InducedFields)
+    Filtered1 = np.asfarray(Filtered1)  # lets use only numbers there.
+
+    # CHECKING size of returned table
+    logger.warning("Size after filtering: " + str(np.size(Filtered1)))
+
+    # SORTING
+    # One must sort here the DB as function of the sequence we would like to plot.
+    # Sorted1=np.sort(Filtered1, axis=0)
+    logger.debug("Length before sorting: " + str(np.shape(Filtered1)))
+
+    Sorted2 = Filtered1[
+        np.lexsort((Filtered1[:, libPlotting.IndexTable['wavelengths1']],
+                    Filtered1[:, libPlotting.IndexTable['wavelengths2']],
+                    Filtered1[:, libPlotting.IndexTable['Efield1']],
+                    Filtered1[:, libPlotting.IndexTable['Efield2']],
+                    Filtered1[:, libPlotting.IndexTable['pulses1']],
+                    Filtered1[:, libPlotting.IndexTable['pulses2']],
+                    Filtered1[:, libPlotting.IndexTable['CEP1']],
+                    Filtered1[:, libPlotting.IndexTable['CEP2']]
+                    ))]
+
+    logger.debug("Length after sorting: "+str(np.shape(Sorted2)))
+    # NOTE: how to manage the duplicated computations? We would like to keep longest computations. But may not remove duplicates. For now: manually disabling duplicated entries in DB.
+    # One could use np.unique() function, but we may loose the JobID then?
+    # Sorted3=libDatabase.FilterDatabaseRemove( #lets remove the shortest duplicated run
+
+    # Extracting the data from filtered database
+    # try:
+
+    runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, \
+    pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, \
+    Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, \
+    TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, \
+    HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, \
+    HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, \
+    Ne_afterpulse, Wpi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(
+        Sorted2)
+
+    # except:
+    #    print("Extraction of sorted table failed. Maybe some elements are duplicated? Tip: keep the longest runs. Length(Sorted2)="+str(len(Sorted2)))
+    #    exit()
+
+    # DuplicatedEntries=(list(set(runid))==len(Filtered1)) #test if we have duplicated entries
+    # if(DuplicatedEntries): #we keep only the longest runs
+    #  print "There exists DUPLICATED ENTRIES (several iterations of same parameters. Please clean the database.csv flie in that respect, then restart."
+    #  print DuplicatedEntries
+    #  exit()
+
+    for JobID in np.arange(0, len(runid)):
+        runid_int = int(runid[JobID])
+        FileLookUp = "octopus-td." + str(runid_int) + "*.log"
+        ListFound = glob.glob("*/*/" + FileLookUp)
+        print(FileLookUp)
+        runid_folder = os.path.split(os.path.abspath(ListFound[0]))[0]  # assumes only 1 finding per loop
+        print(runid_folder)
+        try:
+            HHG = np.loadtxt(runid_folder + "/td.general/HHG-Spectrum.csv", dtype='str', skiprows=0)
+        except:
+            #           logger.error("** Error: Loading of HHG-Spectrum.csv failed.")
+            logger.error("** Error: Loading of " + runid_folder + "/td.general/HHG-Spectrum.csv failed.")
+            continue  # just jump this run. Keep plotting the rest.
+        # Size of the spectrum?
+        HHG = np.asfarray(HHG)
+        print("Size of HHG file: " + str(len(HHG)))
+
+        if (len(HHG[:,0]) != HHG_samples):  # NOTE: 600 is just the most employed number of samples for FFT in our computations. The size of HHG was like 600 all the time. Let's interpolate to that size if different.
+            print("** Info: interpolating...")
+            #            HHG_func=InterpolatedUnivariateSpline(HHG[:,0], HHG[:,1])
+            HHG_func = interp1d(HHG[:, 0], HHG[:, 1],
+                                kind='nearest')  # kind='linear', 'nearest', 'zero' #WARNING: this part seems to destroy integrity of the plot
+
+            HHG_omega_new = np.linspace(np.min(HHG[:, 0]), np.max(HHG[:, 0]), HHG_samples)
+
+            Z_interp = HHG_func(HHG_omega_new)
+            X = np.append(HHG_omega_new, X)  # HHG frequencies for 1 run
+            Z = np.append(Z_interp, Z)  # HHG amplitudes  for 1 run
+
+            # Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG_omega_new))), [Y]) #we are sure that JobID is increasing monotonically.
+            #            Y=np.append(np.multiply(CEP1[JobID]*180./np.pi,np.ones(len(HHG_omega_new[:,0]))),[Y])
+            print("** Debug: " + str(CEP2[JobID] * 180. / np.pi))
+            print("** Debug: checking length of new mesh: " + str(np.shape(HHG_omega_new)))
+            Y = np.append(np.multiply(CEP2[JobID] * 180. / np.pi, np.ones(len(HHG_omega_new))), [Y])
+            # HHG_samples_effective=len(HHG[:,0])
+        else:  # dont interpolate
+            X = np.append(HHG[:, 0], X)
+            Z = np.append(HHG[:, 1], Z)
+            # Y=np.append(np.multiply(h*c/wavelengths1[JobID]/e,np.ones(len(HHG[:,0]))),[Y]) #TODO: we can use something else to plot, such as CEP or wavelengths2 !
+            Y = np.append(np.multiply(CEP2[JobID] * 180. / np.pi, np.ones(len(HHG[:, 0]))), [Y])
+        print(str(int(180. / np.pi * CEP2[JobID])) + " deg.")
+        # print str(h*c/wavelengths1[JobID]/e)+" eV"
+        del HHG
+
+    #### ======== COMMON PART
+
+    NumberOfRuns = len(runid)
+    # Converts Y to array of reals
+    Y = np.asfarray(Y)
+
+    logger.debug("Shape of Z: " + str(np.shape(Z)))
+    Z_clipped = np.clip(Z, 0, np.max(np.max(Z)))  # we remove zones lower than 0
+
+    # Z_contourf=np.reshape(Z_log, len(counter, len(Z_log)/counter))
+
+    logger.debug("Shape of X: " + str(np.shape(X)))
+    logger.debug("Shape of Y: " + str(np.shape(Y)))
+    logger.debug("Number of runs: " + str(NumberOfRuns))
+
+    Z_reshaped = np.reshape(Z_clipped, (NumberOfRuns, len(Z_clipped) // (NumberOfRuns)))  # integer division
+    logger.debug("Shape of Z_reshaped: " + str(np.shape(Z_reshaped)))
+    Z_av_CEP = np.mean(Z_reshaped, axis=0)  # size matches with harmonics spectra. Then we well integrated on CEPs.
+    # Z_av = np.mean(Z_clipped) #ERROR: this returns a scalar. We need a vector that depends on photon frequency.
+    logger.debug("Shape of Z_clipped: " + str(np.shape(Z_clipped)))
+    logger.debug("Shape of Z_av_CEP: " + str(np.shape(Z_av_CEP)))
+    logger.info("CEP-average value of the HHG spectra: " + str(Z_av_CEP))
+    # We need to re-extend the list to size of Z_clipped.
+    Z_av_CEP_r = np.repeat(Z_av_CEP, NumberOfRuns)
+    logger.debug("Shape of repeated Z_av_CEP: " + str(np.shape(Z_av_CEP_r)))
+    Z_av = np.reshape(Z_av_CEP_r, np.shape(Z_clipped))
+    logger.debug("Shape of repeated Z_av_CEP: " + str(np.shape(Z_av)))
+    Z_fluctuation = Z_clipped - Z_av  # recommended by M. Kozak
+
+    # DEBUG PURPOSE
+    # Z = Z_av
+
+    # THE GOOD ONE IS:
+    # Z = Z_fluctuation
+
+    # ANOTHER VISUALIZATION COULD BE
+    Z = np.power(Z, 0.1)  # with the negative zones if there are any
+    # Z = erf(Z/np.max(np.fabs(Z)))
+    # Z = erf(Z_fluctuation/np.mean(np.fabs(Z_fluctuation))) #/np.max(np.fabs(Z_fluctuation)))
+    # Z = np.fabs(Z_fluctuation) / Z_fluctuation #singularity in zero
+    # Z = np.log10(Z) #Z_clipped #plotting fluctuations
+    # Z=Z_clipped
+    # From here, we have all the files we need.
+
+    xlabel = r'$\hbar \omega_{HHG}$ (eV)'
+    # ylabel=r"Wavelength $\lambda$ (nm)"
+    # ylabel=r"Photon energy $\hbar \omega$ (eV)"
+    ylabel = r'Carrier Env. Phase (deg)'
+    title = r'$HHG(\omega_{probe}$, CEP$_{pump})$'
+    #    cmap='Blues'
+    #    cmap='RdBu_r'
+    # afmhot_r, hot, hot_r, bone_r,
+    #    colormap='bone_r'
+    colormap = "RdBu_r"
+
+    ShowFinalPlot = True
+    PlotTriangles = True
+    PlotGradient = False
+
+    Egap = 3.04 * e #2.56 * e
+    # xlimit     = [0.75*Egap/e,3*Egap/e] #eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    xlimit = [0. * Egap / e,
+              3 * Egap / e]  # eV. #NOTE: we can up to 100 eV. But experiments in Si see max until 5 eV at the moment (May 2021).
+    ylimit = [-90., 90.]  # deg
+    numberoflevels = 30
+    grad_precisionX = 10;
+    grad_precisionY = 10;  # number of cells for interpolation for gradient computation
+
+    filename = "HHGspectrumWithCEP-wavelength1-" + str(int(wavelength1 * 1E9)) + "nm"
+    filename += "-wavelength2-" + str(int(wavelength2 * 1E9))+"nm"
+    filename += "-Efield1" + str(int(Efield1[0]))+"Vm"
+    filename += "-Efield2" + str(int(Efield2[0])) + "Vm"
+    filename += "-tau1-" + str(round(tau1 * 1E15, 1))+"fs"
+    filename += "-tau2-" + str(round(tau2 * 1E15, 1))+"fs"
+    filename += "-CEP1is" + str(round(CEP1[0]/np.pi, 3))+"pi-"
+    filename += str(libPlotting.PulseTypeID_rev[PulseType[0]])
+
+    ## EXPORT to external file.
+    print("** Info: Exporting to file " + filename + ".csv")
+    libDatabase.ExportToTxt(np.transpose([X, Y, Z]), filename + ".csv")
+
+    # plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='afmhot_r')
+    print("** Preparing plot...")
+    # Signature by default: ShowFinalPlot=True, PlotGradient=False, PlotTriangles=True, xlabel='', ylabel='', cmap_ext='RdBu_r', number_of_levels=10, xlimit=[0,10], ylimit=[0,10], Egap=2.56*e, resolutionX=100, resolutionY=100, wavelength1=2656e-9
+    libPlotting.plot2dHeatMap_HHG(X, Y, Z, title, filename, ShowFinalPlot, PlotGradient, PlotTriangles, xlabel, ylabel,
+                                  colormap, numberoflevels, xlimit, ylimit, Egap, grad_precisionX, grad_precisionY)
+    return 0
+# }}}
+
+
+def plotHHG_batch_Efield(LogScale=False):
 # HHG(omegaHHG, omega1; Efield1)
 	tau=20E-15; CEP=0; MoveIon=0; InducedFields=0 #TODO: option for selecting induced fields is not included in function.
 	for Efield in [5E8, 7.5E8, 1E9, 1.5E9, 2E9, 3E9, 4E9, 5E9]:
-	    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP)
+	    PlotHHGsinglePulsewithWavelength(Efield, tau, CEP, LogScale=LogScale)
     
 # HHG(omegaHHG, CEP1; Efield1)
-def plotHHG_batch_CEP():
-	tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
-        for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
-            for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
-                try: 
-                    PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
-                except:
-                    print(Header+"** Warning: no data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
-                    continue
+# Warning: convergence of runs should be something like 40x40x40 to be accurate.
+def plotHHG_batch_CEP(LogScale=False): #{{{
+    tau=20E-15; MoveIon=0; InducedFields=0; PulseType=3; RiseCycles=2
+    for wavelength in [800e-9, 1600e-9, 2200E-9, 3200E-9]:
+        for Efield in [5E8, 1E9, 2E9, 3E9, 7.5E9]:
+            try: 
+                PlotHHGsinglePulsewithCEP(wavelength, Efield, tau, MoveIon, PulseType, RiseCycles, InducedFields)
+            except:
+                logger.warning("No data for (wavelength, field)="+str(wavelength*1E0)+"nm, "+str(Efield*1E-9)+"V/nm.")
+                continue
+#}}}
 
 # plotHHG_batch_CEP() #NOTE: not sure there is an effect. 200'000 corehours submitted to Salomon on Oct. 22nd 2019.
 
-plotHHG_batch_Efield() 
+## HHG spectra computations as function of CEP for Kozak et al 2022.
+# plotHHG_batch_Efield() #Initially related to Derrien et al., https://arxiv.org/abs/2104.08971
+def KozakOptica2022_batch_CEP(): #{{{
+    for Efield in [1.4E9]: #3E9
+        # PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
+        #                           PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0,
+        #                           InducedFields=0)  # HHG spectra
+        # PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'], RiseCycles=0, InducedFields=0) #HHG spectra
+    # for Efield in [3E9]: #, 9E9]:
+    #     PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
+    #                             PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
+#        PlotHHGsinglePulsewithCEP(2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,, PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0)
+#}}}
+### THIS ONE PRODUCED Comm. Phys. with Martin Kozak. 
+#         PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=1.9921875e-14,
+#                                 MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
+#                                 RiseCycles=0, InducedFields=0) #HHG spectra
 
+        PlotHHGsinglePulsewithCEP(wavelength=2237e-9, Efield=Efield, tau=33.55e-15,
+                                 MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
+                                 RiseCycles=0, InducedFields=0) #HHG spectra
+
+def KozakBicolor2023_batch_CEP(): #{{{
+    # for Efield in [1.4E9]: #3E9
+        # PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
+        #                           PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0,
+        #                           InducedFields=0)  # HHG spectra
+        # PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'], RiseCycles=0, InducedFields=0) #HHG spectra
+    # for Efield in [3E9]: #, 9E9]:
+    #     PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,
+    #                             PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0) #HHG spectra
+#        PlotHHGsinglePulsewithCEP(2656e-9, Efield=Efield, tau=13.945E-15, MoveIon=0,, PulseType=libPlotting.PulseTypeID['SinSquared'], RiseCycles=0, InducedFields=0)
+#}}}
+### THIS ONE PRODUCED Comm. Phys. with Martin Kozak.
+#         PlotHHGsinglePulsewithCEP(wavelength=2656e-9, Efield=Efield, tau=1.9921875e-14,
+#                                 MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
+#                                 RiseCycles=0, InducedFields=0) #HHG spectra
+
+    PlotHHGBicolorPulsewithCEP(wavelength1=2237e-9, Efield1=1.4E9, tau1=33.55e-15, CEP1=(-0.375)*np.pi, #-0.375 0.21
+                                   wavelength2=745.61e-9, Efield2=7E7,   tau2=33.55e-15,
+                                   MoveIon=0, PulseType=libPlotting.PulseTypeID['SinFourth'],
+                                   RiseCycles=0, InducedFields=0) #HHG spectra
+
+def KozakOptica2022_batch_orientation(LogScale=False): #{{{
+    # for Efield in [3E9, 1.05E10]:
+    for Efield in [9E9]:
+        PlotHHGsinglePulseWithOrientation(wavelength=2656e-9, Efield=Efield, LogScale=LogScale)
+
+## HHG spectra computation as function of angle of incidence (Kozak, Derrien et al 2022).
+if(__name__=="__main__"):
+    LogScale=False
+    # KozakOptica2022_batch_orientation(LogScale=LogScale)
+    # KozakOptica2022_batch_CEP() #no logscale possible here (we look at fluctuations)
+    KozakBicolor2023_batch_CEP()
