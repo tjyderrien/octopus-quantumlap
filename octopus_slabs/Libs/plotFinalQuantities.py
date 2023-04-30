@@ -37,7 +37,7 @@ from octopus_slabs.Libs import libExcitationDatabase
 # import libKeldysh as Keldysh
 # from libAtomicUnits import *
 # from libPlottingSettings import *
-from octopus_slabs.Libs import libPloting
+from octopus_slabs.Libs import libPlotting
 from octopus_slabs.Libs.libLogging import init_logger
 
 # libKeldysh = import_module("spp_extended_theory.Keldysh.libKeldysh")
@@ -3402,42 +3402,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         idx=0
         for Efield1_compare in FieldOfInterest:
             if(abs(Efield1_value - Efield1_compare) / Efield1_value < FieldTolerance):
-""""<<<<<<< HEAD
-                EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield1_compare])
-                                
-                ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
-                #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
-            
-        ##if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
-            ##print Header+"Found field 0.1 V/nm"
-            ##EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+r', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+r', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--r', label='Adiabaticity')
-        #if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
-            #print Header+"Found field 1.0 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+b', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--b', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+b', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--b', label='Adiabaticity')
-        #if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
-            #print Header+"Found field 5 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+g', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--g', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+g', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--g', label='Adiabaticity')
-        #if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
-            #print Header+"Found field 10 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+k', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--k', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+k', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
-=======
-"""
-
                 # Let's try to make a self-consistent collision frequency
                 #try:
                 if(True):
@@ -3485,7 +3449,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                     ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
                     idx += 1 #This is an index to follow desired field curve
                     #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
->>>>>>> Modules
         del PlottingSinglePulses_Efield
     
     #plt.ylabel(r'Irreversibility $\zeta$')
@@ -4383,8 +4346,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
       
       # Constructing the density table
       runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType_tmp, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingDoublePulses_SelectedField2)
->>>>>>> Modules
-      
+
       #print(Header+"Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m.")
       
       if(len(Ne_final) >= 1): 
