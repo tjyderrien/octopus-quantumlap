@@ -108,6 +108,7 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 # Keep care to not delete the already available database. 
 #  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
+  import itertools
   Header="[OctopusSlabs-libPlotting] "
   ListOfProblematicRunsID=[]
   ListOfDisabledRunsID=[]
@@ -853,7 +854,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
             logger.warning((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
-            ListOfProblematicRunsID.append([int(runid)])
+            ListOfProblematicRunsID.append(int(runid))
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
@@ -931,7 +932,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-        ListOfProblematicRunsID.append([int(runid)])
+        ListOfProblematicRunsID.append(int(runid))
     
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
@@ -1010,7 +1011,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         logger.warning((Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB."))
-        ListOfProblematicRunsID.append([int(runid)])
+        ListOfProblematicRunsID.append(int(runid))
         continue
     
     if(FromScratch): #We construct a new database from scratch
@@ -1032,6 +1033,9 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
 
+    # Flatten list of problematic runs, and make it a set of unique runs.
+    # ListOfProblematicRunsID_flat=list(itertools.chain.from_iterable(ListOfProblematicRunsID))
+    ListOfProblematicRunsID=list(set(ListOfProblematicRunsID))
     logger.warning("List of problematic runs IDs is: "+str(ListOfProblematicRunsID))
     logger.warning("List of disabled    runs IDs is: " + str(ListOfDisabledRunsID))
     # PlottingTable should only contains FRESH data. 
