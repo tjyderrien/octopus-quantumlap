@@ -171,6 +171,7 @@ Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
       'CaptureDirectGap': True,
       'KpointPath_len': 301, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
+      # can be obtained from seekpath.get_path(cell)['path'].
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
       'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
       'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
@@ -967,15 +968,18 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
     #TODO: ground state DOS is needed
 
 ## Plots the norm of dipolar amtrix as function of k, for each direction
-def checkDipolarMatrixElements(list_of_kpoints_id,NumberOfEigenValues=12):
+def checkDipolarMatrixElements(list_of_kpoints_id, precision3d=16**3, material=Si, NumberOfEigenValues=12):
     import numpy as np
+    # from tqmd import tqmd
+    import matplotlib as mp
     import matplotlib.pyplot as plt
     from octopus_slabs.Libs.libString import GetEigenValue, ReadDipolarMatrixElements
     import octopus_slabs.Libs.libAtomicUnits as lat
+    # global Si
     from scipy.constants import physical_constants
     from scipy.constants import epsilon_0, hbar, h
-
     plt.figure()
+    fig, ax1 = plt.subplots()
 
     # plotting norm as function of k for each direction
     for direction in ["x", "y", "z"]:
@@ -993,7 +997,16 @@ def checkDipolarMatrixElements(list_of_kpoints_id,NumberOfEigenValues=12):
             norms[k_id] = np.linalg.norm(DipolarElementsForAllK[k_id])
 
         plt.plot(norms, label=r"$\left| \vec{\vec{d}}_{" + direction + r"} \right|$")
-
+    # plt.xticks((list(np.array(material['K_positions'])*(max(list_of_kpoints_id)-precision3d)+precision3d)))
+    # ax1.set_xticklabels(material['K_labels'], fontsize='15')
+    locmaj = (
+        # list(np.array(material['K_positions']) * (max(list_of_kpoints_id) - precision3d) + precision3d))
+        list(np.array(material['K_positions']) * (max(list_of_kpoints_id)-precision3d)) )
+    ax1.set_xticks(locmaj)
+    ax1.xaxis.set_major_locator(mp.ticker.FixedLocator(locmaj))
+    majors = material['K_labels']
+    logger.debug("majors=",majors)
+    ax1.xaxis.set_major_formatter(mp.ticker.FixedFormatter(majors))
     plt.legend(loc="best")
     plt.savefig("NormOfDipolarMatrices_.eps")
     plt.show()
