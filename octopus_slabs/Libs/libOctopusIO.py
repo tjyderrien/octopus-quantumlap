@@ -149,6 +149,7 @@ def extract_info(info_path, bandstructure_path=None):
         	- 'occupations' : electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin.
         	- 'state_energies' : energies/eigenvalues of the 1-electron states, for each k-point.
         - (Provided in 'global' if 'bandstructure_path' is specified:)
+        	- 'cell_volume' : volume of the unit cell in atomic units.        
         	- 'n_states' : number of 1-electron states.
         	- 'n_ions' : number of ions/atoms per unit cell.
         	- 'elements' : list of atomic elements for the atoms in the unit cell.
@@ -160,7 +161,8 @@ def extract_info(info_path, bandstructure_path=None):
     with open(info_path, "r") as infofile: infolines = infofile.readlines()
     for idx,iline in enumerate(infolines):
         # >> Grid information <<
-        # ... work in progress ...
+        if "Cell volume" in iline:
+            extracted_info["cell_volume"] = float(iline.split("=")[-1].split()[0])
         # >> Symmetries <<
         # ... work in progress ...
         # >> Brilloin zone <<
@@ -227,11 +229,12 @@ def extract_info(info_path, bandstructure_path=None):
         extracted_3d["occupations"] = extracted_info["occupations"][:-n_kpoints_1d]
         # Global info
         extracted_global = {}
+        extracted_global["cell_volume"] = extracted_info["cell_volume"]
         extracted_global["n_states"] = extracted_info["n_states"]
         extracted_global["n_ions"] = extracted_info["n_ions"]
         extracted_global["elements"] = extracted_info["elements"]
         extracted_global["ion_forces"] = extracted_info["ion_forces"]
-        # Combined extracted info
+       # Combined extracted info
         extracted_info = {"1D":extracted_1d, "3D":extracted_3d, "global":extracted_global}
     # >> Returns dictionary with extracted info <<
     return extracted_info
