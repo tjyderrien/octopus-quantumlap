@@ -73,7 +73,7 @@ def load_k_paths(path_to_kfiles, return_uncat=False, u_to_idx={"_x":0, "_y":1, "
     if not return_uncat: return k_indices, k_paths
     else: return k_indices, k_paths, uncat_paths
 
-def extract_length_dipole_elements(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z":2}):
+def extract_transition_dipole(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z":2}):
     """! Loads the dipole matrix elements (in length gauge) from the k-points output files located in 'path_to_k_files' into a NumPy array.
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
@@ -84,31 +84,31 @@ def extract_length_dipole_elements(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z
     k_indices, k_paths = load_k_paths(path_to_kfiles, u_to_idx=u_to_idx)
     n_dims, n_kpoints = k_paths.shape
     n_states = np.loadtxt(os.path.join(path_to_kfiles, k_paths.flatten()[0]), skiprows=3).shape[0]
-    length_dipole_elements = np.zeros((n_kpoints, n_dims, n_states, n_states))
+    length_transition_dipole = np.zeros((n_kpoints, n_dims, n_states, n_states))
     for kdx in range(n_kpoints):
         for udx in range(n_dims):
             k_path = os.path.join(path_to_kfiles, k_paths[udx][kdx])
-            length_dipole_elements[kdx,udx,...] = np.loadtxt(k_path, skiprows=3)
-    return k_indices, length_dipole_elements
+            length_transition_dipole[kdx,udx,...] = np.loadtxt(k_path, skiprows=3)
+    return k_indices, length_transition_dipole
 
-def store_length_dipole_elements(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", lendipel_pkl_fname="length_dipole_elements.pkl", u_to_idx={"_x":0, "_y":1, "_z":2}):
+def store_transition_dipole(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", transdip_pkl_fname="transition_dipole.pkl", u_to_idx={"_x":0, "_y":1, "_z":2}):
     """! Extracts data from the k-points output files located in 'path_to_k_files' and store it as two separate pickled (binary) files, each containing a NumPy array: (1) with the extracted k-points indices and (2) with the dipole matrix elements (in length gauge).
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution (".").
     @param kindx_pkl_fname Filename for the pickled file with the extracted k-points indices (1). Default value is 'k_indices.pkl'.
-    @param lendipel_pkl_fname Filename for the pickled file with the dipole matrix elements (in length gauge) (2). See the 'extract_length_dipole_elements' function in the same module for extended documentation. Default value is 'length_dipole_elements.pkl'.
+    @param transdip_pkl_fname Filename for the pickled file with the dipole matrix elements (in length gauge) (2). See the 'extract_transition_dipole' function in the same module for extended documentation. Default value is 'transition_dipole.pkl'.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
     @return Does not return anything. But two binary files are writen instead.
     """
-    k_indices, length_dipole_elements = extract_length_dipole_elements(path_to_kfiles, u_to_idx)
+    k_indices, length_transition_dipole = extract_transition_dipole(path_to_kfiles, u_to_idx)
     save_pickle(k_indices, os.path.join(output_path, kindx_pkl_fname))
-    save_pickle(length_dipole_elements, os.path.join(output_path, lendipel_pkl_fname))
+    save_pickle(length_transition_dipole, os.path.join(output_path, transdip_pkl_fname))
 
-def load_kpoints_data(kdata_fnames={}, output_path=".", kdata_default_fnames={"k_indices":"k_indices.pkl", "length_dipole_elements":"length_dipole_elements.pkl"}):
+def load_kpoints_data(kdata_fnames={}, output_path=".", kdata_default_fnames={"k_indices":"k_indices.pkl", "transition_dipole":"transition_dipole.pkl"}):
     """! Loads objects from pickled (binary) files with data (e.g., python data structure or NumPy array) extracted from k-points output files.
     @param kdata_fnames Dictionary (key:value pairs) where values are the paths to the pickled files to be loaded; the loaded object will be stored into the output dictionary with the same corresponding key. Default value is an empty dictionary; if some entries are provided, then those will overwrite matching entries in 'kdata_default_fnames'.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution. (".").
-    @param kdata_default_fnames Dictionary with default names of encrypted files to load as values; regarding keys, it works the same way as 'kdata_fnames', but the latter has priority; default entries will be loaded if available, if not overwritten by matching entries in 'kdata_fnames'. Default value is {"k_indices":"k_indices.pkl", "length_dipole_elements":"length_dipole_elements.pkl"}.
+    @param kdata_default_fnames Dictionary with default names of encrypted files to load as values; regarding keys, it works the same way as 'kdata_fnames', but the latter has priority; default entries will be loaded if available, if not overwritten by matching entries in 'kdata_fnames'. Default value is {"k_indices":"k_indices.pkl", "transition_dipole":"transition_dipole.pkl"}.
     @return Output dictionary storing the loaded objects (using the keys from 'kdata_fnames' and/or 'kdata_default_fnames' (read their descriptions to learn more).
     """
     output_kdata = {}
