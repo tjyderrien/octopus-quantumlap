@@ -144,9 +144,9 @@ def extract_info(info_path, bandstructure_path=None):
     @return Dictionary with the extracted data (regardless of 'bandstructure_path'):
         - (Provided in '1D' and '3D' if 'bandstructure_path' is specified:)
         	- 'n_kpoints' : number of loaded k-points.
-        	- 'k_weights' : weight associated with each k-points; apparently set to 0 for the 1D path.
+        	- 'k_weights' : weight associated with each k-points; important for integrations in the full 3D Brillouin k-space; it is set to 0 for the 1D path.
         	- 'k_coords' : reduced coordinates of the k-points.
-        	- 'occupations' : electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin.
+        	- 'occupations' : electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin-.
         	- 'state_energies' : energies/eigenvalues of the 1-electron states, for each k-point.
         - (Provided in 'global' if 'bandstructure_path' is specified:)
         	- 'cell_volume' : volume of the unit cell in atomic units.        
