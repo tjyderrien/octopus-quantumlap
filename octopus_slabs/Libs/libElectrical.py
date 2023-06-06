@@ -29,11 +29,11 @@ def sum_y_same_x(xy_points, round_to_decimals=6):
 
 # >>> CONDUCTIVITY: Kubo-Greenwood Approach <<<
 
-def _get_args_conductivity_kg(kpoints_data, info_data):
+def internal_get_args_conductivity_kg(kpoints_data, info_data):
     """! Extracts the arguments needed for the internal call of the function for computing the conductivity (with the Kubo-Greenwood approach) from the preloaded data structures. Returns them in the correct order so that the calls can be nested in a single line (remember to unpack the tuple for the function call).
     @param kpoints_data Data extracted from k-points output files (e.g., transition electric dipole moment matrix elements). See the 'extract_transition_dipole' function in the 'libOctopusIO' module for extended documentation.
     @param info_data Data extracted from the 'info' output file. See the 'extract_info' function in the 'libOctopusIO' module for extended documentation.
-    @return A tuple with the arguments (conveniently ordered) needed for the '_get_conductivity_kg' function.
+    @return A tuple with the arguments (conveniently ordered) needed for the 'internal_get_conductivity_kg' function.
     """
     n_kpoints = info_data["3D"]["n_kpoints"]
     transition_dipole = kpoints_data["transition_dipole"][:n_kpoints]
@@ -43,7 +43,7 @@ def _get_args_conductivity_kg(kpoints_data, info_data):
     k_weights = info_data["3D"]["k_weights"]
     return transition_dipole, state_energies, occupations, cell_volume, k_weights
 
-def _get_conductivity_kg(transition_dipole, state_energies, occupations, cell_volume, k_weights=None, damping_parameter=0, round_to_decimals=5, negative_contributions=True):
+def internal_get_conductivity_kg(transition_dipole, state_energies, occupations, cell_volume, k_weights=None, damping_parameter=0, round_to_decimals=5, negative_contributions=True):
     """! Computes the complex electrical conductivity matrix with the Kubo-Greenwood approach, from the ground state transition electric dipole moment matrix elements.
     Technical details:
         - Firstly, the conductivity contributions (cc) are computed from the ground state transition electric dipole moment matrix elements, for the full 3D Brillouin k-space, for the frequencies (w) corresponding to transitions from partially occupied states to partially unoccupied states; conductivity contributions for degenerate transitions are summed up, producing a set of (w',cc) points with unique frequencies w'.
@@ -158,22 +158,22 @@ def get_conductivity(kpoints_data, info_data, mode="Kubo-Greenwood", damping_par
     """! Computes the complex electrical conductivity matrix from the ground state transition electric dipole moment matrix elements. Currently the only implemented mode is the Kubo-Greenwood approach.
     @param kpoints_data Data extracted from k-points output files (e.g., transition electric dipole moment matrix elements). See the 'extract_transition_dipole' function in the 'libOctopusIO' module for extended documentation.
     @param info_data Data extracted from the 'info' output file. See the 'extract_info' function in the 'libOctopusIO' module for extended documentation.
-    @param mode How to compute the complex electrical conductivity. Default value is "Kubo-Greenwood" as it is currently the only mode implemented (other valid values are "kg", capital letters, spaces and hyphens are ignored). Read the '_get_conductivity_kg' function for extended documentation.
-    @param damping_parameter Parameter needed both for numerical representation of the conductivity and in the case of non-perfect crystals and/or non-zero temperature. Read the '_get_conductivity_kg' function for extended documentation. Default value is 0.
-    @param round_to_decimals Frequency resolution. Default value is 5 decimal places (resolution of 0.00001 or 1e-5). Note that very small resolutions considerably increase the computation time and memory required, without necessarily 'visually' improving the quality of the results. Read the function '_get_conductivity_kg' for extended documentation.
-    @param negative_contributions Whether the conductivity should be corrected for lower frequencies and to avoid the singularity at zero frequency. Default value is True; do not change if you are unsure. Read the function '_get_conductivity_kg' for extended documentation.
-    @return Returns both the frequency grid (in atomic units of energy) and the complex electrical conductivity matrix (3x3, also in atomic units), that encodes the current response of the system due to an external field perturbation; each element of the conductivity matrix has the same size as the frequency grid, being a complex function of the frequency. Read the function '_get_conductivity_kg' for extended documentation.
+    @param mode How to compute the complex electrical conductivity. Default value is "Kubo-Greenwood" as it is currently the only mode implemented (other valid values are "kg", capital letters, spaces and hyphens are ignored). Read the 'internal_get_conductivity_kg' function for extended documentation.
+    @param damping_parameter Parameter needed both for numerical representation of the conductivity and in the case of non-perfect crystals and/or non-zero temperature. Read the 'internal_get_conductivity_kg' function for extended documentation. Default value is 0.
+    @param round_to_decimals Frequency resolution. Default value is 5 decimal places (resolution of 0.00001 or 1e-5). Note that very small resolutions considerably increase the computation time and memory required, without necessarily 'visually' improving the quality of the results. Read the function 'internal_get_conductivity_kg' for extended documentation.
+    @param negative_contributions Whether the conductivity should be corrected for lower frequencies and to avoid the singularity at zero frequency. Default value is True; do not change if you are unsure. Read the function 'internal_get_conductivity_kg' for extended documentation.
+    @return Returns both the frequency grid (in atomic units of energy) and the complex electrical conductivity matrix (3x3, also in atomic units), that encodes the current response of the system due to an external field perturbation; each element of the conductivity matrix has the same size as the frequency grid, being a complex function of the frequency. Read the function 'internal_get_conductivity_kg' for extended documentation.
     """
     cmode = mode.strip().lower().replace(" ","").replace("-","")
     if cmode in ["kubogreenwood", "kg"]:
-        omega_grid, conductivity = _get_conductivity_kg(*_get_args_conductivity_kg(kpoints_data, info_data), damping_parameter, round_to_decimals, negative_contributions)
+        omega_grid, conductivity = internal_get_conductivity_kg(*internal_get_args_conductivity_kg(kpoints_data, info_data), damping_parameter, round_to_decimals, negative_contributions)
     return omega_grid, conductivity
 
 def get_permittivity(omega, conductivity, diagonal_average=True):
     """! Computes the complex electrical permittivity from the complex electrical conductivity.
     Employs the folowing formula:
         ε(ω) = 1 - σ(ω)/(i.ω.ε0) --> ε(ω) = 1 + i . σ(ω)/(ω.ε0) , where ε0 = 1/(4π)
-    Using this sign convention and the sign convention for the real and imaginary parts of the conductivity (σ(ω) = Re{σ(ω)} - i Im{σ(ω)}, see '_get_conductivity_kg' for extended documentation), electrical permittivity results are consistent with experimental data from Palik tables for bulk Si and Mo.
+    Using this sign convention and the sign convention for the real and imaginary parts of the conductivity (σ(ω) = Re{σ(ω)} - i Im{σ(ω)}, see 'internal_get_conductivity_kg' for extended documentation), electrical permittivity results are consistent with experimental data from Palik tables for bulk Si and Mo.
     @param omega Grid of frequencies in atomic units of energy.
     @param conductivity Complex electrical conductivity matrix (3x3) in atomic units.
     @param diagonal_average Whether isotrophy is assumed and, therefore, the average of the diagonal elements of the complex electrical conductivity is used. Default value is True (isotrophy is assumed).
