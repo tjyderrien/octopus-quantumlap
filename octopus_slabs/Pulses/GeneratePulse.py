@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2020 T. J.-Y. Derrien
+# Copyright (C) 2013-2022 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -105,74 +105,76 @@ def GeneratePulse(t, tau, tauRise, PeakField, wavelength, CEP=0., t0=0., PulseDe
     Output2 = Field_A_AU_real #real-valued
   else: 
     print(Header+"** ERROR: debug mode variable is undefined. ")
-    exit()
+    sys.exit()
   
   return Output1, Output2, 0.*t_AU #GOOD for octopus if Output is an envelope
   #}}}
 
-# Read pulse data from command line
-# =======================================================
-if(len(sys.argv)<7):
-  print("Usage: ./GeneratePulse.py \ ")
-  print("    <Pulse duration (s)> \ ")
-  print("    <Ramp cycle number> \ ")
-  print("    <Peak field amplitude (V/m)> \ ")
-  print("    <Laser wavelength (m)> \ ")
-  print("    <CEP [multiples of Pi] > \ ")
-  print("    <Double pulse Delay (s) > \ ")
-  print("    <End of simulation time (s) > \ ")
-  print("    <Power of sin for increase/decrease: 2, 4, 6...> ")
-  
-  print("Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 2")
-  print("Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. ")
-  exit()
+if __name__ == "__main__": #{{{
 
-#============ Manage the command line input =================
-tau        = sys.argv[1]
-RiseCycle  = sys.argv[2]
-PeakField  = sys.argv[3]
-wavelength = sys.argv[4]
-CEP        = sys.argv[5]
-PulseDelay = sys.argv[6]
-ComputingT = sys.argv[7] #maximum time of computation
-power      = sys.argv[8] #sin2 or sin4 for the Soft top hat
-
-tau = np.asfarray(tau); 
-RiseCycle = np.asfarray(RiseCycle); 
-PeakField = np.asfarray(PeakField);   
-wavelength = np.asfarray(wavelength); 
-CEP = np.asfarray(CEP); 
-PulseDelay = np.asfarray(PulseDelay); 
-ComputingT = np.asfarray(ComputingT);
-power      = np.asfarray(power)     ;
-
-omega = 2.*pi*c/wavelength
-
-tauRise = 2.*pi*RiseCycle / (omega)
-
-tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant zero !
-
-ComputingT_min = 7./5.*(tauRise+tau+tauRise+PulseDelay) #this will avoid runs to terminate too early
-if(ComputingT_min > ComputingT):
-    print(Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min))
-    print(Header+"** TODO: replace the total value of computing time in inp as well.")
+  # Read pulse data from command line
+  # =======================================================
+  if(len(sys.argv)<7):
+    print("Usage: ./GeneratePulse.py \ ")
+    print("    <Pulse duration (s)> \ ")
+    print("    <Ramp cycle number> \ ")
+    print("    <Peak field amplitude (V/m)> \ ")
+    print("    <Laser wavelength (m)> \ ")
+    print("    <CEP [multiples of Pi] > \ ")
+    print("    <Double pulse Delay (s) > \ ")
+    print("    <End of simulation time (s) > \ ")
+    print("    <Power of sin for increase/decrease: 2, 4, 6...> ")
+    
+    print("Example: ./GeneratePulse.py 10e-15 1e-15 9e9 800e-9 0. 0. 20e-15 2")
+    print("Warning: peak amplitude may not be conserved for pulses close to and lower than 10 fs. ")
     exit()
-#    print Header+"** Warning: the value was rewritten to avoid computing for nothing."
-#    ComputingT = ComputingT_min
+
+  #============ Manage the command line input =================
+  tau        = sys.argv[1]
+  RiseCycle  = sys.argv[2]
+  PeakField  = sys.argv[3]
+  wavelength = sys.argv[4]
+  CEP        = sys.argv[5]
+  PulseDelay = sys.argv[6]
+  ComputingT = sys.argv[7] #maximum time of computation
+  power      = sys.argv[8] #sin2 or sin4 for the Soft top hat
+
+  tau = np.asfarray(tau); 
+  RiseCycle = np.asfarray(RiseCycle); 
+  PeakField = np.asfarray(PeakField);   
+  wavelength = np.asfarray(wavelength); 
+  CEP = np.asfarray(CEP); 
+  PulseDelay = np.asfarray(PulseDelay); 
+  ComputingT = np.asfarray(ComputingT);
+  power      = np.asfarray(power)     ;
+
+  omega = 2.*pi*c/wavelength
+
+  tauRise = 2.*pi*RiseCycle / (omega)
+
+  tauSafe = wavelength / c #1 optical cycle to ensure having dA/dt = 0 at instant zero !
+
+  ComputingT_min = 7./5.*(tauRise+tau+tauRise+PulseDelay) #this will avoid runs to terminate too early
+  if(ComputingT_min > ComputingT):
+    print(Header+"** Error: minimum computer time is too small (currently: "+str(ComputingT)+"). Use minimum: "+str(ComputingT_min))
+#    print(Header+"** TODO: replace the total value of computing time in inp as well.")
+#    exit()
+    print(Header+"** Warning: the value was rewritten to avoid computing for nothing.")
+    ComputingT = ComputingT_min
 
 
-#print Header+"Pulse duration: "+str(tau)
+  #print Header+"Pulse duration: "+str(tau)
 
-print(Header+"Computing time = "+str(float(ComputingT)))
-tmin = 0.
-tmax = float(ComputingT)
-Number = 50000 #NOTE: better to put too many nodes here ! Better to have something wider than planned octopus time steps. 
-t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
-#print t
-#exit()
-Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay+0.1E-15, power) #NOTE: we always add 0.1 fs to ensure a zero derivative at initial time
+  print(Header+"Computing time = "+str(float(ComputingT)))
+  tmin = 0.
+  tmax = float(ComputingT)
+  Number = 50000 #NOTE: better to put too many nodes here ! Better to have something wider than planned octopus time steps. 
+  t = np.arange(tmin, tmax, (tmax-tmin)/(Number+1.))
+  #print t
+  #exit()
+  Envelope     = GeneratePulse(t, tau, tauRise, PeakField, wavelength, 2.*pi*CEP, tau/2.+tauRise+tauSafe, PulseDelay+0.1E-15, power) #NOTE: we always add 0.1 fs to ensure a zero derivative at initial time
 
-if(DebugMode==1):
+  if(DebugMode==1):
     time, Ax, Ay = Envelope
     print(time, Ax)
     plt.figure()
@@ -182,8 +184,8 @@ if(DebugMode==1):
     plt.legend()
     plt.grid()
     plt.show()
-    
-elif(DebugMode==2):
+      
+  elif(DebugMode==2):
     time, Ex, Ey = Envelope #AU
     print(time, Ex) #complex-valued
     
@@ -212,7 +214,7 @@ elif(DebugMode==2):
     plt.grid()
     plt.show()    
 
-elif(DebugMode==3):
+  elif(DebugMode==3):
     time, Ax, Ay = Envelope
     print(Header+"** Info: Max value of Ax = "+str(Ax.max()))
     plt.figure()
@@ -221,13 +223,14 @@ elif(DebugMode==3):
     plt.grid()
     plt.show()
 
-OctopusReady = np.transpose(Envelope)
+  OctopusReady = np.transpose(Envelope)
 
-#print OctopusReady
+  #print OctopusReady
 
-ExportToTxt(OctopusReady, "Pulses.dat")
+  ExportToTxt(OctopusReady, "Pulses.dat")
 
-print(Header+"Successfully generated the pulse. See Pulses.dat.")
+  print(Header+"Successfully generated the pulse. See Pulses.dat.")
 
 
 
+#}}}

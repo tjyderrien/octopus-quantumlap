@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 module purge  
 
 ## Build for Intel Fortran 2017. #Warning: Outdated from Octopus commit d3529c86 (Jan 31st, 2020).
@@ -56,28 +58,29 @@ module load iccifort/2020.4.304
 module load iimpi/2020b
 module load imkl/2020.4.304-iimpi-2020b
 export MKL_HOME=/apps/all/imkl/2020.4.304-iimpi-2020b
-module load libxc/4.3.4-intel-2020a #sends iccifort back to 2020.1.217 and iimpi.2020a
+module load libxc/4.3.4-intel-2020a #sends iccifort back to 2020.1.217 and iimpi.2020a #WARNING: no longer valid since March 2022. 
 module load GSL/2.6-iccifort-2020.1.217
 export GLS_HOME=/apps/all/GSL/2.6-iccifort-2020.1.217
-module load FFTW/3.3.8-intel-2020a
-export FFTW_HOME=/apps/all/FFTW/3.3.8-intel-2020a
-module load HDF5/1.12.0-iimpi-2020a
+module load FFTW/3.3.8-intel-2020b
+export FFTW_HOME=/apps/all/FFTW/3.3.8-intel-2020b
+module load HDF5/1.10.7-iimpi-2020b
 
-module load METIS/5.1.0-intel-2020a
-module load ParMETIS/4.0.3-intel-2020a
+# module load METIS/5.1.0-intel-2020a
+module load SuiteSparse/5.8.1-intel-2020b-METIS-5.1.0 #since March 2022
+# module load ParMETIS/4.0.3-intel-2020a
 
-module load CUDA/10.2.89
-export CUDA_FLAGS="--enable-cuda --enable-nvtx --with-cuda-prefix=$CUDA_HOME"
+# module load CUDA/10.2.89
+# export CUDA_FLAGS="--enable-cuda --enable-nvtx --with-cuda-prefix=$CUDA_HOME"
 
-# export CUDA_FLAGS=""
+export CUDA_FLAGS=""
 
 }
 
 ImportLibsFortran2021
 
 ## Valid for both
-module load libyaml/0.2.2
-export YAML_HOME=/apps/all/libyaml/0.2.2
+# module load libyaml/0.2.2
+# export YAML_HOME=/apps/all/libyaml/0.2.2
 
 module list
 
@@ -113,14 +116,16 @@ autoreconf -i
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
    --with-yaml-prefix="$YAML_HOME/lib" \
-   --prefix="/home/tjyderrien/octopus.gpu/"
+   --prefix="/home/tjyderrien/octopus.me/"
 
+#   --prefix="/home/gazdovak/octopus.bin/"
 #    --with-parmetis-prefix="$PARMETIS_HOME"
 #   --with-metis-prefix="$METIS_HOME" \
 #   --with-netcdf-prefix=$NETCDF_HOME \ #attempting in manual because this loads $NETCDF_HOME/lib not $NETCDF_HOME/lib64
 #    --with-fftw-prefix="$FFTW_HOME" \
  #  --with-isf-prefix=$ISF_HOME \
  #  --with-isf-include=$ISF_HOME/include \
+#   --with-yaml-prefix="$YAML_HOME/lib" \
 
 # make clean 
 make -j 12

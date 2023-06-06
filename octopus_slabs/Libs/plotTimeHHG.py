@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2020 T. J.-Y. Derrien
+# Copyright (C) 2016-2021 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,21 +24,31 @@
 
 # from pylab import *
 import decimal
+import sys
 
-import Samples.calculateVolume as Sample
+import octopus_slabs.Samples.calculateVolume as Sample
 import spp_extended_theory.Keldysh.libKeldysh as Keldysh
-## IMPORT LIBRARIES
-from numpy import fft
+from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 
-# import octopus_slabs.Libs.libMaterials
-from octopus_slabs.Libs.libPlotting import *
+from numpy import fft
+from scipy.constants import hbar, m_e, epsilon_0, e, h, hbar
+from matplotlib import rc
+
+import octopus_slabs.Libs.libMaterials as libMaterials
+from   octopus_slabs.Libs.libPlotting import *
+from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
+from   octopus_slabs.Libs.libAtomicUnits import *
+
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
+rc('text', usetex=False) #important for Barbora
 
 ## Materials properties
 
-Egap_SI, meff, OpticalIndex = libMaterials.SiBulk() #libMaterials.py
+# Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkLDA() #libMaterials.py
+Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkTB09() #libMaterials.py
 
 #Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
-#meff = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
+#meff_opt = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
 ##0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
@@ -66,7 +76,7 @@ ShowFinalPlotDefault  = 0 #Forcing the value of ShowFinalPlot
 PlottingMode          = "auto" # "doublepulse" #nonthermalmelting, keldysh #TODO: define automatically as function of parameters
 PlottingMethod = "detect" #bruteforce
 
-maxHHG = 10*3*200 #maximum number of samples to cut the spectrum with
+maxHHG = 100_000 #10*3*200 #maximum number of samples to cut the spectrum with
 
 Header="[octopus_slabs] "
 
@@ -129,16 +139,16 @@ A1y  = np.asfarray(laser[:,3]) #column number 4
 A2x  = np.asfarray(laser[:,5]) #column number 6 
 A2y  = np.asfarray(laser[:,6]) #column number 7
 
-timestepTable = np.diff(time) #size N-1
+timestepTable = np.gradient(time) #size N-1
 TimeStep = timestepTable[0] #they are all equal, just select the first
 #A_squared = A1x**2
 #A_integrated = TimeStep * np.cumsum(A1x) #int_{-\inf}^{t} A(t') dt'
 
 # oscillating fields from octopus (real valued)
-Efield_X  = - (np.diff(A1x)/np.diff(time)) #physical value is *1/c 
-Efield2_X = - (np.diff(A2x)/np.diff(time)) #physical value is *1/c
-Efield_Y  = - (np.diff(A1y)/np.diff(time)) #physical value is *1/c 
-Efield2_Y = - (np.diff(A2y)/np.diff(time)) #physical value is *1/c
+Efield_X  = - (np.gradient(A1x)/np.gradient(time)) #physical value is *1/c 
+Efield2_X = - (np.gradient(A2x)/np.gradient(time)) #physical value is *1/c
+Efield_Y  = - (np.gradient(A1y)/np.gradient(time)) #physical value is *1/c 
+Efield2_Y = - (np.gradient(A2y)/np.gradient(time)) #physical value is *1/c
 
 ## Correcting the value by 1/c_AU
 Efield_X_AU =Efield_X/c_AU
@@ -191,6 +201,9 @@ if("FieldColorA-Gaussian" in PulseType_value):
 elif ("FieldColorA-SinSquared" in PulseType_value):
   print(Header+"** Info: Squared Sinus pulse detected...")
   PulseType="SinSquared"
+elif ("FieldColorA-SinFourth" in PulseType_value):
+  print(Header+"** Info: Fourth power Sinus pulse detected...")
+  PulseType="SinFourth"
 elif ("FieldColorA-STH" in PulseType_value):
   print(Header+"** Info: Soft Top Hat pulse detected...")
   PulseType="STH"
@@ -229,7 +242,7 @@ CentralTimeB = 2.*PulseDurationB_SI + DoublePulseDelay_SI #20E-15
 ##==== Building the laser pulses for Keldysh ======
 ##(they cannot be the ones of octopus, as we need
 ## the complex space to build the bicolor envelope)
-if(PulseType == "SinSquared"): 
+if(PulseType == "SinSquared" or PulseType=="SinFourth"):
   t0   =  PulseDuration_SI #initial time is actually 0 in octopus. 
   tmin = -PulseDuration_SI+t0 #zero...
   if(PlottingMode=="doublepulse"):
@@ -254,7 +267,7 @@ instants=np.arange(tmin,tmax,dtPrecision)
 CEP1=0.; CEP2=0. #TODO: introduce CEP1 and CEP2 auto reading from octopus input file
 
 print(Header+"Defining Pulses for Keldysh analysis...")
-if(PulseType == "SinSquared"): 
+if(PulseType == "SinSquared" or PulseType=="SinFourth"): ##TODO: introduce SinFourth when it will be needed
   FieldEnvelope,  FieldComplex    = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDuration_SI,  Efield_amplitude_SI,  wavelength_SI, CEP1, t0, 0.) 
   FieldEnvelope2, FieldComplex2   = Keldysh.PulseSquaredSinTemporalShape(instants, PulseDurationB_SI, Efield_amplitudeB_SI, wavelength_SI, CEP2, t0, DoublePulseDelay_SI) 
   FieldEnvelopeAB, FieldComplexAB = Keldysh.PulseSquaredSinTemporalShapeDoublePulse(instants, PulseDuration_SI, PulseDurationB_SI, Efield_amplitude_SI, Efield_amplitudeB_SI, wavelength_SI, wavelengthB_SI, CEP1, CEP2, t0, DoublePulseDelay_SI) 
@@ -275,22 +288,22 @@ else:
   print(Header+"** Error in definition of the pulses for Keldysh. Pulse was not recognized.")
   exit()
   
-if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
+if(PulseType == "gaussian" or PulseType=="SinSquared" or PulseType=="SinFourth"): #{{{
 # In that case, we do have analytical solutions for 1 color. 
   ## Computing final excited electron density for Pulse 1
   print(Header+"Computing Keldysh for Pulse 1: ")
   try: 
-    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
+    timeKeldysh, N_Keldysh_SI, N_Gruzdev_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI, PulseDuration_SI, FieldEnvelope, dtPrecision, order, ShowPlot, CentralTime, ValenceBandMax)
   except:
     N_Keldysh_SI = FieldEnvelope * 0e0
     N_Gruzdev_SI = FieldEnvelope * 0e0
     timeKeldysh  = FieldEnvelope * 0e0
-  #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful? 
+  #PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI, FieldEnvelope, order) #NOTE: is this really useful?
   ## Computing final excited electron density for Pulse 2
   if(PlottingMode=="doublepulse"):
     print(Header+"Computing Keldysh for Pulse 2: ")
     try: 
-      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshB, N_KeldyshB_SI, N_GruzdevB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelengthB_SI, PulseDurationB_SI, FieldEnvelope2, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     except: 
       N_KeldyshB_SI = N_Keldysh_SI * 0e0
       N_GruzdevB_SI = N_Gruzdev_SI * 0e0
@@ -302,13 +315,13 @@ if(PulseType == "gaussian" or PulseType=="SinSquared"): #{{{
 
     if(wavelength_SI == wavelengthB_SI):
   #    IntensityEnvelop = PeakIntensityAB_SI # Keldysh.FieldToIntensity(EfieldAB_amplitude_SI)
-      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
+      timeKeldyshAB, N_KeldyshAB_SI, N_GruzdevAB_SI = Keldysh.plotPulseToDensity(Egap_SI, meff_opt, wavelength_SI, PulseDurationB_SI+CentralTimeB, FieldEnvelopeAB.real, dtPrecision, order, ShowPlot, CentralTimeB, ValenceBandMax)
     else:
       print("Bicolor Keldysh is not implemented! See V. Zhukov [Novosibirsk University]")
 #}}}
 elif (PulseType == "STH" or PulseType == "StH"): 
   # For this case, we only output the w_pi. 
-  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff, wavelength_SI, FieldEnvelope, order)
+  PeakWpi_Gruzdev = Keldysh.GenerateKeldyshDatabase(Egap_SI, meff_opt, wavelength_SI, FieldEnvelope, order)
 else: 
   print(Header+"** Error: computation of density | excitation rate did not recognize the shape of the pulse.")
   exit()
@@ -358,8 +371,7 @@ ShrinkBy=0
 
 timeCurrent, CurrentX, CurrentY, CurrentZ = GetTotalCurrent(TotalCurrent)
 
-maxSize=timeCurrent.size-ShrinkBy
-
+maxSize=timeCurrent.size-ShrinkBy 
 tMaxSimulation_AU = timeCurrent[maxSize-1] #this is simulation that has already run
 tMaxSimulation_SI = Time_AU_to_SI(tMaxSimulation_AU)
 
@@ -367,32 +379,80 @@ PulseDuration_SI = GetParameterValueFromInputFile(filename, "tauAsi = ")
 
 print("Captured pulse duration [fs]: "+str(1E15*PulseDuration_SI))
 
-print("Current: "+str(timeCurrent.size)+", "+str(CurrentX.size))
-print("Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU))
-print("Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15))
+logger.info("Current: "+str(timeCurrent.size)+", "+str(CurrentX.size))
+logger.info("Maximum time of the simulation (a.u).: "+str(tMaxSimulation_AU))
+logger.info("Maximum time of the simulation (fs): "+str(tMaxSimulation_SI*1E15))
 
+logger.info("Extending the simulation length to increase precision of Fourier transform...")
+Elongation=3
+TimeStep_current_AU = np.diff(timeCurrent)[0] #atomic units
+logger.warning("Value of Current timestep (a.u.): "+str(TimeStep_current_AU))
+TimeStep_current_SI = Time_AU_to_SI(TimeStep_current_AU)
+timeCurrent_SI = Time_AU_to_SI(timeCurrent)
+logger.warning("Value of Current timestep (S.I.): "+str(TimeStep_current_SI))
+CurrentX_pad = np.pad(CurrentX, (0,Elongation*(len(timeCurrent))), "mean")
+CurrentY_pad = np.pad(CurrentY, (0,Elongation*(len(timeCurrent))), "mean")
+CurrentZ_pad = np.pad(CurrentZ, (0,Elongation*(len(timeCurrent))), "mean")
+timeCurrent_pad = np.linspace(TimeStep_current_SI, (Elongation+1)*(np.max(timeCurrent_SI)+TimeStep_current_SI), (Elongation+1)*len(timeCurrent_SI))
+#try:
+#  assert(len(timeCurrent_pad)==len(CurrentX_pad))
+#except AssertionError:
+logger.warning("Shapes: "+str(np.shape(timeCurrent_pad))+", "+str(np.shape(CurrentX_pad)))
+#  timeCurrent_pad = np.arange(TimeStep_current_SI, (Elongation + 1) * (np.max(timeCurrent_SI) + TimeStep_current_SI), TimeStep_current_SI)
+#  assert(len(timeCurrent_pad) == len(CurrentX_pad))
 print(Header+"** Info: cleaning the current for HHG computation.")
-CurrentX_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentX,  wavelength_SI, 2*PulseDuration_SI) #NOTE: use the inp pulse duration to fix this
-CurrentY_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentY,  wavelength_SI, 2*PulseDuration_SI)
-CurrentZ_HHG = SignalDampR(Time_AU_to_SI(timeCurrent), CurrentZ,  wavelength_SI, 2*PulseDuration_SI)
+DecoherenceTime=1.75 # 1.25 #times the laser pulse (best setting for 25 fs pulses)
+CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4) #NOTE: Choice of instant for applying damping is MAJOR in improving spectra. This 1.5 is fully arbitrary and a criterion should be decided. 
+CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
+CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
+
+assert(len(CurrentX_HHG) == len(CurrentX_pad)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision.
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
 # CurrentX_AU_FT=fft.fft(CurrentX[:maxSize])
-# DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise!)
-HHG_AU=fft.fft(CurrentX_HHG)+fft.fft(CurrentY_HHG)+fft.fft(CurrentZ_HHG) #Larmot formula with approximation of d/dt J_i n_i
-HHG_AU_X = fft.fft(CurrentX_HHG)
-HHG_AU_Y = fft.fft(CurrentY_HHG)
-HHG_AU_Z = fft.fft(CurrentZ_HHG)
-HHG_AU_omega=2.*pi*fft.fftfreq(maxSize,d=TimeStep*Time_AU_to_SI(1.))
+
+# Let's try to increase number of samples in HHG signal. NOT THE RIGHT TECHNIQUE, since timeCurrent cannot be extended as such. 
+# CurrentX_HHG.resize(len(CurrentX_HHG)*2) #this affect the object itself directly
+# CurrentY_HHG.resize(len(CurrentY_HHG)*2)
+# CurrentZ_HHG.resize(len(CurrentZ_HHG)*2)
+
+SizeOfCurrentHHG = len(CurrentX_HHG)
+
+# DiffCurrentX_AU=np.diff(CurrentX) #TODO: NTD: do that in Fourier space (much more precise numerically)
+
+# HHG_AU=fft.rfft(CurrentX_HHG)+fft.rfft(CurrentY_HHG)+fft.rfft(CurrentZ_HHG) #Larmor formula with approximation of d/dt J_i n_i
+
+
+
+#Using scipy FFT (components Y and Z, for the moments)
+
+HHG_AU_X = fft.rfft(CurrentX_HHG)
+HHG_AU_Y = fft.rfft(CurrentY_HHG)
+HHG_AU_Z = fft.rfft(CurrentZ_HHG)
+
+""" #This part does not work: FFTW instance fails and even erases Current_X signal. 
+import copy
+HHG_example = copy.copy(HHG_AU_X)
+CurrentX_HHG2 = copy.copy(CurrentX_HHG)
+#Using pyFFTW (component X for the mooment)
+import pyfftw
+HHG_AU_X2 = np.zeros(np.shape(HHG_example), dtype=type(HHG_example[0])) #creates new output object
+instance = pyfftw.FFTW(CurrentX_HHG2, HHG_AU_X2) 
+
+pyfftw.FFTW.execute(instance)
+"""
+
+## Computing total sum
+HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  #/ np.sqrt(2.) #only for 110
+HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
 HHG_AU_duration=1./HHG_AU_omega
 # Conductivity_Freqs=fft.fft(timeCurrent[:maxSize])
 
-
 ##TODO: Prepare the conductivity plots, also! 
-## Do not use FFT, see reasons in Numerical Recipes. 
+## NTD: Do not use FFT, see reasons in Numerical Recipes. 
 # print "** Conductivity"
 # Epsilon_maxSize = CurrentX_AU_FT.size
 # # print Efield_AU_FT.size
@@ -567,7 +627,7 @@ plt.ylim((-ymax11valueMax,ymax11valueMax))
 # plt.plot(time, A2x/RatioA, 'b-')
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
-plot_field, = ax1.plot(time[1:], (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
+plot_field, = ax1.plot(time, (Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t)$") #E ~ i A omega / c
 # plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
 
 #let's plot current in a second axis
@@ -577,7 +637,8 @@ plt.ylim((-ymax12valueMax, ymax12valueMax))
 plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
-plot_current_damped, = ax12.plot(timeCurrent, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
+# plot_current_damped, = ax12.plot(timeCurrent_pad, np.sqrt(CurrentX_HHG**2+CurrentY_HHG**2+CurrentZ_HHG**2), 'b--', label=r'$|J(t)|$ (a.u.)')
+plot_current_damped, = ax12.plot(timeCurrent_pad, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
@@ -705,17 +766,31 @@ if(PlotGrid==1):
 ax4 = plt.subplot(plotD)
 # plt.plot(HHG_AU_order[:maxHHG], np.abs(HHG_AU[:maxHHG])**2, '-', label=r'HHG$(\omega)$')
 #Xaxis = HHG_AU_order[:maxHHG] #order of the harmonic
-Xaxis = HHG_AU_omega[:maxHHG]*hbar/e #energy of the harmonics
-Yaxis = np.power(HHG_AU_order[:maxHHG],2.)*np.abs(HHG_AU[:maxHHG])**2 #FULL HHG spectrum is taken (X, Y and Z)
+Xaxis = HHG_AU_omega*hbar/e #energy of the harmonics
+# This is Larmor formula, but in atomic units. It may generate too large numbers.
+# #TODO: check Larmor formula SI vs AU.
+Yaxis = np.power(HHG_AU_omega*hbar/e,2.)*np.abs(HHG_AU)**2 #FULL HHG spectrum is taken (X, Y and Z). This is Larmor formula, but in atomic units. It may generate too large numbers. #TODO: check Larmor formula SI vs AU. 
+"""
+WARNING: this formula matters very much for comparison of spectra with experiments. 
+         If neglecting the quantity for multiplying, one can see big noise in high 
+         harmonics whereas experiment would see nothing. 
+"""
 plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
-plt.xticks(np.arange(1,30, step=2))
+plt.xlim([0,10]) #eV
+# plt.xticks(np.arange(1,30, step=2))
 
+## Exporting harmonics
 filename = "HHG-Spectrum"
 SampleArray=list(zip(*[Xaxis, Yaxis]))
 ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
+## Exporting current
+filename = "current-HHG-damped"
+SampleArray=list(zip(*[timeCurrent_pad, CurrentX_HHG, CurrentY_HHG, CurrentZ_HHG]))
+ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
+
 # ax4.set_xscale("log", nonposx='clip')
-ax4.set_yscale("log")
+# ax4.set_yscale("log")
 
 # Enable the NonLinear Frequency Conversion visuals if E_B is large
 plotNLFC=(Efield_amplitudeB_SI > 1)

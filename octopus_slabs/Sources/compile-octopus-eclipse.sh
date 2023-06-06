@@ -21,7 +21,13 @@ module load BLAS/3.8.0-GCC-8.1.0
 module load LAPACK/3.8.0-GCC-8.1.0
 
 # module load plgrid/libs/libxc/4.2.3
-module load libxc/5.2.3-GCC-8.1.0
+
+
+
+
+module load libxc/4.3.4-GCC-8.1.0
+# module load libxc/5.2.3-GCC-8.1.0
+export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/4.3.4-GCC-8.1.0
 
 # module load plgrid/libs/gsl/2.4
 module load GSL/2.6-GCC-8.1.0
@@ -46,6 +52,7 @@ module list
 
 # export LIBXC_HOME=/net/people/prace/pr2c0043/libxc
 # export LIBXC_HOME=/net/software/local/libxc/4.2.3
+
 export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/5.2.3-GCC-8.1.0
 
 # export MKL="-L$MKL_HOME/lib/intel64  -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
@@ -54,33 +61,46 @@ export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/5.2.3-GCC-8.1.0
 # export CFLAGS="-g -O3  -xHost -I$FFTW_HOME/include" #-openmp
 # export CXX=mpiicpc
 # export FC=mpiifort 
+
+
+
+# export MKL="-L$MKL_HOME/lib/intel64  -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
+
+# export CC=mpicc 
+# export CFLAGS="-g -O3  -xHost -I$FFTW_HOME/include" #-openmp
+# export CXX=mpi++
+# export FC=mpifort 
+
 # export FCFLAGS="-g -O3  -xHost -I$FFTW_HOME/include" #-openmp
 
 # export LDFLAGS="-I$FFTW_HOME/include -L$MKL_HOME/lib/intel64 -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core  -lmkl_sequential -lmkl_blacs_intelmpi_lp64  -lpthread -lm -Xlinker -rpath=$MKL_HOME/lib/intel64:$GSL_HOME/lib:$NETCDF_HOME/lib:$FFTW_HOME/lib" 
 
-#export LD_LIBRARY_PATH=$ISF_HOME/lib:$LD_LIBRARY_PATH 
 make mostlyclean
 make clean
 make distclean
 
+cd .. 
 autoreconf -i
+cd -
 #NOTE: OpenMP was disabled, because not useful in our case.
 ../configure --enable-mpi  --disable-gdlib --disable-openmp \
-   --with-gsl-prefix=$GSL_HOME \
-   --with-libxc-prefix=$LIBXC_HOME \
-   --with-blas="$BLAS" \
-   --with-fftw-prefix="$FFTW_HOME" \
-   --prefix="/gpfs/home/tderrien/octopus.gnu.latest/"
+    --with-gsl-prefix=$GSL_HOME \
+    --with-libxc-prefix=$LIBXC_HOME \
+    --with-blas="$BLAS" \
+    --with-fftw-prefix="$FFTW_HOME" \
+    --prefix="/gpfs/home/tderrien/octopus.gnu.mpiio/"
 #   --enable-avx \ 
 #   --with-lapack="$MKL" \
 #   --with-netcdf-prefix=$NETCDF_HOME \
- #  --with-isf-prefix=$ISF_HOME \
- #  --with-isf-include=$ISF_HOME/include \
+#  --with-isf-prefix=$ISF_HOME \
+#  --with-isf-include=$ISF_HOME/include \
 #   --with-blacs="$MKL" \
 #   --with-scalapack="$MKL" \
 
-# make clean 
+
 make -j 16
 make install
+
 #MPIEXEC=srun
-#make check-short >& check-short.log
+ #make check-short >& check-short.log
+
