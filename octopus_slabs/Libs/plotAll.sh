@@ -119,7 +119,7 @@ done
 }
 
 plotExcitation () {
-for folder in $( list_folders | grep 'td.general' | grep 'SinSquared' )
+for folder in $( list_folders | grep 'td.general' )
 do
 	# HERE, the whole thing should be executed in background for each folder (1 thread / folder).
  	# then, processes may work on a different run, and hence produce all results at the same time
@@ -133,9 +133,9 @@ do
         if [ -e energy ]; then
           echo "** Plotting the TD-combined n_exc, E(t) and J(t) results... $(pwd)" 
           if [[ $UseScreen ]]; then
-            screen -d -m ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
+            screen -d -m env python ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           else
-            ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 # >& plotTimeKeldysh.log
+            env python ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeKeldysh.py auto 0 0 >& plotTimeKeldysh.log
           fi
 #        screen -d -m ${OctopusSlabsSources}/02-Slab2D/plotTimeKeldysh.py auto 1 0
 	  echo ""
@@ -222,9 +222,9 @@ done
 
 
 echo "Plotting basic results..."
-plotBasicOutput #cleans up laser files also. 
+# plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-# plotExcitation  #Prepare all plots for n_ex analysis.
+plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
 # plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
