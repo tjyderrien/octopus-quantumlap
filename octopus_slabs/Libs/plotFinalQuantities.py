@@ -30,6 +30,8 @@ from   mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.optimize import curve_fit
 from scipy.constants import h, c, e
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 import os
 # import pdb
