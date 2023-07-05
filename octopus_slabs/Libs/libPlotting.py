@@ -539,18 +539,11 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     logger.info((Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."))
     logger.info((Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."))
-    
-    # Capturing cell volume
-    try:
-         SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
-    except:
-         logger.warning((Header+"** Warning: sample computation volume was jumped!"))
-         continue
-    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
-    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
-    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
-    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
-    
+
+
+
+    SampleCellVolume_SI = GetCellVolume()
+    #}}}
     logger.info(Header+"** Sample volumes **")
     logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
     logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}.") 

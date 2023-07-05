@@ -550,3 +550,17 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
         print("Info: successfull import of real-valued dipolar matrix elements for X direction.")
     return matrixelements, matrix_side
 #}}} 
+
+## Capture volume of the cell of the sample under current study
+def GetCellVolume(): #{{{
+# Capturing cell volume
+    # try:
+    SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
+    # except:
+    #     logger.warning((Header+"** Warning: sample computation volume was jumped!"))
+    #     continue
+    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
+    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
+    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
+    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
+    return SampleCellVolume_SI
