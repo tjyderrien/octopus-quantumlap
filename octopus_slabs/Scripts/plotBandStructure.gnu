@@ -22,8 +22,8 @@ unset xtics
 # Fermi_Ha=system("grep 'Fermi' -i $( ls -htr1 ../*.log | tail -n1 ) | tail -n1 | awk '{ print $4 }'")
 path=system("pwd")
 print path
-Fermi_Ha=system("cat total-dos-efermi.dat  | tail -n1 | awk '{ print $1 }' | tr '\n' ' ' ")
-# Fermi_Ha=0e0
+# Fermi_Ha=system("cat total-dos-efermi.dat  | tail -n1 | awk '{ print $1 }' | tr '\n' ' ' ")
+Fermi_Ha="0e0"
 print Fermi_Ha." Ha"
 FermiLevel=Fermi_Ha*HartreeToEv
 print FermiLevel #." eV"

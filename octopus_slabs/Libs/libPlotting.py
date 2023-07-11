@@ -236,7 +236,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       int(runid)
     except:
       logger.warning((Header+"** Warning: JOB ID could not be captured. Jumping to next computation."))
-      ListOfProblematicRunsID.append([int(runid)])
+      ListOfProblematicRunsID.append(int(runid))
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
@@ -616,7 +616,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         del Exchange_interp, Exchange_nonzero
     except: 
         logger.warning((Header+"** Warning: could not interpolate energy output."))
-        ListOfProblematicRunsID.append([int(runid)])
+        ListOfProblematicRunsID.append(int(runid))
     
     # Normalizing the database energies
     
