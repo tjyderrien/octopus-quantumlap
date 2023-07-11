@@ -17,7 +17,7 @@ MeshSizeX="0.12" #0.14" #0.15 0.18 0.21 0.23" # 0.23" # 0.20" 0.15: very long...
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=16
+NumNodes=4
 
 # Sample
 SampleLayers=1
@@ -72,8 +72,8 @@ RiseCycle="2"    # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="5E8" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
 
-Efield1="1E10"
-# Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11"
+# Efield1="1E10"
+Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11"
 Efield2="0E0"
 
 # Pulse duration

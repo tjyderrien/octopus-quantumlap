@@ -17,13 +17,13 @@ MeshSizeX="0.12" #0.14" #0.15 0.18 0.21 0.23" # 0.23" # 0.20" 0.15: very long...
 #"0.18" #"0.18" #Octopus-recommanded value: 0.23 Bohr ~ 0.43 Angstroms. After convergence test on current for slab: use 0.18 in Z.
 
 # Number of NumNodes
-NumNodes=16
+NumNodes=4 #512 cores max for 512 k-points
 
 # Sample
 SampleLayers=1
 SampleXY=1
 InitialTemperature="0e0"
-CrossPolarization=0 #1
+CrossPolarization=1 #1
 
 InducedFields="0" #0 or 1: avoid, as understanding is non-trivial there.
 TheoryLevel="dft" #Must be filled: dft #independent_particles /!\ independent-particles != TDFreezeHXC
@@ -35,12 +35,13 @@ UseLinearResponse="0"
 
 # Mission="CEP-tunneling"
 # Mission="InducedField"
-Mission="SiO2-TB09-TD"
+Mission="SiO2-Juergens"
 
 # Phase
 CEP1="0.0"
-#CEP1="-0.5 -0.25 0.0 0.25 0.5 0.333333333 0.16666667 -0.333333333 -0.16666667" #will be multiplied by pi in script file
-CEP2="0.0" # 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125"
+# CEP1="-0.5 -0.25 0.0 0.25 0.5 0.333333333 0.16666667 -0.333333333 -0.16666667" #will be multiplied by pi in script file
+CEP2="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.0 -0.125 -0.142857142857143 -0.16666667 -0.25 -0.333333333 -0.5"
+# CEP2="1.0 0.833333333 0.75 0.66666667 0.642857142857143 0.625 -1.0 -0.833333333 -0.75 -0.66666667 -0.642857142857143 -0.625"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15"
@@ -48,7 +49,7 @@ delay="0e-15" #sets a delay, unless using the SoftTopHat mode then it's pulse du
 
 ## ========== ZHUKOV LASER PARAMETERS ============
 PulseShape="SinSquared" #StH: corrected one. STH: old buggy STH. #SinSquared" #Zhukov: STH, Merdji: SinSquared. #Gaussian #SinSquared #TopHat #STH = SoftTopHat: WARNING this pulse is defined by the method tdf_from_file. Other methods are generated in octopus directly.
-TimeStep="0.25"  #atomic unit is usually fine
+TimeStep="0.20"  #atomic unit is usually fine
 RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # lambda1="800e-9"  # "900e-9" # 1100e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9" #BICOLOR SEQUENCE
 # lambda1="100e-9 150e-9 200e-9 250e-9 300e-9 350e-9 400e-9 450e-9 500e-9 550e-9 600e-9 650e-9 700e-9 750e-9 850e-9 900e-9 1000e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9"
@@ -72,14 +73,15 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="5E8" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
 
-Efield1="1E10"
+Efield1="1.37E10" #will be normalized to phase difference between both pulses in elliptical polarization
+# Efield1="1.66E10"
 # Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11"
-Efield2="1E10"
+Efield2=$Efield1 
 
 # Pulse duration
-tau1="70E-15" # 20e-15 30E-15 10E-15"
+tau1="10.67E-15" # 20e-15 30E-15 10E-15"
 # tau1="10e-15 20e-15 30e-15 40e-15 50e-15"
-tau2="70E-15"
+tau2="10.67E-15"
 
 # lambda1="200e-9 300e-9 343e-9 400e-9 500e-9 515e-9 600e-9 700e-9 800e-9 900e-9 1000e-9 1030e-9 1064e-9 1100e-9 1200e-9 1300e-9 1400e-9 1500e-9 1600e-9 1700e-9 1800e-9 1900e-9 2000e-9 2100e-9"
 # energies="0.50 0.54 1.27 1.28 1.29 1.30 1.35 1.90 2.17 2.77 3.83"
@@ -122,6 +124,8 @@ GaugeVectorFieldAmplitude="0.0" #0: no probe pulse. >0: probe pulse strength in 
 GaugeFieldDelayValue="0e-15"    #delay of probe pulse (in number of cycles?)
 
 AngleIncidence_list="0" #"0.125 0.25 0.375 0.50"
+
+echo "flood: td: starting the loop..."
 
 for iTheoryLevel in ${TheoryLevel}; do
   for iCrossPola in ${CrossPolarization}; do
