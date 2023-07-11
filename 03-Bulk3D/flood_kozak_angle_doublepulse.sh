@@ -64,8 +64,8 @@ lambda2="745.61e-9" #3 omega
 
 ## Field amplitude
 
-Efield2="7E7" #"1.4E9" #3E9 9E9" #1.4E9 #I/n this time #3E9" #9E9" #Exp. 3GV/m (Kozak) 
-# Efield2="0E0"
+# Efield2="7E7" #"1.4E9" #3E9 9E9" #1.4E9 #I/n this time #3E9" #9E9" #Exp. 3GV/m (Kozak) 
+Efield2="0E0"
 Efield1="1.6E9" # Martin asked for increasing to 1.6E9, from 1.4E9. #"9e9"
 
 ## Pulse duration
@@ -102,8 +102,8 @@ AngleIncidence_list="0" #0.25" # 0"
 # CEP1="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.111111111111111"
 # CEP1="-0.375" #set for 30 fs #No. Error based on A(t), not E(t). 
 CEP1="0.21" #set for 30 fs symmetric for E1(t)
-# CEP2="0.0"
-CEP2="-0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0"
+CEP2="0.0"
+# CEP2="-0.9 -0.8 -0.7 -0.6 -0.5 -0.4 -0.3 -0.2 -0.1 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0"
 
 if [ ${EnableSmearing} == 0 ]; then
   SmearingTe="0"
