@@ -35,24 +35,26 @@ BoxShape = parallelepiped
   m*a | m*a | n*caxis
 %
 
-KPointsUseSymmetries = yes
+KPointsUseSymmetries = no
 
-%LatticeVectors #simply the primitive cell of the lattice type
-  0.5 | -sqrt(3.)/2.| 0
-  0.5 | sqrt(3.)/2. | 0
-  0   | 0           | 1.
+# Standardized using SPGlib
+%LatticeVectors #primitive cell, refined using SPGlib
+   1  |      0      | 0
+ -1/2 | sqrt(3.)/2. | 0
+   0  |      0      | 1.
 %
 
+
 %ReducedCoordinates
-"Si" | 0.52272 | 0.52272 |  0.50000
-"Si" | 0.47728 | 0.00000 |  0.16667
-"Si" | 0.00000 | 0.47728 |  0.83333
-"O"  | 0.58497 | 0.83926 |  0.37068
-"O"  | 0.16074 | 0.74571 |  0.03734
-"O"  | 0.25429 | 0.41503 |  0.70401
-"O"  | 0.83926 | 0.58497 |  0.62932
-"O"  | 0.74571 | 0.16074 |  0.96266
-"O"  | 0.41503 | 0.25429 |  0.29599
+  "Si"  | 0.522715 |  0.522715 |  0.5
+  "Si"  | 0.477285 |  0.       |  0.16666667
+  "Si"  | 0.       |  0.477285 |  0.83333333
+  "O"   | 0.584969 |  0.839262 |  0.370677
+  "O"   | 0.160738 |  0.745707 |  0.03734367
+  "O"   | 0.254293 |  0.415031 |  0.70401033
+  "O"   | 0.839262 |  0.584969 |  0.629323
+  "O"   | 0.745707 |  0.160738 |  0.96265633
+  "O"   | 0.415031 |  0.254293 |  0.29598967
 %
 
 %KPointsGrid
@@ -153,10 +155,10 @@ ComputingTime = ComputingTimeValueSI / TimeAUtoSI
 
 # Predicting which simulation axis will be broken during excitation. 
 theta_inc = 0. #angle of incidence of the laser
-ell = 0. #ellipticity
-%SymmetryBreakDir
- cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
-%
+ell = 0. #ellipticity #does not work, actually (maybe available in newer versions)
+# %SymmetryBreakDir
+#  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+# %
 
 
 #TODO: script the change of polarization
@@ -206,11 +208,11 @@ tR = tauRise
   "FieldColorB-StH" | tdf_from_file | "PulseB.dat"
 %
 
-TDTimeStep = 0.10 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough! 
+TDTimeStep = TimeStepExternal #0.25 #atomic unit x 2.44e-17 s #NTD: 0.25 is enough!
 TDPropagationTime = ComputingTime
-TDPropagator = aetrs #it was aetrs
+# TDPropagator = etrs #This is automatically addded by run_td.sh. Dont touch. 
 TDExponentialMethod = lanczos #Warning: etrs+lanczos warns on non-convegence.
-TDExpOrder = 16
+TDExpOrder = 32
 
 ###########
 #CurrentDensity = 1 #Default is 2. 1: Takes into account exchange correlation
@@ -238,7 +240,7 @@ TDOutput = geometry + energy + laser + total_current + n_excited_el #multipoles
 # Output = geometry
 OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
 
-RestartWrite = 0
+RestartWrite = 1
 OutputInterval = 10
 RestartWriteInterval = 500
 TDOutputComputeInterval = 10

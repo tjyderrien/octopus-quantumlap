@@ -1,0 +1,27 @@
+diff --git a/src/states/states_elec_io.F90 b/src/states/states_elec_io.F90
+index 240a877..baca6df 100644
+--- a/src/states/states_elec_io.F90
++++ b/src/states/states_elec_io.F90
+@@ -118,7 +118,7 @@ contains
+         if(simul_box_is_periodic(sb)) then
+           ikk = states_elec_dim_get_kpoint_index(st%d, ik)
+           kpoint(1:sb%dim) = kpoints_get_point(sb%kpoints, ikk, absolute_coordinates = .false.)
+-          write(message(1), '(a,i4,a)') '#k =', ikk, ', k = ('
++          write(message(1), '(a,i7,a)') '#k =', ikk, ', k = ('
+           do idir = 1, sb%dim
+             write(tmp_str(1), '(f10.6)') kpoint(idir)
+             message(1) = trim(message(1))//trim(tmp_str(1))
+diff --git a/src/system/output_me.F90 b/src/system/output_me.F90
+index f83dfd6..47a977d 100644
+--- a/src/system/output_me.F90
++++ b/src/system/output_me.F90
+@@ -278,7 +278,7 @@ contains
+       ASSERT(.not. st%parallel_in_states)
+       ! The content of each file should be clear from the header of each file.
+       do ik = st%d%kpt%start, st%d%kpt%end
+-        write(fname,'(i4)') ik
++        write(fname,'(i7)') ik
+         write(fname,'(a)') trim(dir)//'/ks_me_dipole.k'//trim(adjustl(fname))//'_'
+           if (states_are_real(st)) then
+             call doutput_me_dipole(this, fname, namespace, st, gr, hm, geo, ik)
+

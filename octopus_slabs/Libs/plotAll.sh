@@ -1,7 +1,8 @@
 #!/bin/bash
 
-set -e 
+RecomputeItAll="recompute" #if != "", we recompute all. If =="", we just look for new files. 
 
+# set -e 
 # module load git
 # module load gnuplot #WARNING: GNUplot is now loaded through machines.env.
 # module load anaconda/2/5.1 #we shall use machines.env library load for this.
@@ -36,23 +37,36 @@ for folder in $( list_folders | grep 'td.general' )
 do
 	echo "Found folder $folder"
 	cd $folder
-	if [ -e laser ]; then
+	if [ ! -e laser.tmp ] || [[ -n $RecomputeItAll ]] ; then
+            if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
-		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+#		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
+ 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+            fi
         fi
-	if [ -e laser ]; then
-		echo "** Plotting laser..."
+	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then
+           if [ -e laser.tmp ]; then
+		
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
 		screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 else
+                echo "** Plotting laser.tmp..."
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
-                gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+
+                echo "** Plotting polarization orientation..."
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 fi
+            fi
 	fi
+        if [ ! -e Field.eps ]; then
+                echo "** Plotting electric field from vector potential..."
+                ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensityField.py        
+        fi
 	if [ -e energy ]; then
+           if [ ! -e Energy.eps ] || [[ -n $RecomputeitAll ]]; then
 		echo "** Plotting energy..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -60,8 +74,10 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeEnergy.gnu"
                 fi
+            fi
 	fi
 	if [ -e total_current ]; then
+           if [ ! -e Current.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "** Plotting current..."
 		if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -69,8 +85,10 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeCurrent.gnu"
                 fi
+           fi
 	fi
         if [ -e n_ex ]; then
+           if [ ! -e ExcitedElectrons.eps ] || [[ -n $RecomputeItAll ]]; then
 		echo "Plotting density..."
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
@@ -78,6 +96,7 @@ do
                 else
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensity.gnu"
                 fi
+            fi
 	fi
 
         if [ -e dielectric_function ]; then
@@ -207,7 +226,7 @@ plotBasicOutput #cleans up laser files also.
 echo "Plotting Excitation results..."
 # plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
-plotHHG         #Generate the CSV files with HHG spectra. 
+# plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."
 # plotLinearAbsorption
 echo " Have fun with Database.csv and plotHHGspectra.py after this."
