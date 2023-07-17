@@ -56,10 +56,10 @@ BoxShape = parallelepiped
 
 %KPointsGrid
   kPointsValue | kPointsValue   | kPointsValue
-  0.5 | 0.5 | 0.5 
-  0.5 | 0.0 | 0.0
-  0.0 | 0.5 | 0.0
-  0.0 | 0.0 | 0.5
+#  0.5 | 0.5 | 0.5 
+#  0.5 | 0.0 | 0.0
+#  0.0 | 0.5 | 0.0
+#  0.0 | 0.0 | 0.5
 %
 
 # Using external file
@@ -134,14 +134,15 @@ tauA = tauAsi / TimeAUtoSI
 tauB = tauBsi / TimeAUtoSI
 
 ## Correction of FWHM for sin4 envelope
-tausin4 = 4/pi * asin(2.**(0.75)/2.) #to be multiplied by tau_experimental to recover the right duration. 
+tausin4 = 4/pi * asin(2.^(0.75)/2.) #to be multiplied by tau_experimental to recover the right duration. 
 
 # t0 = max(tauA, tauB) #useless to use tauB there
-t0 = 1.1*tauA #(we must not start the run on the pulse start!)
+t0_fix=100
+t0 = t0_fix+tauA #(we must not start the run on the pulse start!)
 
-t0sin4 = 1.1*tauA*tausin4
+t0sin4 = t0_fix+tauA*tausin4
 
-t0Gauss = 2.*t0
+t0Gauss = t0_fix+2.*t0
 GaussianRatio = 2.*sqrt(2. * ln(2.))
 
 sigmaTauA = tauA / GaussianRatio
