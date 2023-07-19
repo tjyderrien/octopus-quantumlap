@@ -23,7 +23,6 @@ import os
 
 # IMPORT LIBRARIES
 import numpy as np
-from octopus_slabs.Libs import libString
 from numpy import loadtxt
 import logging
 
@@ -71,12 +70,12 @@ def VolumePerPoint_Log(Filename): #{{{
 
 ## Gets the volume of vacuum from octopus input file
 def VacuumThickness_inp(Filename): #{{{
-
+  from octopus_slabs.Libs.libString import LookUpStringInFile
   try: 
-    result = libString.LookUpStringInFile(Filename+"inp", "Lvac = ")
+    result = LookUpStringInFile(Filename+"inp", "Lvac = ")
   except: 
     result = 0.
-  IsBulkString = libString.LookUpStringInFile(Filename+"inp", "PeriodicDimensions")
+  IsBulkString = LookUpStringInFile(Filename+"inp", "PeriodicDimensions")
   if(float(IsBulkString[20:23])==2): #Slab case
     VacuumThickness = 2.*float(result[6:20]) #Bohr #1 per side of sample!
   elif(float(IsBulkString[20:23])==3): ##Bulk case

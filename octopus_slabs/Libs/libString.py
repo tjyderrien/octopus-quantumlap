@@ -566,4 +566,4 @@ def GetCellVolume(FolderName): #{{{
     SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
     CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
     SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
-    return SampleCellVolume_SI
+    return SampleCellVolume_SI, SampleCellVolume_AU

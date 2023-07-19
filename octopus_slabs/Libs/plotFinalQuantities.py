@@ -81,7 +81,10 @@ except:
     logger.warning((Header + "** Warning: sample computation volume was failed!"))
     SampleVolume = 0
 
+## These data should be moved
 Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA !
+meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
+meff = meff_Waroquiers_LDA
 
 # Capture the data
 # For histocal reasons, two locations are possilbe.
@@ -317,7 +320,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   
   # Second panel of the figure
   if(PlotVirtualExcitation):
-    nonlocal meff
+    # nonlocal meff
     ax2 = plt.subplot(plotB)
     #plt.title('rVirtual exc. $\zeta$')
     plt.plot(libKeldysh.FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
@@ -373,9 +376,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     EnableInsetMagnification=False #this is defined as function of wavelength below
     PlotVirtualExcitation = False #Not advised! This is not a real observable.
 
+    global meff_Waroquiers_LDA
     Ntotal=5.0E28
-    meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
-    meff = meff_Waroquiers_LDA #0.14 #used to adjust the w_PI model
+     #0.14 #used to adjust the w_PI model
     # meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap.
 
     # This disables the work made on the optical index. Important to show in the Suppl. Inf.
@@ -2367,7 +2370,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 
 ## (Final density | Virtual excitation rate) (Intensity) with comparing FreezeHXC if available.
 def plotEffectOfFrozenXC(PlottingTable): #{{{
-  nonlocal meff
+  global meff
   print("#====== Plot: SINGLE PULSE, EFFECT OF THE FROZEN HXC, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======")
   #Filter: double pulses, same wavelengths, same polarization
 

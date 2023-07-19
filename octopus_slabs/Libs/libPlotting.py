@@ -542,18 +542,18 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
 
 
-    SampleCellVolume_SI = libString.GetCellVolume(FolderName)
+    SampleCellVolume_SI, SampleCellVolume_AU = libString.GetCellVolume(FolderName)
     #}}}
-    logger.info(Header+"** Sample volumes **")
-    logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_SI)+" m^{3}.")
-    logger.info(Header+"")
-    logger.info(Header+"Sample volume = "+str(libString.SampleCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
-    logger.info(Header+"")
-    logger.info(Header+"Numerical cell volume = "+str(libString.CellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(libString.CellVolume_AU))+" m^{-3}.")
-    logger.info(Header+"") 
+    # logger.info(Header+"** Sample volumes **")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Sample volume = "+str(libString.SampleCellVolume_AU)+" Bohr**3.")
+    logger.info(Header+"Sample volume = "+str(SampleCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Numerical cell volume = "+str(libString.CellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(libString.CellVolume_AU))+" m^{-3}.")
+    # logger.info(Header+"")
     
     logger.info((Header+"** Importing simulation data..."))
     
@@ -564,7 +564,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         logger.error((Header+"** Error: It seems this run was not complete. We jump it."))
         continue
     Nproj_AU         = np.asfarray(Ne[:,2]) #number of particles, not a density!
-    density_proj_AU  = Nproj_AU / libString.SampleCellVolume_AU #This is now a density (a.u.)
+    density_proj_AU  = Nproj_AU / SampleCellVolume_AU #This is now a density (a.u.)
     density_proj_SI  = au.Density_AU_to_SI(density_proj_AU)
     sizeOfDensityTab = density_proj_SI.size
 
