@@ -20,7 +20,7 @@
 # Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes), builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. Then prepares a bunch of scientific results for publications with one and two color simulations. 
 
 ## IMPORT LIBRARIES
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 #import matplotlib.pyplot as plt
 # from pylab import *
 
@@ -29,7 +29,7 @@ from   matplotlib import rc
 from   mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.optimize import curve_fit
-from scipy.constants import h, c, e, hbar, m_e, epsilon_0
+from scipy.constants import h, c, e, hbar, m_e, epsilon_0, pi
 import numpy as np 
 import matplotlib.pyplot as plt 
 
@@ -317,6 +317,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   
   # Second panel of the figure
   if(PlotVirtualExcitation):
+    nonlocal meff
     ax2 = plt.subplot(plotB)
     #plt.title('rVirtual exc. $\zeta$')
     plt.plot(libKeldysh.FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
@@ -624,7 +625,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #}}}
 
         ## 7-photon absorption fitting function
-        def SixPhotonAbsorption(intensity, sigma_n):
+        def SevenPhotonAbsorption(intensity, sigma_n):
             #{{{
             n=7; #wavelength=800e-9; tau_FWHM=20e-15;
             omega = 2.*np.pi*c/wavelengths1[0]
@@ -2366,6 +2367,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 
 ## (Final density | Virtual excitation rate) (Intensity) with comparing FreezeHXC if available.
 def plotEffectOfFrozenXC(PlottingTable): #{{{
+  nonlocal meff
   print("#====== Plot: SINGLE PULSE, EFFECT OF THE FROZEN HXC, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======")
   #Filter: double pulses, same wavelengths, same polarization
 
@@ -4453,7 +4455,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   
   ### One need to extract interpolation of BrutZ on a regular mapping. 
   if(not len(BrutZ)==0): 
-      RegX, RegY, RegZ = plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
+      RegX, RegY, RegZ = libPlotting.plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
   else: 
       logger.error((Header+"** Error: Selected database is empty."))
       exit()

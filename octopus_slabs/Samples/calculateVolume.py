@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2020 T. J.-Y. Derrien
@@ -23,8 +23,9 @@ import os
 
 # IMPORT LIBRARIES
 import numpy as np
-from octopus_slabs.Libs.libString import *
+from octopus_slabs.Libs import libString
 from numpy import loadtxt
+import logging
 
 Header = "[calculateVolume.py] "
 
@@ -53,7 +54,7 @@ def VolumePerPoint_Log(Filename): #{{{
   for line in searchfile:
     if 'volume/point' in line: 
       position_start = line.find('volume/point')
-      result = line[position_start:];
+      result = line[position_start:]
       # print(Header+"** Debug info: "+str(result)) #valid
       print(Header+"** Info: filtering the right hand side of the matching string: "+str(result))
   result_filtered = result
@@ -72,10 +73,10 @@ def VolumePerPoint_Log(Filename): #{{{
 def VacuumThickness_inp(Filename): #{{{
 
   try: 
-    result = LookUpStringInFile(Filename+"inp", "Lvac = ")
+    result = libString.LookUpStringInFile(Filename+"inp", "Lvac = ")
   except: 
     result = 0.
-  IsBulkString = LookUpStringInFile(Filename+"inp", "PeriodicDimensions")
+  IsBulkString = libString.LookUpStringInFile(Filename+"inp", "PeriodicDimensions")
   if(float(IsBulkString[20:23])==2): #Slab case
     VacuumThickness = 2.*float(result[6:20]) #Bohr #1 per side of sample!
   elif(float(IsBulkString[20:23])==3): ##Bulk case
@@ -132,7 +133,7 @@ def VolumeOfSupercell_Log(Filename): #{{{
   # Search into this file the line with volume/cell
   for line in searchfile:
     if "Cell volume" in line:
-      result = line;
+      result = line
       break;
     else: 
       result = '0'
