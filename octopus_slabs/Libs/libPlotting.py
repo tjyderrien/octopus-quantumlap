@@ -109,7 +109,8 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 #  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
   Header="[OctopusSlabs-libPlotting] "
-
+  ListOfProblematicRunsID=[]
+  ListOfDisabledRunsID=[]
   def GetMachineName(file):
       machinename_t = libString.LookUpStringInFile(file, "swim")
       logger.debug((Header + "** Debug: " + str(machinename_t)))
@@ -213,6 +214,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     # print(glob.glob(path+"../DISABLED")) #! Finds ALL occurrences of DISABLED files 
     if(os.path.isfile(FolderName+"../DISABLED")):
         logger.warning((Header+" ** WARNING: THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. "))
+        # ListOfDisabledRunsID.append([int(runid)])
         continue
 
     # Import the quantities from the subfolders
@@ -220,6 +222,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       Ne, laser, TotalCurrent, Energy = LoadRunOutputs(FolderName)
     except:
       logger.warning((Header+"** Warning: One or more files could not be read. There are some problems on laser file in octopus. Execute plotAll.sh to fix it. Then come back to me. I jump this folder: "+str(FolderName)))
+      # ListOfProblematicRunsID.append([int(runid)])
       continue #could not load the files, it did not run, then jump this run.
     
     # Collect the laser parameters in the input file name
@@ -233,6 +236,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       int(runid)
     except:
       logger.warning((Header+"** Warning: JOB ID could not be captured. Jumping to next computation."))
+      ListOfProblematicRunsID.append(int(runid))
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
@@ -612,6 +616,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         del Exchange_interp, Exchange_nonzero
     except: 
         logger.warning((Header+"** Warning: could not interpolate energy output."))
+        ListOfProblematicRunsID.append(int(runid))
     
     # Normalizing the database energies
     
@@ -848,6 +853,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
             logger.warning((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
+            ListOfProblematicRunsID.append([int(runid)])
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
@@ -925,6 +931,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
+        ListOfProblematicRunsID.append([int(runid)])
     
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
@@ -1003,6 +1010,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         logger.warning((Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB."))
+        ListOfProblematicRunsID.append([int(runid)])
         continue
     
     if(FromScratch): #We construct a new database from scratch
@@ -1023,6 +1031,9 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         PlottingTable = np.vstack(( PlottingTable, StackToAdd ))
         # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
+
+    logger.warning("List of problematic runs IDs is: "+str(ListOfProblematicRunsID))
+    logger.warning("List of disabled    runs IDs is: " + str(ListOfDisabledRunsID))
     # PlottingTable should only contains FRESH data. 
     # Database contains the OLD data. 
     
@@ -1284,6 +1295,66 @@ def FilterSinglePulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, 
         CountTheNumberOfLaserParameters(PlottingSinglePulses)
         return PlottingSinglePulses
 #}}}
+
+#Selects single-color pulses, with same field amplitude from a database
+# @param Database: the array with all the data,
+# @param Efield1 (V/m): desired field amplitude
+# @param pulseDuration (s): desired pulse duration
+# @param CEP: desired carrier envelope phase (pulse1)
+# @param PulseType: 0: gaussian, 1: squared sin, 2: soft-top hat (bugged), 3: soft top hat (fixed)
+# @param RiseTime: 0: not important. <n>: softened top hat with n cylces for increase and n for decrease.
+def FilterBicolorPulseDatabaseWithParameters_CEP(Database, wavelength1, Efield1, pulseDuration1, CEP1,
+                                                wavelength2, Efield2, pulseDuration2,
+                                                 PulseType=5, RiseTime=2, MoveIon=0, InducedFields=0): #{{{
+        PlottingBiColorPulses = Database  #get the full database
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield1*0.99, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield1*1.01, IndexTable['Efield1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, Efield2 * 0.99,
+                                                                     IndexTable['Efield2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, Efield2 * 1.01,
+                                                                   IndexTable['Efield2'])
+        logger.debug("Size after filtering Efield1,2" + str(np.shape(PlottingBiColorPulses)))
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength1, IndexTable['wavelengths1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, wavelength2, IndexTable['wavelengths2'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2" + str(np.shape(PlottingBiColorPulses)))
+        if(CEP1 >= 0.):
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                     IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                   IndexTable['CEP1'])
+        else:
+            PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, CEP1 * 1.02,
+                                                                          IndexTable['CEP1'])
+            PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, CEP1 * 0.98,
+                                                                        IndexTable['CEP1'])
+        # PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, CEP1,
+        #                                                   IndexTable['CEP1'])
+        logger.debug("Size after filtering Efield1,2, wavelengths1,2 and CEP1"+str(np.shape(PlottingBiColorPulses)))
+        logger.debug("Values of CEP1: "+str(CEP1))
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. #TODO: management of cross polarization is PROBLEMATIC. See libPlotting.py:213 CrossPolarization_Angle issue.
+
+#        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, 0., IndexTable['CEP1']) #removes fields where CEP < 0. Just for wrong buggy reasons.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, InducedFields, IndexTable['FieldInduced'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, MoveIon, IndexTable['MoveIon'])
+        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+#        PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, pulseDuration1, IndexTable['pulses1']) #keeps only pulses of selected duration in argument # NOT EFFICIENT
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration1*1.1, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration1*0.9, IndexTable['pulses1'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseLowerThan(PlottingBiColorPulses, pulseDuration2 * 1.1,
+                                                                   IndexTable['pulses2'])
+        PlottingBiColorPulses = libDatabase.FilterDatabaseGreaterThan(PlottingBiColorPulses, pulseDuration2 * 0.9,
+                                                                     IndexTable['pulses2'])
+        if(RiseTime >= 1): #select by RiseTime only if it is defined
+                PlottingBiColorPulses = libDatabase.FilterDatabase(PlottingBiColorPulses, RiseTime, IndexTable['RiseTime'])
+        # Inform the user of the contents.
+        CountTheNumberOfLaserParameters(PlottingBiColorPulses)
+        return PlottingBiColorPulses
+#}}}
+
 
 # For historical reasons, 
 # Gaussian is working but non-zero derivative in instant 0

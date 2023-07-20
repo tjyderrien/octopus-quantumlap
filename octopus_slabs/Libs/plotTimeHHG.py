@@ -44,7 +44,8 @@ rc('text', usetex=False) #important for Barbora
 
 ## Materials properties
 
-Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkLDA() #libMaterials.py
+# Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkLDA() #libMaterials.py
+Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkTB09() #libMaterials.py
 
 #Egap_SI = 2.56*e #[Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
 #meff_opt = 0.2226 #[Laflamme Janssen and X. Gonze, Physical Review B 93, 205147 (2016)] #SAME !
@@ -400,7 +401,7 @@ logger.warning("Shapes: "+str(np.shape(timeCurrent_pad))+", "+str(np.shape(Curre
 #  timeCurrent_pad = np.arange(TimeStep_current_SI, (Elongation + 1) * (np.max(timeCurrent_SI) + TimeStep_current_SI), TimeStep_current_SI)
 #  assert(len(timeCurrent_pad) == len(CurrentX_pad))
 print(Header+"** Info: cleaning the current for HHG computation.")
-DecoherenceTime=1.25
+DecoherenceTime=1.75 # 1.25 #times the laser pulse (best setting for 25 fs pulses)
 CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4) #NOTE: Choice of instant for applying damping is MAJOR in improving spectra. This 1.5 is fully arbitrary and a criterion should be decided. 
 CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
 CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
@@ -438,11 +439,12 @@ CurrentX_HHG2 = copy.copy(CurrentX_HHG)
 import pyfftw
 HHG_AU_X2 = np.zeros(np.shape(HHG_example), dtype=type(HHG_example[0])) #creates new output object
 instance = pyfftw.FFTW(CurrentX_HHG2, HHG_AU_X2) 
+
 pyfftw.FFTW.execute(instance)
 """
 
 ## Computing total sum
-HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z) / np.sqrt(2.) #only for 110
+HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  #/ np.sqrt(2.) #only for 110
 HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -777,8 +779,14 @@ plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xlim([0,10]) #eV
 # plt.xticks(np.arange(1,30, step=2))
 
+## Exporting harmonics
 filename = "HHG-Spectrum"
 SampleArray=list(zip(*[Xaxis, Yaxis]))
+ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
+
+## Exporting current
+filename = "current-HHG-damped"
+SampleArray=list(zip(*[timeCurrent_pad, CurrentX_HHG, CurrentY_HHG, CurrentZ_HHG]))
 ExportToTxt(SampleArray, filename+".csv") #, "# omega_HHG(eV) \tSpectraIntensity(u.a)")
 
 # ax4.set_xscale("log", nonposx='clip')

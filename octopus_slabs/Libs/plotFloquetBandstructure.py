@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2022 T. J.-Y. Derrien
+# Copyright (C) 2016-2023 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import xarray as xr
 
 import octopus_slabs.Libs.libPlotting as libPlotting
 import octopus_slabs.Libs.libString   as libString
-import octopus_slabs.Libs.libAtomicUnits     as au
+import octopus_slabs.Libs.libAtomicUnits as au
 from   octopus_slabs.Libs.libLogging import init_logger
 
 from spp_extended_theory.Keldysh.libKeldyshZhukov import IntensityToField
@@ -57,14 +57,14 @@ SingleKpoint = 0  # Selector for direct execution.
 field_polarization_dir = 0  # 0: x, 1: y, 2: z
 
 ## CHOICE OF OUTPUTS
-PlotMatrixElements = False
+PlotMatrixElements = True
 PlotFloquetBandStructure = True  # Provide field dependent band structure at Gamma Point
 PlotRabiFrequencyMatrices = False  # for studying Wannier-Stark localization, i.e. suppression of tunneling with zeros of the Bessel function
 ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
-Enable_Zoom = False
+Enable_Zoom = True
 Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
@@ -162,7 +162,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 #Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
 
-Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
+Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
       'Egap_d_eV': 2.56, 'Egap_i_eV': 0.51,
       'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
@@ -172,10 +172,10 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'KpointPath_len': 301, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
-#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-#      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
-      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
-      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
+      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
+#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
+#      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -265,7 +265,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
     # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
     try:
         kpoints_number_inp = libString.LookUpStringInFile("info",
-                                                          "Dimensions of the k-point grid")  # WARNING: it seems this has changed.
+                                                          "Total number of k-points")
         for i in np.arange(0, 10):  # TODO: replace with .strip() ?
             kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
             if (verbose == 1):
@@ -736,6 +736,11 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
     ax3.set_ylabel("DOS (arb. u.)")
     ax3.set_xlabel("Energy (eV)")
 
+    fig3 = plt.figure() #this will look at dipolar matrix elements.
+    ax4 = plt.subplot(111)
+    ax4.set_xlabel("k-point path")
+    ax4.set_ylabel(r"$(d_{i,j})_x$")
+
     # ax2.set_xlabel("k-point id")
 
     ## NOTE: if we assume that laser light only REMOVES some high-symmetry points from the ones of the space group, 
@@ -825,7 +830,7 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
         # Compute the Floquet band structure for each selected k-point file, but only for one field
         # wavelength_SI = SelectedWavelengths
         epsilon_Si0 = libOpticalData.ImportPalikDatabase_epsilon_fromNK(wavelength_SI,
-                                                                        OpticalIndexFile)
+                                                                        OpticalIndexFile) #TODO: replace by Kubo-Greenwood?
         ## WARNING: replacing by LDA is DIFFICULT, since PRL Rubio is defined down to 2 eV. Nothing below!! #TODO: this should be material-dependent. Indicate path to fetch the right file in library at the top.
         RefractiveIndex_t = np.real(np.sqrt(epsilon_Si0))  # This is a continuum formulation from Palik data
         RefractiveIndex = RefractiveIndex_t #OpticalIndex[wavelength_SI]
@@ -920,7 +925,8 @@ def MultipleKpointsOneField(field, wavelength_SI, Enable_A2):  # {{{
 # }}}
 
 # Fetches various files (CSV) into folder from which function is call, and plots various DOS as function of field
-def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_range=[0, 10], y_range=[-5, 30], fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"]):
+def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_range=[0, 10], y_range=[5, 50],
+                            fields = ["0.001", "0.01", "0.05", "0.1", "0.2", "0.3", "0.4", "0.5", "0.7", "1.0", "2.0", "3.0", "4.0", "5.0", "7.0"]):
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.constants import c, hbar, pi, e
@@ -930,7 +936,7 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
     
     filename_left = "FloquetBandStructureComplete-1030.0nm-k16MPI-1-Field"
     filename_right = "VperNm-NoOpticalIndex-DOS"
-    plt.figure(figsize=(10,6))
+    plt.figure(figsize=(15,6))
     for field in fields:
         filename = filename_left + str(field) + filename_right
         print(filename)
@@ -959,6 +965,38 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
     plt.savefig(figurename + ".png")
     plt.show()
     #TODO: ground state DOS is needed
+
+## Plots the norm of dipolar amtrix as function of k, for each direction
+def checkDipolarMatrixElements(list_of_kpoints_id,NumberOfEigenValues=12):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from octopus_slabs.Libs.libString import GetEigenValue, ReadDipolarMatrixElements
+    import octopus_slabs.Libs.libAtomicUnits as lat
+    from scipy.constants import physical_constants
+    from scipy.constants import epsilon_0, hbar, h
+
+    plt.figure()
+
+    # plotting norm as function of k for each direction
+    for direction in ["x", "y", "z"]:
+        # Build matrix(state1, state2) for each k-point
+        EigenValues_eV_forAllK = []
+        DipolarElementsForAllK = []
+        for k_id in list_of_kpoints_id:
+            eigen_H = GetEigenValue(k_id, NumberOfEigenValues=12)
+            eigen_eV = lat.Hartree_Energy * eigen_H
+            d, size = ReadDipolarMatrixElements(4, 8, ["static/ks_me_dipole.k" + str(k_id) + "_" + direction])
+            DipolarElementsForAllK.append(d)  # contains all transitions [12x12] for each k point
+            EigenValues_eV_forAllK.append(eigen_eV)
+        norms = np.zeros(np.shape(DipolarElementsForAllK)[0])
+        for k_id in np.arange(0, len(list_of_kpoints_id)):
+            norms[k_id] = np.linalg.norm(DipolarElementsForAllK[k_id])
+
+        plt.plot(norms, label=r"$\left| \vec{\vec{d}}_{" + direction + r"} \right|$")
+
+    plt.legend(loc="best")
+    plt.savefig("NormOfDipolarMatrices_.eps")
+    plt.show()
 
 if(__name__=="__main__"):  #runs only if file is called directly
 

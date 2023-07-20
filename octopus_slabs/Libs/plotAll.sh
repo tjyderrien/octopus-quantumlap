@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RecomputeItAll="true" #if != "", we recompute all. If =="", we just look for new files. 
+RecomputeItAll="recompute" #if != "", we recompute all. If =="", we just look for new files. 
 
 # set -e 
 # module load git
@@ -41,8 +41,8 @@ do
             if [ -e laser ]; then
 #		gnuplot "${OctopusSlabsSources}/02-Slab2D/plotTimeDensity.gnu"
 		echo "** Fixing bad output octopus problems..."
-		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
-# 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
+#		qsub ${QuantumLaPsources}/octopus_slabs/Libs/submit_biatri.pbs
+ 		${QuantumLaPsources}/octopus_slabs/fixOutputFile.sh laser
             fi
         fi
 	if [ ! -e Laser.eps ] || [[ -n $RecomputeItAll ]]  ; then
@@ -51,15 +51,20 @@ do
                 if [[ $UseScreen ]]; then
                 echo " *** Warning: screen is employed."
 		screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
-                screen -d -m gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                screen -d -m gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 else
                 echo "** Plotting laser.tmp..."
                 gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotTimeLaser.gnu"
+
                 echo "** Plotting polarization orientation..."
-                gnuplot "${QuantumLaPsources}/03-Bulk3D/plotPolarization.gnu"
+                gnuplot "${QuantumLaPsources}/octopus_slabs/Libs/plotPolarization.gnu"
                 fi
             fi
 	fi
+        if [ ! -e Field.eps ]; then
+                echo "** Plotting electric field from vector potential..."
+                ${QuantumLaPsources}/octopus_slabs/Libs/plotTimeDensityField.py        
+        fi
 	if [ -e energy ]; then
            if [ ! -e Energy.eps ] || [[ -n $RecomputeitAll ]]; then
 		echo "** Plotting energy..."
@@ -219,7 +224,7 @@ done
 echo "Plotting basic results..."
 plotBasicOutput #cleans up laser files also. 
 echo "Plotting Excitation results..."
-# plotExcitation  #Prepare all plots for n_ex analysis.
+plotExcitation  #Prepare all plots for n_ex analysis.
 echo "Plotting harmonic generation results..."
 # plotHHG         #Generate the CSV files with HHG spectra. 
 echo "** Plotting linear absorption for folders where it makes sense. $(pwd)..."

@@ -7,7 +7,7 @@ backup_StH_fixed() {
  echo "== Saving the StH pulses, not the STH." 
  filename=$DATE-StH-WellControlled-Pulses.tar
  list_folders | grep 'StH' >& backup_StH_list.txt
- tar --exclude='*.obf' --exclude='core.draco*' -cv -T backup_StH_list.txt -f $filename 
+ tar --exclude='*.obf' --exclude='occs' --exclude="restart" --exclude='core.draco*' -cv -T backup_StH_list.txt -f $filename 
 }
 
 backup_video() {
@@ -20,17 +20,17 @@ backup_video() {
 backup_SinSquared() {
   DATE=`date +%Y-%m-%d`
   echo "== Saving the SinSquared pulses."
-  filename=$DATE-SinSquared-Pulses.tar
+  filename=$DATE-SinSquared-Pulses.tar.bz2
   list_folders | grep 'SinSquared' -i >& backup_SinSquared.txt
-  tar --exclude='*.obf' -cv -T backup_SinSquared.txt -f $filename
+  tar --exclude='*.obf' --exclude="core.*" --exclude='occs' --exclude="restart" -cjv -T backup_SinSquared.txt -f $filename
 }
 
 backup_SinFourth() {
   DATE=`date +%Y-%m-%d`
   echo "== Saving the SinFourth pulses."
-  filename=$DATE-SinFourth-Pulses.tar
+  filename=$DATE-SinFourth-Pulses.tar.bz2
   list_folders | grep 'SinFourth' -i >& backup_SinFourth.txt
-  tar --exclude='*.obf' --exclude='occs' --exclude="restart" -cv -T backup_SinFourth.txt -f $filename
+  tar --exclude='*.obf' --exclude="core.*" --exclude='occs' --exclude="restart" -cjv -T backup_SinFourth.txt -f $filename
 }
 
 backup_matrixelements() {
