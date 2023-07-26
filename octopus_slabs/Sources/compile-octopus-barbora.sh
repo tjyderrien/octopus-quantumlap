@@ -115,8 +115,10 @@ autoreconf -i
    --with-lapack="$MKL" \
    --with-blacs="$MKL" \
    --with-scalapack="$MKL" \
+   --with-yaml-prefix="$YAML_HOME/lib" \
    --prefix="/home/tjyderrien/octopus.me/"
 
+#   --prefix="/home/gazdovak/octopus.bin/"
 #    --with-parmetis-prefix="$PARMETIS_HOME"
 #   --with-metis-prefix="$METIS_HOME" \
 #   --with-netcdf-prefix=$NETCDF_HOME \ #attempting in manual because this loads $NETCDF_HOME/lib not $NETCDF_HOME/lib64

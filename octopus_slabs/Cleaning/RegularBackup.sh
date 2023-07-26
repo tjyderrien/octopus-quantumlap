@@ -5,8 +5,10 @@
 
 # set -e
 
-source $QuantumLaPsources/Cleaning/TarResults.sh
+
+source $QuantumLaPsources/octopus_slabs/Cleaning/TarResults.sh
 source $QuantumLaPsources/Scripts/functions.sh
+
 cd $QuantumLaPruns
 
 for folder in $( find . -mindepth 1 -maxdepth 1 -type d | grep -v 'backuped')
