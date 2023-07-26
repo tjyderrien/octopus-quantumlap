@@ -19,23 +19,20 @@ module load OpenMPI/4.1.3
 module load BLAS/3.10.0
 
 module load LAPACK/3.10.1
-
+export LAPACK_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/LAPACK/3.10.1"
 # module load plgrid/libs/libxc/4.2.3
-
-
-
 
 module load libxc/6.2.2
 # module load libxc/5.2.3-GCC-8.1.0
-export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/libxc/6.2.2/lib"
+export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/libxc/6.2.2"
 
 # module load plgrid/libs/gsl/2.4
 module load GSL/2.7
-export GSL_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/GSL/2.7/lib"
+export GSL_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/GSL/2.7"
 
 # module load plgrid/libs/fftw/3.3.7
-module load FFTW/3.3.10
-export FFTW_HOME="/APPS/centos7/centos79/software/MPI/GCC-12.1-OpenMPI-4.1/FFTW3/3.3.10/lib"
+module load FFTW3/3.3.10
+export FFTW_HOME="/APPS/centos7/centos79/software/MPI/GCC-12.1-OpenMPI-4.1/FFTW3/3.3.10"
 # module load plgrid/libs/hdf5/1.10.4
 module load HDF5/1.12.0
 # module load plgrid/libs/netcdf/4.7.0
@@ -78,13 +75,17 @@ make clean
 make distclean
 
 cd .. 
+spack load autoconf
 autoreconf -i
 cd -
+
+spack load automake
 #NOTE: OpenMP was disabled, because not useful in our case.
 ../configure --enable-mpi  --disable-gdlib --disable-openmp \
     --with-gsl-prefix=$GSL_HOME \
     --with-libxc-prefix=$LIBXC_HOME \
     --with-blas="$BLAS" \
+    --with-lapack-prefix="$LAPACK" \
     --with-fftw-prefix="$FFTW_HOME" \
     --prefix="/gpfs/home/tderrien/octopus.gnu.mpiio/"
 #   --enable-avx \ 
