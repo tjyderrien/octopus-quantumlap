@@ -29,7 +29,6 @@ MeshSizeX_SI="0.23" # 0.20 0.18 0.15 0.10 0.05"
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 
-
 # NumNodes=4
 NumNodes=8
 
@@ -58,6 +57,9 @@ TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particl
 Functional="TB09" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
+AngleIncidence_list="0" # "0 0.25"
+
+
 # AngleIncidence_list="0.50" #"0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.60 0.70 0.80 0.90 1.00"
 # AngleIncidence_list="0.75" #"0.05 0.10 0.15 0.20 0.25"
@@ -66,6 +68,7 @@ AngleIncidence_list="0" # 0.25" #"0.05 0.10 0.15 0.20 0.25"
 
 # AngleIncidence_list="0 0.25" #"0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.125 0.375" #"0.05 0.10 0.15 0.20 0.25"
+
 
 # AngleIncidence_list="0.05 0.10 0.15 0.20"
 

@@ -5,7 +5,7 @@
 set -e
 
 # ENABLE DRY RUN ? 
-DryRun=0
+DryRun=1
 # kPoints=16
 
 source $QuantumLaPsources/octopus_slabs/machines.env

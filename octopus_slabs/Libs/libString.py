@@ -31,6 +31,7 @@ import os
 from spp_extended_theory.Libs.libDatabase import *
 # from octopus_slabs.Libs.libPlotting import CaptureKPointGridSizeFromINP
 
+
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{
   Header = "[libString: LookUpLatestLogFile] "
