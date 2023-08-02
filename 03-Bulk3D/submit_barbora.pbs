@@ -6,7 +6,7 @@
 #PBS -o Morille.log
 #PBS -A OPEN-20-5
 #PBS -l select=NumNodes:ncpus=36:mpiprocs=36:ompthreads=1
-#PBS -l walltime=24:00:00
+#PBS -l walltime=1:00:00
 
 cd $PBS_O_WORKDIR
 
@@ -34,7 +34,7 @@ LoadOctopusBarboraModulesFortran2021
 # RunningTrunc=/scratch/tjyderri/octopus-svn-15067/src/main
 
 # JUST TO EXECUTE ONE RUN
-RunningTrunc=/home/tjyderrien/octopus.git/bin
+RunningTrunc=/home/gazdovak/octopus.bin/bin
 DebugTrunc=/home/tjyderrien/octopus.clean/bin
 MPIIOtrunc=/home/tjyderrien/octopus.try/bin
 DipoleTrunc=/home/tjyderrien/octopus.me/bin

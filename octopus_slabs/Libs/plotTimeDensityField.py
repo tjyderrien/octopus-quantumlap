@@ -44,14 +44,19 @@ volume = 1. #Sample.VolumeXYZ(geometry) #SI units! #TODO: get the volume in the 
 # densitySI = density / BohrRadius**3 / volume #Now its a density... TODO: VALIDATE VOLUME CALC.
 # densityAU = density
 # Converting vector potential to field
-EtotX = -(np.diff(A1x)/np.diff(time) + np.diff(A2x)/np.diff(time)) / c #E=d_t (A1+A2) / c
+
+
 E1x = -np.gradient(A1x)/np.gradient(time) / c
 E2x = -np.gradient(A2x)/np.gradient(time) / c
+
+EtotX = E1x+E2x
+
 # # Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
 TimeAUtoSI = Time_AU_to_SI(1.) #1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0
 time = UnitTime * time * TimeAUtoSI
 # timeNe = UnitTime * timeNe * TimeAUtoSI
+
 tmax=100e-15*UnitTime
 
 # Plot n_ex and electric field on the same plot

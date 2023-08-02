@@ -109,12 +109,13 @@ tauAsi = tau1ToReplace #This is FWHM of the Gaussian pulse
 tauBsi = tau2ToReplace #This is FWHM of the Gaussian pulse
 ## Double pulse delay
 pulseDelaySI = pulseDelayToReplace
-## Envelope phase CEP
+## Envelope phase CEP for E field
 CEPA = pi*CEP1replaceMe
 CEPB = pi*CEP2replaceMe 
-# shifting by pi/2.
-CEPA = CEPA + pi/2.
-CEPB = CEPB + pi/2.
+# shifting by pi/2 for A field
+CEPA_A = CEPA + pi/2.
+CEPB_A = CEPB + pi/2.
+#
 ## Computational time
 ComputingTimeValueSI = ComputingTimeValueToReplace
 
@@ -129,13 +130,22 @@ omegaB = heVs * cSI / lambdaB / eVperHartree
 ## Field amplitude
 EfieldA = EfieldAsi / HartreePerBohr
 EfieldB = EfieldBsi / HartreePerBohr
-## Pulse duration 
+## Pulse duration in Gaussian spirit
 tauA = tauAsi / TimeAUtoSI
 tauB = tauBsi / TimeAUtoSI
+
+## Correction of FWHM for sin4 envelope
+tausin4 = 4/pi * asin(2.^(7./8.)/2.) #to be multiplied by tau_experimental to recover the right duration. 
+
 # t0 = max(tauA, tauB) #useless to use tauB there
-t0 = 1.1*tauA #(we must not start the run on the pulse start!)
-t0Gauss = 2.*t0
+t0_fix=100
+t0 = t0_fix+tauA #(we must not start the run on the pulse start!)
+
+t0sin4 = t0_fix+tauA*tausin4
+
+t0Gauss = t0_fix+2.*t0
 GaussianRatio = 2.*sqrt(2. * ln(2.))
+
 sigmaTauA = tauA / GaussianRatio
 sigmaTauB = tauB / GaussianRatio
 
@@ -143,6 +153,7 @@ sigmaTauB = tauB / GaussianRatio
 pulseDelay = pulseDelaySI / TimeAUtoSI
 t1 = t0 + pulseDelay
 t1Gauss = t0Gauss + pulseDelay
+t1sin4  = t0sin4 + pulseDelay
 ## Relaxation time (to observe Ehrenfest dynamics and band structure modifications)
 # RelaxationTime = RelaxationTimeSI #/ TimeAUtoSI #! THere is no need to convert it! Everything is done at the end. 
 
@@ -205,16 +216,16 @@ tR = tauRise
 %TDFunctions
   "FieldColorA-Gaussian" | tdf_from_expr | "amplitudeA * exp(-0.5*((t-t0Gauss)/sigmaTauA)^2)" #GAUSSIAN 1
   "FieldColorB-Gaussian" | tdf_from_expr | "amplitudeB * exp(-0.5*((t-t1Gauss)/sigmaTauB)^2)" # GAUSSIAN 2
-  "phaseA" | tdf_cw | CEPA #GAUSSIAN 1
-  "phaseB" | tdf_cw | CEPB #GAUSSIAN 2
+  "phaseA" | tdf_cw | CEPA_A #so that CEP=0 centers maximum at t0
+  "phaseB" | tdf_cw | CEPB_A #so that CEPB=0 centers maximum at t1
   "FieldColorA-SinSquared" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^2 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
   "FieldColorB-SinSquared" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^2 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
-  "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
-  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+  "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0sin4-tauA*tausin4)/(tauA*tausin4)))^4 * step(t-t0sin4+tauA*tausin4) * (1e0 - step(t-t0sin4-tauA*tausin4) )"
+  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1sin4-tauB*tausin4)/(tauB*tausin4)))^4 * step(t-t1sin4+tauB*tausin4) * (1e0 - step(t-t1sin4-tauB*tausin4) )"
   "FieldColorA-TopHat" | tdf_from_expr | "amplitudeA * step(t-0.5*tauA-t0Gauss)*step(0.5*tauA - (t - t0Gauss) )"
   "FieldColorB-TopHat" | tdf_from_expr | "amplitudeB * step(t-0.5*tauA-t1Gauss)*step(0.5*tauA - (t - t1Gauss) )"
-    "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
-  "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
+#    "FieldColorA-SinFourth" | tdf_from_expr | "amplitudeA * sin(0.5*pi*((t-t0-tauA)/tauA))^4 * step(t-t0+tauA) * (1e0 - step(t-t0-tauA) )"
+# "FieldColorB-SinFourth" | tdf_from_expr | "amplitudeB * sin(0.5*pi*((t-t1-tauB)/tauB))^4 * step(t-t1+tauB) * (1e0 - step(t-t1-tauB) )"
 # "FieldColorB-SoftTopHat" | tdf_from_expr | "amplitudeB * (sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) ) + sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t2-tauRise) ) + step(t-t0)*(1.-step(t-t1)) )" #completely useless
 # "FieldColorA-STH" | tdf_from_expr | "amplitudeA * ((sin(0.5*pi*((t-t0-tauRise)/tauRise))^2 * step(t-t0+tauRise) * (1e0 - step(t-t0) )) + (sin(0.5*pi*((t-t1-tauRise)/tauRise))^2 * step(t-t1) * (1e0 - step(t-t1-tauRise) )) + step(t-t0)*(1.-step(t-t1)) )"
 # "FieldColorA-STH"|tdf_from_expr|"amplitudeA*(sin(0.5*pi*((t-t0-tR)/tR))^2*step(t-t0+tR)*(1-step(t-t0))+(sin(0.5*pi*((t-t1-tR)/tR))^2*step(t-t1)*(1-step(t-t1-tR)))+step(t-t0)*(1-step(t-t1)))"

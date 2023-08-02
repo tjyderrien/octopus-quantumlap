@@ -21,16 +21,16 @@ echo "In this file, you can define all numerical features of the run you may lik
 #VacuumSize="12."
 # VacuumSize="24."
 # VacuumSize="10."
-MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-recommended value
+# MeshSizeX_SI="0.23 0.20 0.18 0.15" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-recommended value
+MeshSizeX_SI="0.23" # 0.20 0.18 0.15 0.10 0.05"
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 
-
 # NumNodes=4
-NumNodes=4
+NumNodes=8
 
 Mission="Si_GS_angle"
 
@@ -38,8 +38,8 @@ SampleLayers="1"
 SampleXY="1"
 
 # kPoints="4" # 16"
-kPoints="24" # 16"
-# kPoints="24" # 16"
+# kPoints="16" # 16"
+kPoints="40" # 16"
 
 InitialTemperature="0e0" #Warning: use notation 0e0! Ineffective, but important for the path. 
 # SmearingTe="1 2 5 10 20" #0.025 eV
@@ -49,22 +49,26 @@ EnableSmearing=0
 # ExtraStates="8" 
 
 # SmearingTe="0.0258" # 1 2 5 10 20" #0.025 eV
-# SmearingTe="1.09 3.06" #0.025 0.05 0.1 0.5 #Indirect gap TB09: 1.04 eV. Direct gap is 3.06 eV
+# SmearingTe="0.025 0.05 0.0862 0.1 0.5 0.98 3.04" # #Indirect gap TB09: 1.04 eV. Direct gap is 3.06 eV
 SmearingTe="0"
 ExtraStates="0" 
 
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="TB09" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
+
+AngleIncidence_list="0" # "0 0.25"
+
 
 # AngleIncidence_list="0.50" #"0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.60 0.70 0.80 0.90 1.00"
-AngleIncidence_list="0.75" #"0.05 0.10 0.15 0.20 0.25"
+# AngleIncidence_list="0.75" #"0.05 0.10 0.15 0.20 0.25"
 
-# AngleIncidence_list="0" # 0.25" #"0.05 0.10 0.15 0.20 0.25"
+AngleIncidence_list="0" # 0.25" #"0.05 0.10 0.15 0.20 0.25"
 
 # AngleIncidence_list="0 0.25" #"0.05 0.10 0.15 0.20 0.25"
 # AngleIncidence_list="0.125 0.375" #"0.05 0.10 0.15 0.20 0.25"
+
 
 # AngleIncidence_list="0.05 0.10 0.15 0.20"
 
