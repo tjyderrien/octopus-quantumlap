@@ -44,25 +44,33 @@ volume = 1. #Sample.VolumeXYZ(geometry) #SI units! #TODO: get the volume in the 
 # densitySI = density / BohrRadius**3 / volume #Now its a density... TODO: VALIDATE VOLUME CALC.
 # densityAU = density
 # Converting vector potential to field
-EtotX = -(np.gradient(A1x)/np.gradient(time) + np.gradient(A2x)/np.gradient(time)) / c #E=d_t (A1+A2) / c
+# EtotX = -(np.gradient(A1x)/np.gradient(time) / c - np.gradient(A2x)/np.gradient(time)) / c #E=d_t (A1+A2) / c
 
+E1X   = -np.gradient(A1x)/np.gradient(time) / c
+E2X   = -np.gradient(A2x)/np.gradient(time) / c
+EtotX = E1X+E2X
 # # Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
 TimeAUtoSI = Time_AU_to_SI(1.) #1.054571800e-34 / 1.6021766208e-19 / 27.21138505e0
-# time = UnitTime * time #* TimeAUtoSI
+time = UnitTime * time * TimeAUtoSI
 # timeNe = UnitTime * timeNe * TimeAUtoSI
-# tmax=80e-15*UnitTime
+tmax=140e-15*UnitTime
+
+y1max=np.max(np.abs(E1X))
+y2max=np.max(np.abs(E2X))
 
 # Plot n_ex and electric field on the same plot
 plt.figure()
 # plt.subplot(211)
-# plt.xlabel('Time (fs)')
-plt.xlabel('Time (at.u.)')
+plt.xlabel('Time (fs)')
+# plt.xlabel('Time (at.u.)')
 plt.ylabel('E field (a.u.)')
 # plt.xlim((0, time.max()))
-# plt.xlim((0,tmax))
-plt.plot(time, c*EtotX, 'k-', label='c x E(t)')
-#plt.xlim((1800,1900))
+plt.xlim((0,tmax))
+plt.plot(time, c*E1X/y1max, 'r-',   label=r'$c \times E_1(t)$')
+plt.plot(time, c*E2X/y2max, 'b-',   label=r'$c \times E_2(t)$')
+# plt.plot(time, c*EtotX, 'k-', label=r'$c x E(t)$')
+# plt.xlim((0,1500))
 # plt.ylim((0.3,0.5))
 # plt.plot(time, (A1x+A2x), 'b-', label='A(t)')
 plt.legend(loc=2)
