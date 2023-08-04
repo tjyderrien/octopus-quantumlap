@@ -30,7 +30,7 @@ MeshSizeX_SI="0.23" # 0.20 0.18 0.15 0.10 0.05"
 # SampleLayers="6 8 10 12 14 16 18 20"
 
 # NumNodes=4
-NumNodes=4
+NumNodes=8
 
 Mission="Si_GS_angle"
 
@@ -51,10 +51,10 @@ EnableSmearing=0
 # SmearingTe="0.0258" # 1 2 5 10 20" #0.025 eV
 # SmearingTe="0.025 0.05 0.0862 0.1 0.5 0.98 3.04" # #Indirect gap TB09: 1.04 eV. Direct gap is 3.06 eV
 SmearingTe="0"
-ExtraStates="8" 
+ExtraStates="0" 
 
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="TB09" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
 AngleIncidence_list="0" # "0 0.25"
