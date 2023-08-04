@@ -108,6 +108,7 @@ def GetParameterValueFromInputFile(filepath, string): #{{{
 # Keep care to not delete the already available database. 
 #  @param localpath: specifies the paths to consider. Wilcards "*" are advised. Example: '*/*/td.general/'
 def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', FromScratch=False): #{{{
+  import itertools
   Header="[OctopusSlabs-libPlotting] "
   ListOfProblematicRunsID=[]
   ListOfDisabledRunsID=[]
@@ -538,28 +539,21 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     logger.info((Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."))
     logger.info((Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."))
-    
-    # Capturing cell volume
-    try:
-         SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
-    except:
-         logger.warning((Header+"** Warning: sample computation volume was jumped!"))
-         continue
-    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
-    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
-    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
-    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
-    
-    logger.info(Header+"** Sample volumes **")
-    logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}.") 
-    logger.info(Header+"")
-    logger.info(Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
-    logger.info(Header+"")
-    logger.info(Header+"Numerical cell volume = "+str(CellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
-    logger.info(Header+"") 
+
+
+
+    SampleCellVolume_SI, SampleCellVolume_AU = libString.GetCellVolume(FolderName)
+    #}}}
+    # logger.info(Header+"** Sample volumes **")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Sample volume = "+str(libString.SampleCellVolume_AU)+" Bohr**3.")
+    logger.info(Header+"Sample volume = "+str(SampleCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Numerical cell volume = "+str(libString.CellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(libString.CellVolume_AU))+" m^{-3}.")
+    # logger.info(Header+"")
     
     logger.info((Header+"** Importing simulation data..."))
     
@@ -853,7 +847,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # Checking that relative errors are less than 1 percent
         if(Efield_AU_interp_error > 0.05 or dEfield_AU_interp_error > 0.05):
             logger.warning((Header+"** WARNING: Interpolation error on field was greater than 5%!"))
-            ListOfProblematicRunsID.append([int(runid)])
+            ListOfProblematicRunsID.append(int(runid))
 #              continue
 
         # Identifying Efield == 0 and dEfield==0 on timeNe grid.
@@ -896,7 +890,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # timeNe4      =timeNe3[FarEnoughInTime_Ne]
 
         ##WARNING: if pulse is too short, manifold must be empty, this exception ValueError
-        timeToFilterFrom       = timeFarEnough; #timeEnergies4[0]  rises.
+        timeToFilterFrom       = timeFarEnough #timeEnergies4[0]  rises.
         # timeToFilterFromDensity=timeNe4[0]
 
         # timeEnergiesCondition = ( timeEnergies > timeToFilterFrom        ) # this should define a mask that only keeps timesteps larger than laser pulse
@@ -931,7 +925,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         EigenvaluesEnergy_SI_afterpulse= 0e0
         ElectronDensityRightAfterPulse = 0e0
         timeToFilterFrom = 0e0
-        ListOfProblematicRunsID.append([int(runid)])
+        ListOfProblematicRunsID.append(int(runid))
     
     except ValueError: #interpolation creates some bugs when maximum time of Ne == maximum time of laser (ie, when a run finishes...)
         logger.error((Header+"** ERROR: energy or density after pulse could not be captured for obscure reason. Maybe an error from interp1d() function at the boundary."))
@@ -1010,7 +1004,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     ## NOTE: we check that derivative of energy or of n_ex is close to 0. If it is not, we jump the entry. 
     if(np.abs(Efield_SI_final) > 1.): 
         logger.warning((Header+" ** WARNING: THE RUN WAS NOT FINISHED. WE REMOVE IT FROM DB."))
-        ListOfProblematicRunsID.append([int(runid)])
+        ListOfProblematicRunsID.append(int(runid))
         continue
     
     if(FromScratch): #We construct a new database from scratch
@@ -1032,6 +1026,9 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # PlottingTable.append(StackToAdd)
         logger.info(Header+"** Info: these data were NEW and were ADDED to the stack.")
 
+    # Flatten list of problematic runs, and make it a set of unique runs.
+    # ListOfProblematicRunsID_flat=list(itertools.chain.from_iterable(ListOfProblematicRunsID))
+    ListOfProblematicRunsID=list(set(ListOfProblematicRunsID))
     logger.warning("List of problematic runs IDs is: "+str(ListOfProblematicRunsID))
     logger.warning("List of disabled    runs IDs is: " + str(ListOfDisabledRunsID))
     # PlottingTable should only contains FRESH data. 

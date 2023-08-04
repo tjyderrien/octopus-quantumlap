@@ -132,7 +132,7 @@ try:
         material = "SiO2"
     logger.info("** Info: detected the material "+material)
 except:
-    logger.error(Header+"Which material are you trying to analyze?")
+    logger.error("Which material are you trying to analyze?")
     exit()
 
 
@@ -162,7 +162,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 #Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
 
-Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
+Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Egap_d_eV': 2.56, 'Egap_i_eV': 0.51,
       'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
@@ -171,11 +171,12 @@ Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
       'CaptureDirectGap': True,
       'KpointPath_len': 301, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
+      # can be obtained from seekpath.get_path(cell)['path'].
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
-      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
-#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
-#      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
+      #'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+      #'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
+      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
+      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -582,7 +583,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
             for trans_i in np.arange(0, matrix_side / 2):  # transition from i
                 for trans_j in np.arange(matrix_side / 2, matrix_side, 1):  # transition to j
                     for RootNumber in np.arange(0, np.size(BesselZeros)):
-                        xx = Field_AU_to_SI(Efield_AU) * 1E-9
+                        xx = au.Field_AU_to_SI(Efield_AU) * 1E-9
                         yy = au.Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j] * Efield_AU))
                         plot_field = plt.scatter(xx, yy, s=SizeOfDots,
                                                  label=str(trans_i) + r"$\rightarrow$" + str(trans_j), c=colorlist[
@@ -967,15 +968,18 @@ def plotDOSforVariousFields(figurename, FermiEnergy=0., wavelength=1030E-9, x_ra
     #TODO: ground state DOS is needed
 
 ## Plots the norm of dipolar amtrix as function of k, for each direction
-def checkDipolarMatrixElements(list_of_kpoints_id,NumberOfEigenValues=12):
+def checkDipolarMatrixElements(list_of_kpoints_id, precision3d=16**3, material=Si, NumberOfEigenValues=12):
     import numpy as np
+    # from tqmd import tqmd
+    import matplotlib as mp
     import matplotlib.pyplot as plt
     from octopus_slabs.Libs.libString import GetEigenValue, ReadDipolarMatrixElements
     import octopus_slabs.Libs.libAtomicUnits as lat
+    # global Si
     from scipy.constants import physical_constants
     from scipy.constants import epsilon_0, hbar, h
-
     plt.figure()
+    fig, ax1 = plt.subplots()
 
     # plotting norm as function of k for each direction
     for direction in ["x", "y", "z"]:
@@ -993,7 +997,16 @@ def checkDipolarMatrixElements(list_of_kpoints_id,NumberOfEigenValues=12):
             norms[k_id] = np.linalg.norm(DipolarElementsForAllK[k_id])
 
         plt.plot(norms, label=r"$\left| \vec{\vec{d}}_{" + direction + r"} \right|$")
-
+    # plt.xticks((list(np.array(material['K_positions'])*(max(list_of_kpoints_id)-precision3d)+precision3d)))
+    # ax1.set_xticklabels(material['K_labels'], fontsize='15')
+    locmaj = (
+        # list(np.array(material['K_positions']) * (max(list_of_kpoints_id) - precision3d) + precision3d))
+        list(np.array(material['K_positions']) * (max(list_of_kpoints_id)-precision3d)) )
+    ax1.set_xticks(locmaj)
+    ax1.xaxis.set_major_locator(mp.ticker.FixedLocator(locmaj))
+    majors = material['K_labels']
+    logger.debug("majors=",majors)
+    ax1.xaxis.set_major_formatter(mp.ticker.FixedFormatter(majors))
     plt.legend(loc="best")
     plt.savefig("NormOfDipolarMatrices_.eps")
     plt.show()

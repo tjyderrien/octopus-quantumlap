@@ -36,7 +36,10 @@ def SiBulkLDA(): #{{{
         1030e-9: 3.57807133869753,
         1200e-9: 3.51933432518597,
         1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 2656e-9: 3.4510, #this one is for 2um, but with corrected gap
+        2200e-9: 3.4548, 
+        2237e-9: 3.4548, #TODO: FAKE VALUE. Replace with accurate one. 
+        2600e-9: 3.4457, 
+        2656e-9: 3.4510, #this one is for 2um, but with corrected gap
         3200e-9: 3.43438589865999}
   return Egap_SI, meff_opt, OpticalIndex
 
@@ -52,7 +55,10 @@ def SiBulkTB09(): #{{{ # warning! not fully from TB09
         1030e-9: 3.57807133869753,
         1200e-9: 3.51933432518597,
         1600e-9: 3.4826,
-        2200e-9: 3.4548, 2600e-9: 3.4457, 2656e-9: 3.4510, #this one is for 2um, but with corrected gap
+        2200e-9: 3.4548,
+        2237e-9: 3.4548, #TODO: FAKE VALUE. Replace with accurate one. 
+        2600e-9: 3.4457, 
+        2656e-9: 3.4510, #this one is for 2um, but with corrected gap
         3200e-9: 3.43438589865999}
   return Egap_SI, meff_opt, OpticalIndex
 

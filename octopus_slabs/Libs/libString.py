@@ -23,12 +23,16 @@ import glob
 # from ase.io.octopus import read_static_info_kpoints
 # IMPORT LIBRARIES
 import os
+import re
 # from libDatabase import * #uses symbolic link
 # from ../../../spp_extended_theory/SimpleSPP/libDatabase import FilterDatabaseContains
 # from importlib import import_module
 
 # libDatabase = import_module("spp_extended_theory.SimpleSPP.libDatabase")
 from spp_extended_theory.Libs.libDatabase import *
+from spp_extended_theory.Libs.libMath import Swap
+import octopus_slabs.Samples.calculateVolume as calcVol
+import octopus_slabs.Libs.libAtomicUnits as au
 # from octopus_slabs.Libs.libPlotting import CaptureKPointGridSizeFromINP
 
 
@@ -69,8 +73,8 @@ def LookUpStringInFile(Filename, string): #{{{
 
   for line in searchfile:
     if string in line:
-      result = line;
-      break; #stop as soon as first element is found, to avoid taking next lines
+      result = line
+      break #stop as soon as first element is found, to avoid taking next lines
   return result
 #}}}
 
@@ -226,7 +230,7 @@ def CaptureKPointGridSizeFromINP(filename):
 def CapturePlottingCoordinateOfKpointsPathPositions(filename="bandstructure"):
     epsilon = 7E-1
     import numpy as np
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     bands = np.loadtxt(filename, dtype="float32", skiprows=1)
     kindex = bands[:, 0]
     kx = bands[:, 1]
@@ -358,7 +362,6 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
 # @param NumberOfEigenValues: limits the capture of number of eigenvalues.
 # @param filename: "info" file.
 def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
-    import re
     Header="[libString: GetEigenValue(): ]"
     pattern= "#k ="
     if(verbose==1): 
@@ -550,3 +553,17 @@ def ReadDipolarMatrixElements(Z_electrons, unocc_states, gamma_point_files, Comp
         print("Info: successfull import of real-valued dipolar matrix elements for X direction.")
     return matrixelements, matrix_side
 #}}} 
+
+## Capture volume of the cell of the sample under current study
+def GetCellVolume(FolderName): #{{{
+# Capturing cell volume
+    # try: 
+    SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
+    # except:
+    #     logger.warning((Header+"** Warning: sample computation volume was jumped!"))
+    #     continue
+    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
+    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
+    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
+    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
+    return SampleCellVolume_SI, SampleCellVolume_AU

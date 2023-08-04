@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""@package docstring
-Module with functions to parse Octopus output files and load them into NumPy arrays and/or dictionaries.
-Parsing of input files has not yet been implemented.
-
-Module written by Andrés I. Bertoni (andresibertoni@gmail.com).
-"""
+## @package octopus_slabs.Libs.libOctopusIO
+# Module with several functions to automatically parse Octopus output files from k-point calculations and load the extracted data into NumPy arrays and Python build-in data types. The parsing of input files is not yet implemented. It includes extensive Doxygen-compatible documentation.
+# @author Module written by Andrés I. Bertoni (andresibertoni@gmail.com).
 
 import os
 import copy
@@ -38,9 +35,10 @@ def load_k_paths(path_to_kfiles, return_uncat=False, u_to_idx={"_x":0, "_y":1, "
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param return_uncat If the uncategorized paths should be returned or not. Default value is False.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
-    @return k_indices Array with the indices of the k-points that were successfully loaded in all spatial directions.
-    @return k_paths A matrix containing, for each one of the spatial directions, the paths to the k-points files, sorted according to the k_index array.
-    @return uncat_paths (return_uncat=True) List of paths to files in the same folder ('path_to_kfiles') that do not correspond to k-points output files or simply could not be categorized.
+    @return Tuple with 3 elements:
+    -# NumPy array with the indices of the k-points that were successfully loaded in all spatial directions.
+    -# NumPy array containing, for each one of the spatial directions, the paths to the k-points files, sorted according to the k_index array.
+    -# (return_uncat=True) List of paths to files in the same folder ('path_to_kfiles') that do not correspond to k-points output files or simply could not be categorized.
     """
     k_paths = [[] for idx in range(len(u_to_idx.keys()))]
     k_indices = copy.deepcopy(k_paths)
@@ -75,42 +73,43 @@ def load_k_paths(path_to_kfiles, return_uncat=False, u_to_idx={"_x":0, "_y":1, "
     if not return_uncat: return k_indices, k_paths
     else: return k_indices, k_paths, uncat_paths
 
-def extract_length_dipole_elements(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z":2}):
+def extract_transition_dipole(path_to_kfiles, u_to_idx={"_x":0, "_y":1, "_z":2}):
     """! Loads the dipole matrix elements (in length gauge) from the k-points output files located in 'path_to_k_files' into a NumPy array.
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
-    @return k_indices Array with the indices of the k-points that were successfully loaded in all spatial directions.
-    @return length_dipole_elements NumPy array with the loaded dipole matrix elements (in length gauge); it has shape (n_kpoints, n_dims, n_states, n_states), where n_kpoints is the number of available/recognized k-points, n_dims is the number of spatial dimensions in 'u_to_idx' and n_states is the number of 1-electron states available in the output.
+    @return Tuple with 2 elements:
+	-# NumPy array with the indices of the k-points that were successfully loaded in all spatial directions.
+	-# NumPy array with the loaded dipole matrix elements (in length gauge); it has shape (n_kpoints, n_dims, n_states, n_states), where n_kpoints is the number of available/recognized k-points, n_dims is the number of spatial dimensions in 'u_to_idx' and n_states is the number of 1-electron states available in the output.
     """
     k_indices, k_paths = load_k_paths(path_to_kfiles, u_to_idx=u_to_idx)
     n_dims, n_kpoints = k_paths.shape
     n_states = np.loadtxt(os.path.join(path_to_kfiles, k_paths.flatten()[0]), skiprows=3).shape[0]
-    length_dipole_elements = np.zeros((n_kpoints, n_dims, n_states, n_states))
+    length_transition_dipole = np.zeros((n_kpoints, n_dims, n_states, n_states))
     for kdx in range(n_kpoints):
         for udx in range(n_dims):
             k_path = os.path.join(path_to_kfiles, k_paths[udx][kdx])
-            length_dipole_elements[kdx,udx,...] = np.loadtxt(k_path, skiprows=3)
-    return k_indices, length_dipole_elements
+            length_transition_dipole[kdx,udx,...] = np.loadtxt(k_path, skiprows=3)
+    return k_indices, length_transition_dipole
 
-def store_length_dipole_elements(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", lendipel_pkl_fname="length_dipole_elements.pkl", u_to_idx={"_x":0, "_y":1, "_z":2}):
+def store_transition_dipole(path_to_kfiles, output_path=".", kindx_pkl_fname="k_indices.pkl", transdip_pkl_fname="transition_dipole.pkl", u_to_idx={"_x":0, "_y":1, "_z":2}):
     """! Extracts data from the k-points output files located in 'path_to_k_files' and store it as two separate pickled (binary) files, each containing a NumPy array: (1) with the extracted k-points indices and (2) with the dipole matrix elements (in length gauge).
     @param path_to_kfiles Path to the folder with all the k-points output files.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution (".").
     @param kindx_pkl_fname Filename for the pickled file with the extracted k-points indices (1). Default value is 'k_indices.pkl'.
-    @param lendipel_pkl_fname Filename for the pickled file with the dipole matrix elements (in length gauge) (2). See the 'extract_length_dipole_elements' function in the same module for extended documentation. Default value is 'length_dipole_elements.pkl'.
+    @param transdip_pkl_fname Filename for the pickled file with the dipole matrix elements (in length gauge) (2). See the 'extract_transition_dipole' function in the same module for extended documentation. Default value is 'transition_dipole.pkl'.
     @param u_to_idx Dictionary indicating which filename-ending corresponds to which index of spatial direction. Default value is {"_x":0, "_y":1, "_z":2}; those are the three Cartesian spatial directions.
     @return Does not return anything. But two binary files are writen instead.
     """
-    k_indices, length_dipole_elements = extract_length_dipole_elements(path_to_kfiles, u_to_idx)
+    k_indices, length_transition_dipole = extract_transition_dipole(path_to_kfiles, u_to_idx)
     save_pickle(k_indices, os.path.join(output_path, kindx_pkl_fname))
-    save_pickle(length_dipole_elements, os.path.join(output_path, lendipel_pkl_fname))
+    save_pickle(length_transition_dipole, os.path.join(output_path, transdip_pkl_fname))
 
-def load_kpoints_data(kdata_fnames={}, output_path=".", kdata_default_fnames={"k_indices":"k_indices.pkl", "length_dipole_elements":"length_dipole_elements.pkl"}):
+def load_kpoints_data(kdata_fnames={}, output_path=".", kdata_default_fnames={"k_indices":"k_indices.pkl", "transition_dipole":"transition_dipole.pkl"}):
     """! Loads objects from pickled (binary) files with data (e.g., python data structure or NumPy array) extracted from k-points output files.
     @param kdata_fnames Dictionary (key:value pairs) where values are the paths to the pickled files to be loaded; the loaded object will be stored into the output dictionary with the same corresponding key. Default value is an empty dictionary; if some entries are provided, then those will overwrite matching entries in 'kdata_default_fnames'.
     @param output_path Path to the folder where the output pickled (binary) files should be stored. The default value is the current directory of the function execution. (".").
-    @param kdata_default_fnames Dictionary with default names of encrypted files to load as values; regarding keys, it works the same way as 'kdata_fnames', but the latter has priority; default entries will be loaded if available, if not overwritten by matching entries in 'kdata_fnames'. Default value is {"k_indices":"k_indices.pkl", "length_dipole_elements":"length_dipole_elements.pkl"}.
-    @return output_kdata Output dictionary storing the loaded objects (using the keys from 'kdata_fnames' and/or 'kdata_default_fnames' (read their descriptions to learn more).
+    @param kdata_default_fnames Dictionary with default names of encrypted files to load as values; regarding keys, it works the same way as 'kdata_fnames', but the latter has priority; default entries will be loaded if available, if not overwritten by matching entries in 'kdata_fnames'. Default value is {"k_indices":"k_indices.pkl", "transition_dipole":"transition_dipole.pkl"}.
+    @return Output dictionary storing the loaded objects (using the keys from 'kdata_fnames' and/or 'kdata_default_fnames' (read their descriptions to learn more).
     """
     output_kdata = {}
     kdata_default_fnames.update(kdata_fnames) ; kdata_fnames = kdata_default_fnames
@@ -124,10 +123,10 @@ def extract_bandstructure(bandstructure_path):
     """! Extracts useful data (e.g., python data structure or NumPy array) from the output file named 'bandstructure' by default by Octopus; this file contains information related to the 1D k-points path specified in the input file.
     @param Path to the bandstructure output file to be parsed and from which data will be extracted.
     @return Dictionary with the extracted data:
-        'k_path' (1: NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-)
-        'n_kpoints' (2: number of k-points along the 1D path)
-        'k_coords' (3: reduced coordinates of the k-points along the 1D path)
-        'state_energies' (4: energies/eigenvalues of the 1-electron states for each of the k-points along the 1D path)
+        - 'k_path' : NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-.
+        - 'n_kpoints' : number of k-points along the 1D path.
+        - 'k_coords' : reduced coordinates of the k-points along the 1D path.
+        - 'state_energies' : energies/eigenvalues of the 1-electron states for each of the k-points along the 1D path.
     """
     extracted_band = {}
     data = np.loadtxt(bandstructure_path)
@@ -143,25 +142,27 @@ def extract_info(info_path, bandstructure_path=None):
     @param info_path Path to the info output file to be parsed and from which data will be extracted.
     @param Path to the output file named 'bandstructure' by default by Octopus; this argument is optional, but if provided, it will change the structure of the output dictionary in order to include a higher level of detail, by differentiating between 3D k-points (key '3D'), the 1D k-points path specified in the input file (key '1D') and the more general information (key 'global'). Default value is None.
     @return Dictionary with the extracted data (regardless of 'bandstructure_path'):
-        (Provided in '1D' and '3D' if 'bandstructure_path' is specified:)
-        'n_kpoints' (1: number of loaded k-points)
-        'k_weights' (2: weight associated with each k-points; apparently set to 0 for the 1D path)
-        'k_coords' (3: reduced coordinates of the k-points)
-        'occupations' (4: electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin)
-        'state_energies' (5: energies/eigenvalues of the 1-electron states, for each k-point)
-        (Provided in 'global' if 'bandstructure_path' is specified:)
-        'n_states' (6: number of 1-electron states)
-        'n_ions' (7: number of ions/atoms per unit cell)
-        'elements' (8: list of atomic elements for the atoms in the unit cell)
-        'ion_forces' (9: forces exerted on each ion in the ground state solution)
-        Provided in '1D' only if 'bandstructure_path' is specified:
-        'k_path' (10: NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-)
+        - (Provided in '1D' and '3D' if 'bandstructure_path' is specified:)
+        	- 'n_kpoints' : number of loaded k-points.
+        	- 'k_weights' : weight associated with each k-points; important for integrations in the full 3D Brillouin k-space; it is set to 0 for the 1D path.
+        	- 'k_coords' : reduced coordinates of the k-points.
+        	- 'occupations' : electronic occupation of the 1-electron states, for each k-point; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin-.
+        	- 'state_energies' : energies/eigenvalues of the 1-electron states, for each k-point.
+        - (Provided in 'global' if 'bandstructure_path' is specified:)
+        	- 'cell_volume' : volume of the unit cell in atomic units.        
+        	- 'n_states' : number of 1-electron states.
+        	- 'n_ions' : number of ions/atoms per unit cell.
+        	- 'elements' : list of atomic elements for the atoms in the unit cell.
+        	- 'ion_forces' : forces exerted on each ion in the ground state solution.
+        - Provided in '1D' only if 'bandstructure_path' is specified:
+        	- 'k_path' : NumPy array detailing the position of each k-point along the 1D path, ranging from 0 -starting point- to 1 -ending point-.
     """
     extracted_info = {}
     with open(info_path, "r") as infofile: infolines = infofile.readlines()
     for idx,iline in enumerate(infolines):
         # >> Grid information <<
-        # ... work in progress ...
+        if "Cell volume" in iline:
+            extracted_info["cell_volume"] = float(iline.split("=")[-1].split()[0])
         # >> Symmetries <<
         # ... work in progress ...
         # >> Brilloin zone <<
@@ -228,11 +229,12 @@ def extract_info(info_path, bandstructure_path=None):
         extracted_3d["occupations"] = extracted_info["occupations"][:-n_kpoints_1d]
         # Global info
         extracted_global = {}
+        extracted_global["cell_volume"] = extracted_info["cell_volume"]
         extracted_global["n_states"] = extracted_info["n_states"]
         extracted_global["n_ions"] = extracted_info["n_ions"]
         extracted_global["elements"] = extracted_info["elements"]
         extracted_global["ion_forces"] = extracted_info["ion_forces"]
-        # Combined extracted info
+       # Combined extracted info
         extracted_info = {"1D":extracted_1d, "3D":extracted_3d, "global":extracted_global}
     # >> Returns dictionary with extracted info <<
     return extracted_info

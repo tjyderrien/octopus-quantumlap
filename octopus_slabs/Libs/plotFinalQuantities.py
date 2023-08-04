@@ -20,7 +20,7 @@
 # Collects the generated time-dependent octopus simulations results from all subfolders (can last minutes), builds a table as function of the laser parameters, final densities, final current density, and final energies after simulation. Then prepares a bunch of scientific results for publications with one and two color simulations. 
 
 ## IMPORT LIBRARIES
-#from scipy import interpolate
+from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 #import matplotlib.pyplot as plt
 # from pylab import *
 
@@ -29,19 +29,21 @@ from   matplotlib import rc
 from   mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib.tri import Triangulation, UniformTriRefiner
 from scipy.optimize import curve_fit
-from scipy.constants import h, c, e
+from scipy.constants import h, c, e, hbar, m_e, epsilon_0, pi
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 import os
 # import pdb
-from octopus_slabs.Libs import libExcitationDatabase
+from octopus_slabs.Libs import libExcitationDatabase, libString, libPlotting
 # import libKeldysh as Keldysh
 # from libAtomicUnits import *
 # from libPlottingSettings import *
-from octopus_slabs.Libs import libPloting
+# from octopus_slabs.Libs import libPlotting
 from octopus_slabs.Libs.libLogging import init_logger
 
 # libKeldysh = import_module("spp_extended_theory.Keldysh.libKeldysh")
-from spp_extended_theory.Keldysh import libKeldysh
+from spp_extended_theory.Keldysh import libKeldysh, libKeldyshZhukov
 # from libKeldysh import *
 from spp_extended_theory.Libs import libDatabase
 from spp_extended_theory.Libs import libImportOpticalData as libOpticalData
@@ -70,11 +72,19 @@ ShowFinalPlot              = 0
 
 BicolorE1E2plotDictionnary={'Nexc': 0, 'E2': 4, 'J': 1, 'Energy': 2, 'Wpi': 3, 'NexcGrad': 5}
 
-Density=5E28 #specific to Si #TODO: compute automatically? 
+Density=5E28 #specific to Si #TODO: compute automatically? Given by pseudo-potential...
 n0 = 4.*Density #maximum density of electrons in Si
-xscale = 1E-4 #convert W/m2 to W/cm2. 
+xscale = 1E-4 #convert W/m2 to W/cm2.
+try:
+    SampleVolume = libString.GetCellVolume()
+except:
+    logger.warning((Header + "** Warning: sample computation volume was failed!"))
+    SampleVolume = 0
 
-#Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA ! 
+## These data should be moved
+Egap_SI = 2.56*e #LDA: 2.56 eV, TB09: 3.04 eV. [Waroquiers and Gonze, Phys. Rev. B 87, 075121 (2013)] #TODO: this will depend on which functional we have used! TB09 or LDA !
+meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
+meff = meff_Waroquiers_LDA
 
 # Capture the data
 # For histocal reasons, two locations are possilbe.
@@ -90,7 +100,7 @@ PlottingTable = libExcitationDatabase.GetExcitationDatabase(UseThisPath) #comple
 
 logger.info(PlottingTable)
 
-#PlottingTable = libDatabase.FilterDatabase(PlottingTable, 0, IndexTable['FieldInduced']) #removes all induced fields data
+#PlottingTable = libDatabase.FilterDatabase(PlottingTable, 0, libPlotting.IndexTable['FieldInduced']) #removes all induced fields data
 
 #: TODO one has to extract the volume! But how to proceed when it is time-dependent? 
 
@@ -128,20 +138,22 @@ SizeX = 12.
 SizeY = 6.
 OneSizeFitsAll="small"  #caption size for all legends of physics or rocknroll
 
+PulseDurationLocal = 0e0
+
 ## Plot Nexc(RiseTime; single tau, 1 curve per Wavelength)
 def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15, Efield1=5E9, PulseShape=3, ShowFinalPlot=0, Egap_SI=2.56*e): #{{{
   logger.info("#====== Plot: SINGLE PULSE, EFFECT OF THE RISE TIME, 1 WAVELENGTH, 1 POLARIZATIONS: final density as function of RISETIME ======")
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, IndexTable['PulseType']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FreezeHXC']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, libPlotting.IndexTable['PulseType']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #removes fields where tau != pulseDuration
 
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, IndexTable['Efield1'])
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1*1.01, libPlotting.IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, Efield1*0.99, libPlotting.IndexTable['Efield1'])
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
@@ -152,7 +164,7 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
   #plt.scatter(libKeldysh.FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
     #TODO: filter by field strength ! Maybe take a piece of code from tolerance-based selector in another function. #TODO: Use subfunctions otherwise we will get crazy. 
     ## prints the current state of selection and stores the values of sweeped parameters
 
@@ -184,7 +196,7 @@ def plotEffectOfRiseTime(PlottingTable, pulseWavelength=800e-9, pulseDuration=20
   
   ax12 = ax1.twinx()
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
     
     ## prints the current state of selection and stores the values of sweeped parameters
     runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
@@ -237,18 +249,18 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   print("#====== Plot: SINGLE PULSE, VARIOUS WAVELENGTHS, SAME PULSE DURATION, SAME POLARIZATIONS: final density as function of field ====== ")
   #Filter: double pulses, same wavelengths, same polarization
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP, libPlotting.IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., libPlotting.IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, libPlotting.IndexTable['PulseType']) #keeps only pulses of type StH (3)
+  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, libPlotting.IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #keeps only pulses of selected duration in argument
   if(RiseTime == 2 or RiseTime==0): #select by RiseTime only if it is defined. I include only 2 and 0 here. 
-      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime'])
+      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, libPlotting.IndexTable['RiseTime'])
   
   ## prints the current state of selection
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq,CEP2_uniq, \
@@ -270,9 +282,9 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   for wavelength_value in wavelength_uniq: #{{{ #TODO: wavelength_uniq should be sorted (visible in the caption)
     #if(RestrictWavelength1==False): 
       # select the corresponding wavelength in results
-    PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps all wavelengths wavelenghts.
+    PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, libPlotting.IndexTable['wavelengths1']) #keeps all wavelengths wavelenghts.
     #else: #selection only 1 wavelength #BUG: DOES NOT WORK, and even attributes to other wavelength what was done for 800 nm
-      #PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm
+      #PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm
 
     runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
     lists = sorted(zip(*[wavelengths1,libKeldysh.FieldToIntensity(Efield1), Ne_final, pulses1]))
@@ -292,9 +304,9 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   for wavelength_value in wavelength_uniq: #{{{
     # select the corresponding wavelength in results
     if(RestrictWavelength1==False): 
-      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
     else:
-      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
     runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
 
@@ -308,6 +320,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
   
   # Second panel of the figure
   if(PlotVirtualExcitation):
+    # nonlocal meff
     ax2 = plt.subplot(plotB)
     #plt.title('rVirtual exc. $\zeta$')
     plt.plot(libKeldysh.FieldToIntensity(Efield1), irreversibility, 'ob', label='Virtual exc.')
@@ -318,7 +331,7 @@ def plotEffectOfIntensity_wavelengths(PlottingTable, pulseDuration=20e-15, CEP=0
     ax22 = ax2.twinx()
     for wavelength_value in wavelength_uniq:
       # select the corresponding wavelength in results
-      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+      PlottingSinglePulses_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses, wavelength_value, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
 
       runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingSinglePulses_wavelength)
       plt.plot(libKeldysh.FieldToIntensity(Efield1), libKeldysh.gammaKeldysh(Egap_SI, meff, Efield1, wavelengths1), 'or', label=r'Adiabaticity, $\lambda=$'+str(round(wavelength_value*1E9, 0))+' nm')
@@ -363,9 +376,9 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     EnableInsetMagnification=False #this is defined as function of wavelength below
     PlotVirtualExcitation = False #Not advised! This is not a real observable.
 
+    global meff_Waroquiers_LDA
     Ntotal=5.0E28
-    meff_Waroquiers_LDA = 0.2226 #0.2226 #Waroquiers, D. et al. Physical Review B, 2013, 87, 075121.
-    meff = meff_Waroquiers_LDA #0.14 #used to adjust the w_PI model
+     #0.14 #used to adjust the w_PI model
     # meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap.
 
     # This disables the work made on the optical index. Important to show in the Suppl. Inf.
@@ -380,19 +393,19 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
     #Filter: double pulses, same wavelengths, same polarization
     PlottingSinglePulses = PlottingTable #get the full database
-    PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-    PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, IndexFunctional[Functional], IndexTable['Functional']) #removes runs where functional is not the chosen functional
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
-    #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1'])
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0.
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseCycles, IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions.
+    PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+    PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, libPlotting.IndexFunctional[Functional], libPlotting.IndexTable['Functional']) #removes runs where functional is not the chosen functional
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, libPlotting.IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
+    #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, libPlotting.IndexTable['CEP1'])
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FieldInduced']) #removes fields where FreezeHXC != 0.
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., libPlotting.IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, libPlotting.IndexTable['PulseType']) #keeps only pulses of type StH (3)
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseCycles, libPlotting.IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, libPlotting.IndexTable['wavelengths1']) #keeps only pulses of type STH (2)
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, libPlotting.IndexTable['MoveIon']) #filters the enabled or disabled movement of ions.
     wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(
         PlottingSinglePulses)
 
@@ -418,43 +431,43 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
     ## We simply select the pulse duration larger than 21 fs (to not overload pics).
     if(pulseWavelength==3200e-9): #NOTE: enable if you wish to remove 20 fs results for 3200 nm.
-        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, libPlotting.IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, libPlotting.IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         #EnableInsetMagnification #Show magnification only for matching results
     if(pulseWavelength==1600e-9): #NOTE: enable if you wish to remove 20 fs results for 1600 nm.
-        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, libPlotting.IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, libPlotting.IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         #EnableInsetMagnification=False
     if (pulseWavelength == 1030e-9):  # NOTE: enable if you wish to remove 20 fs results for 1600 nm.
-        # PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        # PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, libPlotting.IndexTable['pulses1'])
         try:
             PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15,
-                                                                         IndexTable['pulses1'])
+                                                                         libPlotting.IndexTable['pulses1'])
             PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 21e-15,
-                                                                         IndexTable['pulses1'])
+                                                                         libPlotting.IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
     if(pulseWavelength==800e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
-        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, libPlotting.IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, libPlotting.IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
         #EnableInsetMagnification=False
     if(pulseWavelength==483e-9): #NOTE: enable if you wish to remove 10 fs results for 800 nm.
-        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, IndexTable['pulses1'])
+        #PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 15e-15, libPlotting.IndexTable['pulses1'])
         try:
-            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, IndexTable['pulses1'])
+            PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 9e-15, libPlotting.IndexTable['pulses1'])
         except:
             logger.error(Header + "** Warning: no data for " + str(pulseWavelength))
             os._exit(1)
@@ -513,8 +526,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
     for pulse_value in pulses_uniq: #{{{
         # select the corresponding wavelength in results
-        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
-        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1'])
+        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
 
         runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIonRun, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingSinglePulses_pulses) #TODO: use PANDAS HERE
 
@@ -525,7 +538,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         if(UseNexcAfterPulse):
             del Ne_final
             Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
-        lists = sorted(zip(*[pulses1, Efield1, FieldToIntensity(Efield1), Ne_final]))
+        lists = sorted(zip(*[pulses1, Efield1, libKeldysh.FieldToIntensity(Efield1), Ne_final]))
         pulses1_sorted, Efield1_sorted, Intensity_sorted, Ne_final_sorted = list(zip(*lists))
         #print Header+"Ready to plot: "
 
@@ -615,7 +628,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #}}}
 
         ## 7-photon absorption fitting function
-        def SixPhotonAbsorption(intensity, sigma_n):
+        def SevenPhotonAbsorption(intensity, sigma_n):
             #{{{
             n=7; #wavelength=800e-9; tau_FWHM=20e-15;
             omega = 2.*np.pi*c/wavelengths1[0]
@@ -918,7 +931,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #NOTE: Maybe use the computed error to accept or reject each fitting? One can try all numbers of photons on each interval.
         #TODO: this part is functional-dependent. It should be generalized (these numbers are fine for LDA, not for TB09).
         #OnePhotonIntensityRegime_min=0; OnePhotonIntensityRegime_max=0; 
-        if(Functional[0]==IndexFunctional['LDA']):
+        if(Functional[0]==libPlotting.IndexFunctional['LDA']):
             logger.info("Entered LDA functional fitting...")
             if(pulseWavelength==483e-9):
                 if(pulse_value==30e-15):
@@ -1101,7 +1114,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                 OnePhotonIntensityRegime_min = 1e12;  OnePhotonIntensityRegime_max = 1.3e15 #W/m2
 
                 #ListOfInterestingGammas = [0.10, 1.0, 10.]
-        elif(Functional[0]==IndexFunctional['TB09']):
+        elif(Functional[0]==libPlotting.IndexFunctional['TB09']):
             logger.info("Entered TB09 functional fitting...")
             if(abs(pulseWavelength-407.58e-9) < 1E-9 ):
                 logger.info("Entered TB09 functional fitting for 407 nm...")
@@ -1362,7 +1375,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #except:
         #print Header+"** Warning: 3-ph fitting of the data failed for tau="+str(pulse_value*1E15)+" fs."
         for gammaValues in ListOfInterestingGammas:
-            ax1.axvline(x=np.multiply(xscale, IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength)), color='k', linestyle='--', linewidth=0.5)
+            ax1.axvline(x=np.multiply(xscale, libKeldysh.IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength)), color='k', linestyle='--', linewidth=0.5)
         ax1.axhline(y=  Density, color='k', linestyle='--', linewidth=0.25)
         #ax1.axhline(y=2*Density, color='k', linestyle='--', linewidth=0.25)
         #ax1.axhline(y=3*Density, color='k', linestyle='--', linewidth=0.25)
@@ -1408,7 +1421,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     logger.debug(Efield1_Keldysh)
 
     for gammaValues in ListOfInterestingGammas:
-        ax2.axvline(x=xscale*IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
+        ax2.axvline(x=xscale*libKeldysh.IntensityAtGamma(gammaValues, Egap_SI, meff_Waroquiers_LDA, pulseWavelength), color='k', linestyle='--', linewidth=0.5)
     #  plt.ylim((1E16,4.*5e28))
     #ax1.grid()
     #if(PlotWpiAxis==True): #{{{
@@ -1426,8 +1439,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
     for pulse_value in pulses_uniq: #{{{
         # select the corresponding wavelength in results
-        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
-        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1'])
+        PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
 
         runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
 
@@ -1440,7 +1453,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         else:
             tau_text=""
 
-        lists = sorted(zip(*[FieldToIntensity(Efield1), Ne_final, pulses1]))
+        lists = sorted(zip(*[libKeldysh.FieldToIntensity(Efield1), Ne_final, pulses1]))
         Intensity_sorted, Ne_final_sorted, pulses1_sorted = list(zip(*lists))
 
 
@@ -1471,52 +1484,52 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         EffectiveMassList=[0.01, 0.025, 0.05, 0.1, meff_Waroquiers_LDA]
 
     for meff_Keldysh in EffectiveMassList: #{{{
-        PeakWpi_Gruzdev = GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order, 1.) #NOTE: optical index should be treated as such, not through adiabadicity coefficient, or?
+        PeakWpi_Gruzdev = libKeldysh.GenerateKeldyshDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), order, 1.) #NOTE: optical index should be treated as such, not through adiabadicity coefficient, or?
         Saturation = (4.*Ntotal - (PeakWpi_Gruzdev * 20E-15 )) / (4.*Ntotal) #saturation term for a given pulse duration. of course, it depends on pulse duration ! For now, let's apply it only for 20 fs. Otherwise, it would be too heavy.
         PeakWpi_Gruzdev_sat = PeakWpi_Gruzdev * Saturation
 
         Acoeff=1
-        PeakWpi_Atomic_Keldysh = IonizationRateAtoms(pulseWavelength, meff_Keldysh, Egap_SI, Efield1_Keldysh, order, 1., Ntotal) #Optical index in gas in 1.
+        PeakWpi_Atomic_Keldysh = libKeldysh.IonizationRateAtoms(pulseWavelength, meff_Keldysh, Egap_SI, Efield1_Keldysh, order, 1., Ntotal) #Optical index in gas in 1.
         logger.info(Header+"Info: Atomic Keldysh: "+str(np.min(PeakWpi_Atomic_Keldysh))+", "+str(np.max(PeakWpi_Atomic_Keldysh)))
         #PeakWpi_Gulley = GenerateKeldyshGulleyDatabase(Egap_SI, meff_Keldysh, pulseWavelength, Efield1_Keldysh, order, 1.)
-        gamma = gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1, 1.) #for gamma, ONE MUST NOT USE OPTICAL INDEX (because gamma is oscillation time divided by tunneling time, hence optical index must vanish)
+        gamma = libKeldysh.gammaKeldysh(Egap_SI, meff_Keldysh, Efield1, wavelengths1, 1.) #for gamma, ONE MUST NOT USE OPTICAL INDEX (because gamma is oscillation time divided by tunneling time, hence optical index must vanish)
         #ax2x2 = ax2.twiny()
         # We need to plot values of intensities for which gamma=0.1, 1, 3, 5, 10.
-        # d e f IntensityAtGamma(gamma, Egap_SI, meff, wavelength):
+        # d e f libKeldysh.IntensityAtGamma(gamma, Egap_SI, meff, wavelength):
         #omega = 2.*np.pi * c / wavelength
         #Ipeak = meff*m_e*Egap_SI*omega**2*c*epsilon_0 / (2. * e**2 * gamma ** 2)
         #return Ipeak
 
         ## GRUZDEV
         ## NOTE: Gruzdev treak consists in plotting (external_field, w_pi[internal_field]).
-        plot22, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+        plot22, = ax2.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
         plot2    += [plot22]
 
         if(EnableInsetMagnification):
-            plot222, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$')
+            plot222, = ax22.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev, '-k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}}$')
 
         if(PlotSaturation):
-            plot22_sat, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev_sat, '--.k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}} \times \frac{Z \times n_0-n_{\mathrm{exc}}}{Z \times n_0}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+            plot22_sat, = ax2.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev_sat, '--.k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}} \times \frac{Z \times n_0-n_{\mathrm{exc}}}{Z \times n_0}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
             plot2    += [plot22_sat]
 
             if(EnableInsetMagnification):
-                plot222_sat, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev_sat, '--.k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}} \times \frac{Z \times n_0-n_{\mathrm{exc}}}{Z \times n_0}$')
+                plot222_sat, = ax22.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Gruzdev_sat, '--.k', label=r'$w_{\mathrm{PI}}^{\mathrm{KG}} \times \frac{Z \times n_0-n_{\mathrm{exc}}}{Z \times n_0}$')
 
         # ATOMIC KELDYSH
         logger.info(Header+"Preparing atomic Keldysh...")
-        plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-anal}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
+        plot23, = ax2.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Atomic_Keldysh, '-.k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-anal}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Keldysh,3))+'.')
         plot2    += [plot23]
     #}}}
     ## ZHUKOV
 #    PathPrefix="/home/hilase/Documents/spp-extended-theory/spp_extended_theory/Keldysh/"
-    PeakWpi_Zhukov = VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal) #we neglect optical index in atomic theory
+    PeakWpi_Zhukov = libKeldyshZhukov.VZ_generateWpiTables(Efield1_Keldysh, 0., pulseWavelength, 800e-9, 0., 0., Egap_SI, meff_Keldysh, Ntotal) #we neglect optical index in atomic theory
 
     try: #we plot as function of external field
-        plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-num}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity.
+        plot23, = ax2.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-num}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Waroquiers_LDA,3))+'.') #X axis: external intensity. #Y axis: internal (compressed) intensity.
         plot2    += [plot23]
 
         if(EnableInsetMagnification):
-            plot232, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-num}}$')
+            plot232, = ax22.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh[np.nonzero(PeakWpi_Zhukov)])), PeakWpi_Zhukov[np.nonzero(PeakWpi_Zhukov)], ':k', label=r'$w_{\mathrm{PI}}^{\mathrm{at-num}}$')
     except:
         logger.warning(Header+"** Warning: no data available from VP Zhukov for this wavelength.")
 
@@ -1545,17 +1558,17 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
 
     for meff_Tunnel in EffectiveMassList: #meff_Waroquiers_LDA, meff_VeryHighField]:
         #{{{ #NOTE Stark effect is enabled here, not for the wavelength approach.
-        PeakWpi_Tunneling   = np.clip(KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
+        PeakWpi_Tunneling   = np.clip(libKeldysh.KeldyshTunnelingLimit(Egap_SI_Tunnel, meff_Tunnel, pulseWavelength, Efield1_Keldysh*np.sqrt(OpticalIndex), EnableStarkEffect, 1.), 1E30,2E46)
         #NOTE: tunneling barrier does not change as function of refractive index. Hence, we remove the optical index in case of tunneling limit.
-        plot23, = ax2.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{tunnel}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+        plot23, = ax2.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{tunnel}}$') #, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
         plot2    += [plot23]
 
         if(EnableInsetMagnification):
-            plot232, = ax22.plot(np.multiply(xscale, FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{tunnel}}$')
+            plot232, = ax22.plot(np.multiply(xscale, libKeldysh.FieldToIntensity(Efield1_Keldysh)), PeakWpi_Tunneling[np.nonzero(PeakWpi_Tunneling)], '--k', label=r'$w_{\mathrm{PI}}^{\mathrm{tunnel}}$')
 
         ## TUNNELING WITH INDIRECT BAND GAP.
-        #PeakWpi_Tunneling_i   = np.clip(KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E30,1E46)
-        #plot24, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling_i, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
+        #PeakWpi_Tunneling_i   = np.clip(libKeldysh.KeldyshTunnelingLimit(Egap_SI_indirect, meff_Tunnel, pulseWavelength, Efield1_Keldysh, EnableStarkEffect, 1.), 1E30,1E46)
+        #plot24, = ax2.loglog(libKeldysh.FieldToIntensity(Efield1_Keldysh), PeakWpi_Tunneling_i, label=r'$w_{\mathrm{TI}}^{i}$, $m_{\mathrm{eff}}=$'+str(np.round(meff_Tunnel,3))+'.')
         #plot2    += [plot24]
     #}}}
 
@@ -1572,7 +1585,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     # Interpolation of a joint law of photoionization
     #PeakWpi_Effective=np.power(np.power(PeakWpi_Tunneling,-1)+np.power(PeakWpi_Gruzdev,-1),-1)
 
-    #plot23, = ax2.loglog(FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
+    #plot23, = ax2.loglog(libKeldysh.FieldToIntensity(Efield1_Keldysh), PeakWpi_Effective, 'k-', linewidth=2, label=r'$w_{\mathrm{eff}}$')
     #plot2    += [plot23]
 
     labels2 = [l.get_label() for l in plot2]
@@ -1667,8 +1680,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #for pulse_value in pulses_uniq: #{{{  
     ##plt.title('Virtual exc. factor')
     ## select the corresponding wavelength in results
-    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
-    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1'])
+    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
 
     #runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, ElectronEnergy_max, Energy_max, W_pi, PulseType, RiseTime, FinalTime = libPlotting.ExtractData(PlottingSinglePulses_pulses)
 
@@ -1676,7 +1689,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #filename = "EffectOfPulseIntensity-Duration-"+str(pulseWavelength*1E9)+"nm-tau"+str(int(pulse_value*1E15))+"fs"
     #print Header+"** Info: saving in "+filename+".csv"
     ##libDatabase.ExportToTxt(PlottingSinglePulses_pulses, filename+".csv")
-    #lists = sorted(itertools.izip(*[FieldToIntensity(Efield1), irreversibility, pulses1]))
+    #lists = sorted(itertools.izip(*[libKeldysh.FieldToIntensity(Efield1), irreversibility, pulses1]))
     #Intensity_sorted, irreversibility_sorted, pulses1_sorted = list(itertools.izip(*lists))
 
     #plot_field, = ax2.plot(1E-4*Intensity_sorted, irreversibility_sorted, Colors[pulse_value]+'-o', label=r'$\zeta$, $\tau=$'+str(round(pulse_value*1E15))+' fs')
@@ -1692,11 +1705,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
     #ax32 = ax3.twinx()
     #for pulse_value in pulses_uniq:
     ## select the corresponding wavelength in results
-    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
+    #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
 
     #runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, ElectronEnergy_max, Energy_max, W_pi, PulseType, RiseTime, FinalTime = libPlotting.ExtractData(PlottingSinglePulses_pulses)
 
-    #plot_field, = ax32.plot(FieldToIntensity(Efield1), gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, Efield1, wavelengths1), 'k-', label=r'$\gamma$')
+    #plot_field, = ax32.plot(libKeldysh.FieldToIntensity(Efield1), libKeldysh.gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, Efield1, wavelengths1), 'k-', label=r'$\gamma$')
     ##plot1 += [plot_field]
 
     #plt.ylabel(r'Adiabadicity $\gamma$')
@@ -1737,8 +1750,8 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         plot3 = []
         for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
-            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1'])
-            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1'])
+            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
 
             runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
 
@@ -1746,7 +1759,7 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
                 del Ne_final
                 Ne_final = Ne_afterpulse #NOTE: dirty and valid only until next call of ExtractData
 
-            lists = sorted(zip(*[FieldToIntensity(Efield1), ElectronEnergy_max, pulses1, Ne_final]))
+            lists = sorted(zip(*[libKeldysh.FieldToIntensity(Efield1), ElectronEnergy_max, pulses1, Ne_final]))
             Intensity_sorted, Energy_final_sorted, pulses1_sorted, Ne_final_sorted = list(zip(*lists))
             #print Header+"Ready to plot: "
 
@@ -1801,11 +1814,11 @@ def plotEffectOfIntensity_PulseDuration(PlottingTable, pulseWavelength=800e-9, C
         #ax32 = ax3.twinx()
         #for pulse_value in pulses_uniq:
         # select the corresponding wavelength in results
-        #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
+        #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulse_value, libPlotting.IndexTable['pulses1']) #keeps only 800 nm wavelenghts.
 
         #runid, wavelengths1, pulses1, Efield1, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, Functional, FreezeHXC, Ne_max, Ne_final, irreversibility, TotalCurrent_final, ElectronEnergy_max, Energy_max, W_pi, PulseType, RiseTime = libPlotting.ExtractData(PlottingSinglePulses_pulses)
 
-        #plt.plot(FieldToIntensity(Efield1), gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), '--', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
+        #plt.plot(libKeldysh.FieldToIntensity(Efield1), libKeldysh.gammaKeldysh(2.56*e, 0.228, Efield1, wavelengths1), '--', label=r'Adiabaticity, $\tau=$'+str(round(pulse_value*1E15))+' fs')
         #plt.ylabel('Adiabadicity factor')
         #plt.ylim((0,1))
         #ax32.set_yscale('log')
@@ -1866,18 +1879,18 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   print("====== Plot: SINGLE PULSE, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field and pulse duration ======")
   #Filter: double pulses, same wavelengths, same polarization
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type SinSquared (1)
-  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseCycles, IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1'])
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, IndexTable['MoveIon']) #filters the enabled or disabled movement of ions.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['GaugeFieldAmplitude']) #filters the probe pulses
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, libPlotting.IndexTable['CEP1']) #removes fields where CEP != 0. #NOTE: Can be done for Si-LDA.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1., libPlotting.IndexTable['TheoryLevel']) #removes runs where TheoryLevel != dft.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, libPlotting.IndexTable['PulseType']) #keeps only pulses of type SinSquared (1)
+  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseCycles, libPlotting.IndexTable['RiseTime']) #keeps only pulses of a selected RiseCycles
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, libPlotting.IndexTable['wavelengths1'])
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, MoveIon, libPlotting.IndexTable['MoveIon']) #filters the enabled or disabled movement of ions.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['GaugeFieldAmplitude']) #filters the probe pulses
   
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, MinPulseDuration, IndexTable['pulses1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, MinPulseDuration, libPlotting.IndexTable['pulses1'])
   
   #wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
   logger.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
@@ -1895,10 +1908,10 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   
   WithInducedFields_txt=""
   if(EnableInducedFields):
-      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1, IndexTable['FieldInduced'])
+      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 1, libPlotting.IndexTable['FieldInduced'])
       WithInducedFields_txt="-WithInducedFields"
   else:
-      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FieldInduced'])
+      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FieldInduced'])
       WithInducedFields_txt="-NoInducedFields"
   
   # Loading available experimental data
@@ -1911,7 +1924,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   
   logger.info((Header+"** Info: plotting full TDDFT..."))
   if(not PlotFrozenHxc):
-    PlottingSinglePulses_Normal = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
+    PlottingSinglePulses_Normal = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FreezeHXC']) #removes fields where FreezeHXC != 0.
     
 
     wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
@@ -1922,10 +1935,10 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
     logger.info((Header+"** Info: Number of entries after FreezeHXC: "+str(len(PlottingSinglePulses_Normal))))
     for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
-            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_Normal, pulse_value, IndexTable['pulses1'])
+            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_Normal, pulse_value, libPlotting.IndexTable['pulses1'])
             logger.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses_pulses))))
 
-            #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+            #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
             
             wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
             
@@ -2012,7 +2025,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
     ## We can now filter and plot the FreezeHXC results
 
     logger.info((Header, "** Info: plotting effect of Hxc..."))
-    PlottingSinglePulses_HXC = libDatabase.FilterDatabase(PlottingSinglePulses, 1., IndexTable['FreezeHXC']) #keep only fields where FreezeHXC != 0.
+    PlottingSinglePulses_HXC = libDatabase.FilterDatabase(PlottingSinglePulses, 1., libPlotting.IndexTable['FreezeHXC']) #keep only fields where FreezeHXC != 0.
     
     wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
     logger.info((Header+"** Info: Number of entries: "+str(len(PlottingSinglePulses))))
@@ -2020,8 +2033,8 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
     
     for pulse_value in pulses_uniq: #{{{
             # select the corresponding wavelength in results
-            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_HXC, pulse_value, IndexTable['pulses1'])
-            #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, IndexTable['pulses2']) #keeps only pulses of the same duration.
+            PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_HXC, pulse_value, libPlotting.IndexTable['pulses1'])
+            #PlottingSinglePulses_pulses = libDatabase.FilterDatabase(PlottingSinglePulses_pulses, pulse_value, libPlotting.IndexTable['pulses2']) #keeps only pulses of the same duration.
 
             wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses_pulses)
             
@@ -2121,7 +2134,7 @@ def plotEffectOfIntensity_PulseDuration_Metals(PlottingTable, pulseWavelength=80
   
   plt.tight_layout()
   #print(Header, "Debug: PulseType: ", PulseType)
-  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+FreezeHXC_name+MoveIonFile+WithInducedFields_txt
+  ExportName = "EffectOfPulseIntensity-Duration-PulseType"+str(libPlotting.PulseTypeID_rev[PulseType[0]])+"-Wavelength"+str(pulseWavelength*1E9)+"nm"+FreezeHXC_name+MoveIonFile+WithInducedFields_txt
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.eps')
   plt.savefig('Metaplot-SinglePulse-SingleColor-'+ExportName+'.png')
   logger.info(Header+"** Saved: 'Metaplot-SinglePulse-SingleColor-'"+ExportName+".png.")
@@ -2138,18 +2151,18 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
 
   # Simple pulse, single color
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, IndexTable['PulseType']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FreezeHXC']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, libPlotting.IndexTable['PulseType']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #removes fields where tau != pulseDuration
 
   if(FilterCEP==True):
-      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, IndexTable['CEP1']) #removes fields where tau != pulseDuration
+      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP0, libPlotting.IndexTable['CEP1']) #removes fields where tau != pulseDuration
   if(pulseRiseTime != 0): 
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, IndexTable['RiseTime']) #removes fields where tau != pulseDuration
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, libPlotting.IndexTable['RiseTime']) #removes fields where tau != pulseDuration
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
@@ -2160,7 +2173,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   #plt.scatter(libKeldysh.FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
     
     ## prints the current state of selection and stores the values of sweeped parameters
 
@@ -2196,7 +2209,7 @@ def plotEffectOfIntensity_CEP(PlottingTable, pulseWavelength=800e-9, pulseDurati
   
   ax12 = ax1.twinx()
   for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+    PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
     
     ## prints the current state of selection and stores the values of sweeped parameters
     runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
@@ -2250,17 +2263,17 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 
   # Simple pulse, single color
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, IndexTable['PulseType']) #keeps only non-frozen XC.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #removes fields where tau != pulseDuration
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude*1.01, IndexTable['Efield1'])
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude*0.99, IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseWavelength, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FreezeHXC']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, libPlotting.IndexTable['PulseType']) #keeps only non-frozen XC.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude*1.01, libPlotting.IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude*0.99, libPlotting.IndexTable['Efield1'])
   if(pulseRiseTime != 0): 
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, IndexTable['RiseTime']) #removes fields where tau != pulseDuration
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, libPlotting.IndexTable['RiseTime']) #removes fields where tau != pulseDuration
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
@@ -2271,7 +2284,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   #plt.scatter(libKeldysh.FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
   
   ## prints the current state of selection and stores the values of sweeped parameters
   runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingSinglePulses)
@@ -2307,7 +2320,7 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
   
   ax12 = ax1.twinx()
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
   
   ## prints the current state of selection and stores the values of sweeped parameters
   runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingTable)
@@ -2357,16 +2370,17 @@ def plotEffectOfCEP(PlottingTable, pulseWavelength=800e-9, pulseDuration=20e-15,
 
 ## (Final density | Virtual excitation rate) (Intensity) with comparing FreezeHXC if available.
 def plotEffectOfFrozenXC(PlottingTable): #{{{
+  global meff
   print("#====== Plot: SINGLE PULSE, EFFECT OF THE FROZEN HXC, SAME WAVELENGTHS, SAME POLARIZATIONS: final density as function of field ======")
   #Filter: double pulses, same wavelengths, same polarization
 
   # Simple pulse, single color
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
-  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['CEP1']) #keeps only CEP=0.
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 800e-9, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
+  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['CEP1']) #keeps only CEP=0.
 
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
@@ -2377,11 +2391,11 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
   # Number of sweeped parameters: 3 (Efield, Delay, CrossPolarization)
   #plt.scatter(libKeldysh.FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
   
   # Filtering the FreezeHXC states
-  PlottingSinglePulses_CEP_NoFreezeHXC = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #select the non-frozen HXC
-  PlottingSinglePulses_CEP_FreezeHXC = libDatabase.FilterDatabase(PlottingSinglePulses, 1, IndexTable['FreezeHXC']) #select the frozen HXC
+  PlottingSinglePulses_CEP_NoFreezeHXC = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FreezeHXC']) #select the non-frozen HXC
+  PlottingSinglePulses_CEP_FreezeHXC = libDatabase.FilterDatabase(PlottingSinglePulses, 1, libPlotting.IndexTable['FreezeHXC']) #select the frozen HXC
   ## prints the current state of selection and stores the values of sweeped parameters
 
 
@@ -2491,14 +2505,15 @@ def plotEffectOfFrozenXC(PlottingTable): #{{{
 def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDuration=20e-15, CEP=0., PulseType=3,
                                      RiseTimeRequested=2, ShowFinalPlot=0, NumberOfAtoms=2., Egap_SI=2.56*e,
                                      Egap_SI_indirect=0.51*e, wavelengths1_min=200e-9, wavelengths1_max=3300e-9,
-                                     ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=True,
-                                     EnergyAxis=True, Functional="LDA"): #{{{
-  PlotStarkShift  = False
-  ShowInset       = False
-  PlotValleysInset= True #True: plot valleys, false: plot hills (max of Wpi)
+                                     ShowDensities=False, PlotIrreversibility=False, PlotFreeCarrierAbsorption=False,
+                                     EnergyAxis=False, Functional="LDA"): #{{{
+  PlotStarkShift  = False #meaning changed: now it is about plotting the shifting minima/maxima
+  ShowInset       = False #False: transfer it to main window, True: show as an inset
+  PlotValleysInset= False #True: plot valleys, false: plot hills (max of Wpi)
   PlotSaturation  = False
   AccountForOpticalIndex=False #True: account for linear optical spectrum. False: does not account. 
   #WARNING: TDLDA optical spectrum from Reining and Rubio is not reaching our frequencies of interest!
+
   global n0
   ContinuousKeldysh_Nb_Fields     =100  #100: not really sufficient, 500: Good for publication.
   ContinuousKeldysh_Nb_Wavelengths=500  #500: not sufficient.        3000: Good for publication.
@@ -2514,7 +2529,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
 #  meff_LowField = meff_Waroquiers_LDA #0.14
   meff_HighField = meff_Waroquiers_LDA #0.14: fits for Si in MPI regime at 800 nm.
 #  meff_VeryHighField = meff_Waroquiers_LDA #0.5
-  
+  meff = meff_Waroquiers_LDA
   meff_Tunnel = meff_Waroquiers_LDA #fits well if using INDIRECT band gap for 800 nm
   print("#====== Plot: SINGLE PULSE, EFFECT OF THE WAVELENGTH, SAME CEP, SAME POLARIZATIONS: final density as function of field ======")
   #Filter: double pulses, same wavelengths, same polarization
@@ -2538,7 +2553,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #EffectiveMass={1e9: meff_LowField, 2e9: meff_LowField, 5e9: meff_HighField, 1e10: meff_VeryHighField}
   EffectiveMass={FieldOfInterest[i]:meff_HighField for i in range(0,NumberOfColors)}
   # Simple pulse, single color
-  
 
 
   ### TODO: MOVE TO libPlotting.py to access it for plotTimeKeldysh and plotTimeHHG.py. 
@@ -2553,8 +2567,8 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     logger.debug(str(nfile)+", "+str(kfile))
     
     #print("** Info: opening "+nfile+" and "+kfile+".")
-    narray = loadtxt(nfile, delimiter="\t", skiprows=2)
-    karray = loadtxt(kfile, delimiter="\t", skiprows=2)
+    narray = np.loadtxt(nfile, delimiter="\t", skiprows=2)
+    karray = np.loadtxt(kfile, delimiter="\t", skiprows=2)
     
     unit = 1E0 #Unit of the wavelength found in databases <nfile> and <kfile>. 
     
@@ -2615,20 +2629,20 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   # TODO: Filtering function
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, IndexFunctional[Functional], IndexTable['Functional']) #removes runs where functional is not LDA
-  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseType, libPlotting.IndexTable['PulseType']) #keeps only pulses of type StH (3)
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, libPlotting.IndexFunctional[Functional], libPlotting.IndexTable['Functional']) #removes runs where functional is not LDA
+  #PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTime, libPlotting.IndexTable['RiseTime']) #keeps only pulses of type STH RiseTime
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #keeps only pulses of selected duration in argument
 
   if(RiseTimeRequested == 2): #select by RiseTime only if it is defined in parameters
-      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTimeRequested, IndexTable['RiseTime']) #but this removes some pulses that give 0 althought they do have 2 cycle risetime. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP, IndexTable['CEP1']) #keeps only CEP = 0. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['FieldInduced']) #remove fields computed with InducedFields enabled.
+      PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, RiseTimeRequested, libPlotting.IndexTable['RiseTime']) #but this removes some pulses that give 0 althought they do have 2 cycle risetime. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, CEP, libPlotting.IndexTable['CEP1']) #keeps only CEP = 0. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['FieldInduced']) #remove fields computed with InducedFields enabled.
 
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, wavelengths1_max, IndexTable['wavelengths1']) #we will try to add data from 3200 nm.
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, wavelengths1_max, libPlotting.IndexTable['wavelengths1']) #we will try to add data from 3200 nm.
 
   ## TODO: check if CEP could count at smaller wavelength. 
 
@@ -2668,15 +2682,39 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   Keldysh_Peaks=[]; Keldysh_Valleys=[]
   
   plot1 = []; plot11=[] #np.empty((0,0))
+
+  ## Returns position and value at the peaks and valley.
+  def FindMinAndMax(signal, width):  # {{{
+      Header = "plotFinalQuantities: FindMinAndMax():"
+      logger.info(Header)
+      # print np.shape(signal), np.shape(width)
+      width = np.asfarray(width)
+      # print width
+      if (EnablePeakFinder):
+          peaks, prop_peaks = find_peaks(signal)  # , width)
+          valleys, prop_valleys = find_peaks(-signal)
+      else:
+          peaks = [];
+          prop_peaks = []
+          valleys = [];
+          prop_valleys = []
+      # print peaks, signal[peaks], width[peaks]
+
+      # print "Min: "+str(valleys)
+      # print "Max: "+str(peaks)
+      return width[peaks], signal[peaks], width[valleys], signal[valleys]
+
+  #}}}
+
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart #{{{
-    #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+    #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
 
 
 
 
-    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
+    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield1'])
 
-    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
+    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
     #print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
     #print PlottingSinglePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -2689,7 +2727,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
 
     
     # Replaces wavelengths with photon energy
-    if(EnergyAxis):  #very dirty
+    if(EnergyAxis):  #Warning: efficient but confusing
        wavelengths1_Show = np.divide(2*np.pi*c*hbar/e, wavelengths1) #eV #E=hbar omega = 2 pi c hbar / wavelength
     else:
        wavelengths1_Show = wavelengths1
@@ -2706,25 +2744,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         wavelengths1_sorted_show = wavelengths1_sorted
     wpi_sorted = np.divide(Ne_final_sorted, np.multiply(1e0, pulses1_sorted))
     
-    ## Returns position and value at the peaks and valley. 
-    def FindMinAndMax(signal, width): #{{{
-        Header="plotFinalQuantities: FindMinAndMax():"
-        logger.info(Header)
-        #print np.shape(signal), np.shape(width)
-        width=np.asfarray(width)
-        #print width
-        if(EnablePeakFinder): 
-          peaks, prop_peaks = find_peaks(signal) #, width)
-          valleys, prop_valleys= find_peaks(-signal)
-        else: 
-          peaks=[]; prop_peaks=[]
-          valleys=[]; prop_valleys=[]
-        #print peaks, signal[peaks], width[peaks]
- 
-        #print "Min: "+str(valleys)
-        #print "Max: "+str(peaks)
-        return width[peaks], signal[peaks], width[valleys], signal[valleys]
-    #}}}   
+
     #array_id=0
     for Efield1_compare in FieldOfInterest: #{{{ #WARNING: Efield1_value should be considered randomized
     #TODO: PARALLELIZE THIS LOOP. It can be VERY long. 
@@ -2783,34 +2803,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   ## Preparing the data for Keldysh computations
   order = 50  #Keldysh series order
-  
-  if(PlotStarkShift): #{{{
-    # Can we plot Wpi_ResonantGap(EgapEff) ? 
-    IntegerLevels=np.arange(1,6,1) #generates 1,2,3,...,10
-    for IntegerLevel in IntegerLevels:
-        EgapResonant=Egap_SI/IntegerLevel #these are my levels resonant with initial gap
-        EgapResonant_Wavelength=h*c/EgapResonant #gives resonant wavelength with field
-        
-        epsilon_Si0_Stark = ImportPalikDatabase_epsilon_twofiles_eV(EgapResonant_Wavelength, "Database/Si-TDLDA")
-        OpticalIndex_Stark = np.real(np.sqrt(epsilon_Si0_Stark)) #maybe problem on the sqrt(real(sqrt(eps)))?
-        
-        # We compute Wpi_Gruzdev at this multiply resonant wavelength
-        Wpi_ResonantGap = libKeldysh.GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, EgapResonant_Wavelength, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), order, 1.) #NOTE that OpticalIndex*FieldOfInterest was ignored for now. 
-        gammaResonant = libKeldysh.gammaKeldysh(Egap_SI, meff_Waroquiers_LDA, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), EgapResonant_Wavelength, 1.) #valid for scalar data
-        k1 = Keldysh1phi(gammaResonant); k2 = Keldysh2theta(gammaResonant) #valid
-        EgapEff = EffectiveGap(Egap_SI, k1, k2)
-        del k1, k2
-
-        ## We re-inject the new resonant wavelengths into Keldysh, to compute the "real Wpi"
-        #Wpi_ResonantGap = libKeldysh.GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, h*c/EgapEff, np.multiply(FieldOfInterest, np.sqrt(OpticalIndex_Stark)), order, 1.) #NOTE that
-        
-        plot_field, = ax1.plot((EgapEff/e/IntegerLevel), Wpi_ResonantGap, '--k', antialiased=antialias, linewidth=1)
-        plot1 += [plot_field]
-        plot_field, = ax2.plot((EgapEff/e/IntegerLevel), Wpi_ResonantGap, '--k', antialiased=antialias, linewidth=1)
-        plot1 += [plot_field]
-        del EgapEff, Wpi_ResonantGap
-  #}}}
-  
 
   #wavelengths1_min = 200e-9; wavelengths1_max = 3300e-9 #2100e-9
   #wavelengths1_Keldysh_log = np.linspace(np.log10(np.float128(wavelengths1_min)), np.log10(np.float128(wavelengths1_max)), ContinuousKeldysh_Nb_Wavelengths)
@@ -2953,10 +2945,11 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     NumberOfPeaks   = np.shape(wavelengths_peaks)
     NumberOfValleys = np.shape(wavelengths_valleys)
     logger.info("Adding extrema to a list for plotting...")
-    for element in wavelengths_peaks:
-        Keldysh_Peaks.append(  [Efield1_compare, element]) #one line per datapoint
-    for element in wavelengths_valleys:
-        Keldysh_Valleys.append([Efield1_compare, element]) #one line per datapoint
+    if(PlotStarkShift):
+        for element in wavelengths_peaks:
+            Keldysh_Peaks.append(  [Efield1_compare, element]) #one line per datapoint
+        for element in wavelengths_valleys:
+            Keldysh_Valleys.append([Efield1_compare, element]) #one line per datapoint
     
     
     plot1 += [plot_field]
@@ -2965,43 +2958,45 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   Keldysh_Peaks=np.array(Keldysh_Peaks).T; Keldysh_Valleys=np.array(Keldysh_Valleys).T
   #print(np.shape(Keldysh_Peaks), np.shape(Keldysh_Valleys))
   
-  if(ShowInset):
-    if(PlotValleysInset):
-        ax11.scatter(np.multiply(1E-9,Keldysh_Valleys[0,:]), Keldysh_Valleys[1,:], s=0.3, c="blue", marker='*', label="Valleys Keldysh")
-    else:
-        ax11.scatter(np.multiply(1E-9,Keldysh_Peaks[0,:]), Keldysh_Peaks[1,:], s=0.3, c="blue", marker='*', label="Peaks Keldysh")
+  if(PlotStarkShift):
+      if(ShowInset):
+        if(PlotValleysInset):
+            ax11.scatter(np.multiply(1E-9,Keldysh_Valleys[0,:]), Keldysh_Valleys[1,:], s=0.3, c="blue", marker='*', label="Valleys Keldysh")
+        else:
+            ax11.scatter(np.multiply(1E-9,Keldysh_Peaks[0,:]), Keldysh_Peaks[1,:], s=0.3, c="blue", marker='*', label="Peaks Keldysh")
   
   ## Here we would like to try adding blue curves from Keldysh (inset) to the main plot. 
-  if(PlotValleysInset):
-      EnergiesOfValleys=Keldysh_Valleys[1,:]
-      FieldsOfValleys=Keldysh_Valleys[0,:]
-      # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
+      if(PlotValleysInset):
+          EnergiesOfValleys=Keldysh_Valleys[1,:]
+          FieldsOfValleys=Keldysh_Valleys[0,:]
+          # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
       
-  elif(not PlotValleysInset): #Valleys can be hills now. 
-      EnergiesOfValleys=Keldysh_Peaks[1,:]
-      FieldsOfValleys=Keldysh_Peaks[0,:]
-      # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
-      
-      #WpiValleys=GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, h*c/(EnergiesOfValleys*e), FieldsOfValleys, order, 1., False)
-      
-      #print("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
-      
-      #print("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
-      
-      #ax1.scatter(EnergiesOfValleys, WpiValleys, s=0.3, c="black", marker='*', label="")
-  if(Use128bitsFloats):
-      ContinuousKeldysh_Wavelengths=np.float128(h)*np.float128(c)/(np.float128(EnergiesOfValleys)*np.float128(e))
-  else:
-      ContinuousKeldysh_Wavelengths=(h*c)/(EnergiesOfValleys*e)
-  WpiValleys=GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, ContinuousKeldysh_Wavelengths, FieldsOfValleys, order, 1., False)
-  logger.info("Number of fields: "+str(np.shape(FieldsOfValleys))+"Number of Wpi:"+str(np.shape(WpiValleys)))
-  logger.info("Valley min, max: "+str(np.min(WpiValleys))+", "+str(np.max(WpiValleys)))
-  ax1.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
-  ax2.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
-  #ax1.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
-  #ax2.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
-  # WARNING: where are the jumps in energy coming from? These energies were captured as minimum of Keldysh function. Re-introducing them into Keldysh is a bit stupid maybe. 
-  
+      elif(not PlotValleysInset): #Valleys can be hills now.
+          EnergiesOfValleys=Keldysh_Peaks[1,:]
+          FieldsOfValleys=Keldysh_Peaks[0,:]
+          # We need to recover the values of Keldysh in continuum of fields for certain wavelengths [the one from EnergiesOfValleys]
+
+          #WpiValleys=libKeldysh.GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, h*c/(EnergiesOfValleys*e), FieldsOfValleys, order, 1., False)
+
+          #print("Number of fields: ", np.shape(FieldsOfValleys), "Number of Wpi:", np.shape(WpiValleys))
+
+          #print("Valley min, max: ", np.min(WpiValleys), np.max(WpiValleys))
+
+          #ax1.scatter(EnergiesOfValleys, WpiValleys, s=0.3, c="black", marker='*', label="")
+      if(Use128bitsFloats):
+          ContinuousKeldysh_Wavelengths=np.float128(h)*np.float128(c)/(np.float128(EnergiesOfValleys)*np.float128(e))
+      else:
+          ContinuousKeldysh_Wavelengths=(h*c)/(EnergiesOfValleys*e)
+      WpiValleys=libKeldysh.GenerateKeldyshDatabase(Egap_SI, meff_Waroquiers_LDA, ContinuousKeldysh_Wavelengths, FieldsOfValleys, order, 1., False)
+      logger.info("Number of fields: "+str(np.shape(FieldsOfValleys))+"Number of Wpi:"+str(np.shape(WpiValleys)))
+      logger.info("Valley min, max: "+str(np.min(WpiValleys))+", "+str(np.max(WpiValleys)))
+      ax1.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
+      ax2.scatter(EnergiesOfValleys, WpiValleys, s=2, c="grey", marker='.', label="")
+
+      #ax1.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
+      #ax2.plot(EnergiesOfValleys, WpiValleys, '.', linewidth=0.1*LineWidthCoeff_rel*LineWidthCoeff_abs, color="grey", label="")
+      # WARNING: where are the jumps in energy coming from? These energies were captured as minimum of Keldysh function. Re-introducing them into Keldysh is a bit stupid maybe.
+
   #if(EnergyAxis): 
     #ax1.set_xscale('log')
   ax1.set_yscale('log')
@@ -3082,15 +3077,15 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     logger.info(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))))
     
     for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+        #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
         # TODO: how to merge data with values close to each others? Maybe introduce tolerance of 10% ?
 
 
 
 
-        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
+        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield1'])
 
-        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
+        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
         
         #print PlottingSinglePulses_Efield
         ## prints the current state of selection and stores the values of sweeped parameters
@@ -3213,12 +3208,16 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   
   ## Imports the optical data from Palik database
   # Returns the spectrum (in Re(eps), Im(eps)) of a material on the given grid of wavelengths
+  PulseDurationLocal=pulseDuration
 
-  ## Computes the free carrier energy contained in the volume <SampleVolume>.  
+  ## Computes the free carrier energy contained in the volume <SampleVolume>.
   def EnergyFromFreeCarrierAbsorption(wavelengths1_sorted, Efield, Ne_final_sorted, nu=6e-15**-1):
                                       #Egap_SI = 2.56*e, meff = 0.2226, SampleVolume=2 * 5E28**-1): #{{{
     # Since parameters are not welcome in function adjustment, I need to pass some as global variables
-    global Egap_SI, meff, SampleVolume, pulseDuration
+    nonlocal Egap_SI, SampleVolume, pulseDuration
+
+    meff_Waroquiers_LDA = 0.2226 #dirty, but wasting too much time in these
+    meff =  meff_Waroquiers_LDA
 
     # dEnergy/dt = alpha * intensity + ( n har omega - Egap ) x sigma_n I^n
     # where we approach sigma_n I^n by pulse-averaged w_PI 
@@ -3250,7 +3249,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
     logger.info("Excess energy (n hbar omega) (eV): "+str(np.min(EnergyExcess))+", "+str(np.max(EnergyExcess)))
     EnergyFreeCarrier    = EnergyExcess + EnergyBremsstrahlung
     EnergyFreeCarrier_approx = EnergyExcess + EnergyBremsstrahlung_approx
-    return EnergyFreeCarrier, EnergyFreeCarrier_approx
+    return EnergyFreeCarrier #, EnergyFreeCarrier_approx
   #}}}
   
   
@@ -3262,14 +3261,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #plt.title('Irreversibility factor')
   #plt.plot(libKeldysh.FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-    #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+    #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
 
 
 
 
-    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
+    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield1'])
 
-    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
+    PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
     #print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
     #print PlottingSinglePulses_Efield
     # TODO: as fields are all slightly different, we should project on the neareast neighboring value, up to 1E8 V/m.
@@ -3316,9 +3315,9 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
   #if(PlotIrreversibility): #{{{
     #ax22 = ax2.twinx()
     #for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        ##PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
-        #PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
-        #PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
+        ##PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
+        #PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield1'])
+        #PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
         ##print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
         ##print PlottingSinglePulses_Efield
         ## TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -3360,14 +3359,14 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       SampleVolume = 2 * 5E28 ** -1 #used in Drude function
       logger.info("Now plotting the free carrier energy absorption...")
       for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+        #PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
 
 
 
 
-        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), IndexTable['Efield1'])
+        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, Efield1_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield1'])
 
-        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), IndexTable['Efield1'])
+        PlottingSinglePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses_Efield, Efield1_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
         #print Header+"Dataset for the field: "+str(Efield1_value*1e-9)+' V/nm'
         #print PlottingSinglePulses_Efield
         # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -3402,42 +3401,6 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
         idx=0
         for Efield1_compare in FieldOfInterest:
             if(abs(Efield1_value - Efield1_compare) / Efield1_value < FieldTolerance):
-""""<<<<<<< HEAD
-                EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield1_compare])
-                                
-                ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
-                #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
-            
-        ##if(1e8*(1.-FieldTolerance) < Efield1_value < 1e8*(1.+FieldTolerance)):
-            ##print Header+"Found field 0.1 V/nm"
-            ##EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+r', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+r', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--r', label='Adiabaticity')
-        #if(1e9*(1.-FieldTolerance) < Efield1_value < 1e9*(1.+FieldTolerance)):
-            #print Header+"Found field 1.0 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+b', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--b', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+b', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--b', label='Adiabaticity')
-        #if(5e9*(1.-FieldTolerance) < Efield1_value < 5e9*(1.+FieldTolerance)):
-            #print Header+"Found field 5 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+g', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--g', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+g', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--g', label='Adiabaticity')
-        #if(1e10*(1.-FieldTolerance) < Efield1_value < 1e10*(1.+FieldTolerance)):
-            #print Header+"Found field 10 V/nm"
-            #EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths1_sorted, Efield1_value, Ne_final_sorted, W_pi_sorted, Egap_SI)
-            #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--+k', label='Free carrier absorption')
-            ##ax2.plot(wavelengths1_sorted_show, EnergyAnalytical_approx, '--k', label='Free carrier absorption')
-            ##ax22.plot(wavelengths1_sorted_show, irreversibility_sorted, '--+k', label='Irreversibility')
-            ##ax22.plot(wavelengths1_sorted_show, libKeldysh.gammaKeldysh(Egap_SI, 0.228, Efield1_value, wavelengths1_sorted), '--k', label='Adiabaticity')
-=======
-"""
-
                 # Let's try to make a self-consistent collision frequency
                 #try:
                 if(True):
@@ -3452,23 +3415,31 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                     logger.warning(str(10e-15**-1))
                     logger.debug("Wavelengths1_sorted: "+str(len(wavelengths1_sorted))+str(wavelengths1_sorted))
                     logger.debug("Energy_max_sorted: "+str(len(Energy_max_sorted))+str(Energy_max_sorted))
+                    p0=[Efield1_compare, Ne_final_sorted[idx], 1E-15**-1]
+
+                    # Determine the number of parameters expected by EnergyFromFreeCarrierAbsorption function
+                    num_params = 3
+
+                    # Set initial parameter values
+                    lower_bounds = np.multiply(0.999, [Efield1_compare, Ne_final_sorted[idx], 10e-15**-1])
+                    upper_bounds = np.multiply(1.001, [Efield1_compare, Ne_final_sorted[idx], 0.1E-15 ** -1])
+                    bounds = (lower_bounds[:num_params], upper_bounds[:num_params])
 
                     FitDrudeModel_optparameters, FitDrudeModel_covariance = curve_fit(EnergyFromFreeCarrierAbsorption,
                                                          xdata=wavelengths1_sorted,
                                                          ydata=Energy_max_sorted,
-                                                         p0=[Efield1_compare, Ne_final_sorted[idx], 1E-15**-1],
-                                                         bounds=(np.multiply(0.999,[Efield1_compare, Ne_final_sorted, 10e-15**-1]),
-                                                                 np.multiply(1.001,[Efield1_compare, Ne_final_sorted, 0.1E-15**-1])))
+                                                         p0=p0[:num_params],
+                                                         bounds=bounds)
 
                     # def EnergyFromFreeCarrierAbsorption(wavelengths1_sorted, Efield, Ne_final_sorted, nu=6e-15**-1):
                     # We have to minimize ElectronEnergy - Drude model
                     # print Header+"FITTING DRUDE MODEL."
                     # print np.divide(1.,FitDrudeModel_parameters)
-                    nu_t = nu_t.append([FitDrudeModel_parameters[8]]) #capture last value
+                    nu_t = nu_t.append([FitDrudeModel_optparameters[2]]) #capture last value
                     logger.warning("Fitting by Drude: "+str(nu_t))
 
                     #for nuLocal in nu_t: #but then it will make 1 fit per plotted field. Maybe even better?
-                    EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(wavelengths1_sorted, *FitDrudeModel_optparameters)
+                    EnergyAnalytical = EnergyFromFreeCarrierAbsorption(wavelengths1_sorted, *FitDrudeModel_optparameters)
 
                     #except:
                     """else:
@@ -3481,11 +3452,10 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
                                                                                                     Egap_SI,
                                                                                                     EffectiveMass[Efield1_compare],
                                                                                                     SampleVolume, nu)"""
-
-                    ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
-                    idx += 1 #This is an index to follow desired field curve
+                    if(PlotFreeCarrierAbsorption):
+                        ax3.plot(wavelengths1_sorted_show, EnergyAnalytical/NumberOfAtoms, '--', color=Colors[Efield1_compare], label='Free carrier absorption')
+                        idx += 1 #This is an index to follow desired field curve
                     #ax2.plot(wavelengths1_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
->>>>>>> Modules
         del PlottingSinglePulses_Efield
     
     #plt.ylabel(r'Irreversibility $\zeta$')
@@ -3493,7 +3463,7 @@ def plotEffectOfWavelength_Tolerance(PlottingTable, FieldTolerance=0.05, pulseDu
       #ax22 = ax2.twinx()
   #plt.ylabel(r'Adiabaticity $\gamma$, Irreversibility $\zeta$')
   #ax22.set_ylim((0,1))
-  ax3.set_xscale("log")
+  # ax3.set_xscale("log")
   ax3.set_yscale("symlog", linthresh=1e-9)
   ax3.yaxis.set_minor_locator(mp.ticker.LogLocator(base=10.0, subs='auto', numticks=None))
   #ax2.set_ylim((1E-9,5E2))
@@ -3581,40 +3551,40 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   PlottingDoublePulses = PlottingTable #get the full database
   
   # The wavelength1 parameter enables to choose which wavelength1 we want to observe the Stark effect for. Of course, we shall not discernate laser1 and laser2 in the data. But how? Lets discernate first. And invert later. 
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1'])
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength1, libPlotting.IndexTable['wavelengths1'])
   
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. # NOTE: works
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. # NOTE: works
   
   # NOTE: 0 should be kept here, since we use non-strict inequality
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, Field1*(1-FieldTolerance), IndexTable['Efield1']) #select fields that are close to selected Efield1
-  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Field1*(1+FieldTolerance), IndexTable['Efield1']) #select fields that are close to selected Efield1
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, Field1*(1-FieldTolerance), libPlotting.IndexTable['Efield1']) #select fields that are close to selected Efield1
+  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Field1*(1+FieldTolerance), libPlotting.IndexTable['Efield1']) #select fields that are close to selected Efield1
   
   # We keep Efield2==0 possible. 
-  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Field2max, IndexTable['Efield2']) #we want to include cases where Efield2==0, and Efield2 >> 1. However, we want to put a maximum field for Efield2.
+  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Field2max, libPlotting.IndexTable['Efield2']) #we want to include cases where Efield2==0, and Efield2 >> 1. However, we want to put a maximum field for Efield2.
 
   
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. # TODO: CrossPolarization=1 case would be interesting for Stark effect. 
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. # TODO: CrossPolarization=1 case would be interesting for Stark effect. 
   
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) #keeps only pulses of type StH (3)
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseType, libPlotting.IndexTable['PulseType']) #keeps only pulses of type StH (3)
   
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, pulseDuration, IndexTable['pulses1']) #keeps only pulses of selected duration in argument
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, pulseDuration, libPlotting.IndexTable['pulses1']) #keeps only pulses of selected duration in argument
   
   if(RiseTimeRequested >= 1): #select by RiseTime only if it is defined
-    PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, RiseTimeRequested, IndexTable['RiseTime'])
+    PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, RiseTimeRequested, libPlotting.IndexTable['RiseTime'])
   
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, CEP1, IndexTable['CEP1']) #keeps only CEP = 0. 
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, CEP1, libPlotting.IndexTable['CEP1']) #keeps only CEP = 0. 
   
   if(CEP2_request >= 0):
-      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
-      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), libPlotting.IndexTable['CEP2'])
+      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), libPlotting.IndexTable['CEP2']) #keeps only CEP = 0. 
   else:
-      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), IndexTable['CEP2'])
+      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), libPlotting.IndexTable['CEP2'])
 
 
-      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0.
+      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), libPlotting.IndexTable['CEP2']) #keeps only CEP = 0.
   # TODO: we shall clean CEP2 as well, as it must influence the results. 
   
-  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, CutOffWavelength, IndexTable['wavelengths2']) #introducing a cutoff at 2.1 um in selection.
+  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, CutOffWavelength, libPlotting.IndexTable['wavelengths2']) #introducing a cutoff at 2.1 um in selection.
 
   ## TODO: check if CEP could count at smaller wavelength. 
 
@@ -3640,9 +3610,9 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   plot1 = [] #np.empty((0,0))
   for Efield2_compare in FieldOfInterest: #{{{
     PlottingDoublePulses_Efield = PlottingDoublePulses
-    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses_Efield, Efield2_compare*(1.+FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses_Efield, Efield2_compare*(1.+FieldTolerance), libPlotting.IndexTable['Efield2'])
 
-    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), libPlotting.IndexTable['Efield2'])
     #print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
     #print PlottingDoublePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -3750,12 +3720,12 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
     logger.info("Total number of datasets: "+str(len(set(Efield2_uniq))))
     
     for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
+        #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, libPlotting.IndexTable['Efield1']) #select the local Efield
         # TODO: how to merge data with values close to each others? Maybe introduce tolerance of 10% ?
 
-        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), IndexTable['Efield2'])
+        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield2'])
 
-        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), IndexTable['Efield2'])
+        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield2'])
         
         #print PlottingDoublePulses_Efield
         ## prints the current state of selection and stores the values of sweeped parameters
@@ -3911,14 +3881,14 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #plt.title('Irreversibility factor')
   #plt.plot(libKeldysh.FieldToIntensity(Efield1), irreversibility, 'o', label='Irreversibility')
   for Efield2_compare in FieldOfInterest: #for each value of Efield1, we make a new search, and plot one new line in the chart
-    #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
+    #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, libPlotting.IndexTable['Efield1']) #select the local Efield
 
 
 
 
-    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_compare*(1.+FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_compare*(1.+FieldTolerance), libPlotting.IndexTable['Efield2'])
 
-    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), IndexTable['Efield2'])
+    PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_compare*(1.-FieldTolerance), libPlotting.IndexTable['Efield2'])
     #print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
     #print PlottingDoublePulses_Efield
     # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -3971,8 +3941,8 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   #if(PlotIrreversibility): #{{{
     #ax22 = ax2.twinx()
     #for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        ##PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
-        #PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), IndexTable['Efield1'])
+        ##PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, libPlotting.IndexTable['Efield1']) #select the local Efield
+        #PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield1'])
         ##print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
         ##print PlottingDoublePulses_Efield
         ## TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -4013,10 +3983,10 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
   if(PlotFreeCarrierAbsorption):
       logger.info(Header+"Now plotting the free carrier energy absorption...")
       for Efield2_value in Efield2_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-        #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, IndexTable['Efield1']) #select the local Efield
-        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), IndexTable['Efield2'])
+        #PlottingDoublePulses_Efield = libDatabase.FilterDatabase(PlottingDoublePulses, Efield2_value, libPlotting.IndexTable['Efield1']) #select the local Efield
+        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, Efield2_value*(1.+FieldTolerance), libPlotting.IndexTable['Efield2'])
 
-        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), IndexTable['Efield2'])
+        PlottingDoublePulses_Efield = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses_Efield, Efield2_value*(1.-FieldTolerance), libPlotting.IndexTable['Efield2'])
         #print Header+"Dataset for the field: "+str(Efield2_value*1e-9)+' V/nm'
         #print PlottingDoublePulses_Efield
         # TODO: as fields are all slighly different, we should project on the neareast neighboring value, up to 1E8 V/m. 
@@ -4046,7 +4016,7 @@ def Bicolor_plotEffectOfWavelength_Tolerance(PlottingTable, wavelength1, FieldTo
             else:
                 LocalCondition = (abs(Efield2_value - Efield2_compare)/Efield2_compare <= FieldTolerance)
             if(LocalCondition):
-                EnergyAnalytical, EnergyAnalytical_approx = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths2_sorted, Efield2_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield2_compare])
+                EnergyAnalytical = EnergyFromFreeCarrierAbsorption(pulses1, wavelengths2_sorted, Efield2_value, Ne_final_sorted, W_pi_sorted, Egap_SI, EffectiveMass[Efield2_compare])
                                 
                 plot_field, = ax3.plot(wavelengths2_sorted_show, EnergyAnalytical, '--', color=Colors[Efield2_compare], label=r'$E_1=$'+str(Field1*1E-9)+r' V/nm, $E_2=$'+str(Efield2_compare*1E-9)+" V/nm.")
                 #ax2.plot(wavelengths2_sorted_show, EnergyAnalytical, '--', label='Free carrier absorption')
@@ -4137,23 +4107,23 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   
   # Simple pulse, single color
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select double pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, Color1, IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, Color2, IndexTable['wavelengths2']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, IndexTable['FreezeHXC']) #keeps only non-frozen XC. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, IndexTable['PulseType']) #keeps only non-frozen XC. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, duration1, IndexTable['pulses1']) #removes fields where tau != pulseDuration
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, duration2, IndexTable['pulses2']) #removes fields where tau != pulseDuration
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude1*1.01, IndexTable['Efield1'])
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude1*0.99, IndexTable['Efield1'])
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude2*1.01, IndexTable['Efield2'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select double pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is greater than 0. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, Color1, libPlotting.IndexTable['wavelengths1']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, Color2, libPlotting.IndexTable['wavelengths2']) #keeps only 800 nm wavelenghts. #TODO: this field should be making a loop in available wavelengths given in wavelengths1_uniq.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0, libPlotting.IndexTable['FreezeHXC']) #keeps only non-frozen XC. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, PulseShape, libPlotting.IndexTable['PulseType']) #keeps only non-frozen XC. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, duration1, libPlotting.IndexTable['pulses1']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, duration2, libPlotting.IndexTable['pulses2']) #removes fields where tau != pulseDuration
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude1*1.01, libPlotting.IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude1*0.99, libPlotting.IndexTable['Efield1'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, FieldAmplitude2*1.01, libPlotting.IndexTable['Efield2'])
 
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude2*0.99, IndexTable['Efield2'])
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, FieldAmplitude2*0.99, libPlotting.IndexTable['Efield2'])
   
   if(pulseRiseTime != 0): 
-    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, IndexTable['RiseTime']) #removes fields where tau != pulseDuration
+    PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, pulseRiseTime, libPlotting.IndexTable['RiseTime']) #removes fields where tau != pulseDuration
 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq,wavelength2_uniq,CEP2_uniq,Efield2_uniq,pulses2_uniq = libPlotting.CountTheNumberOfLaserParameters(PlottingSinglePulses)
   
@@ -4164,7 +4134,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   #plt.scatter(libKeldysh.FieldToIntensity(Efield1), Ne_final, c=Delay, s=(30.+CrossPolarization*50.), label=r'$N_{exc}$[Field]')
   plot1 = [] #np.empty((0,0))
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
   
   ## prints the current state of selection and stores the values of sweeped parameters
   runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max,  ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max,Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingSinglePulses)
@@ -4194,7 +4164,7 @@ def Bicolor_plotEffectOfCEP(PlottingTable, Color1=800e-9, duration1=20e-15, Fiel
   
   ax12 = ax1.twinx()
   #for CEP1_value in CEP1_uniq: #for each value of CEP1, we make a new search, and plot one new line in the chart
-  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, IndexTable['CEP1']) #select the local CEP
+  #PlottingSinglePulses_CEP = libDatabase.FilterDatabase(PlottingSinglePulses, CEP1_value, libPlotting.IndexTable['CEP1']) #select the local CEP
   
   ## prints the current state of selection and stores the values of sweeped parameters
 
@@ -4262,10 +4232,10 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
 
   # Simple pulse, single color
   PlottingSinglePulses = PlottingTable #get the full database
-  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
-  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
-  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., IndexTable['CEP1']) #keeps only CEP = 0. 
+  PlottingSinglePulses = libDatabase.FilterDatabaseGreaterThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak1 < 1 V/m. #works
+  PlottingSinglePulses = libDatabase.FilterDatabaseLowerThan(PlottingSinglePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 > 1 V/m to select single pulses.
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CrossPolarization']) #removes fields where CrossPolarization is different from 0. 
+  PlottingSinglePulses = libDatabase.FilterDatabase(PlottingSinglePulses, 0., libPlotting.IndexTable['CEP1']) #keeps only CEP = 0. 
 
 
   ## TODO: check if CEP could count at smaller wavelength. 
@@ -4283,9 +4253,9 @@ def plotEffectOfWavelength_2dMap(PlottingTable, pulseDuration=20e-15, PulseType=
   
   ##Building up the stack to plot here, therefore we could plot anytype of plot. 
   for Efield1_value in Efield1_uniq: #for each value of Efield1, we make a new search, and plot one new line in the chart
-    PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, IndexTable['Efield1']) #select the local Efield
+    PlottingSinglePulses_Efield = libDatabase.FilterDatabase(PlottingSinglePulses, Efield1_value, libPlotting.IndexTable['Efield1']) #select the local Efield
     for wavelength_value in wavelength_uniq:
-      PlottingSinglePulses_Efield_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses_Efield, wavelength_value, IndexTable['wavelengths1']) #select the local Efield
+      PlottingSinglePulses_Efield_wavelength = libDatabase.FilterDatabase(PlottingSinglePulses_Efield, wavelength_value, libPlotting.IndexTable['wavelengths1']) #select the local Efield
       runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingSinglePulses_Efield_wavelength)
 
       
@@ -4341,28 +4311,28 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   print("====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS, Ne(E1, E2) =====")
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 < 1 V/m to select double pulses.
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, float(0.), IndexTable['CrossPolarization']) #removes fields where Polarization1 != Polarization2
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseDuration, IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength1, IndexTable['wavelengths1']) # Selecting color1
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength2, IndexTable['wavelengths2']) # Selecting color2
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseType, IndexTable['PulseType']) # Selecting pulse type
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, InducedFields, IndexTable['FieldInduced']) #Removing the induced fields. Yeah because they should not be mixed!
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 < 1 V/m to select double pulses.
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, float(0.), libPlotting.IndexTable['CrossPolarization']) #removes fields where Polarization1 != Polarization2
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseDuration, libPlotting.IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength1, libPlotting.IndexTable['wavelengths1']) # Selecting color1
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, wavelength2, libPlotting.IndexTable['wavelengths2']) # Selecting color2
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseType, libPlotting.IndexTable['PulseType']) # Selecting pulse type
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, InducedFields, libPlotting.IndexTable['FieldInduced']) #Removing the induced fields. Yeah because they should not be mixed!
   
   if(CEP2_request >= 0):
-      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), IndexTable['CEP2'])
-      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0. 
+      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(1.1), libPlotting.IndexTable['CEP2'])
+      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(0.9), libPlotting.IndexTable['CEP2']) #keeps only CEP = 0. 
   else:
-      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), IndexTable['CEP2'])
-      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), IndexTable['CEP2']) #keeps only CEP = 0.
+      PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, (CEP2_request)*(1.1), libPlotting.IndexTable['CEP2'])
+      PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses,   (CEP2_request)*(0.9), libPlotting.IndexTable['CEP2']) #keeps only CEP = 0.
 
   # TODO: we shall clean CEP2 as well, as it must influence the results. 
   
-  #PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, CEP2, IndexTable['CEP2']) # Must have same CEP
+  #PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, CEP2, libPlotting.IndexTable['CEP2']) # Must have same CEP
   
   if(RiseCycles != 0): #0 selects all the possible types
-    PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, RiseCycles, IndexTable['RiseTime']) # Selecting Rise Time
+    PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, RiseCycles, libPlotting.IndexTable['RiseTime']) # Selecting Rise Time
   #### 2D PLOTTING Density(Efield1, Efield2) for one given set of laser parameters. For each combination, we produce one plot like this. 
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= libPlotting.CountTheNumberOfLaserParameters(PlottingDoublePulses)
   logger.info(Header+"Total number of datasets: "+str(len(set(Efield1_uniq))*len(set(Efield2_uniq))))
@@ -4376,15 +4346,14 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   WpiMax2D          = np.empty((0,3)) #preparing the 2D plot
   
   for Efield1_i in Efield1_uniq: #{{{ #selecting amplitude1
-    PlottingDoublePulses_SelectedField1 = libDatabase.FilterDatabase(PlottingDoublePulses, Efield1_i, IndexTable['Efield1'])
+    PlottingDoublePulses_SelectedField1 = libDatabase.FilterDatabase(PlottingDoublePulses, Efield1_i, libPlotting.IndexTable['Efield1'])
     for Efield2_i in Efield2_uniq: #{{{ #selecting amplitude2
       # Selecting Field2
-      PlottingDoublePulses_SelectedField2 = libDatabase.FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2_i, IndexTable['Efield2'])
+      PlottingDoublePulses_SelectedField2 = libDatabase.FilterDatabase(PlottingDoublePulses_SelectedField1, Efield2_i, libPlotting.IndexTable['Efield2'])
       
       # Constructing the density table
       runid, RunDate, kpointgrid, realmeshgrid, TimeStep, wavelengths1, pulses1, Efield1, polarization_angle, CEP1, wavelengths2, pulses2, Efield2, CEP2, Delay, CrossPolarization, TheoryLevel, FieldInduced, GaugeFieldAmplitude, GaugeFieldDelay, Functional, FreezeHXC, MoveIon, Ne_max, Ne_final, irreversibility, TotalCurrent_final, TotalCurrent_max, TotalCurrent_AU_Xmax, TotalCurrent_AU_Ymax, TotalCurrent_AU_Zmax, ElectronEnergy_max, EigenvaluesEnergy_max, HartreeEnergy_max, ExchangeEnergy_max, ElectronEnergy_afterpulse, EigenvaluesEnergy_afterpulse, HartreeEnergy_afterpulse, ExchangeEnergy_afterpulse, EnergyPoynting_SI_sum_final, Eext_SI_max, Ne_afterpulse, W_pi, Wpi_afterpulse, PulseType_tmp, RiseTime, FinalTime, timeToFilterFrom = libPlotting.ExtractData(PlottingDoublePulses_SelectedField2)
->>>>>>> Modules
-      
+
       #print(Header+"Field1: "+str(Efield1)+" m, Field2: "+str(Efield2)+" m.")
       
       if(len(Ne_final) >= 1): 
@@ -4489,7 +4458,7 @@ def plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, w
   
   ### One need to extract interpolation of BrutZ on a regular mapping. 
   if(not len(BrutZ)==0): 
-      RegX, RegY, RegZ = plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
+      RegX, RegY, RegZ = libPlotting.plot2dHeatMap(BrutX, BrutY, BrutZ, QuantityTitle, filename, ShowFinalPlot, PlotGradient)
   else: 
       logger.error((Header+"** Error: Selected database is empty."))
       exit()
@@ -4567,19 +4536,19 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   print("====== Plot: DOUBLE PULSE, SAME POLARIZATION, SAME PULSE DURATIONS =====")
   #Filters: double pulses, same wavelengths, same polarization
   PlottingDoublePulses = PlottingTable #get the full database
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, IndexTable['Efield2']) #removes fields where Epeak2 < 1 V/m to select double pulses.
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, float(0.), IndexTable['CrossPolarization']) #removes fields where Polarization1 != Polarization2
-  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseDuration, IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, libPlotting.IndexTable['Efield1']) #removes fields where Epeak < 1 V/m. #works
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, 1E0, libPlotting.IndexTable['Efield2']) #removes fields where Epeak2 < 1 V/m to select double pulses.
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, float(0.), libPlotting.IndexTable['CrossPolarization']) #removes fields where Polarization1 != Polarization2
+  PlottingDoublePulses = libDatabase.FilterDatabase(PlottingDoublePulses, PulseDuration, libPlotting.IndexTable['pulses2']) # Removing fields were pulseDuration1 != pulseDuration2
 
   
   #### 2D PLOTTING Density(Color1, Color2) for one given set of laser parameters. We produce one plot like this for equal fields. 
   
   ## Selecting fields which have a strength close to a number indicated in input. 
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, FieldStrength*(1.-Tolerance), IndexTable['Efield1'])
-  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, FieldStrength*(1.+Tolerance), IndexTable['Efield1'])
-  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, FieldStrength*(1.-Tolerance), IndexTable['Efield2'])
-  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, FieldStrength*(1.+Tolerance), IndexTable['Efield2'])
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, FieldStrength*(1.-Tolerance), libPlotting.IndexTable['Efield1'])
+  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, FieldStrength*(1.+Tolerance), libPlotting.IndexTable['Efield1'])
+  PlottingDoublePulses = libDatabase.FilterDatabaseGreaterThan(PlottingDoublePulses, FieldStrength*(1.-Tolerance), libPlotting.IndexTable['Efield2'])
+  PlottingDoublePulses = libDatabase.FilterDatabaseLowerThan(PlottingDoublePulses, FieldStrength*(1.+Tolerance), libPlotting.IndexTable['Efield2'])
 
   
   wavelength_uniq, CEP1_uniq, TheoryLevel_uniq, Efield1_uniq, pulses_uniq, wavelength2_uniq, CEP2_uniq, Efield2_uniq, pulses2_uniq= libPlotting.CountTheNumberOfLaserParameters(PlottingDoublePulses)
@@ -4592,10 +4561,10 @@ def plotEffectOfDoublePulse_Color1_Color2_SingleFieldStrength(PlottingTable, Fie
   EnergyMax2D  = np.empty((0,3))
   Wpi2D        = np.empty((0,3))
   for Color1 in wavelength_uniq: #selecting color1
-    PlottingDoublePulses_SelectedColor1 = libDatabase.FilterDatabase(PlottingDoublePulses, Color1, IndexTable['wavelengths1'])
+    PlottingDoublePulses_SelectedColor1 = libDatabase.FilterDatabase(PlottingDoublePulses, Color1, libPlotting.IndexTable['wavelengths1'])
     for Color2 in wavelength2_uniq: #selecting color2
       # Selecting Color 2
-      PlottingDoublePulses_SelectedColor2 = libDatabase.FilterDatabase(PlottingDoublePulses_SelectedColor1, Color2, IndexTable['wavelengths2'])
+      PlottingDoublePulses_SelectedColor2 = libDatabase.FilterDatabase(PlottingDoublePulses_SelectedColor1, Color2, libPlotting.IndexTable['wavelengths2'])
       
       # Constructing the density table
 
@@ -4769,7 +4738,7 @@ def plot_Zhukov_SingleColor_SiO2(): #{{{
 #}}}                                            
 
 ## Prepare all plots for single-color excitation with VP Zhukov [Phys. Rev. B / PRL]
-def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
+def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=True): #{{{
     Egap_SI = 2.56*e
     #Egap_SI = 1.55*e #Dressed in presence of driving photon field
     #Egap_SI = 1.5*e #Manually adjusted gap. 
@@ -4816,7 +4785,7 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
     # plotEffectOfCEP(PlottingTable, wavelength, 20e-15, Efield, PulseType, RiseCycles, ShowPlot, Egap_SI)
     #plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
     #NOTE: === LOCAL FILTERING
-    #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, IndexTable['pulses1'])
+    #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, libPlotting.IndexTable['pulses1'])
     PlottingTable_filtered = PlottingTable
     
 
@@ -4887,7 +4856,7 @@ def plot_Zhukov_SingleColor_LDA(EnableMultiwavelengthPlot=False): #{{{
     PrimitiveCellArea = {'Si': 1E-20} #WARNING: very approximative!!!
     RatioExternal     = {'Si': 1.}    #Useful only for induced fields cases
     ## Plotting absorbed energy also
-    for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
+    for PulseType in [libPlotting.PulseTypeID['SinSquared'], libPlotting.PulseTypeID['StH']]:
         # for wavelength in [3200e-9, 1600e-9, 1030e-9, 800e-9]:
         for wavelength in [1030E-9]:
         #0: Gaussian; 1: SinSquared
@@ -4928,7 +4897,7 @@ def plot_Zhukov_SingleColor_TB09(): #{{{
     ##plotEffectOfCEP(PlottingTable, wavelength, 10e-15, Efield, PulseType, RiseCycles, ShowPlot)
     
     #NOTE: === LOCAL FILTERING
-    #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, IndexTable['pulses1'])
+    #PlottingTable_filtered = FilterDatabaseRemove(PlottingTable, 30e-15, libPlotting.IndexTable['pulses1'])
     PlottingTable_filtered = PlottingTable
     
     ## Effect of intensity figures
@@ -5009,7 +4978,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         ### Generate the tables from Zhukov files and plot them
         ##VPZ_Wpi2D(wavelength1, wavelength2, 4E9, 2E9)
         
-        ##libKeldyshZhukov.VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
+        ##libKeldyshZhukov.libKeldyshZhukov.VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
         ##plot_VZ_Bicolor()
         
         ### Commensurable ## NOTE: these results will never reveal multiphotonic steps, because of free-carrier absorption, but also because of the multiple bands. Only possibility is to make sections for a given field, and to analyze the number of multiphoton absorption. 
@@ -5023,7 +4992,7 @@ def plot_Zhukov_BicolorMaps(): #{{{
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Energy'])
         plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['Wpi'])
         #plotEffectOfDoublePulse_Efield1_Efield2_SpecificColorCouple(PlottingTable, wavelength1, wavelength2, tau, PulseType, RiseCycles,  BicolorE1E2plotDictionnary['E2'])
-        ##libKeldyshZhukov.VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
+        ##libKeldyshZhukov.libKeldyshZhukov.VZ_generateWpiTables(Efield1, Efield2, wavelength1, wavelength2, CEP1, CEP2, Egap, meff)
         ##VPZ_Wpi2D(wavelength1, wavelength2, 0.8E10, 1E10)
         ### Incommensurable
         #wavelength1 = 800e-9 
@@ -5108,13 +5077,13 @@ def plot_Vorobyev_Au(material):
     RatioExternal={'Au': 24.06, 'Mo': 1.91} #origin: In Yabana et al PRB (2012), this E_out / E_in = OpticalIndex**2
     #try:
     if(material=="Au"):
-        for PulseType in [PulseTypeID['SinSquared'], PulseTypeID['StH']]:
+        for PulseType in [libPlotting.PulseTypeID['SinSquared'], libPlotting.PulseTypeID['StH']]:
         #0: Gaussian; 1: SinSquared
             plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
         #except:
             #print Header+"** Warning: no data could be found, or bug took place for 800 nm."
     elif(material=="Mo"):
-        for PulseType in [PulseTypeID['SinSquared']]:
+        for PulseType in [libPlotting.PulseTypeID['SinSquared']]:
         #0: Gaussian; 1: SinSquared
             plotEffectOfIntensity_PulseDuration_Metals(PlottingTable_filtered,  wavelength1, 0., PulseType, RiseCycles, PlotWpiAxis, ShowPlot, PrimitiveCellArea[material], OpticalIndex[material][wavelength1], RatioExternal[material], MoveIon)
     else:
@@ -5177,7 +5146,7 @@ if(__name__=="__main__"):
         logger.info("Running LDA single-color Keldysh analyses...")
         plot_Zhukov_SingleColor_LDA()
         logger.info("Detected TB09 computations for Si...")
-        plot_Zhukov_SingleColor_TB09()
+        # plot_Zhukov_SingleColor_TB09()
 
     elif "09-Au" in dirname: 
         logger.info((Header+"** Info: detected computations for Au..."))
