@@ -32,7 +32,7 @@ echo $LD_LIBRARY_PATH
 export CC=mpicc
 export FC=mpif90
 export CXX=mpicxx
-export CFLAGS="-O3"
+export CFLAGS="-g -pg -debug"
 export FCFLAGS="$CFLAGS -ffree-line-length-none"
 export CXXFLAGS="$CFLAGS"
 export LDFLAGS="-Xlinker -rpath=$GSL_HOME/lib"	    

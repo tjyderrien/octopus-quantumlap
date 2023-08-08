@@ -4,7 +4,6 @@ module purge
 module load GCC/7.2.0
 module load OpenMPI/3.1.6
 module load BLAS/3.10.0
-
 module load LAPACK/3.10.1
 export LAPACK_HOME="/APPS/centos7/centos79/software/Compiler/GCC-7.2/LAPACK/3.10.1/lib64" #liblapack.so"
 # export LAPACK_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/LAPACK/3.10.1/liblapack.a"
@@ -61,6 +60,7 @@ echo "STARTING CONFIGURATION..."
     --with-fftw-prefix="$FFTW_HOME" \
     --prefix="/gpfs/home/tderrien/octopus.gnu7.mpiio/"
 
+#    --with-lapack-prefix="$LAPACK/lib64" \
 #    --with-lapack="$LAPACK_HOME" \
 
 #    --with-lapack="$LAPACK/liblapack.a -llapack" \
