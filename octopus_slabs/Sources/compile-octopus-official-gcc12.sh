@@ -2,8 +2,10 @@
 
 module purge
 module load GCC/12.1.0
+# module load GCC/7.2.0
 
 module load OpenMPI/4.1.3
+# module load OpenMPI/3.1.6
 module load BLAS/3.10.0
 
 # Edwin's lapack: fails: missing reference to a certain function: undefined reference to 'scnrm2_'. No longer needed after update of BLAS by Edwin. 
@@ -11,29 +13,32 @@ module load LAPACK/3.10.1
 # export LAPACK_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/LAPACK/3.10.1/liblapack.a"
 
 # module load libxc/6.2.2
-# module load libxc/5.2.3
-module load libxc/4.3.4
+module load libxc/5.2.3
+# module load libxc/4.3.4
 # module load libxc/5.2.3-GCC-8.1.0
-export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/libxc/4.3.4"
+export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/libxc/5.2.3"
+# export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/libxc/4.3.4"
+# export LIBXC_HOME="/APPS/centos7/centos79/software/Compiler/GCC-7.2/libxc/4.3.4"
 module load GSL/2.7
 export GSL_HOME="/APPS/centos7/centos79/software/Compiler/GCC-12.1/GSL/2.7"
+# export GSL_HOME="/APPS/centos7/centos79/software/Compiler/GCC-7.2/GSL/2.7"
 
 # Passes configure, but compilation fails. 
 module load FFTW3/3.3.10
 export FFTW_HOME="/APPS/centos7/centos79/software/MPI/GCC-12.1-OpenMPI-4.1/FFTW3/3.3.10"
-
+# export FFTW_HOME="/APPS/centos7/centos79/software/MPI/GCC-7.2-OpenMPI-3.1/FFTW3/3.3.10"
 module load HDF5/1.12.0
+# module load HDF5/1.10.2
 
 # module load netCDF
 module list
-
 
 make mostlyclean
 make clean
 make distclean
 
 cd ..
-autoreconf -fi
+autoreconf -f -i
 cd -
 
 export CC="mpicc"
@@ -69,6 +74,7 @@ unset try_mpsd_elpa_version
       --with-blas="-L$BLAS/lib -lblas" \
       --with-gsl-prefix="$GSL_HOME" \
       --with-fftw-prefix="$FFTW_HOME" \
+      --prefix="$HOME/octopus.20230809.gnu12.mpiio/" \
       "$@" | tee 00-configure.log 2>&1
 
 #      --with-fftw-prefix="$FFTW_HOME" \ 
