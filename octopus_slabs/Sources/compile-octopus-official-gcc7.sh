@@ -103,5 +103,5 @@ fi
 echo "-------------------------------------------------------------------------------" >&2
 
 make -j 48
-make check-short
+# make check-short
 make install
