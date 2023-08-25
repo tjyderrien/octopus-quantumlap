@@ -74,7 +74,7 @@ unset try_mpsd_elpa_version
       --with-blas="-L$BLAS/lib -lblas" \
       --with-gsl-prefix="$GSL_HOME" \
       --with-fftw-prefix="$FFTW_HOME" \
-      --prefix="$HOME/octopus.20230809.gnu12.mpiio/" \
+      --prefix="$HOME/octopus.20230825.gnu12.mpiioNew/" \
       "$@" | tee 00-configure.log 2>&1
 
 #      --with-fftw-prefix="$FFTW_HOME" \ 
