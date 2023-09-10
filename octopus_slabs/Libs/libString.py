@@ -53,6 +53,17 @@ def LookUpLatestLogFile(Filename): #{{{{
   return final
 #}}}
 
+## Check whether a file contains binary data
+def contains_binary_data(file_path):
+  with open(file_path, 'rb') as file:
+      while True:
+          byte = file.read(1)
+          if not byte:
+              break
+          if byte < b' ' and byte not in (b'\t', b'\n', b'\r'):
+              return True
+  return False
+
 ## Looks for a string in a file. 
 # Returns the full line where the element is found. 
 # If duplicate files are found, the most recent file is selected.

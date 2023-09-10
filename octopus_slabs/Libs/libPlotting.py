@@ -33,6 +33,7 @@ import glob
 import octopus_slabs.Samples.calculateVolume as  calcVol
 import octopus_slabs.Libs.libAtomicUnits     as au
 import octopus_slabs.Libs.libString          as libString
+from octopus_slabs.Libs.libString            import contains_binary_data
 from   octopus_slabs.Libs.libLogging         import init_logger
 from   spp_extended_theory.Libs              import libDatabase
 
@@ -116,10 +117,10 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
   ListOfDisabledRunsID=[]
 
   ## Extracts the name of the machine to be introduced into database
-  MachineNameList = {0: "EOS", 1: "draco", 2: "salomon", 3: "prometheus", 4: "barinel", 5: "barbora", 6: "karolina",
+  MachineNameList = {0: "eos", 1: "dra", 2: "salomon", 3: "p0", 4: "barinel", 5: "barbora", 6: "karolina",
                      7: "eclipse", 8: "sunrise"}
-  MachineNameHeader = {"draco": 1, "salomon": 2, "prometheus": 3, "barinel": 4, "barbora": 5, "karolina": 6,
-                       "eclipse": 7, "sunrise": 8}
+  MachineNameHeader = {"eos": 0, "dra": 1, "salomon": 2, "p0": 3, "barinel": 4, "barbora": 5, "karolina": 6,
+                       "eclipse": 7, "sunrise": 8} #p0: prometheus in Poland
 
   ## Returns the integer pointing to table MachineNameList where computations were prepared.
   def GetMachineName(file):
@@ -192,7 +193,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
 
       # 3. Prepare some results
       plt.ioff()
-      plt.figure()
+      # plt.figure()
       plt.plot(results_np[:, 0], results_np[:, 4])
       plt.axhline(average_duration_per_timestep, color="orange")
       plt.axhline(average_duration_per_timestep/number_of_processes, color="red")
@@ -201,7 +202,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       logger.debug("Exporting figure to "+str(dirname(filename)))
       plt.savefig(dirname(filename)+"/DurationOfTimeStep.eps")
       # plt.show()
-      # plt.ion()
+      plt.ion()
 
       return average_duration_per_timestep, number_of_processes
 
@@ -315,6 +316,9 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
       continue
     
     LOG_newest = max(glob.iglob(FolderName+'../octopus*.log'), key=os.path.getmtime)
+
+    # Check if LOG file contains binary data.
+    assert(contains_binary_data(LOG_newest) is False)
 
     # Capturing metadata
     Machine = GetMachineName(LOG_newest)
