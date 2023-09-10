@@ -20,22 +20,31 @@
 # Define shared functions for plotting routines and database construction
 
 from octopus_slabs.Libs.libString import contains_binary_data
+import glob
+import os
+import time
+from tqdm import tqdm
+
 
 ## Controls the integrity of LOG files in the amount of accumulated octopus data
-def CheckLOGfileIntegrity(path="*/*/*/td.general/")
-    # import time
-    for FolderName in glob.glob(path):
-         # start_time = time.time()
-         LOG_newest = max(glob.glob(FolderName+'../octopus*.log'), key=os.path.getmtime)
-         if(contains_binary_data(LOG_newest)):
-             print(LOG_newest)
-         # else:
-         #    print(FolderName, LOG_newest)
-         # end_time = time.time()
-         # elapsed_time = end_time - start_time
-         # print(f"Elapsed time: {elapsed_time} seconds")
+def CheckLOGfileIntegrity(path="*/*/*/td.general/"):
+    ListOfFolders = glob.glob(path)
+    with tqdm(total=len(ListOfFolders), unit="file") as progress_bar:
+        for FolderName in ListOfFolders:
+             # start_time = time.time()
+             LOG_newest = max(glob.glob(FolderName+'../octopus*.log'), key=os.path.getmtime)
+             if(contains_binary_data(LOG_newest)):
+                 print(LOG_newest)
+             # else:
+             #    print(FolderName, LOG_newest)
+             progress_bar.update(1)
+             # end_time = time.time()
+             # elapsed_time = end_time - start_time
+             # print(f"Elapsed time: {elapsed_time} seconds")
     return 0
- 
+
+if(__name__=="__main__"):
+    CheckLOGfileIntegrity(path="*/*/*/td.general/")
 
 
 
