@@ -25,6 +25,8 @@ import os
 import time
 from tqdm import tqdm
 
+from octopus_slabs.Libs.libLogging import init_logger
+logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
 
 ## Controls the integrity of LOG files in the amount of accumulated octopus data
 def CheckLOGfileIntegrity(path="*/*/*/td.general/"):
@@ -32,7 +34,15 @@ def CheckLOGfileIntegrity(path="*/*/*/td.general/"):
     with tqdm(total=len(ListOfFolders), unit="file") as progress_bar:
         for FolderName in ListOfFolders:
              # start_time = time.time()
-             LOG_newest = max(glob.glob(FolderName+'../octopus*.log'), key=os.path.getmtime)
+             if (os.path.isfile(FolderName + "../DISABLED")):
+                 logger.debug((" ** THIS RUN WAS REMOVED after finding DISABLED file in the folder. This prevents this run to pollute the database with, e.g., unconverged data. Note that this DISABLED file may have been added manually for good reasons. Good practice may be to write inside this file the reason for having disabled this run. "))
+                 # ListOfDisabledRunsID.append([int(runid)])
+                 continue
+             try:
+                 LOG_newest = max(glob.glob(FolderName+'../octopus*.log'), key=os.path.getmtime)
+             except:
+                 logger.warning("Failed glob. Current folder is: "+FolderName)
+                 continue
              if(contains_binary_data(LOG_newest)):
                  print(LOG_newest)
              # else:
@@ -45,6 +55,7 @@ def CheckLOGfileIntegrity(path="*/*/*/td.general/"):
 
 if(__name__=="__main__"):
     CheckLOGfileIntegrity(path="*/*/*/td.general/")
+    logger.info("Program finished well.")
 
 
 
