@@ -68,6 +68,13 @@ ${biatri2})
                 export QuantumLaPsources="/veracruz/home/p/pr2c0043/octopus-slabs/"
                 export QuantumLaPruns="/tormenta/f/frecuencia/octopus-slabs.data/"
         ;;
+
+${NvidiaDGX})
+	 echo "[vars.sh: ] Definition QuantumLaP variables for Masaryk Uni Nvidia DGX."
+	 export QuantumLaPsources=/storage/brno12-cerit/home/derrit01/octopus-slabs/
+         export QuantumLaPruns=/storage/brno12-cerit/home/derrit01/octopus.data/
+
+	;;
         
 
         *)

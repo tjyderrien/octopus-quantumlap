@@ -27,21 +27,21 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
 
-NumNodes=16
-Mission="Si_GS_angle"
+NumNodes=4
+Mission="Si_GS_8"
 
 SampleLayers="1"
 SampleXY="1"
 
 # kPoints="40" # 16"
-kPoints="32" # 16"
+kPoints="24" # 16"
 
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
 Functional="LDA" #LDA or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
-AngleIncidence_list="0 0.25" # "0 0.25"
+AngleIncidence_list="0" #0.25" # "0 0.25"
 
 # AngleIncidence_list="0.10 0.15 0.20 0.25" #0.05
 

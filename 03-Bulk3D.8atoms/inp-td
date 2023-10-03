@@ -4,7 +4,7 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-# FromScratch = yes
+FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
 # UnitsXYZFiles = Angstrom
 # Debug = trace
@@ -169,8 +169,11 @@ ell = 0. #ellipticity
 #TODO: script the change of polarization
 th1 = pi*theta1_inp #scripted (units are same as for CEP, we multiply by pi only here to simplify)
 th2 = ReplaceMeTheta      #Scripted
-px1 = cos(th1)
-py1 = sin(th1)
+# px1 = cos(th1)
+# py1 = sin(th1)
+px1 = 1./sqrt(3.)
+py1 = 1./sqrt(3.)
+pz1 = 1./sqrt(3.)
 px2 = cos(th2)
 py2 = sin(th2)
 
@@ -198,7 +201,7 @@ GaugeFieldPropagate = ReplaceMeGaugeField # | yes
 %TDExternalFields
 #   vector_potential | px1 | py1 | 0 | omegaA | "FieldColorA" | "phaseA"
 #   vector_potential | px2 | py2 | 0 | omegaB | "FieldColorB" | "phaseB"
-    vector_potential | px1 | py1 | 0 | omegaA | "FieldShapeA" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
+    vector_potential | px1 | py1 | pz1 | omegaA | "FieldShapeA" | "phaseA" #FieldShape is a keyword for the bash scripts. Dont remove it.
     vector_potential | px2 | py2 | 0 | omegaB | "FieldShapeB" | "phaseB"
 %
 
