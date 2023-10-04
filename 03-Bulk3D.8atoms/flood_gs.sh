@@ -34,7 +34,7 @@ SampleLayers="1"
 SampleXY="1"
 
 # kPoints="40" # 16"
-kPoints="24" # 16"
+kPoints="8 16 24" # 16"
 
 InitialTemperature="0e0"
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
