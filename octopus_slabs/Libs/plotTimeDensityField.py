@@ -45,11 +45,11 @@ volume = 1. #Sample.VolumeXYZ(geometry) #SI units! #TODO: get the volume in the 
 # densityAU = density
 # Converting vector potential to field
 
-
 E1x = -np.gradient(A1x)/np.gradient(time) / c
 E2x = -np.gradient(A2x)/np.gradient(time) / c
 
 EtotX = E1x+E2x
+
 
 # # Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
@@ -77,6 +77,7 @@ ax11.plot(time, E2x, 'r--', label=r'$E_2(t)$')
 # ax11.plot(time, A2x, 'r-', label=r'$A_2(t)$')
 # plt.legend(loc=2)
 
+
 """plt.subplot(212)
 plt.xlim((0,time.max()))
 plt.plot(timeNe, densityAU, 'k-')  #TODO: change to SI units, and maybe divide by the cell volume
@@ -84,6 +85,7 @@ plt.xlabel('Time (fs)')
 plt.ylabel('Density (a.u.)')
 """
 # plt.legend(loc=2)
+
 plt.savefig('Field.eps')
 plt.savefig('Field.png')
 plt.show()
