@@ -45,6 +45,9 @@ volume = 1. #Sample.VolumeXYZ(geometry) #SI units! #TODO: get the volume in the 
 # densityAU = density
 # Converting vector potential to field
 EtotX = -(np.gradient(A1x)/np.gradient(time) + np.gradient(A2x)/np.gradient(time)) / c #E=d_t (A1+A2) / c
+Ex1 = -(np.gradient(A1x)/np.gradient(time)) / c
+Ex2 = -(np.gradient(A2x)/np.gradient(time)) / c
+
 
 # # Convert time from AU to SI
 UnitTime = 1E15 #we show in fs
@@ -55,13 +58,16 @@ TimeAUtoSI = Time_AU_to_SI(1.) #1.054571800e-34 / 1.6021766208e-19 / 27.21138505
 
 # Plot n_ex and electric field on the same plot
 plt.figure()
-# plt.subplot(211)
+fig, ax1 = plt.subplots()
+# plt.subplot(111)
 # plt.xlabel('Time (fs)')
-plt.xlabel('Time (at.u.)')
-plt.ylabel('E field (a.u.)')
+ax1.set_xlabel('Time (at.u.)')
+ax1.set_ylabel('E field (a.u.)')
+ax1.plot(time, c*Ex1, 'b-', label=r'$c \times E_1(t)$')
 # plt.xlim((0, time.max()))
 # plt.xlim((0,tmax))
-plt.plot(time, c*EtotX, 'k-', label='c x E(t)')
+ax2=ax1.twinx()
+ax2.plot(time, c*Ex2, 'r-', label=r'$c \times E_2(t)$')
 #plt.xlim((1800,1900))
 # plt.ylim((0.3,0.5))
 # plt.plot(time, (A1x+A2x), 'b-', label='A(t)')
@@ -74,6 +80,6 @@ plt.xlabel('Time (fs)')
 plt.ylabel('Density (a.u.)')
 """
 # plt.legend(loc=2)
-plt.savefig('Field.eps')
-plt.savefig('Field.png')
-#plt.show()
+# plt.savefig('Field.eps')
+# plt.savefig('Field.png')
+plt.show()
