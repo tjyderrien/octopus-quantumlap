@@ -31,6 +31,7 @@ import os
 from spp_extended_theory.Libs.libDatabase import *
 # from octopus_slabs.Libs.libPlotting import CaptureKPointGridSizeFromINP
 
+
 ## Returns the name of the most recent octopus logfile
 def LookUpLatestLogFile(Filename): #{{{{
   Header = "[libString: LookUpLatestLogFile] "
@@ -51,6 +52,17 @@ def LookUpLatestLogFile(Filename): #{{{{
     final = result
   return final
 #}}}
+
+## Check whether a file contains binary data
+def contains_binary_data(file_path):
+  with open(file_path, 'rb') as file:
+      while True:
+          byte = file.read(1)
+          if not byte:
+              break
+          if byte < b' ' and byte not in (b'\t', b'\n', b'\r'):
+              return True
+  return False
 
 ## Looks for a string in a file. 
 # Returns the full line where the element is found. 
