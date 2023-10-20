@@ -370,40 +370,47 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
 # @param filename: "info" file.
 def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
     import re
-    Header="[libString: GetEigenValue(): ]"
-    pattern= "#k ="
-    if(verbose==1): 
+    import numpy as np
+    Header = "[libString: GetEigenValue(): ]"
+    pattern = "#k ="
+    if verbose == 1:
         print("Info: Construction of the eigen-values matrix.")
-        print("Pattern of interest: \""+pattern+"\"")
-        
-    with open( filename, "r" ) as source:
-        for heading_and_lines in group_by_heading( source, pattern ):
+        print("Pattern of interest: \"" + pattern + "\"")
+
+    eigenvalues = []
+
+    with open(filename, "r") as source:
+        for heading_and_lines in group_by_heading(source, pattern):
             heading = heading_and_lines[0]
-            lines = heading_and_lines[1:] #NOTE: assumes header is one line.
-            # if(pattern+str(kpoints_index)) in heading.split(",")[0]: #TODO: is this failsafe?
-            # for result in re.finditer(pattern,heading): #for each "#k ="
-            #     if(result.span()[0]==0): #if we found this chain at the beginning
-            # search for 1 "#k =" followed by an exact stringed number and finishes with a "," with possible spaces
-            # prog=re.compile("#(\s)*k\s=(\s)*"+str(kpoints_index)+"(\s)*,")
-            prog=re.compile("#(\s)*k(\s)*=(\s)*" + str(kpoints_index) + "(\s)*,") #still captures at least 4 digits (?!)
-            result = prog.match(heading)
-            try:
-                if(result[0].split("=")[1].split(",")[0] == str(kpoints_index)): #this means we found the right spot for any numhber of digits
-                # if(str(kpoints_index) == str(heading.split(",")[0].split("=")[1])): #TODO: still limited to 4 digits
-                    print(kpoints_index)
-                #print lines
-                    break #we stop iteration when pattern is found #complexity here is O(N^2)
-            except:
-                pass
-    if(verbose==1): 
-        print(Header+str(heading))
-        print(Header+str(lines[0:NumberOfEigenValues]))
-    eigenvalues=[]
-    for id in lines[:NumberOfEigenValues]:
-        line = id.split()
-        eigenvalues.append(line[2])
-    #print eigenvalues
-    return np.asfarray(eigenvalues)
+            lines = heading_and_lines[1:]
+
+            # Define the regular expression pattern
+            prog = re.compile(r"#\s*k\s*=\s*(\d+)\s*,")
+
+            # Search for the pattern in the heading
+            result = prog.search(heading)
+
+            if result:
+                k_value = int(result.group(1))  # Extract the kpoints_index
+
+                # Check if k_value matches the desired kpoints_index
+                if k_value == kpoints_index:
+                    if verbose == 1:
+                        print(kpoints_index)
+                    break  # Stop iteration when pattern is found
+
+    if verbose == 1:
+        print(Header + str(heading))
+        print(Header + str(lines[0:NumberOfEigenValues]))
+
+    # Extract eigenvalues from the lines
+    for line in lines[:NumberOfEigenValues]:
+        data = line.split()
+        if len(data) >= 3:
+            eigenvalues.append(float(data[2]))  # Convert to float and append to the list
+
+    # Convert the eigenvalues list to a NumPy array and return it
+    return np.array(eigenvalues)
 
 ## Among a list of files, extract the single-direction dipolar-date filename that matches with: direct transition,
 ## gamma point xor for the given list of k-points (indicated by their index).
