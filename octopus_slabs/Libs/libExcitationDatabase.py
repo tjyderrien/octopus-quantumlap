@@ -30,7 +30,7 @@ import spp_extended_theory.Libs.libDatabase as libDatabase
 from   octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
-logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ## Calls for the construction of excitation database and manages exceptions. 
 def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
@@ -56,7 +56,7 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
   if(FromScratch): #rebuilds database from scratch
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
     logger.info(Header+"Save the table to a new file...")
-    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader, fmt="%e")
   else: 
     logger.warning("Entered case with FromScratch=False. Newly found entries may not be saved. ")
     # ListAllOutput(path, DatabaseName, FromScratch)
