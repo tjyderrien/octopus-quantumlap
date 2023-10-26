@@ -51,12 +51,13 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
 #    ListAllOutput(path, DatabaseName, FromScratch)
   except:
     logger.warning(Header+"Previous database could NOT be found. Rebuilding the database from scratch.")
-    FromScratch = True #We need to rebuild database from scracth
+    FromScratch = True #We need to rebuild database from scratch
 
   if(FromScratch): #rebuilds database from scratch
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
     logger.info(Header+"Save the table to a new file...")
-    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader, fmt="%e")
+    significant_figures=9
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader, fmt="%.{}e".format(significant_figures))
   else: 
     logger.warning("Entered case with FromScratch=False. Newly found entries may not be saved. ")
     # ListAllOutput(path, DatabaseName, FromScratch)
