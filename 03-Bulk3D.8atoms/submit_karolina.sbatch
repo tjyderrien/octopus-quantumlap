@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --partition=qcpu
 #SBATCH -J Mission
-#SBATCH --mail-user=USER_EMAIL
+#SBATCH --mail-user=derrien@fzu.cz
 #SBATCH --mail-type=ALL
 #SBATCH -o ./octopus.out.%j
 #SBATCH -e ./octopus.err.%j
 #SBATCH -A OPEN-29-56
 # P B S -l select=NumNodes:ncpus=128:mpiprocs=128:ompthreads=1
 #SBATCH --nodes=NumNodes
-#SBATCH --ntasks-per-node=1
+# S B ATCH --ntasks-per-node=1
 #SBATCH --time=2-00:00:00
 
 # cd $PBS_O_WORKDIR

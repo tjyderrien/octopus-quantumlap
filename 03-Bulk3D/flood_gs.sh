@@ -29,7 +29,7 @@ MeshSizeX_SI="0.23" #very much used for far. #0.15 0.20" #0.23 Bohr, octopus-rec
 # SampleLayers="6 8 10 12 14 16 18 20"
 
 # NumNodes=4
-NumNodes=1
+NumNodes=4
 
 Mission="Si_GS_angle"
 
@@ -56,7 +56,7 @@ TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particl
 Functional="LDA" #or TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 # SampleXY="8 10 12 14 16 18 20"
 
-AngleIncidence_list="0" # "0 0.25"
+# AngleIncidence_list="0 0.166667 0.25" # "0 0.25"
 
 
 # AngleIncidence_list="0.50" #"0.05 0.10 0.15 0.20 0.25"
@@ -73,7 +73,7 @@ AngleIncidence_list="0" # "0 0.25"
 
 # AngleIncidence_list="0.14 0.16 0.18 0.22 0.24" #"0.05 0.10 0.15 0.20 0.25"  #0.05
 
-# AngleIncidence_list="0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24"
+AngleIncidence_list="0 0.02 0.04 0.06 0.08 0.12 0.14 0.16 0.18 0.22 0.24 0.25"
 # AngleIncidence_list="0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24"
 
 if [ ${EnableSmearing} == 0 ]; then

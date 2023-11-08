@@ -172,15 +172,10 @@ th2 = ReplaceMeTheta      #Scripted
 # px1 = cos(th1)
 # py1 = sin(th1)
 
-%SymmetryBreakDir
-#  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
-#      sqrt(2)/6*(3*cos(theta_inc)+sqrt(3)*sin(theta_inc)) | -sqrt(2)/6*(3*cos(theta_inc)-sqrt(3)*sin(theta_inc)) | -sqrt(6)/3*sin(theta_inc)
+# %SymmetryBreakDir
+#  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0 #100 | 110
+#      sqrt(2)/6*(3*cos(theta_inc)+sqrt(3)*sin(theta_inc)) | -sqrt(2)/6*(3*cos(theta_inc)-sqrt(3)*sin(theta_inc)) | -sqrt(6)/3*sin(theta_inc) #111 | 110
 # %
-
-
-#TODO: script the change of polarization
-th1 = pi*0 #scripted (units are same as for CEP, we multiply by pi only here to simplify)
-th2 = 0.+th1      #Scripted
 
 px1 =  sqrt(2)/6*(3*cos(th1)+sqrt(3)*sin(th1)) #cos(th1)
 py1 = -sqrt(2)/6*(3*cos(th1)-sqrt(3)*sin(th1)) #sin(th1)
