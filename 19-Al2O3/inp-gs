@@ -114,15 +114,15 @@ ell = 1. #ellipticity
 #  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
 # %
 
-ExtraStates = 0 #0 #16 is enough for band structure.
+ExtraStates = 4 #16 is enough for band structure.
 
 # smearing = 0.0002
 # SmearingFunction=fermi_dirac
 
 # LCAOstart = lcao_simple #self-consistent starter
 
-MaximumIter=200
-# Mixing = 0.05
+MaximumIter=400
+Mixing = 0.05
 
 ### OUTPUTS
 Output =  dos  +  density  +  potential +  geometry #+ matrix_elements
