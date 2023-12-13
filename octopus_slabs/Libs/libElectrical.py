@@ -66,7 +66,11 @@ def internal_get_conductivity_kg(transition_dipole, state_energies, occupations,
     n_kpoints, n_dim, n_states = transition_dipole.shape[:-1]
     # Checks for the k-point integration weights array
     # (if all weights are the same, then it is better to compute this value by hand -more precise-)
-    if k_weights is None or np.all(k_weights == k_weights[0]): w_k = np.ones(n_kpoints) * (1/n_kpoints)
+    nonexistent_weights = (k_weights is None)
+    equal_weights = (np.all(k_weights == k_weights[0]))
+    wrong_weights = (np.sum(k_weights) != 1)
+    if nonexistent_weights or equal_weights or wrong_weights:
+        k_weights = np.ones(n_kpoints) * (1/n_kpoints)
     # Constant prefactor
     prefactor = 2 / cell_volume
     # The prefactor should probably include a 1/4 ((1/2)²) factor to fix issue with Octopus implementation
