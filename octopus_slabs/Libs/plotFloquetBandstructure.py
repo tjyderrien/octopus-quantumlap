@@ -132,7 +132,7 @@ try:
         material = "SiO2"
     logger.info("** Info: detected the material "+material)
 except:
-    logger.error(Header+"Which material are you trying to analyze?")
+    logger.error("Which material are you trying to analyze?")
     exit()
 
 
@@ -162,7 +162,7 @@ OpticalIndex_Au = {1600e-9: 0.55401, 1030e-9: 0.24212, 800e-9: 0.15352, 400e-9: 
 
 #Si = {'MPI_numbers': [2], 'kpoints_manual': 16,
 
-Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
+Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'Egap_d_eV': 2.56, 'Egap_i_eV': 0.51,
       'nb_atoms': 1, 'unocc_states': 8, #still manual, sometimes 4, sometimes 8
       'Z_electrons': 4, 'OpticalIndex': OpticalIndex_Si, 'OpticalIndexFile': "Si-Palik",
@@ -173,10 +173,10 @@ Si = {'MPI_numbers': [4], 'kpoints_manual': 16,
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
       # can be obtained from seekpath.get_path(cell)['path'].
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
-      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
-      'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
-#      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
-#      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
+      #'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$X$'], #some zoomed path
+      #'K_positions_zoom': [0, 0.5147, 1], #K-Gamma-X
+      'K_labels_zoom': [r'$K$', r'$\Gamma$', r'$L$'], #some zoomed path
+      'K_positions_zoom': [0, 0.55051, 1], #K-Gamma-L
       'Fermi_Energy': 4, 'kpoints_duplicates': 1
 }
 
@@ -583,7 +583,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
             for trans_i in np.arange(0, matrix_side / 2):  # transition from i
                 for trans_j in np.arange(matrix_side / 2, matrix_side, 1):  # transition to j
                     for RootNumber in np.arange(0, np.size(BesselZeros)):
-                        xx = Field_AU_to_SI(Efield_AU) * 1E-9
+                        xx = au.Field_AU_to_SI(Efield_AU) * 1E-9
                         yy = au.Energy_Hartree_to_eV(np.sqrt(tunneling_stops[RootNumber][trans_i][trans_j] * Efield_AU))
                         plot_field = plt.scatter(xx, yy, s=SizeOfDots,
                                                  label=str(trans_i) + r"$\rightarrow$" + str(trans_j), c=colorlist[

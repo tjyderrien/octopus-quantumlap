@@ -31,8 +31,8 @@ from sklearn import linear_model
 dataset_full = np.loadtxt("Database-LDA.csv")
 # TODO: to improve the prediction, select the datase only with one type of similar data
 
-dataset_in = dataset_full[:,[1,2,3,4,5,6,7,8,]] 
-dataset_out = dataset_full[:,16] #15: NeMax, #16: NeFinal, #19: EnergyFinal, #20: Wpi
+dataset_in = dataset_full[:,[2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,20,21,22]] 
+dataset_out = dataset_full[:,24] #15: NeMax, #16: NeFinal, #19: EnergyFinal, #20: Wpi
 
 print("=== Shapes ===")
 print((np.shape(dataset_in)))
@@ -45,16 +45,26 @@ reg = linear_model.Ridge(alpha=alpha_val, copy_X=False, fit_intercept=False, max
 print((reg.fit(dataset_in,dataset_out)))
 
 print("=== Prediction ===")
+kpointgrid=16
+realmeshgrid=0.43
+TimeStep=0.25
 lambda1=800e-9
 tau1=50e-15
 Efield1=5E10
-CEP1=0E0
+polarization=0
+CEP1=0.5
 lambda2=400e-9
 tau2=30e-15
-Efield2=5E10
+Efield2=0
 CEP2=0E0
+delay=0
+TheoryLevel=0
+FieldInduced=0
+Functional=0
+FreezeHxc=0
+MoveIon=0
 #print(np.shape(dataset_in))
-print((reg.predict([[lambda1, tau1, Efield1, CEP1, lambda2, tau2, Efield2, CEP2]])))
+print((reg.predict([[kpointgrid, realmeshgrid, TimeStep, lambda1, tau1, Efield1, polarization, CEP1, lambda2, tau2, Efield2, CEP2, delay, TheoryLevel, FieldInduced, Functional, FreezeHxc, MoveIon]])))
 #exit()
 #print(reg.coef_)
 ##print(reg.intercept_)

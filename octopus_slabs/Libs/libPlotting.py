@@ -539,28 +539,21 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
     
     logger.info((Header+"Electric field amplitude 1 = "+str(Efield_amplitude_SI / 1E9)+" V/nm."))
     logger.info((Header+"Electric field amplitude 2 = "+str(Efield2_amplitude_SI / 1E9)+" V/nm."))
-    
-    # Capturing cell volume
-    try:
-         SuperCellVolume_AU = calcVol.VolumeOfSupercell_Log(FolderName+"../")
-    except:
-         logger.warning((Header+"** Warning: sample computation volume was jumped!"))
-         continue
-    SuperCellVolume_SI = au.Volume_AU_to_SI(SuperCellVolume_AU)
-    SampleCellVolume_AU = SuperCellVolume_AU #- calcVol.VolumeOfVacuum(FolderName+"../") #Volume of the sample (without vacuum region) # WARNING: we disabled the SLAB volume computation !
-    CellVolume_AU = calcVol.VolumePerPoint_Log(FolderName+"../") #0.06385 #0.07820 #Bohr**3
-    SampleCellVolume_SI = au.Volume_AU_to_SI(SampleCellVolume_AU)
-    
-    logger.info(Header+"** Sample volumes **")
-    logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Super-cell total volume = "+str(SuperCellVolume_SI)+" m^{3}.") 
-    logger.info(Header+"")
-    logger.info(Header+"Sample volume = "+str(SampleCellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Sample vacuum volume = "+str(SampleCellVolume_SI)+" m^{3}.")
-    logger.info(Header+"")
-    logger.info(Header+"Numerical cell volume = "+str(CellVolume_AU)+" Bohr**3.")
-    logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(CellVolume_AU))+" m^{-3}.")
-    logger.info(Header+"") 
+
+
+
+    SampleCellVolume_SI, SampleCellVolume_AU = libString.GetCellVolume(FolderName)
+    #}}}
+    # logger.info(Header+"** Sample volumes **")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Super-cell total volume = "+str(libString.SuperCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Sample volume = "+str(libString.SampleCellVolume_AU)+" Bohr**3.")
+    logger.info(Header+"Sample volume = "+str(SampleCellVolume_SI)+" m^{3}.")
+    # logger.info(Header+"")
+    # logger.info(Header+"Numerical cell volume = "+str(libString.CellVolume_AU)+" Bohr**3.")
+    # logger.info(Header+"Numerical cell volume = "+str(au.Volume_AU_to_SI(libString.CellVolume_AU))+" m^{-3}.")
+    # logger.info(Header+"")
     
     logger.info((Header+"** Importing simulation data..."))
     
@@ -897,7 +890,7 @@ def ListAllOutput(localpath='*/*/*/td.general/', DatabaseName='Database.csv', Fr
         # timeNe4      =timeNe3[FarEnoughInTime_Ne]
 
         ##WARNING: if pulse is too short, manifold must be empty, this exception ValueError
-        timeToFilterFrom       = timeFarEnough; #timeEnergies4[0]  rises.
+        timeToFilterFrom       = timeFarEnough #timeEnergies4[0]  rises.
         # timeToFilterFromDensity=timeNe4[0]
 
         # timeEnergiesCondition = ( timeEnergies > timeToFilterFrom        ) # this should define a mask that only keeps timesteps larger than laser pulse

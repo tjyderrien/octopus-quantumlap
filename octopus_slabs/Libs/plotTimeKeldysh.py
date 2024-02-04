@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2023 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -635,6 +635,7 @@ if(PlottingMode=="nonthermalmelting"):
   PlotGrid=0
 elif(PlottingMode=="doublepulse"):
   xmin=0.; unitx=1E15; xmax=tmax*unitx
+  xmin=25; xmax=50 #TODO: just for today
 #  ymin=1E16; ymax=4.*5E28; 
 #  ymax2=5E0;
   PlotGrid=1 
@@ -666,19 +667,31 @@ plot1=[]
 # plt.plot(time, A_integrated, 'r-', label="$\int_{-\infty}^{t} A(t') dt'$")
 # plt.plot(time, A_squared, 'g-', label="A^2 (t)")
 
-PlotField=True; PlotPolarizations=True; PlotExternalField=True; PlotCurrent=False
+PlotField=True; PlotPolarizations=False; PlotExternalField=False; PlotCurrent=False
 
-if(PlotField): 
+if(PlotField):
     plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI+Efield2_X_SI), 'k-', label=r"$E(t) [S.I.]$") #E ~ i A omega / c
     plot1+=[plot_field]
-# plt.plot(time[1:], Efield2_AU*c_AU, 'k-')
+    if(PlottingMode=="doublepulse"):
+        plot_field, = ax1.plot(time[1:], 1E-9*(Efield_X_SI), "b-", label=r"$E_1(t)$")
+        plot1 += [plot_field]
+        plot_field, = ax1.plot(time[1:], 1E-9*(Efield2_X_SI), 'g-', label=r"$E_2(t)$")
+        plot1 += [plot_field]
+        # Extract temporal difference between maxima
+        DefCEP1_instant=np.argmax(Efield_X_SI)
+        DefCEP2_instant=np.argmax(Efield2_X_SI)
+#        print("** Argmax E1 =", DefCEP1_instant )
+#        print("** Argmax E2 =", DefCEP2_instant )
+#        print("** Time max(E1) = ", time[DefCEP1_instant])
+#        print("** Time max(E2) = ", time[DefCEP2_instant])
+        print("** Time delay between field max = ", time[DefCEP2_instant]-time[DefCEP1_instant], "fs")
 
 #let's plot current in a second axis
 ax12 = ax1.twinx()
 plt.xlim((xmin,xmax))
 plt.ylim((-ymax12valueMax, ymax12valueMax))
-plt.ylabel(r'$J_{tot}(t)$ (SI)')
-if(PlotCurrent): 
+if(PlotCurrent):
+    plt.ylabel(r'$J_{tot}(t)$ (SI)')
     plot_current,         = ax12.plot(timeCurrent, Current_AU_to_SI(CurrentX), 'r-', label=r'$J(t)$ (SI)')
     plot1+=[plot_current]
     ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
@@ -784,10 +797,13 @@ if(QuantityOfInterest == "density"):
       timeKeldyshB = instants
   
     if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-      ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
+        try:
+            ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
+            ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
+            ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
       #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
+        except TypeError:
+            print("** Warning: we will not plot Gruzdev model for 2 colors.")
     else: #single pulse case
       try:
         ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI, 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')

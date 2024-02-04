@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2020 T. J.-Y. Derrien
@@ -23,8 +23,8 @@ import os
 
 # IMPORT LIBRARIES
 import numpy as np
-from octopus_slabs.Libs.libString import *
 from numpy import loadtxt
+import logging
 
 Header = "[calculateVolume.py] "
 
@@ -50,17 +50,22 @@ def VolumePerPoint_Log(Filename): #{{{
     logging.warning("Could not open the latest Octopus LOG file.")
   
   # Search into this file the line with volume/cell
+  result=""
   for line in searchfile:
     if 'volume/point' in line: 
       position_start = line.find('volume/point')
-      result = line[position_start:];
+      result = line[position_start:]
       # print(Header+"** Debug info: "+str(result)) #valid
-      print(Header+"** Info: filtering the right hand side of the matching string: "+str(result))
+      logging.info("Filtering the right hand side of the matching string: "+str(result))
+      break
+  if(len(result) == 0):
+    logging.error("Couldn't find the volume of simulation box.")
+    exit()
   result_filtered = result
   result_filtered = result_filtered.replace('volume/point','')
   result_filtered = result_filtered.replace('=','')
   result_filtered = result_filtered.replace('[b^3]','')
-  print(Header+"** Info: filtering the volume/point expression from LOGfile: "+str(result_filtered))
+  logging.info("Filtering the volume/point expression from LOGfile: "+str(result_filtered))
   VolPerPoint = float(result_filtered)
 #    else:
 #      print "** Error: Volume could not be captured in LOG file."
@@ -70,7 +75,7 @@ def VolumePerPoint_Log(Filename): #{{{
 
 ## Gets the volume of vacuum from octopus input file
 def VacuumThickness_inp(Filename): #{{{
-
+  from octopus_slabs.Libs.libString import LookUpStringInFile
   try: 
     result = LookUpStringInFile(Filename+"inp", "Lvac = ")
   except: 
@@ -123,7 +128,7 @@ def VolumeOfSupercell_Log(Filename): #{{{
   # Find there the latest LOG files.
   import glob
   newest = max(glob.iglob(Filename+'octopus*.log'), key=os.path.getmtime)
-  print(Header+"** Info: Opening LOG file:"+str(newest))
+  logging.info("Opening LOG file: "+str(newest))
   #Open the log file
   searchfile = open(newest, "r")
   
@@ -132,7 +137,7 @@ def VolumeOfSupercell_Log(Filename): #{{{
   # Search into this file the line with volume/cell
   for line in searchfile:
     if "Cell volume" in line:
-      result = line;
+      result = line
       break;
     else: 
       result = '0'
