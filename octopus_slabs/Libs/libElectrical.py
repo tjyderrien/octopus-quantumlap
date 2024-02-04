@@ -49,8 +49,8 @@ def internal_get_conductivity_kg(transition_dipole, state_energies, occupations,
         - Firstly, the conductivity contributions (cc) are computed from the ground state transition electric dipole moment matrix elements, for the full 3D Brillouin k-space, for the frequencies (w) corresponding to transitions from partially occupied states to partially unoccupied states; conductivity contributions for degenerate transitions are summed up, producing a set of (w',cc) points with unique frequencies w'.
         - Secondly, each of the points from the first part, which would correspond each to a Dirac delta for a perfect crystal at 0 K, is replaced by a Lorentzian function with an arbitrary width parameter that we've named 'damping_parameter' as it has physical meaning (adds width to the state energies) for non-perfect crystals and/or non-zero temperature; however, this parameter also serves as a numerical strategy to deal with the fact that only a finite number of Dirac deltas are being computed (because of the basis set truncation, as infinite are required to reproduce the continuous function); the set of points is converted into a numerical function of summed lorentzian conductivity contributions in a grid of frequencies going from zero to the largest transition frequency plus 7 gamma (as +7 gamma includes ~95.5% of the area of the last peak).
         - To deal with the singularity at frequency zero, it is necessary to include the contribution from negative frequencies (this is related to the partity of the real/imaginary parts of the conductivity); doing this also corrects the low-frequency contributions to the conductivity.
-    	- Formulas (in the velocity/momentum gauge) are available in the following paper: L. Calderín, V.V. Karasiev, S.B. Trickey. "Kubo-Greenwood electrical conductivity formulation and implementation for projector augmented wave datasets". Computer Physics Communications 221, pp. 118-142 (2017). The formulas in this implementation are in the length gauge.
-    	- WARNING! The formula used for the conductivity is the following: σ(ω) = Re{σ(ω)} - i Im{σ(ω)}. Notice the negative sign; with this convention, electrical conductivity results are consistent with experimental data from Palik tables for bulk Si and Mo; see also http://lampx.tugraz.at/~hadley/memm/materials/silicon/silicon.php for silicon.
+        - Formulas (in the velocity/momentum gauge) are available in the following paper: L. Calderín, V.V. Karasiev, S.B. Trickey. "Kubo-Greenwood electrical conductivity formulation and implementation for projector augmented wave datasets". Computer Physics Communications 221, pp. 118-142 (2017). The formulas in this implementation are in the length gauge.
+        - WARNING! The formula used for the conductivity is the following: σ(ω) = Re{σ(ω)} - i Im{σ(ω)}. Notice the negative sign; with this convention, electrical conductivity results are consistent with experimental data from Palik tables for bulk Si and Mo; see also http://lampx.tugraz.at/~hadley/memm/materials/silicon/silicon.php for silicon.
     @param transition_dipole Ground state transition electric dipole moment matrix elements, for the full 3D Brillouin k-space. ATTENTION: the transition electric dipole matrix elements should be provided in the length gauge and in atomic units.
     @param state_energies Energies of the 1-electron states for each of the k-points of the full 3D Brillouin k-space.
     @param occupations Electronic occupation of the 1-electron states, for each of the k-points of the full 3D Brillouin k-space; can range from 0 -unoccupied- to 2 -when there is no explicit description of spin-.
@@ -59,7 +59,7 @@ def internal_get_conductivity_kg(transition_dipole, state_energies, occupations,
     @param damping_parameter Width of the Lorentzian functions that approximate the Dirac deltas, in atomic units of energy; needed both for numerical representation of the conductivity (under the basis set trunctation approximation) and in the case of non-perfect crystals and/or non-zero temperature. It is recommended to compute the conductivity using several values for this parameter (e.g. between the equivalent to 0.1 and 1 eV). Default value is 0.
     @param round_to_decimals Resolution of the transition frequencies (important for recognizing degeneration) and also for the grid; if the resolution is two small, the size of the grid may become impractically big and the computation time will be unnecessarily longer. Default value is 5 decimal places (resolution of 0.00001 or 1e-5).
     @param negative_contributions If the contributions from negative frequencies should be included to correct the conductivity for lower frequencies and avoid the singularity at zero frequency. Default value is True. We recommend including it where possible, but the switch was included for completeness.
-    @return Returns both a grid of frequencies of an hypothetical external field (in atomic units of energy) and the complex electrical conductivity matrix; it is a 3x3 (αxβ) matrix that encodes the current response of the system along a certain spatial direction (α) due to an external field perturbation along an arbitrary spatial direction (β); each element of the conductivity matrix has the same size as the frequency grid, being a complex function of the frequency. The non-diagonal elements may be erroneous if the ground state transition electric dipole moment matrix elements do not include sign information (artificial positive values).
+    @return Returns both a grid of frequencies of an hypothetical external field (in atomic units of energy) and the complex electrical conductivity matrix as computed by the Kubo-Greenwood approach; it is a 3x3 (αxβ) matrix that encodes the current response of the system along a certain spatial direction (α) due to an external field perturbation along an arbitrary spatial direction (β); each element of the conductivity matrix has the same size as the frequency grid, being a complex function of the frequency. The non-diagonal elements may be erroneous if the ground state transition electric dipole moment matrix elements do not include sign information (artificial positive values).
     """
     # <<< FIRST PART : Points >>>
     # Extracts n_states and n_kpoints if they were not provided
@@ -156,21 +156,64 @@ def internal_get_conductivity_kg(transition_dipole, state_energies, occupations,
     conductivity = np.array(conductivity, dtype=complex)
     return omega_grid, conductivity
 
+# >>> CONDUCTIVITY: Drude Approach <<<
+
+def internal_get_conductivity_d(omega_grid, eff_charge_to_mass, damping_parameter, round_to_decimals=5):
+    """! Computes the complex electrical conductivity matrix with the Drude approximation. This approach requires an inputed parameter (which is usually obtained by fitting to experimental data).
+    Technical details:
+        The formula for the Drude expression (derived from the complex conductivity can be found in the following paper: L. Calderín, V.V. Karasiev, S.B. Trickey. "Kubo-Greenwood electrical conductivity formulation and implementation for projector augmented wave datasets". Computer Physics Communications 221, pp. 118-142 (2017).
+        Calderín et al. only show the Drude contribution for the real part of the complex conductivity; the imaginary part may come from the Onsager reciprocal relations.
+    @param omega_grid Corresponds to the grid of frequencies of an hypothetical external field (in atomic units of energy). This can be obtained as the output from the calculation of the conductivity matrix using another approach, such as the Kubo-Greenwood approach; this is important if conductivity contributions are to be easily summed.
+    @param eff_charge_to_mass The effective charge/mass ratio is the main parameter of the Drude expression, which is expected to capture contributions to the complex conductivity that are given by (i) the degenerate 'vertical' inter-band transition and (ii) the intra-band transitions. As far as we know, these contributions cannot be extracted from non-TD calculations for obtaining the ground state transition electric dipole moment matrix elements. This implementation allows this quantity to be a complex number, leaving aside its physical significance.
+    @param damping_parameter Width of the Lorentzian functions that approximate the Dirac deltas, in atomic units of energy; needed both for numerical representation of the conductivity (under the basis set trunctation approximation) and in the case of non-perfect crystals and/or non-zero temperature. It is recommended to compute the conductivity using several values for this parameter (e.g. between the equivalent to 0.1 and 1 eV).
+    @param round_to_decimals Resolution of the transition frequencies (important for recognizing degeneration) and also for the grid; if the resolution is two small, the size of the grid may become impractically big and the computation time will be unnecessarily longer. Default value is 5 decimal places (resolution of 0.00001 or 1e-5).
+    @return The complex electrical conductivity matrix as calculated by the Drude approximation. The diagonal elements are all equal and the non-diagonal elements are set to zero. It is returned as a 3x3 (αxβ) matrix, since it is meant to encode the current response of the system along a given spatial direction (α) to an external field perturbation along an arbitrary spatial direction (β); each element of the conductivity matrix has the same size as the frequency grid, being a complex function of frequency.
+    """
+    # Checks the validity of the damping parameter
+    if damping_parameter == 0: raise RuntimeError("The damping parameter cannot be zero! It should be twice the average inter-collision frequency in the context of the Drude model (i.e., the reciprocal of the average inter-collision time).")
+    # Computes the Drude conductivity as a complex 3x3 matrix
+    tau = 2/damping_parameter # (tau is the average inter-collision time)
+    n_points = len(omega_grid)
+    conductivity = np.zeros((3,3,n_points), dtype=complex)
+    for idx in range(3):
+        conductivity[idx,idx,:] = np.ones(n_points)
+    if type(eff_charge_to_mass) != complex:
+        # (it is converted into a complex number with equal real and imaginary parts)
+        eff_charge_to_mass *= (1+1j)
+    numerator = eff_charge_to_mass * tau
+    denominator = 1 + ((tau * omega_grid)**2)
+    conductivity *= (numerator/denominator)
+    conductivity = np.round(conductivity, round_to_decimals)
+    # Returns the complex conductivity
+    return conductivity
+
 # >>> MAIN functions <<<
 
-def get_conductivity(kpoints_data, info_data, mode="Kubo-Greenwood", damping_parameter=0, round_to_decimals=5, negative_contributions=True):
+def get_conductivity(data, mode="Kubo-Greenwood", damping_parameter=0, round_to_decimals=5, negative_contributions=True):
     """! Computes the complex electrical conductivity matrix from the ground state transition electric dipole moment matrix elements. Currently the only implemented mode is the Kubo-Greenwood approach.
-    @param kpoints_data Data extracted from k-points output files (e.g., transition electric dipole moment matrix elements). See the 'extract_transition_dipole' function in the 'libOctopusIO' module for extended documentation.
-    @param info_data Data extracted from the 'info' output file. See the 'extract_info' function in the 'libOctopusIO' module for extended documentation.
+    @param data This is a dictionary with the data needed for the computation.
+    Required entries vary with the selected mode:
+    -> Kubo-Greenwood:
+        "kpoints" : Data extracted from k-points output files (e.g., transition electric dipole moment matrix elements). See the 'extract_transition_dipole' function in the 'libOctopusIO' module for extended documentation.
+        "info" : Data extracted from the 'info' output file. See the 'extract_info' function in the 'libOctopusIO' module for extended documentation.
+    -> Drude:
+        "omega_grid" : Grid of frequencies that can be obtained as the output of the computation of the conductivity matrix with another approach, such as the Kubo-Greenwood approach; this is important if conductivity contributions are to be easily summed.
+        "eff_charge_to_mass" : The effective charge/mass ratio is the main parameter of the Drude expression (see 'internal_get_conductivity_d' for extended documentation).
     @param mode How to compute the complex electrical conductivity. Default value is "Kubo-Greenwood" as it is currently the only mode implemented (other valid values are "kg", capital letters, spaces and hyphens are ignored). Read the 'internal_get_conductivity_kg' function for extended documentation.
     @param damping_parameter Parameter needed both for numerical representation of the conductivity and in the case of non-perfect crystals and/or non-zero temperature. Read the 'internal_get_conductivity_kg' function for extended documentation. Default value is 0.
     @param round_to_decimals Frequency resolution. Default value is 5 decimal places (resolution of 0.00001 or 1e-5). Note that very small resolutions considerably increase the computation time and memory required, without necessarily 'visually' improving the quality of the results. Read the function 'internal_get_conductivity_kg' for extended documentation.
-    @param negative_contributions Whether the conductivity should be corrected for lower frequencies and to avoid the singularity at zero frequency. Default value is True; do not change if you are unsure. Read the function 'internal_get_conductivity_kg' for extended documentation.
+    @param negative_contributions Whether the conductivity should be corrected for lower frequencies and to avoid the singularity at zero frequency. Default value is True; do not change if you are unsure. Read the function 'internal_get_conductivity_kg' for extended documentation. (This is not needed for the Drude conductivity!)
     @return Returns both the frequency grid (in atomic units of energy) and the complex electrical conductivity matrix (3x3, also in atomic units), that encodes the current response of the system due to an external field perturbation; each element of the conductivity matrix has the same size as the frequency grid, being a complex function of the frequency. Read the function 'internal_get_conductivity_kg' for extended documentation.
     """
     cmode = mode.strip().lower().replace(" ","").replace("-","")
     if cmode in ["kubogreenwood", "kg"]:
+        kpoints_data = data["kpoints"]
+        info_data = data["info"]
         omega_grid, conductivity = internal_get_conductivity_kg(*internal_get_args_conductivity_kg(kpoints_data, info_data), damping_parameter, round_to_decimals, negative_contributions)
+    elif cmode in ["drude", "d"]:
+        omega_grid = data["omega_grid"]
+        eff_charge_to_mass = data["eff_charge_to_mass"]
+        conductivity = internal_get_conductivity_d(omega_grid, eff_charge_to_mass, damping_parameter, round_to_decimals)
     return omega_grid, conductivity
 
 def get_permittivity(omega, conductivity, diagonal_average=True):
@@ -181,14 +224,70 @@ def get_permittivity(omega, conductivity, diagonal_average=True):
     @param omega Grid of frequencies in atomic units of energy.
     @param conductivity Complex electrical conductivity matrix (3x3) in atomic units.
     @param diagonal_average Whether isotrophy is assumed and, therefore, the average of the diagonal elements of the complex electrical conductivity is used. Default value is True (isotrophy is assumed).
-    @return 
+    @return Returns the complex electrical permittivity.
     """
     epsilon = 1 + 1j * (conductivity/omega) * (4*np.pi)
     if diagonal_average: epsilon = np.trace(epsilon)/3
     return epsilon
 
-# < EXTRA functions >
-# (maybe this can be moved to another file)
+# <<< EXTRA Drude function (for fitting!) >>>
+
+from scipy.optimize import curve_fit
+
+def fit_drude_to_permittivity(omega_grid, base_conductivity, target_permittivity, damping_parameter, fit_omega_range=None, target_param_bounds=(0,1), n_inits=20, round_to_decimals=5, verbose=True):
+    """! Finds the Drude parameter (i.e., effective charge/mass) that produces the Drude contribution to the complex electrical conductivity that, together with the inputed base conductivity, best fits the also given target electrical permittivity.
+       Technical details:
+           - The main formula is available in the following paper: L. Calderín, V.V. Karasiev, S.B. Trickey. "Kubo-Greenwood electrical conductivity formulation and implementation for projector augmented wave datasets". Computer Physics Communications 221, pp. 118-142 (2017).
+           - The following diagram may be of help:
+                 (Drude parameter --> Drude conductivity) + Base conductivity (...)
+                 (...) --> Base+Drude permittivity <--(comparison)--> Target permittivity
+    @param omega_grid Corresponds to the grid of frequencies of an hypothetical external field (in atomic units of energy). This array should be the same size as the specified target permittivity and the last dimension of the base conductivity.
+    @param base_conductivity This is the base conductivity to be added to the calculated Drude contribution to the complex electrical conductivity before conversion to an electrical permittivity that will be compared to the given target; can be obtained as the output from the calculation of the conductivity matrix using an approach such as the Kubo-Greenwood one.
+    @param target_permittivity This is the target permittivity to which the Drude contribution is fitted. This is usually data interpolated from experimental tables.
+    @param damping_parameter Width of the Lorentzian functions approximating the Dirac deltas, in atomic units of energy; needed for the numerical representation of the conductivity and for the estimation of the average intercollision time in the Drude model.
+	@param fit_omega_range If specified, it will use only the specified range (in omega units) to perform the fit. It defaults to None, which means that the entire domain will be used in the fitting procedure.
+    @param target_param_bounds Bounds for the Drude parameter to be optimised (unitless). It defaults to (0,1), which means that the minimum possible value of the optimised parameter is 0 and its maximum is 1; by default, this parameter is always positive.
+    @param n_inits Number (integer) of optimisations to be performed from different initial guesses. These guesses are extracted from the specified bounds of the target parameter (excluding the extremal values). This number should be considerably large to ensure a successful optimisation; however, the total computational time will increase linearly. The default value is 20, but a value of 100 would be ideal (although more expensive).
+    @param round_to_decimals Resolution of the transition frequencies and the output fitted parameter; if the resolution is two small, the size of the grid may become impractically big and the computation time will be unnecessarily longer. Default value is 5 decimal places (resolution of 0.00001 or 1e-5).
+    @param verbose Whether or not to print messages at runtime. The default is True, i.e. all messages are displayed by default.
+    @return Returns the optimum Drude parameter (i.e. the effective charge to mass ratio), which can be used, for example, to calculate the Drude contribution to the complex electrical conductivity.
+    """
+    # Truncates fitting region
+    if fit_omega_range:
+        from_idx = np.argmin(np.abs(omega_grid - fit_omega_range[0]))
+        to_idx = np.argmin(np.abs(omega_grid - fit_omega_range[1]))
+    else: from_idx, to_idx = None,None
+    tr_x = omega_grid[from_idx:to_idx]
+    tr_y_target = target_permittivity[from_idx:to_idx]
+    # Defines the model permittivity (from conductivity)
+    def model_permittivity(view_omega_grid, eff_charge_to_mass):
+        omega_grid = view_omega_grid[:view_omega_grid.size//2]
+        # Following arguments do not enter explicitly:
+        #   base_conductivity, from_idx, to_idx
+        #   damping_parameter, round_to_decimals
+        # (sigma : conductivity | epsilon : permittivity
+        base_sigma = base_conductivity[:,:,from_idx:to_idx]
+        data = {"omega_grid":omega_grid, "eff_charge_to_mass":eff_charge_to_mass}
+        drude_sigma = get_conductivity(data, "Drude", damping_parameter, round_to_decimals)[-1]
+        model_sigma = base_sigma + drude_sigma
+        model_epsilon = get_permittivity(omega_grid, model_sigma)
+        return model_epsilon.view(float)
+    # Finds the optimal Drude parameter (i.e. effective charge/mass)
+    view_tr_x = (tr_x + 1j * tr_x).view(float)
+    view_tr_y_target = tr_y_target.view(float)
+    # (tests for multiple initial parameters)
+    all_opt_params = [] ; all_pcov_params = []
+    for init_param in np.linspace(*target_param_bounds, n_inits+2)[1:-1]:
+        fit_params, pcov = curve_fit(model_permittivity, view_tr_x, view_tr_y_target, p0=init_param, bounds=target_param_bounds, method="trf")
+        if pcov == 0: continue
+        all_opt_params.append(fit_params[0])
+        all_pcov_params.append(pcov.flatten()[0])
+    opt_param = all_opt_params[np.argmin(all_pcov_params)]
+    # Returns the optimal parameter
+    if verbose: print(f"Optimal eff. charge/mass: {opt_param:.{round_to_decimals}f}")
+    return np.round(opt_param, round_to_decimals)
+
+# <<< EXTRA general functions >>>
 
 import matplotlib.pyplot as plt
 import scipy.constants as spc
@@ -224,6 +323,22 @@ def load_epsilon_table(path_to_file, in_angstrom=True, out_energy=True):
         energy = convert_eV_to_nm(wavelength)
         return energy, epsilon
     else: return wavelength, epsilon
+
+def interpolate_permittivity(target_omega, omega, permittivity):
+    """! Interpolates an electrical permittivity curve for a denser frequency domain. This is useful for converting data from experimental tables to arrays of sizes that match those coming from calculations (allowing operations such as addition and subtraction, etc.).
+    @param target_omega Corresponds to the denser grid of frequencies of an hypothetical external field (in atomic units of energy). This can be obtained as the output from the calculation of the conductivity matrix using an approach such as the Kubo-Greenwood one.
+    @param omega This corresponds to the less dense range of frequencies; it is the domain (x) of the curve to be interpolated.
+    @param permittivity This corresponds to the less dense array of the complex permittivity; it is the image (y) of the curve to be interpolated.
+    @return Returns the interpolated (denser array) complex electrical permittivity.
+    """
+    x = target_omega
+    xp = omega[::-1]
+    re_yp = np.real(permittivity)[::-1]
+    im_yp = np.imag(permittivity)[::-1]
+    y = np.interp(x, xp, re_yp) + 1j * np.interp(x, xp, im_yp)
+    return y
+
+# <<< EXTRA Plot functions >>>
 
 def plot_complex_array(grid, complex_array, max_grid=None, stem_alpha=0.2, x_label="x", y_label="y", plt_obj=None):
     """! Generic function to easily plot the real and imaginary parts of a complex array.
