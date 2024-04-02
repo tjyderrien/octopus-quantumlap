@@ -5,12 +5,15 @@
 set -e
 
 # ENABLE DRY RUN ? 
-DryRun=1
+DryRun=0
 # kPoints=16
 
 source $QuantumLaPsources/octopus_slabs/machines.env
 CheckComputerName
+LoadEnvLibraries
 source $QuantumLaPsources/octopus_slabs/machines.env
+echo "[Checking] Variable QuantumLaPsources: $QuantumLaPsources"
+echo "[Checking] Variable QuantumLaPruns: $QuantumLaPruns"
 echo "[Checking] Variable basePath: $basePath"
 
 # Renaming inputs
@@ -151,8 +154,10 @@ BuildSample () {
 
 SubmitTheJob () {
   echo "== Copying the file in the submission folder... =="
-  echo "Source: ${OctopusSlabsRuns}."
+  echo "Source: ${QuantumLaPsources}."
   echo "Target: ${localPath}."
+  echo "Submission file: ${SubmitScript}"
+  USER_EMAIL=$( git config --list | grep 'user.email' | tr "=" " " | awk '{ print $2 }'  )
 
   cp -u inp ${localPath}/ #just update if file was not found, or is older.
   cp ${QuantumLaPsources}/09-Au/${SubmitScript} ${localPath}/
@@ -160,6 +165,7 @@ SubmitTheJob () {
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
 ## TODO: this region is machine dependent
   sed -i.bak s/NumNodes/${NumNodes}/g ${localPath}/${SubmitScript} 
+  sed -i.bak s/USER_EMAIL/${USER_EMAIL}/g ${localPath}/${SubmitScript}
 ## 
 
   if [ ${DryRun} == 0 ]; then
