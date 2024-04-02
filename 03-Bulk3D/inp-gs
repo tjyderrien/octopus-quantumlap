@@ -23,8 +23,8 @@ n = 1 #Z blocks: to be replaced by script
 
 # Optimization
 # PoissonFFTKernel = planar
-ParKPoints = auto
-ParStates = no
+# ParKPoints = auto
+ParStates = auto
 ParDomains = no #no #crashes if made per state only
 
 # Mesh parameters
