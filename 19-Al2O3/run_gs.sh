@@ -70,7 +70,7 @@ ProcessArguments () { # Conversion factors
   export MeshSizeX_AU=$( python_calc "${MeshSizeX_SI} / ${Bohr2Angstrom}"  ) #Bohr
   export MeshSizeZ_AU=$( python_calc "${MeshSizeZ_SI} / ${Bohr2Angstrom}"  ) #Bohr
 
-  export localPath="${QuantumLaPruns}/14-SiO2/SiO2-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/19-Al2O3/Al2O3-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}
 
@@ -96,7 +96,7 @@ ReplaceInputFile () {
 	  mv inp inp.bak
   fi
   echo "Input file INP was set to ground state."
-  cp ${QuantumLaPsources}/14-SiO2/inp-gs inp || exit
+  cp ${QuantumLaPsources}/19-Al2O3/inp-gs inp || exit
 
   if [ ${Functional} == "TB09" ]; then
     echo "XCFunctional = mgga_x_tb09 + lda_c_pw" >> inp
@@ -147,7 +147,7 @@ SubmitTheJob () {
   cp -u inp ${localPath}/ #just update if file was not found, or is older.
   # cp ${QuantumLaPsources}/03-Bulk3D/Si.xyz ${localPath}/ #no longer needed, as it is included in input file
 
-  cp ${QuantumLaPsources}/14-SiO2/${SubmitScript} ${localPath}/
+  cp ${QuantumLaPsources}/19-Al2O3/${SubmitScript} ${localPath}/
 
   sed -i.bak s/Mission/${Mission}/g ${localPath}/${SubmitScript} 
 ## TODO: this region is machine dependent

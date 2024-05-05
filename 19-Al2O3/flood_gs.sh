@@ -24,7 +24,7 @@ echo "In this file, you can define all numerical features of the run you may lik
 # VacuumSize="24."
 # VacuumSize="10."
 # MeshSizeX_SI="0.06 0.09 0.12 0.15 0.18 0.21" # 0.23" # angstroms #0.23 angstroms, octopus-recommended value. Converged using energy: 0.12.
-MeshSizeX_SI="0.12 0.15" #0.12 and 0.15 are sufficient. 
+MeshSizeX_SI="0.15" #0.12 and 0.15 are sufficient. 
 #MeshSizeZ=${MeshSizeX_SI} #Convergence study showed that 0.18 is enough to compute the current. #However, it may not be enough to build up the N_exc via using DFT density. 
 #MeshSizeZ="0.10"
 

@@ -69,7 +69,7 @@ ProcessArguments () { # Conversion factors
 
 #  export localPath="${QuantumLaPruns}/03-Bulk3D/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
 
-  export localPath="${QuantumLaPruns}/03-Bulk3D.8atoms/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Angle${AngleIncidence}-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}"
+  export localPath="${QuantumLaPruns}/03-Bulk3D.8atoms/Si-${SampleXY}x${SampleXY}x${SampleLayers}-k-${kPoints}x${kPoints}x1-Mesh${MeshSizeX_AU}-Mesh${MeshSizeZ_AU}-T${InitialTemperature}${TheoryLevelPath}${FunctionalPath}" #Angle is not necessary for GS using 8 atoms
 
   echo "== BUILDING FOLDER ... ${localPath} =="
   mkdir -p ${localPath}

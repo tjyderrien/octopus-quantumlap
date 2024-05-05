@@ -1,12 +1,12 @@
 #!/bin/bash
-#PBS -q qprod
+#PBS -q qcpu_free
 #PBS -N Mission
 #PBS -m ae -M USER_EMAIL
 #PBS -e Morille.err
 #PBS -o Morille.log
 #PBS -A OPEN-26-39
 #PBS -l select=NumNodes:ncpus=128:mpiprocs=128:ompthreads=1
-#PBS -l walltime=48:00:00
+#PBS -l walltime=24:00:00
 
 cd $PBS_O_WORKDIR
 

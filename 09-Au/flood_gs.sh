@@ -25,15 +25,15 @@ MeshSizeX_SI="0.20" #"0.15 0.18 0.20 0.23" #0.23 Bohr, octopus-recommended value
 
 # Sample
 # SampleLayers="6 8 10 12 14 16 18 20"
-NumNodes=4
+NumNodes=1
 Mission="AuGS"
 SampleLayers="1"
 SampleXY="1"
-kPoints="16" #28 32" # "12 16 24"
+kPoints="32" # "12 16 24"
 InitialTemperature="0e0"
 SmearingTe="0.025" #"1 2 5 10 20" #0.025 eV
 TheoryLevel="dft" #"independent_particles" "dft". Empty means dft. Indep_particles != TDFreezeXC !
-Functional="LDA" #LDA, PBE, PBEsol, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
+Functional="PBE" #LDA, PBE, PBEsol, TB09". See http://octopus-code.org/doc/7.0/html/vars.php?page=alpha
 Relativistic="no" #yes" #default: no. Optical response for Au fails without relativistic treatment. Spin-Orbit coupling is also important for optical properties. See New Journal of Physics 12 (2010) 103048.
 
 # SampleXY="8 10 12 14 16 18 20"

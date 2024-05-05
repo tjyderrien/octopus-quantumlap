@@ -4,7 +4,7 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-FromScratch = yes
+# FromScratch = yes
 PeriodicDimensions = 3 #How to specify which direection is not periodic ? 
 # Debug = trace
 

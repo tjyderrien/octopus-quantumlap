@@ -40,8 +40,10 @@ Mission="SiO2-Juergens"
 # Phase
 CEP1="0.0"
 # CEP1="-0.5 -0.25 0.0 0.25 0.5 0.333333333 0.16666667 -0.333333333 -0.16666667" #will be multiplied by pi in script file
-CEP2="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.0 -0.125 -0.142857142857143 -0.16666667 -0.25 -0.333333333 -0.5"
-# CEP2="1.0 0.833333333 0.75 0.66666667 0.642857142857143 0.625 -1.0 -0.833333333 -0.75 -0.66666667 -0.642857142857143 -0.625"
+# CEP2="1.0 0.833333333 0.75 0.66666667 0.642857142857143 0.625 0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.0 -0.125 -0.142857142857143 -0.16666667 -0.25 -0.333333333 -0.5 -0.625 -0.642857142857143 -0.66666667 -0.75 -0.833333333 -1.0" #scanning as function of CEP
+CEP2="1.0 0.5 0.0 -0.5 -1.0" #scanning with intensity
+# Already done. CEP2="0.5 0.333333333 0.25 0.16666667 0.142857142857143 0.125 0.0 -0.125 -0.142857142857143 -0.16666667 -0.25 -0.333333333 -0.5"
+# CEP2="-1.0 -0.833333333 -0.75 -0.66666667 -0.642857142857143 -0.625"
 
 # delay="1e-15 3e-15 5e-15 7e-15 9e-15 10e-15 20e-15 30e-15" #precising the range
 # delay="0e-15"
@@ -73,10 +75,11 @@ RiseCycle="2" # "1 2 3 4 5 9" #elongates the pulse duration at some point
 # Efield1="5E8" # 3E9 4E9"
 # Efield1="5E8 7.5E8 1E9 1.5E9 2E9 3E9" # 1.4E9 1.6E9 1.8E9"
 
-Efield1="1.37E10" #will be normalized to phase difference between both pulses in elliptical polarization
-# Efield1="1.66E10"
+# Efield1="1.37E10 1.66E10 2E10" #will be normalized to phase difference between both pulses in elliptical polarization
+# Efield1="1E10 1.1E10 1.2E10 1.3E10 1.4E10 1.5E10 1.6E10 1.7E10 1.8E10 1.9E10"
+Efield1="2.5E10 3E10 3.5E10 4E10 4.5E10"
 # Efield1="1E8 5E8 1E9 5E9 1E10 5E10 1E11"
-Efield2=$Efield1 
+# Efield2=$Efield1 #it is now put equal to iEfield1 directly inside the loop. We can scan intensities then. 
 
 # Pulse duration
 tau1="10.67E-15" # 20e-15 30E-15 10E-15"
@@ -132,7 +135,7 @@ for iTheoryLevel in ${TheoryLevel}; do
     for iLambda1 in ${lambda1}; do
       for iLambda2 in ${lambda2}; do
         for iEfield1 in ${Efield1}; do
-          for iEfield2 in ${Efield2}; do
+#          for iEfield2 in ${Efield2}; do
             for itau1 in ${tau1}; do
               for itau2 in ${tau2}; do
                 for iCEP1 in ${CEP1}; do
@@ -154,7 +157,7 @@ for iTheoryLevel in ${TheoryLevel}; do
                                 # Propagate the pulse in time!
                                 #             echo "Submitting..."
                                 ${QuantumLaPsources}/14-SiO2/run_td.sh ${SampleLayers} ${SampleXY} ${iMeshSizeX} ${iMeshSizeZ} ${iLambda1} \
-                                  ${iLambda2} ${iEfield1} ${iEfield2} ${itau1} ${itau2} \
+                                  ${iLambda2} ${iEfield1} ${iEfield1} ${itau1} ${itau2} \
                                   ${iCEP1} ${iCEP2} ${iDelay} ${InitialTemperature} ${PulseShape} \
                                   ${InducedFields} ${iCrossPola} ${iTheoryLevel} ${Functional} ${FreezeXC} \
                                   ${iRiseCycle} ${Mission} ${NumNodes} ${iGaugeVectorFieldAmplitude} ${iGaugeFieldDelayValue} \
@@ -176,4 +179,4 @@ for iTheoryLevel in ${TheoryLevel}; do
       done
     done
   done
-done
+# done

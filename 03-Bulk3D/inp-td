@@ -4,14 +4,14 @@
 
 CalculationMode = td
 ExperimentalFeatures = yes
-FromScratch = yes
+# FromScratch = yes
 # Units = atomic #eV_Angstrom is a false unit system! Not recommended... 
 # UnitsXYZFiles = Angstrom
 # Debug = trace
 
-ParStates = no
+ParStates = auto
 ParDomains = no #This one is VERY slow but allows to compute ne_excited_el
-ParKpoints = auto
+# ParKpoints = auto
 
 # ParKpoints = auto
 # ParStates  = auto
@@ -270,10 +270,11 @@ TDExpOrder = 16
 # Output = density + potential + geometry + elf + current + kinetic_energy_density #GENERATES HUGE AMOUNT OF FILES.
 
 TDOutput = energy + laser + total_current + n_excited_el + gauge_field #multipoles
+Output = density + current
 
 #OutputFormat = cube #VisIt
 # Output = geometry
-OutputFormat = xyz #+ vtk + netcdf #OpenDX, UCSF Chimera
+OutputFormat = vtk  #OpenDX, UCSF Chimera
 
 RestartWrite = 1 # WE DISABLE THE RESTART WRITING SINCE WE HAVE COMPUTER TIME >>> DISK SPACE. 
 OutputInterval = 5
