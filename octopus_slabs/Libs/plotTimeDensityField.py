@@ -88,4 +88,4 @@ plt.ylabel('Density (a.u.)')
 
 plt.savefig('Field.eps')
 plt.savefig('Field.png')
-plt.show()
+# plt.show()

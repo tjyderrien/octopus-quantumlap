@@ -444,7 +444,7 @@ pyfftw.FFTW.execute(instance)
 """
 
 ## Computing total sum
-HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  #/ np.sqrt(2.) #only for 110
+HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  / np.sqrt(2.) #only for 110
 HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
