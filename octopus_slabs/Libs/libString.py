@@ -369,48 +369,129 @@ def CaptureKPointGridSizeFromInfoFile(filename="info"):
 # @param NumberOfEigenValues: limits the capture of number of eigenvalues.
 # @param filename: "info" file.
 def GetEigenValue(kpoints_index, NumberOfEigenValues, filename="info", verbose=1):
-    import re
-    import numpy as np
-    Header = "[libString: GetEigenValue(): ]"
-    pattern = "#k ="
-    if verbose == 1:
-        print("Info: Construction of the eigen-values matrix.")
-        print("Pattern of interest: \"" + pattern + "\"")
+     import re
+     import numpy as np
+     Header = "[libString: GetEigenValue(): ]"
+     pattern = "#k ="
+     if verbose == 1:
+         print("Info: Construction of the eigen-values matrix.")
+         print("Pattern of interest: \"" + pattern + "\"")
 
-    eigenvalues = []
+     eigenvalues = []
+
+     with open(filename, "r") as source:
+         for heading_and_lines in group_by_heading(source, pattern):
+             heading = heading_and_lines[0]
+             lines = heading_and_lines[1:]
+
+             # Define the regular expression pattern
+             prog = re.compile(r"#\s*k\s*=\s*(\d+)\s*,")
+
+             # Search for the pattern in the heading
+             result = prog.search(heading)
+
+             if result:
+                 k_value = int(result.group(1))  # Extract the kpoints_index
+
+                 # Check if k_value matches the desired kpoints_index
+                 if k_value == kpoints_index:
+                     if verbose == 1:
+                         print(kpoints_index)
+                     break  # Stop iteration when pattern is found
+
+     if verbose == 1:
+         print(Header + str(heading))
+         print(Header + str(lines[0:NumberOfEigenValues]))
+
+     # Extract eigenvalues from the lines
+     for line in lines[:NumberOfEigenValues]:
+         data = line.split()
+         if len(data) >= 3:
+             eigenvalues.append(float(data[2]))  # Convert to float and append to the list
+
+     # Convert the eigenvalues list to a NumPy array and return it
+     return np.array(eigenvalues)
+
+## Optimization from ChatGPT 4
+import re
+import numpy as np
+# from joblib import Parallel, delayed
+from tqdm import tqdm
+
+def load_data(filename):
+    pattern = "#k ="
+    data_by_k = {}
+    current_k = None
+    current_lines = []
 
     with open(filename, "r") as source:
-        for heading_and_lines in group_by_heading(source, pattern):
-            heading = heading_and_lines[0]
-            lines = heading_and_lines[1:]
+        for line in source:
+            if pattern in line:
+                if current_k is not None:
+                    data_by_k[current_k] = current_lines
+                match = re.search(r"#\s*k\s*=\s*(\d+)\s*,", line)
+                if match:
+                    current_k = int(match.group(1))
+                    current_lines = [line]
+            elif current_k is not None:
+                current_lines.append(line)
 
-            # Define the regular expression pattern
-            prog = re.compile(r"#\s*k\s*=\s*(\d+)\s*,")
+        if current_k is not None:
+            data_by_k[current_k] = current_lines
 
-            # Search for the pattern in the heading
-            result = prog.search(heading)
+    return data_by_k
 
-            if result:
-                k_value = int(result.group(1))  # Extract the kpoints_index
 
-                # Check if k_value matches the desired kpoints_index
-                if k_value == kpoints_index:
-                    if verbose == 1:
-                        print(kpoints_index)
-                    break  # Stop iteration when pattern is found
+def GetEigenValueFromData(data, kpoints_index, NumberOfEigenValues, verbose=1):
+    Header = "[libString: GetEigenValue(): ]"
 
     if verbose == 1:
-        print(Header + str(heading))
-        print(Header + str(lines[0:NumberOfEigenValues]))
+        print("Info: Construction of the eigen-values matrix.")
+        print(f"Looking for kpoints_index: {kpoints_index}")
 
-    # Extract eigenvalues from the lines
-    for line in lines[:NumberOfEigenValues]:
-        data = line.split()
-        if len(data) >= 3:
-            eigenvalues.append(float(data[2]))  # Convert to float and append to the list
+    eigenvalues = []
+    if kpoints_index in data:
+        lines = data[kpoints_index]
 
-    # Convert the eigenvalues list to a NumPy array and return it
+        if verbose == 1:
+            print(Header + str(lines[0]))
+            print(Header + str(lines[1:NumberOfEigenValues + 1]))
+
+        # Extract eigenvalues from the lines
+        for line in lines[1:NumberOfEigenValues + 1]:  # Skip the header line
+            line = line.strip()
+            data_fields = line.split()
+            if len(data_fields) >= 3:
+                eigenvalues.append(float(data_fields[2]))  # Convert to float and append to the list
+
     return np.array(eigenvalues)
+
+
+def process_kidx(data, k_index, kidx, NumberOfBands):
+    return GetEigenValueFromData(data, int(k_index[int(kidx)]), NumberOfBands, verbose=0)
+
+
+def GetEigenValues(filename, k_index, bandstructure_pd, NumberOfBands):
+    data = load_data(filename)  # Load and structure data
+
+    """ 
+    # Use parallel processing with tqdm for progress bar
+    
+    with tqdm(total=len(bandstructure_pd.k_index.index)) as pbar:
+        Eigenvalues_list = Parallel(n_jobs=-1)(
+            delayed(lambda kidx: process_kidx(data, k_index, kidx, NumberOfBands) or pbar.update(1))
+            (kidx) for kidx in bandstructure_pd.k_index.index
+        )
+    """
+
+    Eigenvalues_list = []
+    for kidx in tqdm(bandstructure_pd.k_index.index):
+        eigenvalues = GetEigenValueFromData(data, int(k_index[int(kidx)]), NumberOfBands, verbose=0)
+        Eigenvalues_list.append(eigenvalues)
+
+    return Eigenvalues_list
+
+## End of code optimized by ChatGPT
 
 ## Among a list of files, extract the single-direction dipolar-date filename that matches with: direct transition,
 ## gamma point xor for the given list of k-points (indicated by their index).
