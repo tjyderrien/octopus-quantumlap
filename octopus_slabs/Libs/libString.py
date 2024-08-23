@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2023 T. J.-Y. Derrien
+# Copyright (C) 2013-2024 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -152,7 +152,7 @@ def FilterDirectories(keyword, path, FieldIndex):
   ListOfFolders = FindAllDirectories(path)
   ListOfFoldersFiltered = FilterDatabaseContains(ListOfFolders, keyword, FieldIndex)
   return ListOfFoldersFiltered
-  
+
 ## Returns the last line of file
 # Returns the last line (<string>) of a file
 # Source: http://stackoverflow.com/questions/3346430/what-is-the-most-efficient-way-to-get-first-and-last-line-of-a-text-file
@@ -207,6 +207,12 @@ def ReplaceStringInFile(string, replace_with, file_inp, file_out):
             for line in fin:
                 fout.write(line.replace(string, replace_with))
     return 0
+
+## Gets Fermi energy and returns its value in Hartree
+def GetFermiLevel(filename):
+    Capture=LookUpStringInFile(filename, "Fermi energy")
+    FermiEnergy=float(Capture.split("=")[1].strip().split(" ")[0])
+    return FermiEnergy
 
 ## Parser by block
 # @param some_source: source file name
