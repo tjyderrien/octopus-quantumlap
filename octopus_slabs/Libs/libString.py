@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2013-2024 T. J.-Y. Derrien
 #
@@ -80,11 +78,8 @@ def LookUpStringInFile(Filename, string): #{{{
 
   for line in searchfile:
     if string in line:
-      result = line;
       break; #stop as soon as first element is found, to avoid taking next lines
-  return result
 #}}}
-
 ## Return the line that follows an identified pattern
 def LookUpStringReturnPreviousLine(Filename, string):  # {{{
     import glob
