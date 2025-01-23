@@ -22,9 +22,6 @@ module load LAPACK/3.8.0-GCC-8.1.0
 
 # module load plgrid/libs/libxc/4.2.3
 
-
-
-
 module load libxc/4.3.4-GCC-8.1.0
 # module load libxc/5.2.3-GCC-8.1.0
 export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/4.3.4-GCC-8.1.0
@@ -53,7 +50,7 @@ module list
 # export LIBXC_HOME=/net/people/prace/pr2c0043/libxc
 # export LIBXC_HOME=/net/software/local/libxc/4.2.3
 
-export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/5.2.3-GCC-8.1.0
+# export LIBXC_HOME=/gpfs/apps/tools/modulefiles/software/libxc/5.2.3-GCC-8.1.0
 
 # export MKL="-L$MKL_HOME/lib/intel64  -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_intelmpi_lp64 -lpthread -lm"
 

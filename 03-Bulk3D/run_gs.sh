@@ -4,9 +4,7 @@
 
 
 #set -e
-
 # set -e
-
 
 # ENABLE DRY RUN ? 
 DryRun=0

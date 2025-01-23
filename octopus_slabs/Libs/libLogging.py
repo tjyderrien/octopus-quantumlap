@@ -2,6 +2,7 @@
 
 import logging
 import colorlog
+from logging_tree import printout
 
 def init_logger(dunder_name, verbose) -> logging.Logger:
 
@@ -22,9 +23,9 @@ def init_logger(dunder_name, verbose) -> logging.Logger:
     logger = logging.getLogger(dunder_name)
 
     if verbose:
-        logger.setLevel(logging.DEBUG)
-    else:
         logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.ERROR)
 
     # Output full log
     fh = logging.FileHandler('app.log')

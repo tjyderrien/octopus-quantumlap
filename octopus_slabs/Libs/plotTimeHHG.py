@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2021 T. J.-Y. Derrien
+# Copyright (C) 2016-2024 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,9 +38,12 @@ import octopus_slabs.Libs.libMaterials as libMaterials
 from   octopus_slabs.Libs.libPlotting import *
 from   octopus_slabs.Libs.libString import LookUpStringInFile, GetLastLine
 from   octopus_slabs.Libs.libAtomicUnits import *
+from octopus_slabs.Libs.libLogging import init_logger
 
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica'], 'size':'14'})
 rc('text', usetex=False) #important for Barbora
+
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ## Materials properties
 
@@ -52,13 +55,13 @@ Egap_SI, meff_opt, OpticalIndex = libMaterials.SiBulkTB09() #libMaterials.py
 ##0.18 #Sokolowski-Tinten et al, Phys. Rev. B 61, 2643 (2000)
 
 ## Plotting: parameters for controlling the canvas
-plotA=211; plotD=212
+plotA=311; plotE=312; plotD=313;
 ## 3 canvas
 #plotA=311; plotB=312; plotC=313;
 ## 4 canvas
 # plotA=411; plotB=412; plotC=413; plotD=414
 # Size of main canvas
-SizeX = 10
+SizeX = 15
 GoldenNumber=(1.+np.sqrt(5.))/2.
 SizeY = SizeX/GoldenNumber
 RatioA = 10 #(decreases A amplitude visually by RatioA times.
@@ -401,12 +404,25 @@ logger.warning("Shapes: "+str(np.shape(timeCurrent_pad))+", "+str(np.shape(Curre
 #  timeCurrent_pad = np.arange(TimeStep_current_SI, (Elongation + 1) * (np.max(timeCurrent_SI) + TimeStep_current_SI), TimeStep_current_SI)
 #  assert(len(timeCurrent_pad) == len(CurrentX_pad))
 print(Header+"** Info: cleaning the current for HHG computation.")
-DecoherenceTime=1.75 # 1.25 #times the laser pulse (best setting for 25 fs pulses)
+DecoherenceTime=1.25*2 # 1.75 #times the laser pulse (best setting for 25 fs pulses)
 CurrentX_HHG = SignalDampR(timeCurrent_pad, CurrentX_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4) #NOTE: Choice of instant for applying damping is MAJOR in improving spectra. This 1.5 is fully arbitrary and a criterion should be decided. 
 CurrentY_HHG = SignalDampR(timeCurrent_pad, CurrentY_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
 CurrentZ_HHG = SignalDampR(timeCurrent_pad, CurrentZ_pad,  wavelength_SI, DecoherenceTime*PulseDuration_SI, 4)
 
 assert(len(CurrentX_HHG) == len(CurrentX_pad)) #We check if current integrity is conserved. We need to maximize it to get highest possible precision.
+
+##== HHG yield |dJ/dt|(t) ==
+# Useful to analyze CEP, delays in emission.
+
+HHGyieldX = np.gradient(CurrentX_HHG)/TimeStep_current_AU #cleaned signal is only good for spectrum cleaning
+HHGyieldY = np.gradient(CurrentY_HHG)/TimeStep_current_AU
+HHGyieldZ = np.gradient(CurrentZ_HHG)/TimeStep_current_AU
+
+HHGyield_norm = np.sqrt(HHGyieldX**2+HHGyieldY**2+HHGyieldZ**2)
+
+logger.info("HHGyield [min,max]: "+str(np.min(HHGyield_norm))+", "+str(np.max(HHGyield_norm)))
+
+# Great, let's make a new plot out of this.
 
 ##== Fourier transforms ==
 # Efield_AU_FT  =fft.fft(Efield[:maxSize]/c_AU)
@@ -444,7 +460,7 @@ pyfftw.FFTW.execute(instance)
 """
 
 ## Computing total sum
-HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  #/ np.sqrt(2.) #only for 110
+HHG_AU   = (HHG_AU_X + HHG_AU_Y + HHG_AU_Z)  / np.sqrt(2.) #only for 110
 HHG_AU_omega=2.*pi*fft.rfftfreq(SizeOfCurrentHHG,d=TimeStep*Time_AU_to_SI(1.))
 # c_SI = Velocity_AU_to_SI(c_AU)
 HHG_AU_order=HHG_AU_omega/(2.*pi*c/wavelength_SI)
@@ -581,7 +597,6 @@ ymax12valueMax = np.max(np.abs(CurrentX))
 ymin_wpi = 1E40
 ymax_wpi = 1E50
 
-
 omega1 = 2.*np.pi*c/wavelength_SI
 omega2 = 2.*np.pi*c/wavelengthB_SI
 
@@ -638,7 +653,7 @@ plt.ylabel(r'$J(t)$')
 # plt.plot(timeCurrent, TimeStep * np.cumsum(CurrentX), 'r--', label=r'$P(t)$')
 plot_current, = ax12.plot(timeCurrent, CurrentX, 'r-', label=r'$J(t)$ (a.u.)')
 # plot_current_damped, = ax12.plot(timeCurrent_pad, np.sqrt(CurrentX_HHG**2+CurrentY_HHG**2+CurrentZ_HHG**2), 'b--', label=r'$|J(t)|$ (a.u.)')
-plot_current_damped, = ax12.plot(timeCurrent_pad, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
+plot_current_damped, = ax12.plot(UnitTime*timeCurrent_pad, CurrentX_HHG, 'b--', label=r'$J(t)$ (a.u.)')
 ax12.yaxis.label.set_color(plot_current.get_color()) #colorizes the label
 ax12.spines["right"].set_edgecolor(plot_current.get_color()) #colorizes the axis
 ax12.tick_params(axis='y', colors=plot_current.get_color()) #colorizes the tics and numbers
@@ -667,94 +682,20 @@ if(PlotGrid==1):
 # plt.xlim((xmin,xmax))
 # plt.ylim((ymin,ymax))
 
-# if(QuantityOfInterest == "density"):
-#   if(UnitSystem=="AU"):
-#     plt.ylabel('Density exc. el. (a.u.)')
-#   elif(UnitSystem=="SI"):
-#     plt.ylabel(r'Density exc. el. (m$^{-3}$)')
-#   plot_density, = ax2.plot(timeNe, observable_proj, 'k-', label=r'$n_e^{proj}(t)$')
-  #ax2.legend(loc=3)
-  #if(PlottingMode=="keldysh"): #TODO: it is removed because too heavy. However, such information will be very interesting. 
-    #ax22 = ax2.twinx() #let's plot instant w_PI (t)
-    ##plot_wpi_av, = ax22.plot(timeNe[1:], wPI_TDDFT_average, 'b-', label=r'$<w_{PI}^{proj}>(t)$') #NOTHING PHYSICAL? 
-    #plot_wpi_approx, = ax22.plot(timeNe, wPI_TDDFT_approx, 'b-', label=r'$\widetilde{w_{PI}}=n_{exc}/2\tau$')
-    #if("STH" in PulseType or "StH" in PulseType):
-      #plot_wpi_Gruzdev, = ax22.plot(timeNe, PeakWpi_Gruzdev*np.ones(np.shape(timeNe)), 'b--', label=r'$w_{PI}$ [Gruzdev]') #NOTE: shows the peak value of w_pi 
-  ## if(EnableLogScale==1): 
-  ##  plt.plot(timeNe[1:], wPI_TDDFT_env.real, 'b--', label=r'$w_{PI}^{proj}(t)/cos(omega t)$')
-    ##plt.legend(loc=3)
-    #plt.ylabel('$w_{PI}(t)$')
-    #ax22.yaxis.label.set_color(plot_wpi_approx.get_color()) #colorizes the label
-    #ax22.spines["right"].set_edgecolor(plot_wpi_approx.get_color()) #colorizes the axis
-    #ax22.tick_params(axis='y', colors=plot_wpi_approx.get_color()) #colorizes the tics and numbers
-  #plt.xlim((xmin,xmax))
-##  if(EnableLogScale==1): 
-##   plt.ylim((ymin_wpi,ymax_wpi))
-  ##ax22.set_yscale('log')
-##  plt.plot(unitx*timePost, observable_post, 'k--', label=r'TD-DFT: \frac{1}{V_{tot}} $\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-##  plt.plot(timeKeldysh*unitx, N_Keldysh_SI, 'r-', label=r'[Keldysh (1964)]')
-  ### when E=0, Keldysh is not defined. Then we have to restrict plotting where field is non zero.
-  ### TODO: BUG: timeKeldysh and N_Gruzdev_SI have a different dimension! 
-  
-  ### If we plot anything else than STH, we can compute predictions of density using the Keldysh model. 
-# if(PulseType == "SinSquared" or PulseType == "gaussian"): #then we plot performed predictions. 
-    ## Checking sizes of the data to plot. 
-    #if(len(timeKeldysh) != len(N_Gruzdev_SI)):
-      #print Header+"** Warning: tmin and tmax may be different in libKeldysh and in this file. "
-      #print Header+"Length(timeKeldysh) = "+str(len(timeKeldysh))
-      #print Header+"Length(N_Gruzdev_SI) = "+str(len(N_Gruzdev_SI))
-    #else: 
-      #timeKeldysh  = instants
-      #timeKeldyshB = instants
-  
-    #if(PlottingMode=="doublepulse"): #NOTE: in ax2, plot only densities !
-      #print "Disabled for now."
-      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size] , 'b--', label=r'$n_{exc}[E_A(t)]$ [Gruzdev (2014)]')
-      #ax2.plot(timeKeldyshB*unitx, N_GruzdevB_SI[:timeKeldyshB.size], 'g--', label=r'$n_{exc}[E_B(t)]$ [Gruzdev (2014)]')
-      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI[:timeKeldysh.size]+N_GruzdevB_SI[:timeKeldysh.size], 'r--', label=r'$n_{exc}[E_A(t)] + n_{exc}[E_B(t)]$')
-      #ax2.plot(timeKeldysh*unitx,  N_GruzdevAB_SI, 'r-', label=r'$n_{exc} [E_A(t)+E_B(t)]$') #BUG: UNCLEAR CASE
-    #else: #single pulse case
-      #ax2.plot(timeKeldysh*unitx,  N_Gruzdev_SI , 'k--', label=r'Exc. $n_{exc}(t)$ [Gruzdev (2014)]')
-  #elif(PulseType=="STH"): #if STH, we only plot w_PI. 
-    #ax2.plot(time*unitx,  PeakWpi_Gruzdev*np.ones(np.shape(time)), 'k--', label=r'Exc. $w_{PI}$ at max. [Gruzdev (2014)]')
-    
-#elif (QuantityOfInterest == "number"):
-  #plt.ylabel('Number of exc. electrons')
-  #plt.plot(timeNe, Nproj_AU, 'k-', label=r'$N_e^{proj}(t)$')
 
-#  plt.plot(unitx*timePost, Npost_AU, 'b-', label=r'$\int_{\Omega} \left( n_{td}(r,t) - n_{gs}(r) \right)^{+} d^{3}r$')
-#plt.legend(loc=1)
-# plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
-#  if("STH" in PulseType or "StH" in PulseType):
-    # Building the shared legend for subfig1 (if STH pulses)
-#    plot2   = [plot_density] #, plot_wpi_approx, plot_wpi_Gruzdev] #plot_wpi_av
-#    labels2 = [l.get_label() for l in plot2]
-#    ax2.legend(plot2, labels2, loc=2)
+## ============ PLOTTING HHG yield ======
+ax3 = plt.subplot(plotE)
 
-## Plotting vertical bars for comparison A(t) and Ne(t)
-# if(PlotGrid==1):
-#   for xc in xposition:
-#    plt.axvline(x=xc, color='#b3b3b3', linestyle=':')
-# plt.plot(unitx*timePost, 10.*Npost_2in_AU, 'r-', label=r'$\int_{\Omega} \left( n_{td}(r,t)) - n_{gs}(r) \right)^2 d^{r}$')
-# plt.plot(unitx*timePost, 1./80. * Npost_2out_AU, 'g-', label=r'$\left[ \int_{\Omega} ( N_{td}(r,t) - N_{gs}(r) ) d^{3}r \right]^{2}$')
-
-# plt.plot(timeCurrent, (Nnew/10.26**3 * dtCurrent), 'g-', label=r'$\int_{-\infty}^{t} J(t^{\prime}) A(t^\prime) dt^{\prime} $') #TODO: still a problem in units
-# plt.xlabel('Time (fs)')
-# plt.ylabel('Density (a.u.)')
-# plt.legend(loc=2)
-# plt.legend(bbox_to_anchor=(0, -0.3, 1, 0), loc='right', ncol=2, mode="expand", borderaxespad=0)
-
-## ============ PLOTTING ENERGIES ======
-# ax3 = plt.subplot(plotC)
-# plt.xlim((xmin,xmax))
-# plot_energy_electron, = ax3.plot(UnitTime * TimeAUtoSI * timeEnergies, Energy_Hartree_to_eV(ElectronEnergy), 'k-', label=r'$\xi_{el} (tot)$')
-# plot_energy_classical_potential, = ax3.plot(timeNe, (Egap_SI/e) * observable_proj * SuperCellVolume_SI, 'b-', label=r"$E_{gap} \times N_{exc}$ (eV)") #classical formula for electron gap transition 
-# plot_energy_classical_potential, = ax3.plot(timeNe, 2. * hbar * omega / e * observable_proj * SuperCellVolume_SI, 'b--', label=r"$2 \hbar \omega N_{exc}$ (eV)") #classical formula number 2 for 2-photon absorption #NOTE: wrong if MoveIons=Yes !
-#plt.plot(UnitTime * TimeAUtoSI * timeEnergies, IonEnergy, 'b--', label=r"$\xi_{ion}$") #TODO: make automatic function of MoveIon value. 
-
-# plt.plot(UnitTime * TimeAUtoSI * timeEnergies, Hartree, 'r-', label=r"$\xi_{Hartree}$")
-# plt.xlabel('Time (fs)')
-# plt.ylabel('Energy (eV)')
+# ax3.plot(UnitTime * TimeAUtoSI * timeCurrent_pad, HHGyield_norm, 'k-', label=r"HHG yield (norm)")
+# ax3.plot(UnitTime*timeCurrent_pad, CurrentX_HHG, 'b--', label=r"HHG yield (norm)")
+# ax3.plot(UnitTime*timeCurrent_pad, CurrentY_HHG, 'g--', label=r"HHG yield (norm)")
+# ax3.plot(UnitTime*timeCurrent_pad, CurrentZ_HHG, 'r--', label=r"HHG yield (norm)")
+ax3.set_xlabel('Time (fs)')
+# ax3.set_ylabel('Currents')
+# ax32 = ax3.twinx()
+ax3.set_ylabel('HHG yield (arb. u.)')
+ax3.plot(UnitTime*timeCurrent_pad, HHGyield_norm, 'k-', label=r"HHG yield (norm)")
+plt.xlim((xmin,xmax))
 # plt.legend(bbox_to_anchor=(CaptionX, CaptionY), loc=2, borderaxespad=0.)
 # plt.legend(loc=2)
 ## Plotting vertical bars for comparison A(t) and Ne(t)
@@ -775,7 +716,7 @@ WARNING: this formula matters very much for comparison of spectra with experimen
          If neglecting the quantity for multiplying, one can see big noise in high 
          harmonics whereas experiment would see nothing. 
 """
-plt.plot(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
+plt.semilogy(Xaxis, Yaxis, '-', label=r'HHG$(\omega)$') #normalization in amplitude
 plt.xlim([0,10]) #eV
 # plt.xticks(np.arange(1,30, step=2))
 
@@ -826,7 +767,7 @@ if(EnableLogScale == 1):
   ax2.set_yscale("log", nonposy='clip')
   ax22.set_yscale("log", nonposy='clip')
   #ax2.legend(loc=4)
-#  ax3.set_yscale("log", nonposy='clip')
+  ax3.set_yscale("log", nonposy='clip')
 #  ax3.legend(loc=4)
 #else:
 #  ax3.legend(loc=1)

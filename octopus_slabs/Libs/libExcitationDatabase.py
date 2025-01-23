@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-# Copyright (C) 2013-2022 T. J.-Y. Derrien
+# Copyright (C) 2013-2023 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ import spp_extended_theory.Libs.libDatabase as libDatabase
 from   octopus_slabs.Libs.libPlotting import ListAllOutput
 
 Header="[libExcitationDatabase] "
-logger = init_logger(__name__, verbose=False) #"plotFinalQuantities")
+logger = init_logger(__name__, verbose=True) #"plotFinalQuantities")
 
 ## Calls for the construction of excitation database and manages exceptions. 
 def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv'):
@@ -38,7 +38,7 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
   ## DEBUG PURPOSE ONLY
   # path="Si-1x1x1-k-24x24x1-Mesh0.434637008855-Mesh0.434637008855-T0e0/lambda800e-9-tau30E-15-field5E8-CEP0.0-StH2/lambda1600e-9-tau30E-15-field9E9-CEP0.0-delay0e-15-StH/td.general/"
   FromScratch = False #False: we try to re-use the existing DB. #True: we rebuild the database. 
-  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.3\n#JobID\tRunDate\tkgrid\trealmesh\tTimeStep\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude_AU\tProbeFieldDelay_s\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent_AU\tMaxJx\tMaxJy\tMaxJz\tEnergy_eV\tEigenvalues_eV\tHartree_Energy_eV\tExchangeEnergy_eV\tEnergy_afterpulse_eV\tEigenvalues_afterpulse_eV\tHartree_Energy_afterpulse_eV\tExchangeEnergy_afterpulse_eV\tPoyntingEnergyFinal_eV\tEext_peak_V_m\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime"
+  fileheader = "#T. J.-Y. Derrien, HiLASE Centre, derrien@fzu.cz.\n#Database v2.4\n#JobID\tMachine\tRunDate\tkgrid\trealmesh\tTimeStep\tlambda1\ttau1\tEfield1\tPolarizationAngle\tCEP1\tlambda2\ttau2\tEfield2\tCEP2\tdelay\tCrossPolar\tTheoryLevel\tInducedFields\tProbeFieldAmplitude_AU\tProbeFieldDelay_s\tFunctional\tFrozenHxc\tMoveIon\tNeMax\tNeFinal\tVirtualOscillations\tFinalCurrent\tMaxCurrent_AU\tMaxJx\tMaxJy\tMaxJz\tEnergy_eV\tEigenvalues_eV\tHartree_Energy_eV\tExchangeEnergy_eV\tEnergy_afterpulse_eV\tEigenvalues_afterpulse_eV\tHartree_Energy_afterpulse_eV\tExchangeEnergy_afterpulse_eV\tPoyntingEnergyFinal_eV\tEext_peak_V_m\tN_exc_afterpulse\tWpi\tWpi_afterpulse\tSTH\tRiseCycles\tFinalTime\tCaptureTime\tDurationPerTimeStepLastRun\tNumberOfProcesses"
 
   logger.info(Header+"Attempting to load previous results...")
 
@@ -51,12 +51,13 @@ def GetExcitationDatabase(path='*/*/*/td.general/', DatabaseName = 'Database.csv
 #    ListAllOutput(path, DatabaseName, FromScratch)
   except:
     logger.warning(Header+"Previous database could NOT be found. Rebuilding the database from scratch.")
-    FromScratch = True #We need to rebuild database from scracth
+    FromScratch = True #We need to rebuild database from scratch
 
   if(FromScratch): #rebuilds database from scratch
     FreshData, NewDatabase = ListAllOutput(path, DatabaseName, FromScratch)
     logger.info(Header+"Save the table to a new file...")
-    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader)
+    significant_figures=9
+    libDatabase.ExportToTxt(NewDatabase, DatabaseName, fileheader, fmt="%.{}e".format(significant_figures))
   else: 
     logger.warning("Entered case with FromScratch=False. Newly found entries may not be saved. ")
     # ListAllOutput(path, DatabaseName, FromScratch)
