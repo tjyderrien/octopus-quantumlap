@@ -1,3 +1,11 @@
+[![Homepage](https://img.shields.io/badge/Home-quantumlap.eu-green.svg)](http://www.quantumlap.eu)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+![Bitbucket open issues](https://img.shields.io/bitbucket/issues/tjyderrien/spp_extended_theory?style=plastic)
+![Twitter Follow](https://img.shields.io/twitter/follow/tjyderrien?style=social)
+![Website](https://img.shields.io/website?down_color=red&down_message=quantumlap.eu%20%5Btemporarily%20down%21%5D&up_color=green&up_message=quantumlap.eu&url=http%3A%2F%2Fwww.quantumlap.eu)
+![Maintenance](https://img.shields.io/maintenance/yes/2025)
+
+
 # Code author: 
 Thibault J.-Y. Derrien <derrien@fzu.cz>
 HiLASE Centre, Institute of Physics (Prague, Czech Academy of Sciences)
