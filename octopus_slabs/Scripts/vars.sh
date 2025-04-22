@@ -7,7 +7,17 @@
 SourcePath="${BASH_SOURCE[0]}"
 # LocalFolder="$( cd "$(dirname "${SourcePath}" )" && pwd)" #Should work on any computer but can generate many problems, such as stopping SCP transfers, or interfering with VNC and X11 servers.
 # echo "Debug: \$SourcePath: $SourcePath"
-LocalFolder=$( dirname $SourcePath )
+# LocalFolder=$( dirname $SourcePath )
+
+# Safer version given by ChatGPT
+# LocalFolder="$(cd "$(dirname -- "$SourcePath")" >/dev/null 2>&1 && pwd -P)"
+
+# Safer version given by ChatGPT with providing context as source vars.sh
+
+pushd "$(dirname -- "$SourcePath")" >/dev/null 2>&1
+LocalFolder="$(pwd -P)"
+popd >/dev/null 2>&1
+
 # echo "Debug: \$LocalFolder: $LocalFolder"
 source ${LocalFolder}/../machines.env 
 # source ../machines.env
