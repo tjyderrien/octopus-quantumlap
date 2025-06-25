@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016-2023 T. J.-Y. Derrien
+# Copyright (C) 2016-2025 T. J.-Y. Derrien
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ from spp_extended_theory.Keldysh.libStark import ComputeFloquetBandStructure
 import spp_extended_theory.Libs.libImportOpticalData as libOpticalData
 from   spp_extended_theory.Libs.libDatabase import ExportToTxt
 ## PROGRAM BEHAVIOR
-SingleKpoint = 0  # Selector for direct execution.
+SingleKpoint = 1  # Selector for direct execution.
 # 0: plotting the whole band structure for a certain field. 
 # 1: plot one single kpoint for many fields and wavelengths.
 
@@ -64,17 +64,16 @@ ShowPlot = False
 StorePlot = True #we generate so many figures with this... Let's avoid this at the moment. #starts to be too consuming (800 MB per EPS file...)
 
 
-Enable_Zoom = True
+Enable_Zoom = False
 Enable_A2 = False #take A2 term into Floquet hamiltonian. NOTE: in ipython notebook, this is not relevant. From console, it is mandatory.
 
 
 
 ## CHOOSING INPUTS
-
 num_wavelengths = 500
 wavelength_SI_min = 400e-9
 wavelength_SI_max = 3200e-9
-SelectedWavelengths = [2000e-9] #[400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
+SelectedWavelengths = [3200e-9] #[400e-9, 484e-9, 515e-9, 800e-9, 1030e-9, 1600e-9, 3200e-9]
 
 num_fields = 200  # number of electric field values for the plotting
 Efield_SI_min = 1E8 # IntensityToField(1E10 * 1E4)
@@ -91,7 +90,7 @@ SizeOfDots = 0.5  # purely cosmetic!
 SizeX = 8.2; SizeY=6.
 
 LogPlotting = 1 #0: regular linear scale, 1: regular logscale (only for SingleKpoint()).
-verbose = 0  # Show info and debug messages.
+verbose = 1  # Show info and debug messages.
 
 BesselRootsID_max = 10
 
@@ -169,7 +168,7 @@ Si = {'MPI_numbers': [1], 'kpoints_manual': 16,
       'xmin_xmax': (1E9,2E15), # (2E11, 7E16)
       'ymin_ymax': (-5, 11), #(-5, 15)
       'CaptureDirectGap': True,
-      'KpointPath_len': 301, #computed automatically
+      'KpointPath_len': 4277-4096, #computed automatically
       'K_labels': [r'$\Gamma$', r'$X$', r'$U|K$', r'$\Gamma$', r'$L$', r'$W$', r'$X$'], #some complete path
       # can be obtained from seekpath.get_path(cell)['path'].
       'K_positions': [0, 0.22285, 0.300851, 0.538, 0.731, 0.888576, 1], #these re just plotting positions
@@ -185,6 +184,8 @@ SiO2 = {'MPI_numbers': [1], 'kpoints_manual': 16, #sometimes 8
         'Z_electrons': 24, 'OpticalIndex': OpticalIndex_SiO2, 'OpticalIndexFile': "SiO2-Palik",
         'xmin_xmax': (2E10, 7E16), #(5E9, 1E15)
         'ymin_ymax': (-8, 16), 'CaptureDirectGap': True, 'KpointPath_len': 301,
+        'CaptureDirectGap': False,
+        'KpointPath_len': 301, #computed automatically
         'K_labels': [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$', r'$A$', r'$L$', r'$H$', r'$A|L$', r'$M|H$', r'$K$'],
         'K_positions': [0, 0.1277, 0.201425, 0.348877, 0.4496, 0.5773, 0.6510, 0.7985, 0.8991, 1],
         'Fermi_Energy': 0.0, 'kpoints_duplicates': 1}
@@ -255,7 +256,7 @@ logger.debug(wavelength_SI_t)
 #NOTE: in the function of SignleKpoint wavelength_t was replaced by SelectedWavelengths
 ## Prepare energy diagram as function of laser field strength at a single K point #typical for M. Stockman papers
 # @param k_point_index_of_interest: 1 is $\Gamma$. For other k-points, think !
-def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
+def SingleKpointManyFields(Enable_A2=False, k_point_index_of_interest=1, wavelength_t=wavelength_SI_t):  # {{{
     Header="plotFloquetBandStructure.py: SingleKpointManyFields(): "
     global Efield_SI_min, Efield_SI_max, kpoints_manual, Z_electrons, unocc_states, OpticalIndexFile, \
         SelectedWavelengths, SelectedFieldsForPlotting, Materials, UseRefractiveIndex
@@ -264,21 +265,21 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
 
     ## Capturing the Gamma k-point file in results of Octopus
     # TODO: generalize to a desired k-point. For now it is using GAMMA point. Maybe link to ASE can do that? Or a lib of symmetries.
-    try:
-        kpoints_number_inp = libString.LookUpStringInFile("info",
-                                                          "Total number of k-points")
-        for i in np.arange(0, 10):  # TODO: replace with .strip() ?
-            kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
-            if (verbose == 1):
-                logger.info("** Info: decreasing number of spaces")
-                logger.info(kpoints_number_inp)
-        kpoints_number_array = kpoints_number_inp.split("=")
-        kpoints_number_array = kpoints_number_array[1].split(" ")
-        kpoints = int(kpoints_number_array[1])
-        logger.info(kpoints)
-    except IndexError: #recent octopus versions removed some info from info file
-        kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
-        logger.error("** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
+    # try:
+    """kpoints_number_inp = libString.LookUpStringInFile("info",
+                                                      "Total number of k-points")
+    for i in np.arange(0, 10):  # TODO: replace with .strip() ?
+        kpoints_number_inp = kpoints_number_inp.replace("  ", " ")
+        if (verbose == 1):
+            logger.info("** Info: decreasing number of spaces")
+            logger.info(kpoints_number_inp)
+    kpoints_number_array = kpoints_number_inp.split("=")
+    kpoints_number_array = kpoints_number_array[1].split(" ")
+    kpoints = int(kpoints_number_array[1])
+    logger.info(kpoints)"""
+    # except IndexError: #recent octopus versions removed some info from info file
+    kpoints = kpoints_manual  # manual input of number of k-grid points in 1 direction (assumes same resolution in 3 directions)
+    logger.error("** Error: failed to capture the number of k points automatically. Manual input is employed: kpoints=" + str(
             kpoints))
         # exit()
 
@@ -499,7 +500,7 @@ def SingleKpointManyFields(Enable_A2, k_point_index_of_interest=1, wavelength_t=
             ax2.set_xlabel("Pump photon energy (eV)")
             ax2.set_ylabel("Energy levels (eV)")
             ax2.set_title("Field "+str(round(field,1)*1E-9)+" V/nm")
-            figurename_multiwavelengths = "FloquetBandStructure-MultiWavelength-k" + str(
+            figurename_multiwavelengths = "FloquetBandStructure-MultiFields-k" + str(
             kpoints) + "MPI-" + str(round(MPI_numbers[0], 0))+"-Field"+str(round(field,0))
             ax2.set_ylim(Materials[material]['ymin_ymax'])  # Si
             fig2.tight_layout()
@@ -1018,11 +1019,11 @@ if(__name__=="__main__"):  #runs only if file is called directly
     # logger.info(KpointPath_plot)
 
     if (SingleKpoint == 1):
-        for k_point_index_of_interest in np.arange(1, 10):
-            SingleKpointManyFields(Enable_A2, k_point_index_of_interest=k_point_index_of_interest)
+#        for k_point_index_of_interest in np.arange(1, 10):
+        SingleKpointManyFields(k_point_index_of_interest=1)
 	  
     else:
-        for wavelength in [1030e-9]: #SelectedWavelengths:
+        for wavelength in [3200e-9]: #SelectedWavelengths:
             # for field in [1E6, 1E7, 5E7]:
             # for field in [1E8, 2E8, 3E8, 4E8, 5E8]:
 

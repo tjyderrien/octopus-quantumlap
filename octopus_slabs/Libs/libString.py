@@ -510,7 +510,7 @@ def GetEigenValues(filename, k_index, bandstructure_pd, NumberOfBands):
 # @pram listoffiles: full list of the existing dipolar files
 # @param listofkpoints: list of interesting kpoints
 # @param CaptureDirectGap: bool for automatic detection.
-def ExtractFileForGivenKpoints(filename, kpoints, listoffiles, listofkpoints, CaptureDirectGap=True, verbose=False, field_polarization_dir=0): #{{{
+def ExtractFileForGivenKpoints(filename, kpoints, listoffiles, listofkpoints, CaptureDirectGap=False, verbose=False, field_polarization_dir=0): #{{{
     Header="[libString: ExtractFileForGivenKpoints()] "                                                                                                                                                    
     spatial_directions      = 3 #1 file for each direction. 
     #field_polarization_dir  = 0 #0: x, 1: y, 2: z. 
