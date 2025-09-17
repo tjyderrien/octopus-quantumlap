@@ -23,7 +23,7 @@ n = 1 #Z blocks: to be replaced by script
 
 # Optimization
 # PoissonFFTKernel = planar
-# ParKPoints = auto
+ParKPoints = auto
 ParStates = auto
 ParDomains = no #no #crashes if made per state only
 
@@ -46,24 +46,24 @@ BoxShape = parallelepiped
   0.5 | 0.5 | 0.0
 %
 
-kpts=1000
+# kpts=1000
 
-%KPointsPath
+# %KPointsPath
 # Consistency problem: if using the primitive cell for atmos, one has to introduced kPointsPath in b1b2b3 basis.
 # # If introducing cubic cell for atoms, one has to introduce KPointsPath in xyz basis.
 # ### Proposition from MaterialsCloud.org
 # # Suggested by k-point path generator: Γ—X—U|K—Γ—L—W—X  (https://tools.materialscloud.org/seekpath/compute/process_structure/)
 # # Since it is not contiguous, we attempt to put 0 on the discontinuity.
- kpts | kpts | 0 | kpts | kpts | kpts | kpts
-   0     | 0     | 0     #Gamma
-   0.5   | 0     | 0.5   #X
-   0.625 | 0.25  | 0.625 #U|
-   0.375 | 0.375 | 0.75  #K
-   0     | 0     | 0     #Gamma
-   0.5   | 0.5   | 0.5   #L
-   0.5   | 0.25  | 0.75  #W
-   0.5   | 0     | 0.5   #X
-%
+# kpts | kpts | 0 | kpts | kpts | kpts | kpts
+#   0     | 0     | 0     #Gamma
+#   0.5   | 0     | 0.5   #X
+#   0.625 | 0.25  | 0.625 #U|
+#   0.375 | 0.375 | 0.75  #K
+#   0     | 0     | 0     #Gamma
+#   0.5   | 0.5   | 0.5   #L
+#   0.5   | 0.25  | 0.75  #W
+#   0.5   | 0     | 0.5   #X
+#%
 #
 
 # %Lsize #! Lsize is half of the box...
@@ -93,9 +93,9 @@ KPointsUseSymmetries = yes
 
 theta_inc = pi*theta1_inp #angle of incidence of the laser (scripted replacement)
 ell = 0. #ellipticity
-%SymmetryBreakDir
-  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
-%
+# %SymmetryBreakDir
+#  cos(theta_inc)-i*ell*sin(theta_inc) | sin(theta_inc)+i*ell*cos(theta_inc) | 0.0
+# %
 
 ExtraStates = 0
 
@@ -116,11 +116,10 @@ DOSEnergyMax = 25*eV
 DOSEnergyPoints = 10000
 DOSGamma = 0.02*eV #Default: 8E-3. 3E-4 is Zhigilei's value in Ha. 
 
-
 ### GS matrix elements (useful for Floquet)
 # OutputMatrixElements=dipole # ks_multipoles # + momentum
 # OutputMEMultipoles = 0
 
-OutputFormat = xyz + vtk #OpenDX, UCSF Chimera
+OutputFormat = xyz + netcdf + vtk #OpenDX, UCSF Chimera
 # XCFunctional = mgga_x_tb09 + lda_c_pw #this will be added automatically
 # FilterPotentials = filter_none        #this will be added automatically
