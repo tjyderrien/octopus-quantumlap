@@ -1,9 +1,11 @@
-[![Homepage](https://img.shields.io/badge/Home-quantumlap.eu-green.svg)](http://www.quantumlap.eu)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
-![Bitbucket open issues](https://img.shields.io/bitbucket/issues/tjyderrien/spp_extended_theory?style=plastic)
-![Twitter Follow](https://img.shields.io/twitter/follow/tjyderrien?style=social)
+[![Homepage](https://img.shields.io/badge/Home-quantumlap.eu-green.svg)](https://www.quantumlap.eu)
+![More efficient without AI](https://img.shields.io/badge/More_efficient-without_AI-brightgreen)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub issues](https://img.shields.io/github/issues/USERNAME/spp_extended_theory)](https://github.com/USERNAME/spp_extended_theory/issues)
+[![Follow @tjyderrien](https://img.shields.io/badge/Follow-%40tjyderrien-1DA1F2?logo=x&logoColor=white)](https://twitter.com/tjyderrien)
 ![Website](https://img.shields.io/website?down_color=red&down_message=quantumlap.eu%20%5Btemporarily%20down%21%5D&up_color=green&up_message=quantumlap.eu&url=http%3A%2F%2Fwww.quantumlap.eu)
-![Maintenance](https://img.shields.io/maintenance/yes/2025)
+![Maintenance](https://img.shields.io/maintenance/yes/2026)
+
 
 
 # Code author: 
